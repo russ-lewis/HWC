@@ -24,6 +24,10 @@
 
 
 /* Parses  */
+
+/* Add a line type instead */
+
+
 stmt:
 		%empty
 	|	'\n'
