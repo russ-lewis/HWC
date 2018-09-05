@@ -1,0 +1,86 @@
+%{
+#include <string.h>
+#include "parsercommon.h"
+#include "grammar.h"
+
+int recursiveCommentDepth;
+
+%}
+
+%x IN_COMMENT
+%x IN_R_COMMENT
+%x IN_D_BLOCK
+
+%%
+
+<<EOF>>			return 0;
+\n			lineNum++;
+[ \t\r]			/* no action */
+
+
+
+			/* C block comment */
+[/]"*"			BEGIN(IN_COMMENT);
+<IN_COMMENT>"*"+[/]	BEGIN(0);  /* end of comment */
+<IN_COMMENT>\n		lineNum++;
+<IN_COMMENT>.			/* no action */
+
+			/* C++ line comment */
+[/][/][^\n]*			/* no action */
+
+			/* D recursive comment */
+[/][+]			BEGIN(IN_R_COMMENT); recursiveCommentDepth = 1;
+<IN_R_COMMENT>[/][+]	recursiveCommentDepth++;
+<IN_R_COMMENT>[+][/]	recursiveCommentDepth--; if(recursiveCommentDepth == 0) BEGIN(0);
+<IN_R_COMMENT>\n	lineNum++;
+<IN_R_COMMENT>.			/* no action */
+
+			/* C code block to send verbatim to bison */
+[%][{]			BEGIN(IN_D_BLOCK);
+				/* if we had multiple %'s followed by a }    */
+				/* then pass all but the last % as a D_BLOCK */
+				/* else just move on                         */
+<IN_D_BLOCK>[%]+[}]	BEGIN(0); if(strlen(yytext) > 2) { yytext[strlen(yytext)-2] = '\0'; yylval.string = malloc(strlen(yytext)+1); strcpy(yylval.string,yytext); return D_BLOCK; }
+				/* detect a newline in the D_BLOCK */
+<IN_D_BLOCK>\n		lineNum++; yylval.string = "\n"; return D_BLOCK;
+				/* a string of %'s...not followed by a }, or */
+				/* else we would have hit the [%]+[}] rule   */
+				/*    or...       */
+				/* anything else. */
+<IN_D_BLOCK>[%]+|[^\n%]+	yylval.string = malloc(strlen(yytext)+1); strcpy(yylval.string,yytext); return D_BLOCK;
+
+
+\"(\\['"?\\abfnrtv]|[^\\\n"])*\"	yylval.string = AddToTokenTable(yytext); return TOKEN;  /* double quote string */
+'[^']*'					yylval.string = AddToTokenTable(yytext); return TOKEN;  /* single quote string */
+
+
+[%]?_*[a-zA-Z][_a-zA-Z0-9]*		return FindInTokenTable(yytext);
+
+
+[()+*?=:;<>{}[\]|,]		return yytext[0];
+
+[0-9]+				yylval.num = strtoul(yytext,NULL,10); return NUM;
+
+.			printf("LEXER ERROR: %d='%c' at line %d.\n",yytext[0],yytext[0],lineNum); while(!feof(yyin)) putchar(getc(yyin));
+
+%%
+
+int yywrap()
+{
+  return 1;
+}
+
+int init_lex(FILE *fp)
+{
+  if(fp == NULL)
+  {
+    printf("Cannot open input file.\n");
+    return 1;
+  }
+
+  yyrestart(fp);
+  BEGIN(0);
+
+  return 0;
+}
+
