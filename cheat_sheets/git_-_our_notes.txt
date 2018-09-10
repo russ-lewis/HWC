@@ -20,6 +20,22 @@ git pull    # easiest!
     -> get merge <args???>      # merge remote branch into local
 
 
+# branches
+git branch <branch>             # create new branch
+git checkout <branch>           # (inside the current dir) switch local to be committing to <branch>
+git merge master                # pull changes from master into current branch
+     -> if merge fails:
+        - fix files by hand (look for ===)
+        - git add <fixedFile>
+        - git status
+        - git commit (no -m required, git provides it automatically)
+git checkout master; git merge <branch>   # merge a branch into the master
+git branch                      # basic info
+git branch -vv                  # advanced ancestry
+git show-branch                 # show detailed (hard to read!) data about branch histories
+git branch -d <branch>          # delete a branch
+
+
 # guts
 git ls-tree HEAD                # info for head of current local branch
 git branch -vv                  # branch ancestry info, including remote
