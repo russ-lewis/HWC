@@ -1,3 +1,5 @@
+# --- RUSS WAS HERE ---
+
 COMP=gcc -Wall -g -std=gnu99
 #-fprofile-arcs -ftest-coverage
 
