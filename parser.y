@@ -28,16 +28,8 @@
 /* Add a line type instead */
 
 
-stmt:
-		%empty
-	|	'\n'
-	|	'//' comment '\n'
-	|	part
-;
 
-/* Just leave blank so it parses anything? */
-comment:
-;
+
 
 /* Plan for empty parts */
 part:
@@ -45,7 +37,7 @@ part:
 ;
 
 part_stmts:
-		part_stmt part_stmts
+		part_stmts part_stmt
 	|	part_stmt
 ;
 
@@ -54,7 +46,9 @@ part_stmt:
 ;
 
 type:
-		"bit"
+		"Data"
+	|	"bit"
+	|	type '[' NUM ']'
 ;
 
 
