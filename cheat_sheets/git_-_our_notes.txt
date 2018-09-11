@@ -1,0 +1,56 @@
+# getting started
+git clone
+
+
+# status
+git status
+git log
+git ls-tree HEAD                # blob-oriented metadata
+
+
+# commiting changes
+git add <fileOrDir>
+git commit -m "msg"
+git push
+
+
+# syncing with remote
+git pull    # easiest!
+    -> git fetch                # retrieve blobs from remote
+    -> get merge <args???>      # merge remote branch into local
+
+
+# branches
+git branch <branch>             # create new branch
+git checkout <branch>           # (inside the current dir) switch local to be committing to <branch>
+git merge master                # pull changes from master into current branch
+     -> if merge fails:
+        - fix files by hand (look for ===)
+        - git add <fixedFile>
+        - git status
+        - git commit (no -m required, git provides it automatically)
+git checkout master; git merge <branch>   # merge a branch into the master
+git branch                      # basic info
+git branch -vv                  # advanced ancestry
+git show-branch                 # show detailed (hard to read!) data about branch histories
+git branch -d <branch>          # delete a branch
+
+
+# guts
+git ls-tree HEAD                # info for head of current local branch
+git branch -vv                  # branch ancestry info, including remote
+git rev-parse HEAD              # blob for the head of local
+git rev-parse commit HEAD       # info of last commit at head (I think)
+
+git cat-file -t <hash>          # get type of a blob
+git cat-file -p <hash>          # show contents of blob
+
+
+# --- a "git commit" is: ---   (see git.from.bottom.up.pdf)
+    git write-tree
+         (gives hash of the tree)
+    echo "msg" | git commit-tree <hashOfTree>
+         (gives hash of the commit)
+    git update-ref refs/heads/master <commitHash>   # echo <hash> > .git/refs/heads/master
+    git symbolic-ref HEAD refs/heads/master   # is this only for init, or every time???
+
