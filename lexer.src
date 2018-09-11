@@ -1,0 +1,22 @@
+/* The following site was referred to for sample code */
+/* https://www.saltycrane.com/blog/2007/02/example-using-bison-and-flex-with/ */
+
+
+
+
+%%
+
+/* Reserved words list */
+"part"							{ return PART; }
+"bit"								{ return BIT; }
+
+/* Other token types */
+[0-9][0-9]*						{ return NUM; }
+[a-zA-Z][_a-zA-Z0-9]*		{ return IDENT; }
+
+[;]								{ return *yytext; }
+[ \t\n]							/* Consume all whitespace */
+
+
+
+%%
