@@ -16,6 +16,8 @@
 %}
 
 /* Bison declarations */
+%token PART
+%token BIT
 %token NUM
 %token IDENT
 
@@ -27,13 +29,9 @@
 
 /* Add a line type instead */
 
-
-
-
-
 /* Plan for empty parts */
 part:
-		"part" IDENT '{' part_stmts '}'
+		PART IDENT '{' part_stmts '}'
 ;
 
 part_stmts:
@@ -42,12 +40,12 @@ part_stmts:
 ;
 
 part_stmt:
-		type IDENT ';'
+		%empty				/* ie, there can be an empty lines within parts */
+	|	type IDENT ';'
 ;
 
 type:
-		"Data"
-	|	"bit"
+		BIT
 	|	type '[' NUM ']'
 ;
 
@@ -83,37 +81,3 @@ void yyerror(char const *s)
 {
 	fprintf(stderr, "%s\n", s);
 }
-
-
-
-// This lexer is copied nearly verbatim from the sources listed in the header,
-// except with minor modifications for my style of coding.
-// Can only process integers.
-/*
-int yylex()
-{
-	int c;
-
-	do
-	{
-		// Read any input in stdin, or wait for stdin input
-		c = getchar();
-		continue;
-	} while(c == ' ' || c == '\t');
-
-	// If a number is encountered
-	if(isdigit(c))
-	{
-		ungetc(c, stdin);
-		// This scans the whole number into one element on the stack
-		scanf("%lf", &yylval);
-		return NUM;
-	}
-
-	// If EOF or any non-number/non-whitespace is encountered
-	if(c == EOF)
-		return 0;
-	else
-		return c;
-}
-*/
