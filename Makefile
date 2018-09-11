@@ -9,7 +9,7 @@ parser : parser.tab.c
 	$(COMP) -o parser parser.tab.c -lm
 
 parser.tab.c : parser.y
-	bison parser.y
+	bison --report=state parser.y
 
 
 
