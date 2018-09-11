@@ -1,6 +1,6 @@
 parser.output
 parser.tab.c
 parser.tab.h
-lex.c
-parser.exe
-parser
+lex.yy.c
+hwcParser.exe
+hwcParser

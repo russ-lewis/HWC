@@ -3,26 +3,25 @@ COMP=gcc -Wall -g -std=gnu99
 
 
 
-all : parser
+all : hwcParser
 
-##### Used by all files
-
-parser : parser.tab.c lex.c
-	$(COMP) -o parser parser.tab.c lex.c -lm -lfl
-
-parser.tab.c : parser.y
-	bison --verbose -d parser.y
-
-lex.c: lex.src
-	flex -olex.c lex.src
+hwcParser : lex.yy.c parser.tab.c
+	$(COMP) -o hwcParser lex.yy.c parser.tab.c -lm
 
 
+# https://stackoverflow.com/questions/13436832/bison-not-creating-the-tab-h-file
+parser.tab.c parser.tab.h : parser.y
+	bison --report=state -d parser.y
 
-#utility.o : utility.c
-#	$(COMP) -c utility.c
+lex.yy.c : lexer.src parser.tab.h
+	flex lexer.src
+
 
 ##### CLEANING
 
 clean : 
-	-rm -f parser.tab.c parser lex.c grammar.h
+	-rm -f parser.tab.c
+	-rm -f parser.tab.h
+	-rm -f lex.yy.c
+	-rm -f hwcParser
 #add @ in front of -rm is you wanna cancel the output to stdout

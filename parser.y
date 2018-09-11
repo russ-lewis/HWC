@@ -43,10 +43,6 @@
 
 /* Add a line type instead */
 
-
-
-
-
 /* Plan for empty parts */
 part:
 		"part" IDENT '{' part_stmts '}'
@@ -58,12 +54,12 @@ part_stmts:
 ;
 
 part_stmt:
-		type IDENT ';'
+		%empty				/* ie, there can be an empty lines within parts */
+	|	type IDENT ';'
 ;
 
 type:
-		"Data"
-	|	"bit"
+		"bit"
 	|	type '[' NUM ']'
 ;
 
