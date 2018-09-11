@@ -69,6 +69,38 @@ expr:
 	|	expr 'n'			{ $$ = -1 * $1; }
 ;
 */
+
+
+plugtype_decl:
+		"plugtype" IDENT '{' opt_plugtype_fields '}'
+;
+
+opt_plugtype_fields:
+		/* empty */
+	|	plugtype_fields
+;
+
+plugtype_fields:
+		                plugtype_field
+	|	plugtype_fields plugtype_field
+;
+
+plugtype_field:
+		type IDENT opt_arrayDecls ';'
+;
+
+
+opt_arrayDecls:
+		/* empty */
+	|	arrayDecls
+;
+
+arrayDecls:
+		           '[' expr ']'
+	|	arrayDecls '[' expr ']'
+;
+
+
 %%
 
 
