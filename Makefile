@@ -7,13 +7,9 @@ hwcParser : lex.yy.c parser.tab.c
 	$(COMP) -o hwcParser lex.yy.c parser.tab.c -lm
 
 
-parser.tab.c : parser.y
-	bison --report=state parser.y
-
-
 # https://stackoverflow.com/questions/13436832/bison-not-creating-the-tab-h-file
-parser.tab.h : parser.y
-	bison -d parser.y
+parser.tab.c parser.tab.h : parser.y
+	bison --report=state -d parser.y
 
 
 lex.yy.c : lexer.src parser.tab.h
