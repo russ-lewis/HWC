@@ -8,6 +8,8 @@
 %}
 /* https://stackoverflow.com/questions/1811125/undefined-reference-to-yywrap */
 %option noyywrap
+%option nounput
+%option noinput
 
 
 %%
