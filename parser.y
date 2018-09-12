@@ -1,3 +1,4 @@
+
 /*
 	A very rough parser for Hardware C
 */
@@ -15,6 +16,12 @@
 
 	int yylex(void);
 	void yyerror(char const *);
+
+
+/* I don't have any need of this, but without it, Bison won't give me
+ * access to yytoknum[].  (sigh).  -Russ
+ */
+#define YYPRINT(fp, yychar, yylval)   do {} while(0)
 %}
 
 
@@ -22,8 +29,8 @@
 /* these are the tokens which are not implicitly declared with "keyword"
  * down in the grammar below.
  */
-%token NUM
-%token IDENT
+%token<str> NUM
+%token<str> IDENT
 
 /* this generates the yytname[] table, used by tokenLookup() below */
 %token-table
@@ -39,13 +46,25 @@
 %%
 
 
-/* Parses  */
 
-/* Add a line type instead */
+file:
+		     file_decl
+	|	file file_decl
+;
+file_decl:
+		part_decl
+	|	plugtype_decl
+;
 
-/* Plan for empty parts */
-part:
-		"part" IDENT '{' part_stmts '}'
+
+
+part_decl:
+		"part" IDENT '{' opt_part_stmts '}'		{ printf("User added a [part] with name [%s]\n", $2); }
+;
+
+opt_part_stmts:
+		%empty
+	|	part_stmts
 ;
 
 part_stmts:
@@ -54,37 +73,55 @@ part_stmts:
 ;
 
 part_stmt:
-		%empty				/* ie, there can be an empty lines within parts */
-	|	type IDENT ';'
+		type IDENT ';'							{ printf("-Statement of type [-TODO-] with name [%s]\n", $2); }
 ;
 
 type:
 		"bit"
-	|	type '[' NUM ']'
+	|	type '[' NUM ']'						{ printf("--Array of size [%s] declared\n", $3); }
 ;
 
 
-/*
-stmt:
+
+plugtype_decl:
+		"plugtype" IDENT '{' opt_plugtype_fields '}'
+;
+
+opt_plugtype_fields:
 		%empty
-	|	stmt line
+	|	plugtype_fields
 ;
-line:
-		'\n'
-	|	expr '\n'	{ printf("   %g\n", $1); }
-;
-expr:
-		NUM				{ $$ = $1; }
-	|	expr expr '+'	{ $$ = $1 + $2; }
-	|	expr expr '-'	{ $$ = $1 - $2; }
-	|	expr expr '*'	{ $$ = $1 * $2; }
-	|	expr expr '/'	{ $$ = $1 / $2; }
-	|	expr expr '^'	{ $$ = pow($1, $2); }
-	|	expr 'n'			{ $$ = -1 * $1; }
-;
-*/
-%%
 
+plugtype_fields:
+		                plugtype_field
+	|	plugtype_fields plugtype_field
+;
+
+plugtype_field:
+		type IDENT opt_arrayDecls ';'
+;
+
+
+opt_arrayDecls:
+		%empty
+	|	arrayDecls
+;
+
+arrayDecls:
+		           '[' expr ']'
+	|	arrayDecls '[' expr ']'
+;
+
+
+
+expr:
+	    /* TODO: add lots more! */
+	  IDENT
+;
+
+
+
+%%
 
 int main()
 {
@@ -142,7 +179,9 @@ int tokenLookup(char *str, int assertFound)
 		   yytname[i][len+1] == '"'             &&
 		   yytname[i][len+2] == '\0')
 		{
-			return i;
+printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
+
+			return yytoknum[i];
 		}
 	}
 
@@ -155,6 +194,7 @@ int tokenLookup(char *str, int assertFound)
 		assert(0);   // TODO
 	}
 
+printf("tokenLookup(): str=\"%s\" returning IDENT\n", str);
 	/* otherwise, save the string in the yylval, and we can return */
 	yylval.str = strdup(str);
 	return IDENT;
