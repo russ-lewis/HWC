@@ -13,6 +13,7 @@
 	#include <assert.h>
 
 	#include "parsercommon.h"
+	#include "parse_tree/all.h"
 
 	int yylex(void);
 	void yyerror(char const *);
