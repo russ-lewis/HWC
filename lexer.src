@@ -6,6 +6,7 @@
 #include "parser.tab.h"
 
 %}
+/* https://stackoverflow.com/questions/1811125/undefined-reference-to-yywrap */
 %option noyywrap
 %option nounput
 %option noinput
@@ -14,8 +15,8 @@
 %%
 
 	/* Reserved words list */
-"part"							{ return PART; }
-"bit"								{ return BIT; }
+part								{ return PART; }
+bit								{ return BIT; }
 
 	/* Other token types */
 [0-9][0-9]*						{ return NUM; }
@@ -23,6 +24,7 @@
 
 [;]								{ return *yytext; }
 [ \t\n]							/* Consume all whitespace */
+.									{ return *yytext; }
 
 %%
 

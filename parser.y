@@ -1,3 +1,4 @@
+
 /*
 	A very rough parser for Hardware C
 */
@@ -8,11 +9,14 @@
 	#include <math.h>
 	#include <stdio.h>
 	#include <ctype.h>
+	#include <string.h>
 	int yylex(void);
 	void yyerror(char const *);
 
-	// Allows for input and output to be in double
-	#define YYSTYPE double
+	#define YYSTYPE char *
+
+	/* https://stackoverflow.com/questions/6588624/yacc-bison-the-pseudo-variables-1-2-and-how-to-print-them-using-pri?rq=1 */
+	extern char *yytext;
 %}
 
 /* Bison declarations */
@@ -27,11 +31,11 @@
 
 /* Parses  */
 
-/* Add a line type instead */
 
+/* Add a line type instead */
 /* Plan for empty parts */
 part:
-		PART IDENT '{' part_stmts '}'
+		Part Ident '{' part_stmts '}'		{ printf("User added a [%s] with name [%s]\n", $1, $2); }
 ;
 
 part_stmts:
@@ -40,35 +44,31 @@ part_stmts:
 ;
 
 part_stmt:
-		%empty				/* ie, there can be an empty lines within parts */
-	|	type IDENT ';'
+		%empty									/* ie, there can be an empty lines within parts */
+	|	type Ident ';'							{ printf("-Statement of type [%s] with name [%s]\n", $1, $2); }
 ;
 
 type:
-		BIT
-	|	type '[' NUM ']'
+		Bit
+	|	type '[' Num ']'						{ printf("--Array of size [%s] declared\n", $3); }
 ;
 
 
-/*
-stmt:
-		%empty
-	|	stmt line
+
+/* Conversion to string for all tokens. See the link above "extern char" in the first section for more info. */
+Part:
+		PART		{ $$ = strdup(yytext); }
 ;
-line:
-		'\n'
-	|	expr '\n'	{ printf("   %g\n", $1); }
+Bit:
+		BIT		{ $$ = strdup(yytext); }
 ;
-expr:
-		NUM				{ $$ = $1; }
-	|	expr expr '+'	{ $$ = $1 + $2; }
-	|	expr expr '-'	{ $$ = $1 - $2; }
-	|	expr expr '*'	{ $$ = $1 * $2; }
-	|	expr expr '/'	{ $$ = $1 / $2; }
-	|	expr expr '^'	{ $$ = pow($1, $2); }
-	|	expr 'n'			{ $$ = -1 * $1; }
+Num:
+		NUM		{ $$ = strdup(yytext); }
 ;
-*/
+Ident:
+		IDENT		{ $$ = strdup(yytext); }
+;
+
 
 
 plugtype_decl:
@@ -76,7 +76,7 @@ plugtype_decl:
 ;
 
 opt_plugtype_fields:
-		/* empty */
+		%empty
 	|	plugtype_fields
 ;
 
@@ -91,7 +91,7 @@ plugtype_field:
 
 
 opt_arrayDecls:
-		/* empty */
+		%empty
 	|	arrayDecls
 ;
 
@@ -101,8 +101,15 @@ arrayDecls:
 ;
 
 
-%%
 
+expr:
+	    /* TODO: add lots more! */
+	  Ident
+;
+
+
+
+%%
 
 int main()
 {

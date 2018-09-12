@@ -1,5 +1,5 @@
 part testPart {
 
 	bit varname;
-	bit varname2[2];	
+	bit[2] varname2;
 }
