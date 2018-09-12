@@ -36,10 +36,35 @@
 /* this generates the yytname[] table, used by tokenLookup() below */
 %token-table
 
+
+
 /* this declares the various types which can be stored in yylval. */
 %union {
 	char *str;
+
+	Parser_File      *file;
+	Parser_File_Decl *fileDecl;
+
+	Parser_Part_Decl *partDecl;
+	Parser_Part_Stmt *partStmt;
+
+	Parser_Plugtype_Decl *plugtypeDecl;
+
+	Parser_Type *type;
 }
+
+%type<file>     file
+%type<fileDecl> file_decls
+%type<fileDecl> file_decl
+
+%type<partDecl> part_decl
+%type<partStmt> opt_part_stmts
+%type<partStmt> part_stmts
+%type<partStmt> part_stmt
+
+%type<plugtypeDecl> plugtype_decl
+
+%type<type> type
 
 
 
@@ -49,43 +74,59 @@
 
 
 file:
-		     file_decl
-	|	file file_decl
+		%empty             { $$ = malloc(sizeof(Parser_File));
+		                     $$->decls = NULL; }
+
+	|	file_decls         { $$ = malloc(sizeof(Parser_File));
+		                     $$->decls = $1; }
 ;
+
+file_decls:
+		           file_decl   { $$ = $1; }
+	|	file_decls file_decl   { $$ = $2; $$->prev = $1; }
+;
+
 file_decl:
-		part_decl
-	|	plugtype_decl
+		part_decl        { $$ = malloc(sizeof(Parser_File_Decl));
+		                   $$->partDecl = $1; }
+
+	|	plugtype_decl    { $$ = malloc(sizeof(Parser_File_Decl));
+		                   $$->plugtypeDecl = $1; }
 ;
 
 
 
 part_decl:
-		"part" IDENT '{' opt_part_stmts '}'		{ printf("User added a [part] with name [%s]\n", $2); }
+		"part" IDENT '{' opt_part_stmts '}'
+		                 { printf("User added a [part] with name [%s]\n", $2);
+		                   $$ = malloc(sizeof(Parser_Part_Decl));
+		                   $$->name  = $2;
+		                   $$->stmts = $4; }
 ;
 
 opt_part_stmts:
-		%empty
-	|	part_stmts
+		%empty       { $$ = NULL; }
+	|	part_stmts   { $$ = $1; }
 ;
 
 part_stmts:
-		part_stmts part_stmt
-	|	part_stmt
+		           part_stmt   { $$ = $1; }
+	|	part_stmts part_stmt   { $$ = $2; $$->prev = $1; }
 ;
 
 part_stmt:
-		type IDENT ';'							{ printf("-Statement of type [-TODO-] with name [%s]\n", $2); }
-;
-
-type:
-		"bit"
-	|	type '[' NUM ']'						{ printf("--Array of size [%s] declared\n", $3); }
+		type IDENT ';'   { printf("-Statement of type [-TODO-] with name [%s]\n", $2);
+		                   $$ = malloc(sizeof(Parser_Part_Stmt));
+		                   $$->type = $1;
+			           $$->name = $2; }
 ;
 
 
 
 plugtype_decl:
 		"plugtype" IDENT '{' opt_plugtype_fields '}'
+		                 { $$ = malloc(sizeof(Parser_Plugtype_Decl));
+		                   /* TODO */ }
 ;
 
 opt_plugtype_fields:
@@ -111,6 +152,20 @@ opt_arrayDecls:
 arrayDecls:
 		           '[' expr ']'
 	|	arrayDecls '[' expr ']'
+;
+
+
+
+type:
+		"bit"              { $$ = malloc(sizeof(Parser_Type));
+		                     $$->opt = TYPE_BIT; }
+
+		// TODO: replace NUM with expr!
+	|	type '[' NUM ']'   { printf("--Array of size [%s] declared\n", $3);
+		                     $$ = malloc(sizeof(Parser_Type));
+		                     $$->opt = TYPE_ARRAY;
+		                     $$->base = $1;
+		                     $$->len  = $3; }
 ;
 
 
