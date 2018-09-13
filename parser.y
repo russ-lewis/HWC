@@ -13,7 +13,7 @@
 	#include <assert.h>
 
 	#include "parsercommon.h"
-	#include "parse_tree/all.h"
+	#include "pt/all.h"
 
 	int yylex(void);
 	void yyerror(char const *);
@@ -42,29 +42,42 @@
 %union {
 	char *str;
 
-	Parser_File      *file;
-	Parser_File_Decl *fileDecl;
+	PT_file      *file;
+	PT_file_decl *file_decl;
 
-	Parser_Part_Decl *partDecl;
-	Parser_Part_Stmt *partStmt;
+	PT_part_decl *part_decl;
+	PT_part_stmt *part_stmt;
 
-	Parser_Plugtype_Decl *plugtypeDecl;
+	PT_plugtype_decl  *plugtype_decl;
+	PT_plugtype_field *plugtype_field;
 
-	Parser_Type *type;
+	PT_array_decl *array_decl;
+
+	PT_type *type;
+
+	PT_expr *expr;
 }
 
-%type<file>     file
-%type<fileDecl> file_decls
-%type<fileDecl> file_decl
+%type<file>      file
+%type<file_decl> file_decls
+%type<file_decl> file_decl
 
-%type<partDecl> part_decl
-%type<partStmt> opt_part_stmts
-%type<partStmt> part_stmts
-%type<partStmt> part_stmt
+%type<part_decl> part_decl
+%type<part_stmt> opt_part_stmts
+%type<part_stmt> part_stmts
+%type<part_stmt> part_stmt
 
-%type<plugtypeDecl> plugtype_decl
+%type<plugtype_decl>  plugtype_decl
+%type<plugtype_field> opt_plugtype_fields
+%type<plugtype_field> plugtype_fields
+%type<plugtype_field> plugtype_field
+
+%type<array_decl> opt_array_decls
+%type<array_decl> array_decls
 
 %type<type> type
+
+%type<expr> expr
 
 
 
@@ -74,10 +87,10 @@
 
 
 file:
-		%empty             { $$ = malloc(sizeof(Parser_File));
+		%empty             { $$ = malloc(sizeof(PT_file));
 		                     $$->decls = NULL; }
 
-	|	file_decls         { $$ = malloc(sizeof(Parser_File));
+	|	file_decls         { $$ = malloc(sizeof(PT_file));
 		                     $$->decls = $1; }
 ;
 
@@ -87,10 +100,10 @@ file_decls:
 ;
 
 file_decl:
-		part_decl        { $$ = malloc(sizeof(Parser_File_Decl));
+		part_decl        { $$ = malloc(sizeof(PT_file_decl));
 		                   $$->partDecl = $1; }
 
-	|	plugtype_decl    { $$ = malloc(sizeof(Parser_File_Decl));
+	|	plugtype_decl    { $$ = malloc(sizeof(PT_file_decl));
 		                   $$->plugtypeDecl = $1; }
 ;
 
@@ -99,7 +112,7 @@ file_decl:
 part_decl:
 		"part" IDENT '{' opt_part_stmts '}'
 		                 { printf("User added a [part] with name [%s]\n", $2);
-		                   $$ = malloc(sizeof(Parser_Part_Decl));
+		                   $$ = malloc(sizeof(PT_part_decl));
 		                   $$->name  = $2;
 		                   $$->stmts = $4; }
 ;
@@ -116,7 +129,7 @@ part_stmts:
 
 part_stmt:
 		type IDENT ';'   { printf("-Statement of type [-TODO-] with name [%s]\n", $2);
-		                   $$ = malloc(sizeof(Parser_Part_Stmt));
+		                   $$ = malloc(sizeof(PT_part_stmt));
 		                   $$->type = $1;
 			           $$->name = $2; }
 ;
@@ -125,45 +138,58 @@ part_stmt:
 
 plugtype_decl:
 		"plugtype" IDENT '{' opt_plugtype_fields '}'
-		                 { $$ = malloc(sizeof(Parser_Plugtype_Decl));
-		                   /* TODO */ }
+		                 { $$ = malloc(sizeof(PT_plugtype_decl));
+		                   $$->name   = $2;
+		                   $$->fields = $4; }
 ;
 
 opt_plugtype_fields:
-		%empty
-	|	plugtype_fields
+		%empty           { $$ = NULL; }
+	|	plugtype_fields  { $$ = $1;   }
 ;
 
 plugtype_fields:
-		                plugtype_field
-	|	plugtype_fields plugtype_field
+		                plugtype_field   { $$ = $1; $$->prev = NULL; }
+	|	plugtype_fields plugtype_field   { $$ = $2; $$->prev = $1;   }
 ;
 
 plugtype_field:
-		type IDENT opt_arrayDecls ';'
+		type IDENT opt_array_decls ';'
+		                 { $$ = malloc(sizeof(PT_plugtype_field));
+		                   $$->type = $1;
+		                   $$->name = $2;
+		                   $$->arraySuffix = $3; }
 ;
 
 
-opt_arrayDecls:
-		%empty
-	|	arrayDecls
+opt_array_decls:
+		%empty            { $$ = NULL; }
+	|	array_decls       { $$ = $1;   }
 ;
 
-arrayDecls:
-		           '[' expr ']'
-	|	arrayDecls '[' expr ']'
+array_decls:
+		            '[' expr ']'
+		                  { $$ = malloc(sizeof(PT_array_decl));
+		                    $$->size = $2;
+		                    $$->prev = NULL; }
+
+	|	array_decls '[' expr ']'
+		                  { $$ = malloc(sizeof(PT_array_decl));
+		                    $$->size = $3;
+		                    $$->prev = $1; }
+
 ;
 
 
 
 type:
-		"bit"              { $$ = malloc(sizeof(Parser_Type));
-		                     $$->opt = TYPE_BIT; }
+		"bit"              { $$ = malloc(sizeof(PT_type));
+		                     $$->mode = TYPE_BIT; }
 
 		// TODO: replace NUM with expr!
 	|	type '[' NUM ']'   { printf("--Array of size [%s] declared\n", $3);
-		                     $$ = malloc(sizeof(Parser_Type));
-		                     $$->opt = TYPE_ARRAY;
+		                     $$ = malloc(sizeof(PT_type));
+		                     $$->mode = TYPE_ARRAY;
 		                     $$->base = $1;
 		                     $$->len  = $3; }
 ;
@@ -171,8 +197,12 @@ type:
 
 
 expr:
+		IDENT
+		         { $$ = malloc(sizeof(PT_expr));
+		           $$->mode = EXPR_IDENT;
+		           $$->name = $1; }
+
 	    /* TODO: add lots more! */
-	  IDENT
 ;
 
 

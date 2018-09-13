@@ -2,7 +2,7 @@
 #define __PARSE_TREE__TYPE_H__INCLUDED__
 
 
-typedef struct Parser_Type Parser_Type;
+typedef struct PT_type PT_type;
 
 
 enum {
@@ -10,15 +10,15 @@ enum {
 	TYPE_ARRAY,
 };
 
-struct Parser_Type
+struct PT_type
 {
 	/* choose from the enum above */
-	int opt;
+	int mode;
 
 	/* TYPE_BIT - no fields */
 
 	/* TYPE_ARRAY */
-	Parser_Type *base;
+	PT_type *base;
 	char        *len;
 };
 
