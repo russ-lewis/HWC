@@ -1,6 +1,8 @@
 COMP=gcc -Wall -g -std=gnu99
 #-fprofile-arcs -ftest-coverage
 
+
+
 all : hwcParser
 
 hwcParser : lex.yy.c parser.tab.c
@@ -10,7 +12,6 @@ hwcParser : lex.yy.c parser.tab.c
 # https://stackoverflow.com/questions/13436832/bison-not-creating-the-tab-h-file
 parser.tab.c parser.tab.h : parser.y
 	bison --report=state -d parser.y
-
 
 lex.yy.c : lexer.src parser.tab.h
 	flex lexer.src
