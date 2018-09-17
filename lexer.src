@@ -91,11 +91,8 @@ int yydebug = 1;
    * However, if we do *NOT* find a match, then the word will be copied to a
    * malloc() buffer, the pointer will be saved to yylval, and this function
    * will return IDENT.
-   *
-   * TODO: This rule will tolerate an "identifier" made up entirely of
-   *       underscores - including a single!  Is this by design???
    */
-[_a-zA-Z][_a-zA-Z0-9]*		return tokenLookup(yytext, 0);
+_*[a-zA-Z][_a-zA-Z0-9]*		return tokenLookup(yytext, 0);
 
 
 
@@ -113,12 +110,9 @@ int yydebug = 1;
    *    - The ability to continue to "pretty print" this constant in debug
    *      statements, exactly as it was coded.
    *    - The ability to support bigint.
-   *
-   * TODO: If we forbid all-underscores in the possibly-IDENT rule above, then
-   *       we have to do the same here.
    */
-[_1-9][_0-9]*		yylval.str = strdup(yytext); return NUM;
-0x[_0-9a-fA-F]+		yylval.str = strdup(yytext); return NUM;
+_*[1-9][_0-9]*			yylval.str = strdup(yytext); return NUM;
+0x_*[0-9a-fA-F][_0-9a-fA-F]*	yylval.str = strdup(yytext); return NUM;
 
 
 
