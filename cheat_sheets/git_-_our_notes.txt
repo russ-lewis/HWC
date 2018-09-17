@@ -11,11 +11,13 @@ git ls-tree HEAD                # blob-oriented metadata
 # commiting changes
 git add <fileOrDir>
 git commit -m "msg"
-git push
+git push                        # pushes *current* branch
+git push -all                   # pushes *all* branches
+git push -u origin <branch>     # creates a mirror of <branch> on the remote
 
 
 # syncing with remote
-git pull    # easiest!
+git pull                        # easiest!
     -> git fetch                # retrieve blobs from remote
     -> get merge <args???>      # merge remote branch into local
 
