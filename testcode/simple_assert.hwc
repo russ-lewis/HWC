@@ -1,0 +1,6 @@
+part simple_assert
+{
+	public bit a,b;
+	assert(a == b);
+}
+

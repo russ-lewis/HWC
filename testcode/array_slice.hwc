@@ -1,0 +1,14 @@
+part array_slice
+{
+	public bit[16] in;
+	public bit[32] out;
+	public bit[16] shiftLeft4;
+
+	out[..16] = in;
+	for (i; 16..32)
+		out[i] = in[15];
+
+	shiftLeft4[4..]  = out[..28];   // high bits
+	shiftLeft4[0..3] = 0;           // low bits
+}
+

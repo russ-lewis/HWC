@@ -1,0 +1,12 @@
+part safe_loop_connections
+{
+	public bit[6]  breakAt;
+	public bit[64] points;
+
+	for (i; 0..64)
+	{
+		if (breakAt != i)
+			points[(i+1)%64] = points[i];
+	}
+}
+
