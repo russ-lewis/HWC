@@ -132,7 +132,7 @@ part_stmt:
 		                   $$ = malloc(sizeof(PT_part_stmt));
 		                   $$->type = $1;
 			           $$->name = $2; }
-	|	expr '=' expr ';'   { TODO }
+	|	expr '=' expr ';'   { /* TODO */ }
 ;
 
 
