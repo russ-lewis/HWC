@@ -1,0 +1,12 @@
+part simple_if
+{
+	public bit control;
+	public bit[2] in;
+	public bit out;
+
+	if (control == 0)
+		out = in[0];
+	else
+		out = in[1];
+}
+

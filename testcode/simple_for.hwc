@@ -1,0 +1,9 @@
+part simple_for
+{
+	public bit[32] in;
+	public bit[32] out;
+
+	for (i; 0..32)
+		out[i] = in[i];
+}
+
