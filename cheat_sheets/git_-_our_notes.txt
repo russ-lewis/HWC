@@ -16,6 +16,11 @@ git push -all                   # pushes *all* branches
 git push -u origin <branch>     # creates a mirror of <branch> on the remote
 
 
+# saving changes without committing (before a temporary switch to another branch, maybe)
+git stash                       # save changes, restores dir to pristine
+git stash pop                   # restore changes into working directory
+
+
 # syncing with remote
 git pull                        # easiest!
     -> git fetch                # retrieve blobs from remote

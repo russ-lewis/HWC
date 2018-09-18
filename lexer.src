@@ -110,8 +110,13 @@ _*[a-zA-Z][_a-zA-Z0-9]*		return tokenLookup(yytext, 0);
    *    - The ability to continue to "pretty print" this constant in debug
    *      statements, exactly as it was coded.
    *    - The ability to support bigint.
+   *
+   * BUGFIX: I forgot to add support for the simple 0 constant!  But if I add
+   *         this, then I *also* need to handle octal constants, so that 012
+   *         (octal) is not parsed as 0 and then 12.  (sigh)
    */
-_*[1-9][_0-9]*			yylval.str = strdup(yytext); return NUM;
+0[0-7]+				{ printf("ERROR: Octal constants not supported in HWC!!!\n"); return 256; }
+0|_*[1-9][_0-9]*		yylval.str = strdup(yytext); return NUM;
 0x_*[0-9a-fA-F][_0-9a-fA-F]*	yylval.str = strdup(yytext); return NUM;
 
 
