@@ -203,7 +203,8 @@ expr:
 		           $$->mode = EXPR_IDENT;
 		           $$->name = $1; }
 
-	    /* TODO: add lots more! */
+	|	expr '[' expr ']'   { /* TODO */ }
+	|	'!' expr            { /* TODO */ }
 ;
 
 
