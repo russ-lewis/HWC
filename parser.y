@@ -78,6 +78,8 @@
 %type<type> type
 
 %type<expr> expr
+%type<expr> expr2
+%type<expr> expr3
 
 
 
@@ -198,13 +200,20 @@ type:
 
 
 expr:
+		expr2
+	|	'!' expr            { /* TODO */ }
+;
+
+expr2:
+		expr3
+	|	expr2 '[' expr ']'   { /* TODO */ }
+;
+
+expr3:
 		IDENT
 		         { $$ = malloc(sizeof(PT_expr));
 		           $$->mode = EXPR_IDENT;
 		           $$->name = $1; }
-
-	|	expr '[' expr ']'   { /* TODO */ }
-	|	'!' expr            { /* TODO */ }
 ;
 
 
