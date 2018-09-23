@@ -131,8 +131,11 @@ part_stmt:
 		type IDENT ';'   { printf("-Statement of type [-TODO-] with name [%s]\n", $2);
 		                   $$ = malloc(sizeof(PT_part_stmt));
 		                   $$->type = $1;
-			           $$->name = $2; }
-	|	expr '=' expr ';'   { TODO }
+			                $$->name = $2; }
+	|	expr '=' expr ';'   { printf("-Statement of expr = expr\n");
+									 $$ = malloc(sizeof(PT_part_stmt));
+									 $$->type = NULL;
+									 $$->name = NULL; }	/* NOTE: This could all easily be incorrect */
 ;
 
 
@@ -266,7 +269,7 @@ int tokenLookup(char *str, int assertFound)
 		   yytname[i][len+1] == '"'             &&
 		   yytname[i][len+2] == '\0')
 		{
-printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
+	printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
 
 			return yytoknum[i];
 		}

@@ -1,7 +1,7 @@
 part testPart {
-	public bit    input;
-	public bit[2] output;
+	bit input;
+	bit output;
+	// Add public later
 
-	output[0] =  input;
-	output[1] = !input;
+	output = input;
 }
