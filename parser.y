@@ -91,7 +91,9 @@ file:
 		                     $$->decls = NULL; }
 
 	|	file_decls         { $$ = malloc(sizeof(PT_file));
-		                     $$->decls = $1; }
+		                     $$->decls = $1; 
+									printf("---Debug output begins?---\n");
+									dump_file($$, 0); }
 ;
 
 file_decls:
