@@ -24,9 +24,9 @@ struct PT_part_stmt
 	/* linked list, in reverse order of declaration */
 	PT_part_stmt *prev;
 
+	int     isPub;
 	PT_type *type;
 	char    *name;
-	int     isPub;
 };
 
 
@@ -46,4 +46,3 @@ void dump_array_decl(PT_array_decl *obj, int spaces);
 
 
 #endif
-

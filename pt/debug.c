@@ -121,6 +121,35 @@ void dump_plugtype_field(PT_plugtype_field *obj, int spaces)
 }
 
 
+// ---- DECLARED IN pt/stmt.h ----
+
+void dump_stmt(PT_stmt *obj, int spaces)
+{
+	if(obj == NULL)
+		return;
+
+	dump_helper(spaces);
+
+	switch (obj->mode)
+	{
+		default:
+			printf("-- debug: UNRECOGNIZED STMT ---\n");
+			break;
+
+		case STMT_CONN:
+			printf("stmt: CONNECTION\n");
+			break;
+
+		case STMT_FOR:
+			printf("stmt: FOR LOOP\n");
+			break;
+
+		case STMT_IF:
+			printf("stmt: IF CHECK\n");
+	}
+
+}
+
 
 // ---- DECLARED IN pt/type.h ----
 
