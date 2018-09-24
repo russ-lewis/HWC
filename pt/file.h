@@ -27,7 +27,7 @@ struct PT_file_decl
 
 // Debug functions
 
-static void dump_file(PT_file *obj, int spaces)
+static inline void dump_file(PT_file *obj, int spaces)
 {
 	if(dump_helper(obj, spaces) == 1)
 		return;
