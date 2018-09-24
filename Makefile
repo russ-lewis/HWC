@@ -3,13 +3,18 @@ COMP=gcc -Wall -g -std=gnu99
 
 
 
-ALL_PT=$(wildcard pt/*.h)
+ALL_HEADERS=$(wildcard pt/*.h senamtic/*.h)
+
+PARSE_SRC=lex.yy.c parser.tab.c
+PT_SRC=pt/debug.c
+SEM_SRC=semantic/names.c
+
 
 
 all : hwcParser
 
-hwcParser : lex.yy.c parser.tab.c $(ALL_PT)
-	$(COMP) -o hwcParser lex.yy.c parser.tab.c pt/debug.c -lm
+hwcParser : $(ALL_HEADERS) $(PARSE_SRC) $(PT_SRC) $(SEM_SRC)
+	$(COMP) -o hwcParser $(PARSE_SRC) $(PT_SRC) $(SEM_SRC) -lm
 
 
 # https://stackoverflow.com/questions/13436832/bison-not-creating-the-tab-h-file
