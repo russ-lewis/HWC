@@ -25,7 +25,8 @@ struct PT_part_stmt
 	PT_part_stmt *prev;
 
 	PT_type *type;
-	char        *name;
+	char    *name;
+	int     isPub;
 };
 
 

@@ -7,7 +7,8 @@ typedef struct PT_type PT_type;
 
 enum {
 	TYPE_BIT = 1,
-	TYPE_ARRAY = 2,
+	TYPE_ARRAY,
+	TYPE_IDENT,
 };
 
 struct PT_type
@@ -19,7 +20,10 @@ struct PT_type
 
 	/* TYPE_ARRAY */
 	PT_type *base;
-	char        *len;
+	char    *len;
+
+	/* TYPE_IDENT */
+	char	  *ident;
 };
 
 

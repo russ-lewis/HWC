@@ -63,7 +63,7 @@ void dump_part_stmt(PT_part_stmt *obj, int spaces)
 	if(dump_helper(obj, spaces) == 1)
 		return;
 
-   printf("Part_stmt: named '%s', with type:\n", obj->name);
+   printf("Part_stmt: named '%s', %s with type:\n", obj->name, obj->isPub?"public":"private");
 	dump_type(obj->type, spaces+2);
 	dump_part_stmt(obj->prev, spaces);
 }
@@ -130,6 +130,9 @@ void dump_type(PT_type *obj, int spaces)
 		dump_helper(obj,spaces);
 		printf("len = %s\n", obj->len);   // line 3
 		break;
+
+	case TYPE_IDENT:
+		printf("type: IDENT, %s\n", obj->ident);
 	}
 }
 
