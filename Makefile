@@ -9,7 +9,7 @@ ALL_PT=$(wildcard pt/*.h)
 all : hwcParser
 
 hwcParser : lex.yy.c parser.tab.c $(ALL_PT)
-	$(COMP) -o hwcParser lex.yy.c parser.tab.c -lm
+	$(COMP) -o hwcParser lex.yy.c parser.tab.c pt/debug.c -lm
 
 
 # https://stackoverflow.com/questions/13436832/bison-not-creating-the-tab-h-file
