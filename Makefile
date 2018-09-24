@@ -13,7 +13,7 @@ hwcParser : lex.yy.c parser.tab.c $(ALL_PT)
 
 
 # https://stackoverflow.com/questions/13436832/bison-not-creating-the-tab-h-file
-parser.tab.c parser.tab.h : parser.y pt/all.h
+parser.tab.c parser.tab.h : parser.y pt/debug.c
 	bison --report=state -d parser.y
 
 
