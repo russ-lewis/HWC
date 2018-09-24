@@ -1,0 +1,7 @@
+part testPart {
+	bit input;
+	bit output;
+	// Add public later
+
+	output = input;
+}

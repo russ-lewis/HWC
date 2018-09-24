@@ -1,0 +1,15 @@
+part MUX_4in_bit32
+{
+	public bit[32][4] in;
+	public bit[32]    out;
+	public bit    [2] control;
+
+	for (i; 0..4)
+	{
+		if (control == i)
+		{
+			out = in[i];
+		}
+	}
+}
+

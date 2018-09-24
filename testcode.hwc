@@ -1,7 +1,0 @@
-part testPart {
-	public bit    input;
-	public bit[2] output;
-
-	output[0] =  input;
-	output[1] = !input;
-}

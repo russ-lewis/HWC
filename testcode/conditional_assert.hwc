@@ -1,0 +1,9 @@
+public conditional_assert
+{
+	public bit valid;
+	public bit a;
+
+	if (valid)
+		assert(a);
+}
+
