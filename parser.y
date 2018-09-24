@@ -132,10 +132,16 @@ part_stmts:
 ;
 
 part_stmt:
-		type IDENT ';'   { printf("-Statement of type [-TODO-] with name [%s]\n", $2);
+		"public" type IDENT ';'   { printf("-Public statement of type [-TODO-] with name [%s]\n", $3);
 		                   $$ = malloc(sizeof(PT_part_stmt));
-		                   $$->type = $1;
-			                $$->name = $2; }
+		                   $$->type = $2;
+			                $$->name = $3;
+								 $$->isPub = 1; }
+	|	"private" type IDENT ';'   { printf("-Private statement of type [-TODO-] with name [%s]\n", $3);
+		                   $$ = malloc(sizeof(PT_part_stmt));
+		                   $$->type = $2;
+			                $$->name = $3;
+								 $$->isPub = 0; }
 	|	expr '=' expr ';'   { printf("-Statement of expr = expr\n");
 									 $$ = malloc(sizeof(PT_part_stmt));
 									 $$->type = NULL;
@@ -193,7 +199,9 @@ array_decls:
 type:
 		"bit"              { $$ = malloc(sizeof(PT_type));
 		                     $$->mode = TYPE_BIT; }
-
+	|	IDENT					 { $$ = malloc(sizeof(PT_type));
+									$$->mode  = TYPE_IDENT;
+									$$->ident = $1; }
 		// TODO: replace NUM with expr!
 	|	type '[' NUM ']'   { printf("--Array of size [%s] declared\n", $3);
 		                     $$ = malloc(sizeof(PT_type));

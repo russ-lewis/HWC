@@ -26,7 +26,8 @@ struct PT_part_stmt
 	PT_part_stmt *prev;
 
 	PT_type *type;
-	char        *name;
+	char    *name;
+	int     isPub;
 };
 
 
@@ -53,7 +54,7 @@ static void dump_part_stmt(PT_part_stmt *obj, int spaces)
 	if(dump_helper(obj, spaces) == 1)
 		return;
 
-   printf("Part_stmt: named '%s', with type:\n", obj->name);
+   printf("Part_stmt: named '%s', %s with type:\n", obj->name, obj->isPub?"public":"private");
 	dump_type(obj->type, spaces+2);
 	dump_part_stmt(obj->prev, spaces);
 }

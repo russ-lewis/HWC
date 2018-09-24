@@ -8,7 +8,8 @@ typedef struct PT_type PT_type;
 
 enum {
 	TYPE_BIT = 1,
-	TYPE_ARRAY = 2,
+	TYPE_ARRAY,
+	TYPE_IDENT,
 };
 
 struct PT_type
@@ -20,7 +21,10 @@ struct PT_type
 
 	/* TYPE_ARRAY */
 	PT_type *base;
-	char        *len;
+	char    *len;
+
+	/* TYPE_IDENT */
+	char	  *ident;
 };
 
 
@@ -47,6 +51,9 @@ static void dump_type(PT_type *obj, int spaces)
 		dump_helper(obj,spaces);
 		printf("len = %s\n", obj->len);   // line 3
 		break;
+
+	case TYPE_IDENT:
+		printf("type: IDENT, %s\n", obj->ident);
 	}
 }
 
