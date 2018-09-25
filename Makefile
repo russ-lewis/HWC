@@ -3,7 +3,7 @@ COMP=gcc -Wall -g -std=gnu99
 
 
 
-ALL_HEADERS=$(wildcard pt/*.h senamtic/*.h)
+ALL_HEADERS=$(wildcard pt/*.h semantic/*.h)
 
 PARSE_SRC=lex.yy.c parser.tab.c
 PT_SRC=pt/debug.c
