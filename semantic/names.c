@@ -8,7 +8,16 @@
 
 
 
-/* HWC_NameSCope is not declared in the header.  Its implementation is private. */
+/* HWC_NameSCope is not declared in the header.  Its implementation is private.
+ *
+ * On the other hand, this file does *NOT* give the declaration for
+ * HWC_Nameable, since that struct is opaque to this code.  Currently (as of
+ * 25 Sep 2018), the latter struct is defined in names.h, as it is intended as
+ * a "dumb" struct (no methods).  If that changes, the declaration might be
+ * moved inside some other C file.  But either way, there's no need to have it
+ * here.
+ */
+
 typedef struct HWC_NameScope_elem HWC_NameScope_elem;
 struct HWC_NameScope
 {
