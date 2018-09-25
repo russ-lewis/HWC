@@ -48,6 +48,8 @@
 	PT_part_decl *part_decl;
 	PT_part_stmt *part_stmt;
 
+	PT_stmt *stmt;
+
 	PT_plugtype_decl  *plugtype_decl;
 	PT_plugtype_field *plugtype_field;
 
@@ -66,6 +68,10 @@
 %type<part_stmt> opt_part_stmts
 %type<part_stmt> part_stmts
 %type<part_stmt> part_stmt
+
+%type<stmt> opt_stmts
+%type<stmt>	stmts
+%type<stmt> stmt
 
 %type<plugtype_decl>  plugtype_decl
 %type<plugtype_field> opt_plugtype_fields
@@ -114,11 +120,11 @@ file_decl:
 
 
 part_decl:
-		"part" IDENT '{' opt_part_stmts '}'
+		"part" IDENT '{' opt_part_stmts opt_stmts '}'
 		                 { printf("User added a [part] with name [%s]\n", $2);
 		                   $$ = malloc(sizeof(PT_part_decl));
-		                   $$->name  = $2;
-		                   $$->stmts = $4; }
+		                   $$->name       = $2;
+		                   $$->part_stmts = $4; }
 ;
 
 opt_part_stmts:
@@ -142,13 +148,27 @@ part_stmt:
 		                   $$->type = $2;
 			                $$->name = $3;
 								 $$->isPub = 0; }
-	|	expr '=' expr ';'   { printf("-Statement of expr = expr\n");
-									 $$ = malloc(sizeof(PT_part_stmt));
-									 $$->type = NULL;
-									 $$->name = NULL; }	/* NOTE: This could all easily be incorrect */
+;
+
+/* Code structure copied from opt_part_stmts */
+opt_stmts:
+		%empty	{ $$ = NULL; }
+	|	stmts		{ $$ = $1;   }
+;
+
+/* Ask: How are stmts different from part_stmts? I presume the difference is that part_stmts cannot occur in plugtypes */
+/* Code structure copied from part_stmts */
+stmts:
+				stmt		{ $$ = $1; $$->prev = NULL; }
+	|	stmts stmt		{ $$ = $2; $$->prev = $1; }
 ;
 
 
+stmt:
+		expr '=' expr ';'			{  printf("-Statement of expr = expr\n");
+									 		$$ = malloc(sizeof(PT_stmt)); } /* TODO */
+	|	"if" '(' expr ')'			{	printf("-Statement of if() stmt\n"); }
+;
 
 plugtype_decl:
 		"plugtype" IDENT '{' opt_plugtype_fields '}'

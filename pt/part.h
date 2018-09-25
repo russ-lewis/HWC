@@ -5,6 +5,7 @@
 typedef struct PT_part_decl PT_part_decl;
 typedef struct PT_part_stmt PT_part_stmt;
 
+typedef struct PT_stmt PT_stmt;
 typedef struct PT_type PT_type;
 typedef struct PT_expr PT_expr;
 
@@ -16,7 +17,8 @@ struct PT_part_decl
 	char *name;
 
 	/* linked list, in reverse order of declaration */
-	PT_part_stmt *stmts;
+	PT_part_stmt *part_stmts;
+	PT_stmt *stmts;
 };
 
 struct PT_part_stmt

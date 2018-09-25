@@ -16,6 +16,8 @@ enum {
 struct PT_stmt
 {
 	int mode;
+	/* linked list, in reverse order of declaration */
+	PT_stmt *prev;
 
 	/* STMT_CONN */
 	PT_expr *lHand;
@@ -24,7 +26,7 @@ struct PT_stmt
 	/* STMT_FOR */
 	// TODO
 
-	/* STMT_FOR */
+	/* STMT_IF */
 	// TODO
 };
 
