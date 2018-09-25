@@ -21,6 +21,7 @@
 
 /* I don't have any need of this, but without it, Bison won't give me
  * access to yytoknum[].  (sigh).  -Russ
+ * lol  -Jackson
  */
 #define YYPRINT(fp, yychar, yylval)   do {} while(0)
 %}
@@ -72,6 +73,7 @@
 %type<stmt> opt_stmts
 %type<stmt>	stmts
 %type<stmt> stmt
+%type<stmt> for_opts
 
 %type<plugtype_decl>  plugtype_decl
 %type<plugtype_field> opt_plugtype_fields
@@ -165,9 +167,25 @@ stmts:
 
 
 stmt:
-		expr '=' expr ';'			{  printf("-Statement of expr = expr\n");
-									 		$$ = malloc(sizeof(PT_stmt)); } /* TODO */
-	|	"if" '(' expr ')'			{	printf("-Statement of if() stmt\n"); }
+		expr '=' expr ';'											{  printf("-Statement of expr = expr\n");
+									 										$$ = malloc(sizeof(PT_stmt));
+																			$$->mode  = STMT_CONN;
+																			$$->lHand = $1;
+																			$$->rHand = $3; }
+	|	"for" '(' expr ';' NUM ".." NUM ')' for_opts		{	printf("-Statement of for loop\n");
+																			$$ = malloc(sizeof(PT_stmt));
+																			$$->mode     = STMT_FOR;
+																			$$->forVar   = $3;
+																			$$->forBegin = $5;
+																			$$->forEnd   = $7; 
+																			$$->forStmts = $9; }
+;
+
+/* If there ARE NO curly braces, there must be some sort of stmt to iterate the for loop over. */
+/* If there ARE    curly braces, there can be opt_stmts, meaning zero to a buncha stmts */
+for_opts:
+		stmt															{ $$ = $1; }
+	|	'{' opt_stmts '}'											{ $$ = $2; }
 ;
 
 plugtype_decl:

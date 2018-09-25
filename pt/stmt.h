@@ -11,6 +11,7 @@ enum {
 	STMT_CONN = 1,
 	STMT_FOR,
 	STMT_IF,
+	STMT_ELSE,
 };
 
 struct PT_stmt
@@ -24,9 +25,15 @@ struct PT_stmt
 	PT_expr *rHand;
 
 	/* STMT_FOR */
-	// TODO
+	PT_expr  *forVar;
+	char		*forBegin;	// Inclusive
+	char		*forEnd;		// Exclusive
+	PT_stmt  *forStmts;
 
 	/* STMT_IF */
+	// TODO
+
+	/* STMT_ELSE */
 	// TODO
 };
 
