@@ -34,4 +34,5 @@ clean :
 	-rm -f parser.tab.h
 	-rm -f parser.output
 	-rm -f lex.yy.c
+	-rm -f hwcParser
 #add @ in front of -rm is you wanna cancel the output to stdout

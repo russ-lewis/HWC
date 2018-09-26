@@ -36,6 +36,12 @@
 /* this generates the yytname[] table, used by tokenLookup() below */
 %token-table
 
+/* this generates the yyloc global variable (line and column information),
+ * which lex fills because we have also set the %bison-locations option
+ * inside our lexer.
+ */
+%locations
+
 
 
 /* this declares the various types which can be stored in yylval. */
@@ -94,7 +100,7 @@ file:
 
 	|	file_decls         { $$ = malloc(sizeof(PT_file));
 		                     $$->decls = $1; 
-									printf("---Debug output begins?---\n");
+									// printf("---Debug output begins?---\n");
 									dump_file($$, 0); }
 ;
 
@@ -117,7 +123,7 @@ file_decl:
 
 part_decl:
 		"part" IDENT '{' opt_part_stmts '}'
-		                 { printf("User added a [part] with name [%s]\n", $2);
+		                 { // printf("User added a [part] with name [%s]\n", $2);
 		                   $$ = malloc(sizeof(PT_part_decl));
 		                   $$->name  = $2;
 		                   $$->stmts = $4; }
@@ -134,17 +140,17 @@ part_stmts:
 ;
 
 part_stmt:
-		"public" type IDENT ';'   { printf("-Public statement of type [-TODO-] with name [%s]\n", $3);
+		"public" type IDENT ';'   { // printf("-Public statement of type [-TODO-] with name [%s]\n", $3);
 		                   $$ = malloc(sizeof(PT_part_stmt));
 		                   $$->type = $2;
 			                $$->name = $3;
 								 $$->isPub = 1; }
-	|	"private" type IDENT ';'   { printf("-Private statement of type [-TODO-] with name [%s]\n", $3);
+	|	"private" type IDENT ';'   { // printf("-Private statement of type [-TODO-] with name [%s]\n", $3);
 		                   $$ = malloc(sizeof(PT_part_stmt));
 		                   $$->type = $2;
 			                $$->name = $3;
 								 $$->isPub = 0; }
-	|	expr '=' expr ';'   { printf("-Statement of expr = expr\n");
+	|	expr '=' expr ';'   { // printf("-Statement of expr = expr\n");
 									 $$ = malloc(sizeof(PT_part_stmt));
 									 $$->type = NULL;
 									 $$->name = NULL; }	/* NOTE: This could all easily be incorrect */
@@ -205,7 +211,7 @@ type:
 									$$->mode  = TYPE_IDENT;
 									$$->ident = $1; }
 		// TODO: replace NUM with expr!
-	|	type '[' NUM ']'   { printf("--Array of size [%s] declared\n", $3);
+	|	type '[' NUM ']'   { // printf("--Array of size [%s] declared\n", $3);
 		                     $$ = malloc(sizeof(PT_type));
 		                     $$->mode = TYPE_ARRAY;
 		                     $$->base = $1;
@@ -242,7 +248,7 @@ int main()
 
 void yyerror(char const *s)
 {
-	fprintf(stderr, "%s\n", s);
+	printf("%s at line %d col %d\n", s, yylloc.first_line, yylloc.first_column);
 }
 
 
@@ -291,7 +297,7 @@ int tokenLookup(char *str, int assertFound)
 		   yytname[i][len+1] == '"'             &&
 		   yytname[i][len+2] == '\0')
 		{
-	printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
+// printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
 
 			return yytoknum[i];
 		}
@@ -306,7 +312,7 @@ int tokenLookup(char *str, int assertFound)
 		assert(0);   // TODO
 	}
 
-printf("tokenLookup(): str=\"%s\" returning IDENT\n", str);
+// printf("tokenLookup(): str=\"%s\" returning IDENT\n", str);
 	/* otherwise, save the string in the yylval, and we can return */
 	yylval.str = strdup(str);
 	return IDENT;
