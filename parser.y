@@ -145,7 +145,7 @@ part_stmt:
 	|	expr '=' expr ';'   { printf("-Statement of expr = expr\n");
 									 $$ = malloc(sizeof(PT_part_stmt));
 									 $$->type = NULL;
-									 $$->name = NULL; }	/* NOTE: This could all easily be incorrect */
+									 $$->name = NULL; }
 ;
 
 
