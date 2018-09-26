@@ -126,7 +126,8 @@ part_decl:
 		                 { printf("User added a [part] with name [%s]\n", $2);
 		                   $$ = malloc(sizeof(PT_part_decl));
 		                   $$->name       = $2;
-		                   $$->part_stmts = $4; }
+		                   $$->part_stmts = $4;
+								 $$->stmts      = $5; }
 ;
 
 opt_part_stmts:

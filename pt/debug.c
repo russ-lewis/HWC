@@ -56,9 +56,10 @@ void dump_part_decl(PT_part_decl *obj, int spaces)
 		return;
 
 	dump_helper(spaces);
-
    printf("Part_decl: named '%s', with part_stmts: \n", obj->name);
 	dump_part_stmt(obj->part_stmts, spaces+2);
+
+	dump_helper(spaces);
 	printf("         : named '%s', with stmts: \n", obj->name);
 	dump_stmt(obj->stmts, spaces+2);
 }
@@ -146,6 +147,12 @@ void dump_stmt(PT_stmt *obj, int spaces)
 
 		case STMT_FOR:
 			printf("stmt: FOR LOOP\n");
+			dump_expr(obj->forVar, spaces+6); // +6 for better alignment
+			dump_helper(spaces+6);
+			printf("Bgn=%s\n", obj->forBegin);
+			dump_helper(spaces+6);
+			printf("End=%s\n", obj->forEnd);
+			dump_stmt(obj->forStmts, spaces+2);
 			break;
 
 		case STMT_IF:
