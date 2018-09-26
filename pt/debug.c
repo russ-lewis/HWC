@@ -142,15 +142,17 @@ void dump_stmt(PT_stmt *obj, int spaces)
 			break;
 
 		case STMT_CONN:
-			printf("stmt: CONNECTION\n");
+			printf("stmt: CONNECTION, with left and right exprs:\n");
+			dump_expr(obj->lHand, spaces+2);
+			dump_expr(obj->rHand, spaces+2);
 			break;
 
 		case STMT_FOR:
 			printf("stmt: FOR LOOP\n");
-			dump_expr(obj->forVar, spaces+6); // +6 for better alignment
-			dump_helper(spaces+6);
+			dump_expr(obj->forVar, spaces+2);
+			dump_helper(spaces+2);
 			printf("Bgn=%s\n", obj->forBegin);
-			dump_helper(spaces+6);
+			dump_helper(spaces+2);
 			printf("End=%s\n", obj->forEnd);
 			dump_stmt(obj->forStmts, spaces+2);
 			break;
