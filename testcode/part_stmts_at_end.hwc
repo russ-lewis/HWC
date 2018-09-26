@@ -1,0 +1,9 @@
+part testPart
+{
+	public bit a;
+	public bit b;
+	
+	a = b;
+
+	public bit c;
+}
