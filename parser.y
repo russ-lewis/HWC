@@ -36,6 +36,12 @@
 /* this generates the yytname[] table, used by tokenLookup() below */
 %token-table
 
+/* this generates the yyloc global variable (line and column information),
+ * which lex fills because we have also set the %bison-locations option
+ * inside our lexer.
+ */
+%locations
+
 
 
 /* this declares the various types which can be stored in yylval. */
@@ -240,7 +246,7 @@ int main()
 
 void yyerror(char const *s)
 {
-	printf("%s at line %d col %d\n", s, lineNum,colNum);
+	printf("%s at line %d col %d\n", s, yylloc.first_line, yylloc.first_column);
 }
 
 
