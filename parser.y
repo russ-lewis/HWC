@@ -240,7 +240,7 @@ int main()
 
 void yyerror(char const *s)
 {
-	fprintf(stderr, "%s\n", s);
+	printf("%s at line %d col %d\n", s, lineNum,colNum);
 }
 
 
@@ -289,7 +289,7 @@ int tokenLookup(char *str, int assertFound)
 		   yytname[i][len+1] == '"'             &&
 		   yytname[i][len+2] == '\0')
 		{
-	printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
+// printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
 
 			return yytoknum[i];
 		}
@@ -304,7 +304,7 @@ int tokenLookup(char *str, int assertFound)
 		assert(0);   // TODO
 	}
 
-printf("tokenLookup(): str=\"%s\" returning IDENT\n", str);
+// printf("tokenLookup(): str=\"%s\" returning IDENT\n", str);
 	/* otherwise, save the string in the yylval, and we can return */
 	yylval.str = strdup(str);
 	return IDENT;

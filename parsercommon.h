@@ -4,7 +4,7 @@
 
 
 // declared and maintained by the lexer
-extern int lineNum;
+extern int lineNum, colNum;
 
 
 
