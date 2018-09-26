@@ -8,6 +8,8 @@
 
 HWC_Part *semPhase1_part(PT_part_decl *parsedPart)
 {
+	
+
 	assert(0);    // TODO
 
 #if 0

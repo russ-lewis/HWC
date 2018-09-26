@@ -7,6 +7,8 @@ typedef struct PT_expr      PT_expr;
 
 enum {
 	EXPR_IDENT = 1,
+
+	EXPR__LAST_PARSER_MODE,
 };
 
 struct PT_expr

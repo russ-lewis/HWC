@@ -10,7 +10,11 @@
  */
 
 #include "pt/all.h"
+
 #include "names.h"
+
+#include "part.h"
+#include "plugtype.h"
 
 
 
