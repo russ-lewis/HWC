@@ -105,9 +105,11 @@ file_decls:
 
 file_decl:
 		part_decl        { $$ = malloc(sizeof(PT_file_decl));
-		                   $$->partDecl = $1; }
+		                   $$->partDecl     = $1;
+		                   $$->plugtypeDecl = NULL; }
 
 	|	plugtype_decl    { $$ = malloc(sizeof(PT_file_decl));
+		                   $$->partDecl     = NULL;
 		                   $$->plugtypeDecl = $1; }
 ;
 

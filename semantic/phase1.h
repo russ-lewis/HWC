@@ -22,8 +22,19 @@
  * Note that this function does *NOT* create an HWC_File object; that is
  * something which you can create to *contain* this NameScope (when/if that
  * is necessary).
+ *
+ * Also, note that you will be passed an object with a single refCount; if
+ * you discard this NameScope, then you must decrement the refcount on it.
  */
-HWC_NameScope *semPhase1_file(PT_File *parsedFile);
+HWC_NameScope *semPhase1_file(PT_file *parsedFile);
+
+
+
+typedef struct HWC_Part     HWC_Part;
+typedef struct HWC_PlugType HWC_Plugtype;
+
+HWC_Part     *semPhase1_part    (PT_part_decl     *parsedPart);
+HWC_Plugtype *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype);
 
 
 #endif
