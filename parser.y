@@ -180,13 +180,33 @@ stmt:
 																			$$->forBegin = $5;
 																			$$->forEnd   = $7; 
 																			$$->forStmts = $9; }
+	| "if" '(' expr ')' if_opts else_opts					{	printf("-Statement of if stmt\n");
+																			$$ = malloc(sizeof(PT_stmt));
+																			$$->mode    = STMT_IF;
+																			$$->ifExpr  = $3;
+																			$$->ifStmts = $5;
+																			$$->ifElse  = $6; }
 ;
 
 /* If there ARE NO curly braces, there must be some sort of stmt to iterate the for loop over. */
 /* If there ARE    curly braces, there can be opt_stmts, meaning zero to a buncha stmts */
 for_opts:
-		stmt															{ $$ = $1; }
-	|	'{' opt_stmts '}'											{ $$ = $2; }
+		stmt						{ $$ = $1; }
+	|	'{' opt_stmts '}'		{ $$ = $2; }
+;
+
+/* Maybe combine this and for_opts in some way?
+/*		The 'if' HAS NO 'else' and HAS NO curly braces */
+/* 	The 'if' HAS NO 'else' and HAS    curly braces */
+if_opts:
+		stmt						{ $$ = $1; }
+	|	'{' opt_stmts '}'		{ $$ = $2; }
+;
+
+else_opts:
+		%empty							{ $$ = NULL; }
+	|	"else" stmt						{ $$ = $2; }
+	|	"else" '{' opt_stmt '}'		{ $$ = $3; }
 ;
 
 plugtype_decl:
