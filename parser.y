@@ -182,12 +182,16 @@ stmt:
 																			$$->forBegin = $5;
 																			$$->forEnd   = $7; 
 																			$$->forStmts = $9; }
-	| "if" '(' expr ')' if_opts else_opts					{	printf("-Statement of if stmt\n");
+	| "if" '(' expr ')' if_opts								{	printf("-Statement of if stmt\n");
 																			$$ = malloc(sizeof(PT_stmt));
 																			$$->mode    = STMT_IF;
 																			$$->ifExpr  = $3;
 																			$$->ifStmts = $5;
-																			$$->ifElse  = $6; }
+																			$$->ifElse  = NULL; }
+	| "else" else_opts											{	printf("-Statement of else stmt\n");
+																			$$ = malloc(sizeof(PT_stmt));
+																			$$->mode      = STMT_ELSE;
+																			$$->elseStmts = $2; }
 ;
 
 /* If there ARE NO curly braces, there must be some sort of stmt to iterate the for loop over. */
@@ -205,11 +209,10 @@ if_opts:
 	|	'{' opt_stmts '}'		{ $$ = $2; }
 ;
 
-/* Since else_opts checks for "else" and then a stmt, it could potentially detect an [if...else if(expr)...else] chain */
+/* Since else_opts checks for "else" and then a single stmt, it could potentially detect an [if...else if(expr)...else] chain */
 else_opts:
-		%empty							{ $$ = NULL; }
-	|	"else" stmt						{ $$ = $2; }
-	|	"else" '{' opt_stmts '}'	{ $$ = $3; }
+		stmt						{ $$ = $1; }
+	|	'{' opt_stmts '}'		{ $$ = $2; }
 ;
 
 plugtype_decl:

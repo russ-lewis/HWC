@@ -11,6 +11,7 @@ enum {
 	STMT_CONN = 1,
 	STMT_FOR,
 	STMT_IF,
+	STMT_ELSE,
 };
 
 struct PT_stmt
@@ -33,6 +34,9 @@ struct PT_stmt
 	PT_expr *ifExpr;
 	PT_stmt *ifStmts;
 	PT_stmt *ifElse;
+
+	/* STMT_ELSE */
+	PT_stmt *elseStmts;
 };
 
 
