@@ -56,11 +56,11 @@ void dump_part_decl(PT_part_decl *obj, int spaces)
 		return;
 
 	dump_helper(spaces);
-   printf("Part_decl: named '%s', with part_stmts: \n", obj->name);
+   printf("Part_decl| named '%s', with part_stmts: \n", obj->name);
 	dump_part_stmt(obj->part_stmts, spaces+2);
 
 	dump_helper(spaces);
-	printf("         : named '%s', with stmts: \n", obj->name);
+	printf("Part_decl| named '%s', with stmts: \n", obj->name);
 	dump_stmt(obj->stmts, spaces+2);
 }
 
