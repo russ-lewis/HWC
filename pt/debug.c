@@ -159,6 +159,14 @@ void dump_stmt(PT_stmt *obj, int spaces)
 
 		case STMT_IF:
 			printf("stmt: IF CHECK\n");
+			dump_expr(obj->ifExpr, spaces+2);
+			dump_stmt(obj->ifStmts, spaces+2);
+			break;
+
+		case STMT_ELSE:
+			printf("stmt: ELSE STMT\n");
+			dump_stmt(obj->elseStmts, spaces+2);
+			break;
 	}
 
 }
