@@ -90,7 +90,7 @@
 %type<expr> expr
 %type<expr> expr2
 %type<expr> expr3
-
+%type<expr> expr4
 
 
 /* Grammar Rules */
@@ -279,19 +279,23 @@ type:
 
 expr:
 		expr2
-	|	'!' expr				{ /* TODO */ }
-	|	expr "==" expr		{	$$ = malloc(sizeof(PT_expr));
-									$$->mode  = EXPR_EQUAL;
-									$$->lHand = $1;
-									$$->rHand = $3; }
+	|	expr2 "==" expr2			{	$$ = malloc(sizeof(PT_expr));
+											$$->mode  = EXPR_EQUAL;
+											$$->lHand = $1;
+											$$->rHand = $3; }
 ;
 
 expr2:
 		expr3
-	|	expr2 '[' expr ']'   { /* TODO */ }
+	|	'!' expr2				{ /* TODO */ }
 ;
 
 expr3:
+		expr4
+	|	expr3 '[' expr2 ']'   { /* TODO */ }
+;
+
+expr4:
 		IDENT						{	$$ = malloc(sizeof(PT_expr));
 										$$->mode = EXPR_IDENT;
 										$$->name = $1; }
