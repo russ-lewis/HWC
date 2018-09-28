@@ -279,7 +279,11 @@ type:
 
 expr:
 		expr2
-	|	'!' expr            { /* TODO */ }
+	|	'!' expr				{ /* TODO */ }
+	|	expr "==" expr		{	$$ = malloc(sizeof(PT_expr));
+									$$->mode  = EXPR_EQUAL;
+									$$->lHand = $1;
+									$$->rHand = $3; }
 ;
 
 expr2:
@@ -288,10 +292,9 @@ expr2:
 ;
 
 expr3:
-		IDENT
-		         { $$ = malloc(sizeof(PT_expr));
-		           $$->mode = EXPR_IDENT;
-		           $$->name = $1; }
+		IDENT						{	$$ = malloc(sizeof(PT_expr));
+										$$->mode = EXPR_IDENT;
+										$$->name = $1; }
 ;
 
 

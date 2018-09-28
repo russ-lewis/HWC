@@ -216,6 +216,25 @@ void dump_expr(PT_expr *obj, int spaces)
 
 	dump_helper(spaces);
 
-	printf("Expr: named '%s', mode = %d\n", obj->name, obj->mode);
+	switch (obj->mode)
+	{
+		default:
+			printf("-- debug: UNRECOGNIZED TYPE ---\n");
+			break;
+
+		case EXPR_IDENT:
+			printf("Expr: IDENT, name = %s\n", obj->name);
+			break;
+
+		case EXPR_EQUAL:
+			printf("Expr: EQUAL, with exprs\n");
+			dump_helper(spaces+2);
+			printf("LHand:\n");
+			dump_expr(obj->lHand, spaces+4);
+			dump_helper(spaces+2);
+			printf("RHand:\n");
+			dump_expr(obj->rHand, spaces+4);
+			break;
+	}
 }
 
