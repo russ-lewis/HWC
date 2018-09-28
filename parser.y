@@ -74,6 +74,8 @@
 %type<stmt>	stmts
 %type<stmt> stmt
 %type<stmt> for_opts
+%type<stmt> if_opts
+%type<stmt> else_opts
 
 %type<plugtype_decl>  plugtype_decl
 %type<plugtype_field> opt_plugtype_fields
@@ -207,7 +209,7 @@ if_opts:
 else_opts:
 		%empty							{ $$ = NULL; }
 	|	"else" stmt						{ $$ = $2; }
-	|	"else" '{' opt_stmt '}'		{ $$ = $3; }
+	|	"else" '{' opt_stmts '}'	{ $$ = $3; }
 ;
 
 plugtype_decl:
