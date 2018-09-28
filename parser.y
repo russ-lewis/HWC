@@ -203,6 +203,7 @@ if_opts:
 	|	'{' opt_stmts '}'		{ $$ = $2; }
 ;
 
+/* Since else_opts checks for "else" and then a stmt, it could potentially detect an [if...else if(expr)...else] chain */
 else_opts:
 		%empty							{ $$ = NULL; }
 	|	"else" stmt						{ $$ = $2; }
