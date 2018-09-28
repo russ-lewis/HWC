@@ -20,7 +20,8 @@ struct PT_type
 
 	/* TYPE_ARRAY */
 	PT_type *base;
-	char    *len;
+	PT_expr *len;
+	//char    *len;
 
 	/* TYPE_IDENT */
 	char	  *ident;

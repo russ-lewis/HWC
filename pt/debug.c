@@ -197,7 +197,8 @@ void dump_type(PT_type *obj, int spaces)
 		dump_type(obj->base, spaces+2);   // line 2
 
 		dump_helper(spaces);
-		printf("len = %s\n", obj->len);   // line 3
+		printf("len = \n");     // line 3
+		dump_expr(obj->len, spaces+2);
 		break;
 
 	case TYPE_IDENT:

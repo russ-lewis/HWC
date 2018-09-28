@@ -268,7 +268,8 @@ type:
 									$$->mode  = TYPE_IDENT;
 									$$->ident = $1; }
 		// TODO: replace NUM with expr!
-	|	type '[' NUM ']'   { printf("--Array of size [%s] declared\n", $3);
+		// Is the right way to do this?
+	|	type '[' expr2 ']'   { printf("--Array of size [EXPR] declared\n");
 		                     $$ = malloc(sizeof(PT_type));
 		                     $$->mode = TYPE_ARRAY;
 		                     $$->base = $1;
