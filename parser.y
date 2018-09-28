@@ -299,6 +299,9 @@ expr4:
 		IDENT						{	$$ = malloc(sizeof(PT_expr));
 										$$->mode = EXPR_IDENT;
 										$$->name = $1; }
+	|	NUM						{	$$ = malloc(sizeof(PT_expr));
+										$$->mode = EXPR_NUM;
+										$$->num  = $1; }
 ;
 
 

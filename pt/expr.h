@@ -7,6 +7,7 @@ typedef struct PT_expr      PT_expr;
 
 enum {
 	EXPR_IDENT = 1,
+	EXPR_NUM,
 	EXPR_EQUAL,
 };
 
@@ -17,6 +18,9 @@ struct PT_expr
 
 	/* EXPR_IDENT */
 	char *name;
+
+	/* EXPR_NUM */
+	char *num;
 
 	/* EXPR_EQUAL */
 	PT_expr *lHand;

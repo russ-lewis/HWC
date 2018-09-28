@@ -226,6 +226,10 @@ void dump_expr(PT_expr *obj, int spaces)
 			printf("Expr: IDENT, name = %s\n", obj->name);
 			break;
 
+		case EXPR_NUM:
+			printf("Expr: NUM, value of %s\n", obj->num);
+			break;
+
 		case EXPR_EQUAL:
 			printf("Expr: EQUAL, with exprs\n");
 			dump_helper(spaces+2);
