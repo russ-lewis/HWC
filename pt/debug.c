@@ -55,15 +55,16 @@ void dump_part_decl(PT_part_decl *obj, int spaces)
 	if(obj == NULL)
 		return;
 
-	dump_helper(spaces);
-   printf("Part_decl| named '%s', with part_stmts: \n", obj->name);
-	dump_part_stmt(obj->part_stmts, spaces+2);
+	//dump_helper(spaces);
+   //printf("Part_decl| named '%s', with part_stmts: \n", obj->name);
+	//dump_part_stmt(obj->part_stmts, spaces+2);
 
 	dump_helper(spaces);
 	printf("Part_decl| named '%s', with stmts: \n", obj->name);
 	dump_stmt(obj->stmts, spaces+2);
 }
 
+/*
 void dump_part_stmt(PT_part_stmt *obj, int spaces)
 {
 	if(obj == NULL)
@@ -77,7 +78,7 @@ void dump_part_stmt(PT_part_stmt *obj, int spaces)
    printf("Part_stmt: named '%s', %s with type:\n", obj->name, obj->isPub?"public":"private");
 	dump_type(obj->type, spaces+2);
 }
-
+*/
 
 void dump_array_decl(PT_array_decl *obj, int spaces)
 {
@@ -105,9 +106,11 @@ void dump_plugtype_decl(PT_plugtype_decl *obj, int spaces)
 	dump_helper(spaces);
 
    printf("Plugtype_decl: named '%s', with fields\n", obj->name);
-	dump_plugtype_field(obj->fields, spaces+2);
+	//dump_plugtype_field(obj->fields, spaces+2);
+	dump_decl(obj->fields, spaces+2);
 }
 
+/*
 void dump_plugtype_field(PT_plugtype_field *obj, int spaces)
 {
 	if(obj == NULL)
@@ -122,7 +125,7 @@ void dump_plugtype_field(PT_plugtype_field *obj, int spaces)
 	dump_type(obj->type, spaces+2);
 	dump_array_decl(obj->arraySuffix, spaces+2);
 }
-
+*/
 
 // ---- DECLARED IN pt/stmt.h ----
 
@@ -171,6 +174,22 @@ void dump_stmt(PT_stmt *obj, int spaces)
 
 }
 
+void dump_decl(PT_decl *obj, int spaces)
+{
+	if(obj == NULL)
+		return;
+
+	// Call first since linked list is backwards
+	dump_decl(obj->prev, spaces);
+
+	dump_helper(spaces);
+
+	// TODO: Add a debug statement for public/private
+   printf("Declaration: named '%s', with type and array_decl\n", obj->name);
+	dump_type(obj->type, spaces+2);
+	dump_array_decl(obj->arraySuffix, spaces+2);
+}
+
 
 // ---- DECLARED IN pt/type.h ----
 
@@ -205,7 +224,6 @@ void dump_type(PT_type *obj, int spaces)
 		printf("type: IDENT, %s\n", obj->ident);
 	}
 }
-
 
 
 // ---- DECLARED IN pt/expr.h ----

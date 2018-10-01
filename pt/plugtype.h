@@ -3,17 +3,21 @@
 
 
 typedef struct PT_plugtype_decl  PT_plugtype_decl;
-typedef struct PT_plugtype_field PT_plugtype_field;
+//typedef struct PT_plugtype_field PT_plugtype_field;
 
+typedef struct PT_decl PT_decl;
 typedef struct PT_array_decl PT_array_decl;   // actually defined in part.h
 
 
 struct PT_plugtype_decl
 {
 	char *name;
-	PT_plugtype_field *fields;
+	//PT_plugtype_field *fields;
+	// These should all be of type STMT_DECL
+	PT_decl *fields;
 };
 
+/*
 struct PT_plugtype_field
 {
 	PT_plugtype_field *prev;
@@ -22,12 +26,12 @@ struct PT_plugtype_field
 	char *name;
 	PT_array_decl *arraySuffix;
 };
-
+*/
 
 // Debug functions
 
 void dump_plugtype_decl (PT_plugtype_decl  *obj, int spaces);
-void dump_plugtype_field(PT_plugtype_field *obj, int spaces);
+//void dump_plugtype_field(PT_plugtype_field *obj, int spaces);
 
 
 #endif

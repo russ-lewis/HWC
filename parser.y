@@ -53,12 +53,10 @@
 	PT_file_decl *file_decl;
 
 	PT_part_decl *part_decl;
-	PT_part_stmt *part_stmt;
+	PT_plugtype_decl  *plugtype_decl;
 
 	PT_stmt *stmt;
-
-	PT_plugtype_decl  *plugtype_decl;
-	PT_plugtype_field *plugtype_field;
+	PT_decl *decl;
 
 	PT_array_decl *array_decl;
 
@@ -72,17 +70,14 @@
 %type<file_decl> file_decl
 
 %type<part_decl> part_decl
-%type<part_stmt> opt_part_stmts
-%type<part_stmt> part_stmts
-%type<part_stmt> part_stmt
-
+%type<stmt> opt_stmts
 %type<stmt> stmts
 %type<stmt> stmt
 
 %type<plugtype_decl>  plugtype_decl
-%type<plugtype_field> opt_plugtype_fields
-%type<plugtype_field> plugtype_fields
-%type<plugtype_field> plugtype_field
+%type<decl> opt_plugtype_fields
+%type<decl> plugtype_fields
+%type<decl> plugtype_field
 
 %type<array_decl> opt_array_decls
 %type<array_decl> array_decls
@@ -139,60 +134,45 @@ file_decl:
 
 
 part_decl:
-		"part" IDENT '{' opt_part_stmts '}'
+		"part" IDENT '{' opt_stmts '}'
 		                 { // printf("User added a [part] with name [%s]\n", $2);
 		                   $$ = malloc(sizeof(PT_part_decl));
-		                   $$->name       = $2;
-		                   $$->part_stmts = $4; }
+		                   $$->name  = $2;
+		                   $$->stmts = $4; }
 ;
 
-opt_part_stmts:
-		%empty       { $$ = NULL; }
-	|	part_stmts   { $$ = $1; }
+opt_stmts:
+		%empty  { $$ = NULL; }
+	|	stmts   { $$ = $1; }
 ;
 
-part_stmts:
-		           part_stmt   { $$ = $1; $$->prev = NULL; }
-	|	part_stmts part_stmt   { $$ = $2; $$->prev = $1;   }
-;
-
-part_stmt:
-		"public" type IDENT ';'   { // printf("-Public statement of type [-TODO-] with name [%s]\n", $3);
-		                   $$ = malloc(sizeof(PT_part_stmt));
-		                   $$->type = $2;
-			                $$->name = $3;
-								 $$->isPub = 1; }
-	|	"private" type IDENT ';'   { // printf("-Private statement of type [-TODO-] with name [%s]\n", $3);
-		                   $$ = malloc(sizeof(PT_part_stmt));
-		                   $$->type = $2;
-			                $$->name = $3;
-								 $$->isPub = 0; }
-	|	stmt
-;
-
-/* Ask: How are stmts different from part_stmts? I presume the difference is that part_stmts cannot occur in plugtypes */
-/* Code structure copied from part_stmts */
 stmts:
-		      stmt		{ $$ = $1; $$->prev = NULL; }
-	|	stmts stmt		{ $$ = $2; $$->prev = $1; }
+		      stmt   { $$ = $1; $$->prev = NULL; }
+	|	stmts stmt   { $$ = $2; $$->prev = $1;   }
 ;
 
-
+/* TODO: CHANGE THESE TO "pub/priv" plugtype_fields */
 stmt:
-		'{'       '}'    /* NOP STATEMENT */
-	|	'{' stmts '}'                       
-	|	expr '=' expr ';'											{  printf("-Statement of expr = expr\n");
-									 										$$ = malloc(sizeof(PT_stmt));
-																			$$->mode  = STMT_CONN;
-																			$$->lHand = $1;
-																			$$->rHand = $3; }
+		"public"  plugtype_field   { $$ = malloc(sizeof(PT_stmt));
+		                             $$->isPublic = 0;
+			                          $$->stmtDecl = $2; }
+	|	"private" plugtype_field   { $$ = malloc(sizeof(PT_stmt));
+		                             $$->isPublic = 1;
+			                          $$->stmtDecl = $2; }
+	|	'{'       '}'              { $$ = NULL; }
+	|	'{' stmts '}'              { $$ = $2; }
+	|	expr '=' expr ';'          { printf("-Statement of expr = expr\n");
+		                             $$ = malloc(sizeof(PT_stmt));
+		                             $$->mode  = STMT_CONN;
+		                             $$->lHand = $1;
+		                             $$->rHand = $3; }
 	|	"for" '(' expr ';' NUM ".." NUM ')' stmt   { printf("-Statement of for loop\n");
-																			$$ = malloc(sizeof(PT_stmt));
-																			$$->mode     = STMT_FOR;
-																			$$->forVar   = $3;
-																			$$->forBegin = $5;
-																			$$->forEnd   = $7; 
-																			$$->forStmts = $9; }
+																	$$ = malloc(sizeof(PT_stmt));
+																	$$->mode     = STMT_FOR;
+																	$$->forVar   = $3;
+																	$$->forBegin = $5;
+																	$$->forEnd   = $7; 
+																	$$->forStmts = $9; }
 
 		/* THIS IS A WEIRD HACK TO MAKE BISON WORK.
 		 *
@@ -206,11 +186,11 @@ stmt:
 		 */
 	|	%prec "if"
 		"if" '(' expr ')' stmt   { printf("-Statement of if stmt\n");
-																			$$ = malloc(sizeof(PT_stmt));
-																			$$->mode    = STMT_IF;
-																			$$->ifExpr  = $3;
-																			$$->ifStmts = $5;
-																			$$->ifElse  = NULL; }
+											$$ = malloc(sizeof(PT_stmt));
+											$$->mode    = STMT_IF;
+											$$->ifExpr  = $3;
+											$$->ifStmts = $5;
+											$$->ifElse  = NULL; }
 	|	"if" '(' expr ')' stmt "else" stmt   { printf("-Statement of if stmt\n");
 																			$$ = malloc(sizeof(PT_stmt));
 																			$$->mode    = STMT_IF;
@@ -220,12 +200,11 @@ stmt:
 ;
 
 
-
 plugtype_decl:
 		"plugtype" IDENT '{' opt_plugtype_fields '}'
-		                 { $$ = malloc(sizeof(PT_plugtype_decl));
-		                   $$->name   = $2;
-		                   $$->fields = $4; }
+		                  { $$ = malloc(sizeof(PT_plugtype_decl));
+		                    $$->name   = $2;
+		                    $$->fields = $4; }
 ;
 
 opt_plugtype_fields:
@@ -240,7 +219,7 @@ plugtype_fields:
 
 plugtype_field:
 		type IDENT opt_array_decls ';'
-		                 { $$ = malloc(sizeof(PT_plugtype_field));
+		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->type = $1;
 		                   $$->name = $2;
 		                   $$->arraySuffix = $3; }

@@ -3,12 +3,14 @@
 
 
 typedef struct PT_stmt PT_stmt;
+typedef struct PT_decl PT_decl;
 
 typedef struct PT_expr PT_expr;
 
 
 enum {
-	STMT_CONN = 1,
+	STMT_DECL = 1,
+	STMT_CONN,
 	STMT_FOR,
 	STMT_IF,
 	STMT_ELSE,
@@ -19,6 +21,10 @@ struct PT_stmt
 	int mode;
 	/* linked list, in reverse order of declaration */
 	PT_stmt *prev;
+
+	/* STMT_DECL */
+	int isPublic;      // 0 for true, 1 for false
+	PT_decl *stmtDecl;
 
 	/* STMT_CONN */
 	PT_expr *lHand;
@@ -40,9 +46,21 @@ struct PT_stmt
 };
 
 
+struct PT_decl
+{
+	/* linked list, in reverse order of declaration */
+	/* This should be null if this is part of a PT_stmt */
+	PT_decl *prev;
+
+	PT_type *type;
+	char *name;
+	PT_array_decl *arraySuffix;
+};
+
 // Debug functions
 
 void dump_stmt(PT_stmt *obj, int spaces);
+void dump_decl(PT_decl *obj, int spaces);
 
 
 #endif
