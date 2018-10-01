@@ -1,4 +1,4 @@
-
+ 
 /*
 	A very rough parser for Hardware C
 */
@@ -73,9 +73,6 @@
 %type<stmt> opt_stmts
 %type<stmt>	stmts
 %type<stmt> stmt
-%type<stmt> for_opts
-%type<stmt> if_opts
-%type<stmt> else_opts
 
 %type<plugtype_decl>  plugtype_decl
 %type<plugtype_field> opt_plugtype_fields
@@ -91,6 +88,17 @@
 %type<expr> expr2
 %type<expr> expr3
 %type<expr> expr4
+
+
+/* this solves the if-else chaining problem.  Canonical example is the
+ * shift-reduce conflict that happens in this example code:
+ *      if (a)
+ *        if (a)
+ *          stmt
+ *        else
+ *          stmt
+ */
+%right "if" "else"
 
 
 /* Grammar Rules */
@@ -175,45 +183,40 @@ stmt:
 																			$$->mode  = STMT_CONN;
 																			$$->lHand = $1;
 																			$$->rHand = $3; }
-	|	"for" '(' expr ';' NUM ".." NUM ')' for_opts		{	printf("-Statement of for loop\n");
+	|	"for" '(' expr ';' NUM ".." NUM ')' stmt   { printf("-Statement of for loop\n");
 																			$$ = malloc(sizeof(PT_stmt));
 																			$$->mode     = STMT_FOR;
 																			$$->forVar   = $3;
 																			$$->forBegin = $5;
 																			$$->forEnd   = $7; 
 																			$$->forStmts = $9; }
-	| "if" '(' expr ')' if_opts								{	printf("-Statement of if stmt\n");
+
+		/* THIS IS A WEIRD HACK TO MAKE BISON WORK.
+		 *
+		 * Bison says that "the rule gets its precedence from the last
+		 * terminal symbol" - so, by default, this has the precedence
+		 * of the ')' token.  We explicitly must set the precedence
+		 * here.
+		 *
+		 * However, that is not required in the "else" case, since it
+		 * gets its precedence from "else".
+		 */
+	|	%prec "if"
+		"if" '(' expr ')' stmt   { printf("-Statement of if stmt\n");
 																			$$ = malloc(sizeof(PT_stmt));
 																			$$->mode    = STMT_IF;
 																			$$->ifExpr  = $3;
 																			$$->ifStmts = $5;
 																			$$->ifElse  = NULL; }
-	| "else" else_opts											{	printf("-Statement of else stmt\n");
+	|	"if" '(' expr ')' stmt "else" stmt   { printf("-Statement of if stmt\n");
 																			$$ = malloc(sizeof(PT_stmt));
-																			$$->mode      = STMT_ELSE;
-																			$$->elseStmts = $2; }
+																			$$->mode    = STMT_IF;
+																			$$->ifExpr  = $3;
+																			$$->ifStmts = $5;
+																			$$->ifElse  = $7; }
 ;
 
-/* If there ARE NO curly braces, there must be some sort of stmt to iterate the for loop over. */
-/* If there ARE    curly braces, there can be opt_stmts, meaning zero to a buncha stmts */
-for_opts:
-		stmt						{ $$ = $1; }
-	|	'{' opt_stmts '}'		{ $$ = $2; }
-;
 
-/* Maybe combine this and for_opts in some way?
-/*		The 'if' HAS NO 'else' and HAS NO curly braces */
-/* 	The 'if' HAS NO 'else' and HAS    curly braces */
-if_opts:
-		stmt						{ $$ = $1; }
-	|	'{' opt_stmts '}'		{ $$ = $2; }
-;
-
-/* Since else_opts checks for "else" and then a single stmt, it could potentially detect an [if...else if(expr)...else] chain */
-else_opts:
-		stmt						{ $$ = $1; }
-	|	'{' opt_stmts '}'		{ $$ = $2; }
-;
 
 plugtype_decl:
 		"plugtype" IDENT '{' opt_plugtype_fields '}'
