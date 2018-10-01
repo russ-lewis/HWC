@@ -155,26 +155,30 @@ stmts:
 stmt:
 		'{'       '}'              { $$ = NULL; } /* NOP STATEMENT */
 	|	'{' stmts '}'              { $$ = $2; }
-	|	"public"  plugtype_field   { $$ = malloc(sizeof(PT_stmt));
+	|	"public"  plugtype_field
+		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_DECL;
 		                             $$->isPublic = 0;
 			                          $$->stmtDecl = $2; }
-	|	"private" plugtype_field   { $$ = malloc(sizeof(PT_stmt));
+	|	"private" plugtype_field
+		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_DECL;
 		                             $$->isPublic = 1;
 			                          $$->stmtDecl = $2; }
-	|	expr '=' expr ';'          { printf("-Statement of expr = expr\n");
+	|	expr '=' expr ';'
+		                           { printf("-Statement of expr = expr\n");
 		                             $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode  = STMT_CONN;
 		                             $$->lHand = $1;
 		                             $$->rHand = $3; }
-	|	"for" '(' expr ';' NUM ".." NUM ')' stmt   { printf("-Statement of for loop\n");
-																	$$ = malloc(sizeof(PT_stmt));
-																	$$->mode     = STMT_FOR;
-																	$$->forVar   = $3;
-																	$$->forBegin = $5;
-																	$$->forEnd   = $7; 
-																	$$->forStmts = $9; }
+	|	"for" '(' expr ';' NUM ".." NUM ')' stmt
+		                           { printf("-Statement of for loop\n");
+		                             $$ = malloc(sizeof(PT_stmt));
+		                             $$->mode     = STMT_FOR;
+		                             $$->forVar   = $3;
+		                             $$->forBegin = $5;
+		                             $$->forEnd   = $7; 
+		                             $$->forStmts = $9; }
 
 		/* THIS IS A WEIRD HACK TO MAKE BISON WORK.
 		 *
@@ -187,18 +191,20 @@ stmt:
 		 * gets its precedence from "else".
 		 */
 	|	%prec "if"
-		"if" '(' expr ')' stmt   { printf("-Statement of if stmt\n");
-											$$ = malloc(sizeof(PT_stmt));
-											$$->mode    = STMT_IF;
-											$$->ifExpr  = $3;
-											$$->ifStmts = $5;
-											$$->ifElse  = NULL; }
-	|	"if" '(' expr ')' stmt "else" stmt   { printf("-Statement of if stmt\n");
-																			$$ = malloc(sizeof(PT_stmt));
-																			$$->mode    = STMT_IF;
-																			$$->ifExpr  = $3;
-																			$$->ifStmts = $5;
-																			$$->ifElse  = $7; }
+		"if" '(' expr ')' stmt
+		                       { printf("-Statement of if stmt\n");
+		                         $$ = malloc(sizeof(PT_stmt));
+		                         $$->mode    = STMT_IF;
+		                         $$->ifExpr  = $3;
+		                         $$->ifStmts = $5;
+		                         $$->ifElse  = NULL; }
+	|	"if" '(' expr ')' stmt "else" stmt
+		                                   { printf("-Statement of if stmt\n");
+		                                     $$ = malloc(sizeof(PT_stmt));
+		                                     $$->mode    = STMT_IF;
+		                                     $$->ifExpr  = $3;
+		                                     $$->ifStmts = $5;
+		                                     $$->ifElse  = $7; }
 ;
 
 
@@ -254,8 +260,7 @@ type:
 	|	IDENT					 { $$ = malloc(sizeof(PT_type));
 									$$->mode  = TYPE_IDENT;
 									$$->ident = $1; }
-		// TODO: replace NUM with expr!
-		// Is the right way to do this?
+	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
 	|	type '[' expr2 ']'   { printf("--Array of size [EXPR] declared\n");
 		                     $$ = malloc(sizeof(PT_type));
 		                     $$->mode = TYPE_ARRAY;
@@ -280,6 +285,7 @@ expr2:
 
 expr3:
 		expr4
+	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
 	|	expr3 '[' expr2 ']'   { /* TODO */ }
 ;
 
