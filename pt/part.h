@@ -31,7 +31,6 @@ struct PT_part_stmt
 	char    *name;
 };
 
-
 struct PT_array_decl
 {
 	PT_array_decl *prev;
