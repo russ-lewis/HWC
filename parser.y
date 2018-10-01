@@ -37,6 +37,12 @@
 /* this generates the yytname[] table, used by tokenLookup() below */
 %token-table
 
+/* this generates the yyloc global variable (line and column information),
+ * which lex fills because we have also set the %bison-locations option
+ * inside our lexer.
+ */
+%locations
+
 
 
 /* this declares the various types which can be stored in yylval. */
@@ -70,8 +76,7 @@
 %type<part_stmt> part_stmts
 %type<part_stmt> part_stmt
 
-%type<stmt> opt_stmts
-%type<stmt>	stmts
+%type<stmt> stmts
 %type<stmt> stmt
 
 %type<plugtype_decl>  plugtype_decl
@@ -112,7 +117,7 @@ file:
 
 	|	file_decls         { $$ = malloc(sizeof(PT_file));
 		                     $$->decls = $1; 
-									printf("---Debug output begins?---\n");
+									// printf("---Debug output begins?---\n");
 									dump_file($$, 0); }
 ;
 
@@ -123,21 +128,22 @@ file_decls:
 
 file_decl:
 		part_decl        { $$ = malloc(sizeof(PT_file_decl));
-		                   $$->partDecl = $1; }
+		                   $$->partDecl     = $1;
+		                   $$->plugtypeDecl = NULL; }
 
 	|	plugtype_decl    { $$ = malloc(sizeof(PT_file_decl));
+		                   $$->partDecl     = NULL;
 		                   $$->plugtypeDecl = $1; }
 ;
 
 
 
 part_decl:
-		"part" IDENT '{' opt_part_stmts opt_stmts '}'
-		                 { printf("User added a [part] with name [%s]\n", $2);
+		"part" IDENT '{' opt_part_stmts '}'
+		                 { // printf("User added a [part] with name [%s]\n", $2);
 		                   $$ = malloc(sizeof(PT_part_decl));
 		                   $$->name       = $2;
-		                   $$->part_stmts = $4;
-								 $$->stmts      = $5; }
+		                   $$->part_stmts = $4; }
 ;
 
 opt_part_stmts:
@@ -151,34 +157,31 @@ part_stmts:
 ;
 
 part_stmt:
-		"public" type IDENT ';'   { printf("-Public statement of type [-TODO-] with name [%s]\n", $3);
+		"public" type IDENT ';'   { // printf("-Public statement of type [-TODO-] with name [%s]\n", $3);
 		                   $$ = malloc(sizeof(PT_part_stmt));
 		                   $$->type = $2;
 			                $$->name = $3;
 								 $$->isPub = 1; }
-	|	"private" type IDENT ';'   { printf("-Private statement of type [-TODO-] with name [%s]\n", $3);
+	|	"private" type IDENT ';'   { // printf("-Private statement of type [-TODO-] with name [%s]\n", $3);
 		                   $$ = malloc(sizeof(PT_part_stmt));
 		                   $$->type = $2;
 			                $$->name = $3;
 								 $$->isPub = 0; }
-;
-
-/* Code structure copied from opt_part_stmts */
-opt_stmts:
-		%empty	{ $$ = NULL; }
-	|	stmts		{ $$ = $1;   }
+	|	stmt
 ;
 
 /* Ask: How are stmts different from part_stmts? I presume the difference is that part_stmts cannot occur in plugtypes */
 /* Code structure copied from part_stmts */
 stmts:
-				stmt		{ $$ = $1; $$->prev = NULL; }
+		      stmt		{ $$ = $1; $$->prev = NULL; }
 	|	stmts stmt		{ $$ = $2; $$->prev = $1; }
 ;
 
 
 stmt:
-		expr '=' expr ';'											{  printf("-Statement of expr = expr\n");
+		'{'       '}'    /* NOP STATEMENT */
+	|	'{' stmts '}'                       
+	|	expr '=' expr ';'											{  printf("-Statement of expr = expr\n");
 									 										$$ = malloc(sizeof(PT_stmt));
 																			$$->mode  = STMT_CONN;
 																			$$->lHand = $1;
@@ -319,7 +322,7 @@ int main()
 
 void yyerror(char const *s)
 {
-	fprintf(stderr, "%s\n", s);
+	printf("%s at line %d col %d\n", s, yylloc.first_line, yylloc.first_column);
 }
 
 
@@ -368,7 +371,7 @@ int tokenLookup(char *str, int assertFound)
 		   yytname[i][len+1] == '"'             &&
 		   yytname[i][len+2] == '\0')
 		{
-	printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
+// printf("tokenLookup(): str=\"%s\" returning %d\n", str, yytoknum[i]);
 
 			return yytoknum[i];
 		}
@@ -383,7 +386,7 @@ int tokenLookup(char *str, int assertFound)
 		assert(0);   // TODO
 	}
 
-printf("tokenLookup(): str=\"%s\" returning IDENT\n", str);
+// printf("tokenLookup(): str=\"%s\" returning IDENT\n", str);
 	/* otherwise, save the string in the yylval, and we can return */
 	yylval.str = strdup(str);
 	return IDENT;

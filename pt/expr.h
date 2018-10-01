@@ -9,6 +9,8 @@ enum {
 	EXPR_IDENT = 1,
 	EXPR_NUM,
 	EXPR_EQUAL,
+
+	EXPR__LAST_PARSER_MODE,
 };
 
 struct PT_expr

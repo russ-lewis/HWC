@@ -1,0 +1,32 @@
+Thinking about parts, I can actually see 3 different types of data structures,
+all of which are important.  I'm not sure (yet) if these ought to be different
+types, or just different parameters on the same type.
+
+
+TYPE 1: DECLARATION
+
+This is a direct map from the 'PT_Expr' type from the parse tree.  It contains
+the overall information about the structure of the type, including all of its
+plugs (both private and public) and its statements.  In addition to the basic
+parse information, this will (probably) also include layout information
+(giving numeric values to the various bits and subcomponents).
+
+TYPE 2: USE IN A DECLARATION
+
+This is what happens when a part is used as a subcomponent inside another
+part: we need both information about the type itself, and also lookup
+information (TBD) that will allow us, when we finally drill down into the
+various public plugs, to actually build connection information.
+
+TYPE 3: SPECIFIC REFERENCE
+
+This refers to when a part is actually referred to in code (outside of a
+declaration); it represents an expression which refers to a subcomponent.  In
+this case, we need to know the part that encloses this expression, how to find
+the subcomponent inside that part.  (NOTE: You might think that we need to
+deal with IDENT.IDENT.IDENT expressions - however, it turns out that HWC
+doesn't actually support them!  HWC doesn't allow direct access to
+subcomponents from the outside; you can only access the public interfaces.
+On the other hand, IDENT.IDENT.IDENT is valid for interfaces; the form might
+be subcomponent.public_plug.field ... ; or it might be plug.field.field ...)
+

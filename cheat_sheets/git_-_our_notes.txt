@@ -36,6 +36,7 @@ git merge master                # pull changes from master into current branch
         - git add <fixedFile>
         - git status
         - git commit (no -m required, git provides it automatically)
+git merge --abort               # if it all goes wrong
 git checkout master; git merge <branch>   # merge a branch into the master
 git branch                      # basic info
 git branch -vv                  # advanced ancestry
