@@ -60,7 +60,7 @@ void dump_part_decl(PT_part_decl *obj, int spaces)
 	//dump_part_stmt(obj->part_stmts, spaces+2);
 
 	dump_helper(spaces);
-	printf("Part_decl| named '%s', with stmts: \n", obj->name);
+	printf("Part_decl: named '%s', with stmts: \n", obj->name);
 	dump_stmt(obj->stmts, spaces+2);
 }
 
@@ -144,6 +144,11 @@ void dump_stmt(PT_stmt *obj, int spaces)
 			printf("-- debug: UNRECOGNIZED STMT ---\n");
 			break;
 
+		case STMT_DECL:
+			printf("stmt: DECL, that is %s and has the decl vars:\n", obj->isPublic?"public":"private");
+			dump_decl(obj->stmtDecl, spaces+2);
+			break;
+
 		case STMT_CONN:
 			printf("stmt: CONNECTION, with left and right exprs:\n");
 			dump_expr(obj->lHand, spaces+2);
@@ -202,26 +207,27 @@ void dump_type(PT_type *obj, int spaces)
 
 	switch (obj->mode)
 	{
-	default:
-		printf("-- debug: UNRECOGNIZED TYPE ---\n");
-		break;
+		default:
+			printf("-- debug: UNRECOGNIZED TYPE ---\n");
+			break;
 
-	case TYPE_BIT:
-		printf("type: BIT\n");
-		break;
+		case TYPE_BIT:
+			printf("type: BIT\n");
+			break;
 
-	case TYPE_ARRAY:
-		printf("type: ARRAY\n");          // line 1
+		case TYPE_ARRAY:
+			printf("type: ARRAY\n");          // line 1
 
-		dump_type(obj->base, spaces+2);   // line 2
+			dump_type(obj->base, spaces+2);   // line 2
 
-		dump_helper(spaces);
-		printf("len = \n");     // line 3
-		dump_expr(obj->len, spaces+2);
-		break;
+			dump_helper(spaces);
+			printf("len = ");     // line 3
+			dump_expr(obj->len, 0);
+			break;
 
-	case TYPE_IDENT:
-		printf("type: IDENT, %s\n", obj->ident);
+		case TYPE_IDENT:
+			printf("type: IDENT, %s\n", obj->ident);
+			break;
 	}
 }
 

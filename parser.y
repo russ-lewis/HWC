@@ -153,14 +153,16 @@ stmts:
 
 /* TODO: CHANGE THESE TO "pub/priv" plugtype_fields */
 stmt:
-		"public"  plugtype_field   { $$ = malloc(sizeof(PT_stmt));
+		'{'       '}'              { $$ = NULL; } /* NOP STATEMENT */
+	|	'{' stmts '}'              { $$ = $2; }
+	|	"public"  plugtype_field   { $$ = malloc(sizeof(PT_stmt));
+		                             $$->mode     = STMT_DECL;
 		                             $$->isPublic = 0;
 			                          $$->stmtDecl = $2; }
 	|	"private" plugtype_field   { $$ = malloc(sizeof(PT_stmt));
+		                             $$->mode     = STMT_DECL;
 		                             $$->isPublic = 1;
 			                          $$->stmtDecl = $2; }
-	|	'{'       '}'              { $$ = NULL; }
-	|	'{' stmts '}'              { $$ = $2; }
 	|	expr '=' expr ';'          { printf("-Statement of expr = expr\n");
 		                             $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode  = STMT_CONN;
