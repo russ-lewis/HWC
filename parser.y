@@ -11,9 +11,6 @@
 	#include <string.h>
 	#include <assert.h>
 
-	#include "parsercommon.h"
-	#include "pt/all.h"
-
 	int yylex(void);
 	void yyerror(char const *);
 
@@ -24,6 +21,19 @@
  */
 #define YYPRINT(fp, yychar, yylval)   do {} while(0)
 %}
+
+/* the block above is code which is *ONLY* dropped into the parser's .c
+ * file.  This block is code that needs to be in *BOTH* the .c and .h
+ * files.
+ *
+ * https://www.gnu.org/software/bison/manual/html_node/_0025code-Summary.html#g_t_0025code-Summary
+ *
+ * (Thanks to Stack Overflow for helping me find this page.)
+ */
+%code requires {
+	#include "parsercommon.h"
+	#include "pt/all.h"
+}
 
 
 
@@ -105,14 +115,27 @@
 
 
 
+/* it feels terribly wrong to me to modify a global variable inside the
+ * reduction code.  However, I can't find any way to access the 'file'
+ * that we've created here, except in this way.  If bison provides a
+ * "correct" global variable, which represents the root of the parse
+ * tree, I haven't found it.
+ *
+ * I believe that I could fix this, more "correctly," by changing the
+ * options to tell Bison to generate a reentrant parser (because then
+ * yylval would be a pointer, not a global).  Maybe I'll make that
+ * change later.
+ *       - Russ 3 Oct 2018
+ */
+
 file:
 		%empty             { $$ = malloc(sizeof(PT_file));
-		                     $$->decls = NULL; }
+		                     $$->decls = NULL;
+		                     bisonParseRoot = $$; }
 
 	|	file_decls         { $$ = malloc(sizeof(PT_file));
-		                     $$->decls = $1; 
-									// printf("---Debug output begins?---\n");
-									dump_file($$, 0); }
+		                     $$->decls = $1;
+		                     bisonParseRoot = $$; }
 ;
 
 file_decls:
@@ -309,11 +332,6 @@ expr4:
 
 
 %%
-
-int main()
-{
-	return yyparse();
-}
 
 void yyerror(char const *s)
 {
