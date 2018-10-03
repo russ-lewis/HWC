@@ -1,0 +1,16 @@
+part Test
+{
+	public bit asdf;
+	public bit jkl;
+	public bit foo;
+	public bit bar;
+	public bit baz;
+
+	{
+		asdf = jkl;
+		foo = bar;
+		bar = baz;
+		jkl = foo;
+	}
+}
+

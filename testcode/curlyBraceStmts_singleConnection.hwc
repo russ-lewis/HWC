@@ -1,0 +1,10 @@
+part Test
+{
+	public bit asdf;
+	public bit jkl;
+
+	{
+		asdf = jkl;
+	}
+}
+

@@ -1,7 +1,6 @@
- 
 /*
-	A very rough parser for Hardware C
-*/
+ *  The parser for Hardware C source code
+ */
 
 
 /* Prologue C-statements */
