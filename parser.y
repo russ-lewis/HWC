@@ -154,24 +154,33 @@ stmts:
 /* TODO: CHANGE THESE TO "pub/priv" plugtype_fields */
 stmt:
 		'{'       '}'              { $$ = NULL; } /* NOP STATEMENT */
-	|	'{' stmts '}'              { $$ = $2; }
+
+	|	'{' stmts '}'              { $$ = $2; }   /* TODO: make this a actual
+		                                           * nested types, since it's a
+		                                           * name scope.
+		                                           *
+		                                           * BUG BUG BUG - we'll lose all
+		                                           * but the last stmt when this
+		                                           * is linked to another!
+		                                           */
+
 	|	"public"  plugtype_field
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_DECL;
-		                             $$->isPublic = 0;
-			                          $$->stmtDecl = $2; }
+		                             $$->isPublic = 1;
+		                             $$->stmtDecl = $2; }
 	|	"private" plugtype_field
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_DECL;
-		                             $$->isPublic = 1;
-			                          $$->stmtDecl = $2; }
+		                             $$->isPublic = 0;
+		                             $$->stmtDecl = $2; }
 	|	expr '=' expr ';'
 		                           { printf("-Statement of expr = expr\n");
 		                             $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode  = STMT_CONN;
 		                             $$->lHand = $1;
 		                             $$->rHand = $3; }
-	|	"for" '(' expr ';' NUM ".." NUM ')' stmt
+	|	"for" '(' IDENT ';' expr ".." expr ')' stmt
 		                           { printf("-Statement of for loop\n");
 		                             $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_FOR;

@@ -157,12 +157,17 @@ void dump_stmt(PT_stmt *obj, int spaces)
 
 		case STMT_FOR:
 			printf("stmt: FOR LOOP\n");
-			dump_expr(obj->forVar, spaces+2);
 			dump_helper(spaces+2);
-			printf("Bgn=%s\n", obj->forBegin);
+			printf("var: %s\n", obj->forVar);
 			dump_helper(spaces+2);
-			printf("End=%s\n", obj->forEnd);
-			dump_stmt(obj->forStmts, spaces+2);
+			printf("Bgn:\n");
+			dump_expr(obj->forBegin, spaces+4);
+			dump_helper(spaces+2);
+			printf("End=:\n");
+			dump_expr(obj->forEnd, spaces+4);
+			dump_helper(spaces+2);
+			printf("Stmts:\n");
+			dump_stmt(obj->forStmts, spaces+4);
 			break;
 
 		case STMT_IF:

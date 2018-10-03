@@ -23,7 +23,7 @@ struct PT_stmt
 	PT_stmt *prev;
 
 	/* STMT_DECL */
-	int isPublic;      // 0 for true, 1 for false
+	int isPublic;       // 1 for true, 0 for false
 	PT_decl *stmtDecl;
 
 	/* STMT_CONN */
@@ -31,10 +31,10 @@ struct PT_stmt
 	PT_expr *rHand;
 
 	/* STMT_FOR */
-	PT_expr  *forVar;
-	char		*forBegin;	// Inclusive
-	char		*forEnd;		// Exclusive
-	PT_stmt  *forStmts;
+	char    *forVar;
+	PT_expr *forBegin;    // Inclusive
+	PT_expr *forEnd;      // Exclusive
+	PT_stmt *forStmts;
 
 	/* STMT_IF */
 	PT_expr *ifExpr;
