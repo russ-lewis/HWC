@@ -125,6 +125,14 @@
  * options to tell Bison to generate a reentrant parser (because then
  * yylval would be a pointer, not a global).  Maybe I'll make that
  * change later.
+ *
+ * UPDATE: It appears that the 'reentrant' parser only affects the
+ *         parser/lexer calling convention; it doesn't affect yyparse().
+ *         However, there are options which allow you to add your own,
+ *         custom parameters to yyparse():
+ *
+ *         https://www.gnu.org/software/bison/manual/html_node/Pure-Calling.html#Pure-Calling
+ *
  *       - Russ 3 Oct 2018
  */
 
