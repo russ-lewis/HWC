@@ -16,17 +16,17 @@ int main()
 	if (parseRetval != 0)
 		return parseRetval;
 
-	PT_file *file = bisonParseRoot;
-
-	printf("file                      = %p\n", file);                        fflush(NULL);
-	printf("file->decls               = %p\n", file->decls);                 fflush(NULL);
-	printf("file->decls->    partDecl = %p\n", file->decls->    partDecl);   fflush(NULL);
-	printf("file->decls->plugtypeDecl = %p\n", file->decls->plugtypeDecl);   fflush(NULL);
-	printf("file->decls->prev         = %p\n", file->decls->prev);           fflush(NULL);
-
+	printf("\n");
 	printf("---- DEBUG OUTPUT BEGINS ----\n");
-	dump_file(file, 0);
-	printf("---- DEBUG OUTPUT ENDS ----\n");
+	printf("\n");
+
+	dump_file(bisonParseRoot, 0);
+
+	printf("\n");
+	printf("---- DEBUG OUTPUT ENDS, SEMANTIC PHASE BEGINS ----\n");
+	printf("\n");
+
+	HWC_NameScope *fileScope = semPhase1_file(bisonParseRoot);
 
 	return 0;
 }

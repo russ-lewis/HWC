@@ -4,3 +4,4 @@ parser.tab.h
 lex.yy.c
 hwcCompile.exe
 hwcCompile
+hwcCompile.exe.stackdump
