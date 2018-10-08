@@ -3,6 +3,14 @@
 
 
 
+// see the comment in parser.y, next to the 'file' rule.  I think this is a
+// hack, but it's the best I have so far.
+
+#include "pt/file.h"
+extern PT_file *bisonParseRoot;
+
+
+
 // declared and maintained by the lexer
 extern int colNum;
 
