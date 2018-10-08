@@ -74,9 +74,9 @@
 %type<stmt> stmt
 
 %type<plugtype_decl>  plugtype_decl
-%type<decl> opt_plugtype_fields
-%type<decl> plugtype_fields
-%type<decl> plugtype_field
+%type<decl> opt_fields
+%type<decl> fields
+%type<decl> field
 
 %type<array_decl> opt_array_decls
 %type<array_decl> array_decls
@@ -163,12 +163,12 @@ stmt:
 		                                           * is linked to another!
 		                                           */
 
-	|	"public"  plugtype_field
+	|	"public"  field
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_DECL;
 		                             $$->isPublic = 1;
 		                             $$->stmtDecl = $2; }
-	|	"private" plugtype_field
+	|	"private" field
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_DECL;
 		                             $$->isPublic = 0;
@@ -217,23 +217,23 @@ stmt:
 
 
 plugtype_decl:
-		"plugtype" IDENT '{' opt_plugtype_fields '}'
+		"plugtype" IDENT '{' opt_fields '}'
 		                  { $$ = malloc(sizeof(PT_plugtype_decl));
 		                    $$->name   = $2;
 		                    $$->fields = $4; }
 ;
 
-opt_plugtype_fields:
-		%empty           { $$ = NULL; }
-	|	plugtype_fields  { $$ = $1;   }
+opt_fields:
+		%empty  { $$ = NULL; }
+	|	fields  { $$ = $1;   }
 ;
 
-plugtype_fields:
-		                plugtype_field   { $$ = $1; $$->prev = NULL; }
-	|	plugtype_fields plugtype_field   { $$ = $2; $$->prev = $1;   }
+fields:
+		       field   { $$ = $1; $$->prev = NULL; }
+	|	fields field   { $$ = $2; $$->prev = $1;   }
 ;
 
-plugtype_field:
+field:
 		type IDENT opt_array_decls ';'
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->type = $1;
