@@ -23,8 +23,8 @@ typedef struct HWC_PlugType HWC_Plugtype;
 
 /* TODO: comments */
 
-HWC_NameScope *semPhase4_part    (HWC_Part     *part);
-HWC_NameScope *semPhase4_plugtype(HWC_PlugType *plugtype);
+int semPhase4_part    (HWC_Part     *part);
+int semPhase4_plugtype(HWC_PlugType *plugtype);
 
 
 #endif

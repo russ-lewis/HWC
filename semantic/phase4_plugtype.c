@@ -4,8 +4,8 @@
 #include "semantic/phase4.h"
 
 
-HWC_NameScope *semPhase4_plugtype(HWC_PlugType *plugType)
+int semPhase4_plugtype(HWC_PlugType *plugType)
 {
-	assert(0);
+	assert(0);   // TODO
 }
 

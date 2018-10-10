@@ -10,6 +10,8 @@ PT_SRC=pt/debug.c
 SEM_SRC=semantic/names.c \
         semantic/phase1_file.c \
         semantic/phase1_part.c semantic/phase1_plugtype.c \
+        semantic/phase2_part.c \
+        semantic/phase3_part.c \
         semantic/phase4_part.c semantic/phase4_plugtype.c
 WIRE_SRC=wiring/build_part.c
 
