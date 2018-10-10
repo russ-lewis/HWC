@@ -8,7 +8,8 @@
 
 
 
-/* HWC_NameSCope is not declared in the header.  Its implementation is private.
+/* HWC_NameSCope is not declared in the header.  Its implementation is
+ * private.
  *
  * On the other hand, this file does *NOT* give the declaration for
  * HWC_Nameable, since that struct is opaque to this code.  Currently (as of
@@ -18,6 +19,11 @@
  * here.
  */
 
+/* UPDATE: we moved this into the header because compile.c breaks the
+ *         encapsulation.  We'll move the struct back here if we later
+ *         change the design to obey the encapsulation.
+ */
+#if 0
 typedef struct HWC_NameScope_elem HWC_NameScope_elem;
 struct HWC_NameScope
 {
@@ -42,6 +48,7 @@ struct HWC_NameScope_elem
 
 	HWC_NameScope_elem *next;
 };
+#endif
 
 
 
