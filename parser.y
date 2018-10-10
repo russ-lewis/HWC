@@ -244,7 +244,21 @@ stmt:
 		                                     $$->ifExpr  = $3;
 		                                     $$->ifStmts = $5;
 		                                     $$->ifElse  = $7; }
+
+	|	"unittest" opt_unittest_varlist       '{' opt_stmts '}' { printf("TODO: implement unittest statements\n"); }
+	|	"unittest" opt_unittest_varlist IDENT '{' opt_stmts '}' { printf("TODO: implement unittest statements\n"); }
 ;
+
+opt_unittest_varlist:
+		%empty
+	|	'(' unittest_varlist ')'
+;
+
+unittest_varlist:
+		                     IDENT
+	|	unittest_varlist ',' IDENT
+;
+
 
 
 plugtype_decl:
