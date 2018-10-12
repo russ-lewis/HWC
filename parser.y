@@ -87,6 +87,7 @@
 %type<decl> opt_fields
 %type<decl> fields
 %type<decl> field
+%type<decl> field_decls
 
 %type<array_decl> opt_array_decls
 %type<array_decl> array_decls
@@ -238,18 +239,18 @@ stmt:
 		                         $$->ifStmts = $5;
 		                         $$->ifElse  = NULL; }
 	|	"if" '(' expr ')' stmt "else" stmt
-		                                   { printf("-Statement of if stmt\n");
-		                                     $$ = malloc(sizeof(PT_stmt));
-		                                     $$->mode    = STMT_IF;
-		                                     $$->ifExpr  = $3;
-		                                     $$->ifStmts = $5;
-		                                     $$->ifElse  = $7; }
+		                       { printf("-Statement of if stmt\n");
+		                         $$ = malloc(sizeof(PT_stmt));
+		                         $$->mode    = STMT_IF;
+		                         $$->ifExpr  = $3;
+		                         $$->ifStmts = $5;
+		                         $$->ifElse  = $7; }
 
 	|	"assert" '(' expr ')' ';'
-		                          { printf("-Statement of assertion\n");
-		                            $$ = malloc(sizeof(PT_stmt));
-		                            $$->mode      = STMT_ASRT;
-		                            $$->assertion = $3; }
+		                       { printf("-Statement of assertion\n");
+		                         $$ = malloc(sizeof(PT_stmt));
+		                         $$->mode      = STMT_ASRT;
+		                         $$->assertion = $3; }
 ;
 
 
@@ -270,12 +271,26 @@ fields:
 	|	fields field   { $$ = $2; $$->prev = $1;   }
 ;
 
+/* Added support for "bit a, b[1], c[4], d;" with idea from: */
+/* https://stackoverflow.com/a/33066472 */
+/* HOWEVER, THIS SOLUTION BREAKS THE ASSUMPTION THAT WHEN A pt_decl IS DISCLARED IN A PART AS A STATEMENT, THE prev FIELD IN pt_decl IS NULL */
+/* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? PROBABLY. SO FIX LATER. */
 field:
-		type IDENT opt_array_decls ';'
+		field_decls ';'	{ $$ = $1; }
+;
+
+field_decls:
+		type IDENT opt_array_decls
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->type = $1;
 		                   $$->name = $2;
 		                   $$->arraySuffix = $3; }
+	|	field_decls ',' IDENT opt_array_decls
+		                 { $$ = malloc(sizeof(PT_decl));
+		                   $$->prev = $1;
+		                   $$->type = $1->type;
+		                   $$->name = $3;
+		                   $$->arraySuffix = $4; }
 ;
 
 
