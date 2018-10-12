@@ -333,7 +333,10 @@ expr2:
 expr3:
 		expr4
 	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
-	|	expr3 '[' expr2 ']'   { /* TODO */ }
+	|	expr3 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                        $$->mode      = EXPR_ARR;
+		                        $$->arrayExpr = $1;
+		                        $$->indexExpr = $3; }
 ;
 
 expr4:

@@ -289,6 +289,14 @@ void dump_expr(PT_expr *obj, int spaces)
 			printf(" accessing field:\n");
 			dump_expr(obj->field, spaces+2);
 			break;
+
+		case EXPR_ARR:
+			printf("Expr: ARR, into array expr\n");
+			dump_expr(obj->arrayExpr, spaces+2);
+			dump_helper(spaces);
+			printf(" index of\n");
+			dump_expr(obj->indexExpr, spaces+2);
+			break;
 	}
 }
 
