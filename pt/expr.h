@@ -12,6 +12,7 @@ enum {
 	EXPR_NOT,
 	EXPR_DOT,
 	EXPR_ARR,
+	EXPR_PAREN,
 
 	EXPR__LAST_PARSER_MODE,
 };
@@ -41,6 +42,9 @@ struct PT_expr
 	/* EXPR_ARR */
 	PT_expr *arrayExpr;
 	PT_expr *indexExpr;
+
+	/* EXPR_PAREN */
+	PT_expr *paren;
 };
 
 

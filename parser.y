@@ -99,6 +99,7 @@
 %type<expr> expr3
 %type<expr> expr4
 %type<expr> expr5
+%type<expr> expr6
 
 
 /* this solves the if-else chaining problem.  Canonical example is the
@@ -329,7 +330,9 @@ type:
 ;
 
 
-
+/* Note to self(Jackson): It is better to call this "expr" instead of "expr1" */
+/* This is because nonterminals trying to use "expr" shouldn't care about if it's one of several. */
+/* ie, it's good implementation hiding. */
 expr:
 		expr2
 	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
@@ -365,7 +368,15 @@ expr4:
 		                        $$->field   = $3; }
 ;
 
+/* Remember to keep parens as low as possible. Should they be below even IDENT/NUM? */
 expr5:
+		expr6
+	|	'(' expr ')'         { $$ = malloc(sizeof(PT_expr));
+		                       $$->mode  = EXPR_PAREN;
+		                       $$->paren = $2; }
+;
+
+expr6:
 		IDENT                 { $$ = malloc(sizeof(PT_expr));
 		                        $$->mode = EXPR_IDENT;
 		                        $$->name = $1; }

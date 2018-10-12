@@ -297,6 +297,11 @@ void dump_expr(PT_expr *obj, int spaces)
 			printf(" index of\n");
 			dump_expr(obj->indexExpr, spaces+2);
 			break;
+
+		case EXPR_PAREN:
+			printf("EXPR: PAREN, with expr of\n");
+			dump_expr(obj->paren, spaces+2);
+			break;
 	}
 }
 
