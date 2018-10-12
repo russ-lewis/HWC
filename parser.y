@@ -137,13 +137,13 @@
  */
 
 file:
-		%empty             { $$ = malloc(sizeof(PT_file));
-		                     $$->decls = NULL;
-		                     bisonParseRoot = $$; }
+		%empty           { $$ = malloc(sizeof(PT_file));
+		                   $$->decls = NULL;
+		                   bisonParseRoot = $$; }
 
-	|	file_decls         { $$ = malloc(sizeof(PT_file));
-		                     $$->decls = $1;
-		                     bisonParseRoot = $$; }
+	|	file_decls       { $$ = malloc(sizeof(PT_file));
+		                   $$->decls = $1;
+		                   bisonParseRoot = $$; }
 ;
 
 file_decls:
@@ -301,20 +301,19 @@ array_decls:
 type:
 		"bit"              { $$ = malloc(sizeof(PT_type));
 		                     $$->mode = TYPE_BIT; }
-	|	IDENT					 { $$ = malloc(sizeof(PT_type));
-									$$->mode  = TYPE_IDENT;
-									$$->ident = $1; }
+	|	IDENT              { $$ = malloc(sizeof(PT_type));
+		                     $$->mode  = TYPE_IDENT;
+		                     $$->ident = $1; }
 	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
 	|	type '[' expr2 ']'   { printf("--Array of size [EXPR] declared\n");
-		                     $$ = malloc(sizeof(PT_type));
-		                     $$->mode = TYPE_ARRAY;
-		                     $$->base = $1;
-		                     $$->len  = $3; }
+		                       $$ = malloc(sizeof(PT_type));
+		                       $$->mode = TYPE_ARRAY;
+		                       $$->base = $1;
+		                       $$->len  = $3; }
 ;
 
 
 
-/* STILL TABS HERE */
 expr:
 		expr2
 	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
@@ -335,12 +334,12 @@ expr3:
 ;
 
 expr4:
-		IDENT						{	$$ = malloc(sizeof(PT_expr));
-										$$->mode = EXPR_IDENT;
-										$$->name = $1; }
-	|	NUM						{	$$ = malloc(sizeof(PT_expr));
-										$$->mode = EXPR_NUM;
-										$$->num  = $1; }
+		IDENT                 { $$ = malloc(sizeof(PT_expr));
+		                        $$->mode = EXPR_IDENT;
+		                        $$->name = $1; }
+	|	NUM                   { $$ = malloc(sizeof(PT_expr));
+		                        $$->mode = EXPR_NUM;
+		                        $$->num  = $1; }
 ;
 
 
