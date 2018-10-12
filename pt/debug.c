@@ -276,6 +276,19 @@ void dump_expr(PT_expr *obj, int spaces)
 			printf("RHand:\n");
 			dump_expr(obj->rHand, spaces+4);
 			break;
+
+		case EXPR_NOT:
+			printf("Expr: NOT, with expr\n");
+			dump_expr(obj->notExpr, spaces+2);
+			break;
+
+		case EXPR_DOT:
+			printf("Expr: DOT, using expr\n");
+			dump_expr(obj->dotExpr, spaces+2);
+			dump_helper(spaces);
+			printf(" accessing field:\n");
+			dump_expr(obj->field, spaces+2);
+			break;
 	}
 }
 

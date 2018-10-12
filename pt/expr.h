@@ -9,6 +9,8 @@ enum {
 	EXPR_IDENT = 1,
 	EXPR_NUM,
 	EXPR_EQUAL,
+	EXPR_NOT,
+	EXPR_DOT,
 
 	EXPR__LAST_PARSER_MODE,
 };
@@ -27,6 +29,13 @@ struct PT_expr
 	/* EXPR_EQUAL */
 	PT_expr *lHand;
 	PT_expr *rHand;
+
+	/* EXPR_NOT */
+	PT_expr *notExpr;
+
+	/* EXPR_DOT */
+	PT_expr *dotExpr;
+	PT_expr *field;
 };
 
 

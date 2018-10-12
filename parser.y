@@ -97,6 +97,7 @@
 %type<expr> expr2
 %type<expr> expr3
 %type<expr> expr4
+%type<expr> expr5
 
 
 /* this solves the if-else chaining problem.  Canonical example is the
@@ -324,7 +325,9 @@ expr:
 
 expr2:
 		expr3
-	|	'!' expr2          { /* TODO */ }
+	|	'!' expr2          { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode    = EXPR_NOT;
+		                     $$->notExpr = $2; }
 ;
 
 expr3:
@@ -334,6 +337,17 @@ expr3:
 ;
 
 expr4:
+		expr5
+	|	expr4 '.' expr5       /* Do we allow expr.expr.expr.expr endlessly, or only expr.expr? I think it's the later, but I made it the former just in case */
+		                      /* Do we allow expr4.expr3[expr2]? This code doesn't allow for that, and shift/reduce conflicts are created when I try. */
+		                      /*    Fixing the above shift/reduce conflict idea: Swap expr3 and expr4's components. */
+                            { $$ = malloc(sizeof(PT_expr));
+		                        $$->mode    = EXPR_DOT;
+		                        $$->dotExpr = $1;
+		                        $$->field   = $3; }
+;
+
+expr5:
 		IDENT                 { $$ = malloc(sizeof(PT_expr));
 		                        $$->mode = EXPR_IDENT;
 		                        $$->name = $1; }
