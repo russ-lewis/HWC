@@ -8,13 +8,23 @@ typedef struct PT_expr      PT_expr;
 enum {
 	EXPR_IDENT = 1,
 	EXPR_NUM,
-	EXPR_EQUAL,
+	EXPR_TWOOP,
 	EXPR_NOT,
 	EXPR_DOT,
 	EXPR_ARR,
 	EXPR_PAREN,
 
 	EXPR__LAST_PARSER_MODE,
+};
+
+enum {
+	OP_EQUALS,
+	OP_NEQUAL,
+	OP_BITAND,
+	OP_AND,
+	OP_BITOR,
+	OP_OR,
+	OP_XOR,
 };
 
 struct PT_expr
@@ -28,7 +38,8 @@ struct PT_expr
 	/* EXPR_NUM */
 	char *num;
 
-	/* EXPR_EQUAL */
+	/* EXPR_TWOOP */
+	int opMode;
 	PT_expr *lHand;
 	PT_expr *rHand;
 

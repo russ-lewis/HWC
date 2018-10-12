@@ -256,7 +256,7 @@ void dump_expr(PT_expr *obj, int spaces)
 	switch (obj->mode)
 	{
 		default:
-			printf("-- debug: UNRECOGNIZED TYPE ---\n");
+			printf("--- debug: UNRECOGNIZED EXPR ---\n");
 			break;
 
 		case EXPR_IDENT:
@@ -267,8 +267,22 @@ void dump_expr(PT_expr *obj, int spaces)
 			printf("Expr: NUM, value of %s\n", obj->num);
 			break;
 
-		case EXPR_EQUAL:
-			printf("Expr: EQUAL, with exprs\n");
+		case EXPR_TWOOP:
+			printf("Expr: TWOOP of mode");
+			// Is there a way to compress this code?
+			switch (obj->opMode)
+			{
+				default:
+					printf("\n-- debug: UNRECOGNIZED TWO OP EXPR ---\n");
+					break;
+				case OP_EQUALS:
+					printf(" EQUALS ");
+					break;
+				case OP_NEQUAL:
+					printf(" NEQUAL ");
+					break;
+			}
+			printf("with exprs\n");
 			dump_helper(spaces+2);
 			printf("LHand:\n");
 			dump_expr(obj->lHand, spaces+4);

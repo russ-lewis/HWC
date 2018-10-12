@@ -336,9 +336,10 @@ type:
 expr:
 		expr2
 	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode  = EXPR_EQUAL;
-		                     $$->lHand = $1;
-		                     $$->rHand = $3; }
+		                     $$->mode   = EXPR_TWOOP;
+									$$->opMode = OP_EQUALS;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
 ;
 
 expr2:
