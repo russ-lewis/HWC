@@ -340,6 +340,11 @@ expr:
 									$$->opMode = OP_EQUALS;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
+	|	expr2 "!=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+									$$->opMode = OP_NEQUAL;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
 ;
 
 expr2:
