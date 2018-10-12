@@ -1,0 +1,10 @@
+part simple_comparing
+{
+	public bit a, b;
+
+	if(a == b)
+		a = 0;
+
+	if(a != b)
+		b = 0;
+}

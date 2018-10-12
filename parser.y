@@ -409,12 +409,18 @@ expr5:
 ;
 
 expr6:
-		IDENT                 { $$ = malloc(sizeof(PT_expr));
-		                        $$->mode = EXPR_IDENT;
-		                        $$->name = $1; }
-	|	NUM                   { $$ = malloc(sizeof(PT_expr));
-		                        $$->mode = EXPR_NUM;
-		                        $$->num  = $1; }
+		IDENT   { $$ = malloc(sizeof(PT_expr));
+		          $$->mode  = EXPR_IDENT;
+		          $$->name  = $1; }
+	|	NUM     { $$ = malloc(sizeof(PT_expr));
+		          $$->mode  = EXPR_NUM;
+		          $$->num   = $1; }
+	|	"true"  { $$ = malloc(sizeof(PT_expr));
+		          $$->mode  = EXPR_BOOL;
+		          $$->value = 1;  }
+	|	"false" { $$ = malloc(sizeof(PT_expr));
+		          $$->mode  = EXPR_BOOL;
+		          $$->value = 0;  }
 ;
 
 

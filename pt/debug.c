@@ -226,6 +226,10 @@ void dump_expr(PT_expr *obj, int spaces)
 			printf("Expr: NUM, value of %s\n", obj->num);
 			break;
 
+		case EXPR_BOOL:
+			printf("Expr: BOOL, value of %d\n", obj->value);
+			break;
+
 		case EXPR_TWOOP:
 			printf("Expr: TWOOP of mode");
 			// Is there a way to compress this code?

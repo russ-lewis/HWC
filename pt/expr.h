@@ -8,6 +8,7 @@ typedef struct PT_expr      PT_expr;
 enum {
 	EXPR_IDENT = 1,
 	EXPR_NUM,
+	EXPR_BOOL,
 	EXPR_TWOOP,
 	EXPR_NOT,
 	EXPR_DOT,
@@ -37,6 +38,9 @@ struct PT_expr
 
 	/* EXPR_NUM */
 	char *num;
+
+	/* EXPR_BOOL */
+	int value;
 
 	/* EXPR_TWOOP */
 	int opMode;
