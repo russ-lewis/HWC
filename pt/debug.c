@@ -240,6 +240,21 @@ void dump_expr(PT_expr *obj, int spaces)
 				case OP_NEQUAL:
 					printf(" NEQUAL ");
 					break;
+				case OP_BITAND:
+					printf(" BIT AND ");
+					break;
+				case OP_AND:
+					printf(" AND ");
+					break;
+				case OP_BITOR:
+					printf(" BIT OR ");
+					break;
+				case OP_OR:
+					printf(" OR ");
+					break;
+				case OP_XOR:
+					printf(" XOR ");
+					break;
 			}
 			printf("with exprs\n");
 			dump_helper(spaces+2);

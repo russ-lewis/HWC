@@ -1,0 +1,13 @@
+part operator_chain
+{
+	public bit a;
+	public bit b;
+	public bit c;
+
+	if(a & b)
+		if(a | b)
+			if(a ^ b)
+				if(a && b)
+					if(a || b)
+						c = 1;
+}

@@ -345,6 +345,32 @@ expr:
 									$$->opMode = OP_NEQUAL;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
+	/* Should insert an expr3 to allow for chaining of && and || and so on */
+	|	expr2 '&'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+									$$->opMode = OP_BITAND;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 "&&" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+									$$->opMode = OP_AND;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '|'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+									$$->opMode = OP_BITOR;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 "||" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+									$$->opMode = OP_OR;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '^'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+									$$->opMode = OP_XOR;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
 ;
 
 expr2:
