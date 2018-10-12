@@ -21,7 +21,6 @@ struct PT_type
 	/* TYPE_ARRAY */
 	PT_type *base;
 	PT_expr *len;
-	//char    *len;
 
 	/* TYPE_IDENT */
 	char	  *ident;
