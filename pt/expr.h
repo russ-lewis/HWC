@@ -26,6 +26,12 @@ enum {
 	OP_BITOR,
 	OP_OR,
 	OP_XOR,
+	/* Explicitly compile-time */
+	OP_PLUS,
+	OP_MINUS,
+	OP_TIMES,
+	OP_DIVIDE,
+	OP_MODULO,
 };
 
 struct PT_expr

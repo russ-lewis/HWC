@@ -259,6 +259,21 @@ void dump_expr(PT_expr *obj, int spaces)
 				case OP_XOR:
 					printf(" XOR ");
 					break;
+				case OP_PLUS:
+					printf(" PLUS ");
+					break;
+				case OP_MINUS:
+					printf(" MINUS ");
+					break;
+				case OP_TIMES:
+					printf(" TIMES ");
+					break;
+				case OP_DIVIDE:
+					printf(" DIVIDE ");
+					break;
+				case OP_MODULO:
+					printf(" MODULO ");
+					break;
 			}
 			printf("with exprs\n");
 			dump_helper(spaces+2);

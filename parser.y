@@ -337,38 +337,64 @@ expr:
 		expr2
 	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
-									$$->opMode = OP_EQUALS;
+		                     $$->opMode = OP_EQUALS;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 "!=" expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
-									$$->opMode = OP_NEQUAL;
+		                     $$->opMode = OP_NEQUAL;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	/* Should insert an expr3 to allow for chaining of && and || and so on */
+	/* Is there any way to compress these down? There's a lot of redundant code */
 	|	expr2 '&'  expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
-									$$->opMode = OP_BITAND;
+		                     $$->opMode = OP_BITAND;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 "&&" expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
-									$$->opMode = OP_AND;
+		                     $$->opMode = OP_AND;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '|'  expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
-									$$->opMode = OP_BITOR;
+		                     $$->opMode = OP_BITOR;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 "||" expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
-									$$->opMode = OP_OR;
+		                     $$->opMode = OP_OR;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '^'  expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
-									$$->opMode = OP_XOR;
+		                     $$->opMode = OP_XOR;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '+'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_PLUS;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '-'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_MINUS;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '*'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_TIMES;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '/'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_DIVIDE;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '%'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_MODULO;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 ;
