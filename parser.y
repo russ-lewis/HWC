@@ -181,12 +181,11 @@ stmts:
 	|	stmts stmt   { $$ = $2; $$->prev = $1;   }
 ;
 
-/* TODO: CHANGE THESE TO "pub/priv" plugtype_fields */
 stmt:
 		'{'       '}'              { $$ = NULL; } /* NOP STATEMENT */
 
-	|	'{' stmts '}'              { $$ = $2; }   /* TODO: make this a actual
-		                                           * nested types, since it's a
+	|	'{' stmts '}'              { $$ = $2; }   /* TODO: make this an actual
+		                                           * nested type, since it's a
 		                                           * name scope.
 		                                           *
 		                                           * BUG BUG BUG - we'll lose all
@@ -244,6 +243,12 @@ stmt:
 		                                     $$->ifExpr  = $3;
 		                                     $$->ifStmts = $5;
 		                                     $$->ifElse  = $7; }
+
+	|	"assert" '(' expr ')' ';'
+		                          { printf("-Statement of assertion\n");
+		                            $$ = malloc(sizeof(PT_stmt));
+		                            $$->mode      = STMT_ASRT;
+		                            $$->assertion = $3; }
 ;
 
 
@@ -312,15 +317,15 @@ type:
 /* STILL TABS HERE */
 expr:
 		expr2
-	|	expr2 "==" expr2			{	$$ = malloc(sizeof(PT_expr));
-											$$->mode  = EXPR_EQUAL;
-											$$->lHand = $1;
-											$$->rHand = $3; }
+	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode  = EXPR_EQUAL;
+		                     $$->lHand = $1;
+		                     $$->rHand = $3; }
 ;
 
 expr2:
 		expr3
-	|	'!' expr2				{ /* TODO */ }
+	|	'!' expr2          { /* TODO */ }
 ;
 
 expr3:

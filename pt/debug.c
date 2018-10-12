@@ -180,6 +180,13 @@ void dump_stmt(PT_stmt *obj, int spaces)
 			printf("stmt: ELSE STMT\n");
 			dump_stmt(obj->elseStmts, spaces+2);
 			break;
+
+		case STMT_ASRT:
+			printf("stmt: ASSERTION\n");
+			dump_expr(obj->assertion, spaces+2);
+			break;
+
+		
 	}
 
 }

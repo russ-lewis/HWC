@@ -1,0 +1,9 @@
+part assertionTest
+{
+	public bit x;
+	public bit y;
+	private bit z;
+
+	if(x == y)
+		assert(z);
+}
