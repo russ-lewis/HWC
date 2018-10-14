@@ -112,7 +112,8 @@
  *          stmt
  */
 %right "if" "else"
-
+/* Probably not the best fix. Discuss with Russ. */
+%left  '+' '-' '*' '/' '%' '&' "&&" '|' "||" '^'
 
 /* Grammar Rules */
 %%
