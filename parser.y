@@ -187,22 +187,14 @@ stmts:
 ;
 
 stmt:
-		'{'       '}'              { $$ = NULL; } /* NOP STATEMENT */
-
-	|	'{' stmts '}'              { $$ = $2; }   /* TODO: make this an actual
-		                                           * nested type, since it's a
-		                                           * name scope.
-		                                           *
-		                                           * BUG BUG BUG - we'll lose all
-		                                           * but the last stmt when this
-		                                           * is linked to another!
-		                                           */
-		                                          /* Would this necessarily be a
-                                                   problem if we just don't
-                                                   allow { stmts } on its own
-                                                   in the semantic phase?
-                                                 */
-
+		'{' opt_stmts '}'          { /* we need to nest this block as a
+		                              * single statement because (a) it's
+		                              * currently a list, not one stmt; and
+		                              * (b) because it creates a name scope.
+		                              */
+		                             $$ = malloc(sizeof(PT_stmt));
+		                             $$->mode  = STMT_BLOCK;
+		                             $$->stmts = $2; }
 	|	"public"  field
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_DECL;
