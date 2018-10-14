@@ -100,6 +100,7 @@
 %type<expr> expr4
 %type<expr> expr5
 %type<expr> expr6
+%type<expr> expr7
 
 
 /* this solves the if-else chaining problem.  Canonical example is the
@@ -365,8 +366,11 @@ expr:
 		                     $$->opMode = OP_GREATEREQ;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	/* Should insert an expr3 to allow for chaining of && and || and so on */
-	/* Is there any way to compress these down? There's a lot of redundant code */
+
+/* Should insert an expr3 to allow for chaining of && and || and so on */
+/* Is there any way to compress these down? There's a lot of redundant code */
+expr2:
+		expr3
 	|	expr2 '&'  expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_BITAND;
@@ -419,27 +423,28 @@ expr:
 		                     $$->rHand  = $3; }
 ;
 
-expr2:
-		expr3
-	|	'!' expr2          { $$ = malloc(sizeof(PT_expr));
+/* I presume !!!!!!!!!expr is something the semantic phase handles */
+expr3:
+		expr4
+	|	'!' expr3          { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode    = EXPR_NOT;
 		                     $$->notExpr = $2; }
 ;
 
-expr3:
-		expr4
+expr4:
+		expr5
 	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
-	|	expr3 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+	|	expr4 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
 		                        $$->mode      = EXPR_ARR;
 		                        $$->arrayExpr = $1;
 		                        $$->indexExpr = $3; }
 ;
 
-expr4:
-		expr5
-	|	expr4 '.' expr5       /* Do we allow expr.expr.expr.expr endlessly, or only expr.expr? I think it's the later, but I made it the former just in case */
-		                      /* Do we allow expr4.expr3[expr2]? This code doesn't allow for that, and shift/reduce conflicts are created when I try. */
-		                      /*    Fixing the above shift/reduce conflict idea: Swap expr3 and expr4's components. */
+expr5:
+		expr6
+	|	expr5 '.' expr6       /* Do we allow expr.expr.expr.expr endlessly, or only expr.expr? I think it's the later, but I made it the former just in case */
+		                      /* Do we allow expr5.expr4[expr3]? This code doesn't allow for that, and shift/reduce conflicts are created when I try. */
+		                      /*    Fixing the above shift/reduce conflict idea: Swap expr4 and expr5's components. */
                             { $$ = malloc(sizeof(PT_expr));
 		                        $$->mode    = EXPR_DOT;
 		                        $$->dotExpr = $1;
@@ -447,14 +452,14 @@ expr4:
 ;
 
 /* Remember to keep parens as low as possible. Should they be below even IDENT/NUM? */
-expr5:
-		expr6
+expr6:
+		expr7
 	|	'(' expr ')'         { $$ = malloc(sizeof(PT_expr));
 		                       $$->mode  = EXPR_PAREN;
 		                       $$->paren = $2; }
 ;
 
-expr6:
+expr7:
 		IDENT   { $$ = malloc(sizeof(PT_expr));
 		          $$->mode  = EXPR_IDENT;
 		          $$->name  = $1; }
