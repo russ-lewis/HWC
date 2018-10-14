@@ -197,6 +197,11 @@ stmt:
 		                                           * but the last stmt when this
 		                                           * is linked to another!
 		                                           */
+		                                          /* Would this necessarily be a
+                                                   problem if we just don't
+                                                   allow { stmts } on its own
+                                                   in the semantic phase?
+                                                 */
 
 	|	"public"  field
 		                           { $$ = malloc(sizeof(PT_stmt));
@@ -277,7 +282,8 @@ fields:
 /* Added support for "bit a, b[1], c[4], d;" with idea from: */
 /* https://stackoverflow.com/a/33066472 */
 /* HOWEVER, THIS SOLUTION BREAKS THE ASSUMPTION THAT WHEN A pt_decl IS DISCLARED IN A PART AS A STATEMENT, THE prev FIELD IN pt_decl IS NULL */
-/* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? PROBABLY. SO FIX LATER. */
+/* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? */
+/* Maybe not, since we could trust the Semantic phase to make sense of it */
 field:
 		field_decls ';'	{ $$ = $1; }
 ;
@@ -452,7 +458,6 @@ expr5:
 		                        $$->field   = $3; }
 ;
 
-/* Remember to keep parens as low as possible. Should they be below even IDENT/NUM? */
 expr6:
 		expr7
 	|	'(' expr ')'         { $$ = malloc(sizeof(PT_expr));
