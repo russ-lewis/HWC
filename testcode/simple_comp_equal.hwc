@@ -1,4 +1,4 @@
-part simple_comparing
+part simple_comp_equal
 {
 	public bit a, b;
 

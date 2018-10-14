@@ -331,7 +331,7 @@ type:
 
 
 /* Note to self(Jackson): It is better to call this "expr" instead of "expr1" */
-/* This is because nonterminals trying to use "expr" shouldn't care about if it's one of several. */
+/* This is because nonterminals trying to use "expr" shouldn't care about if "expr" is one of several. */
 /* ie, it's good implementation hiding. */
 expr:
 		expr2
@@ -343,6 +343,26 @@ expr:
 	|	expr2 "!=" expr2   { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_NEQUAL;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '<' expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_LESS;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '>' expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_GREATER;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 "<=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_LESSEQ;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 ">=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_GREATEREQ;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	/* Should insert an expr3 to allow for chaining of && and || and so on */

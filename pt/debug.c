@@ -244,6 +244,18 @@ void dump_expr(PT_expr *obj, int spaces)
 				case OP_NEQUAL:
 					printf(" NEQUAL ");
 					break;
+				case OP_LESS:
+					printf(" LESS THAN ");
+					break;
+				case OP_GREATER:
+					printf(" GREATER THAN ");
+					break;
+				case OP_LESSEQ:
+					printf(" LESS THAN OR EQUAL TO ");
+					break;
+				case OP_GREATEREQ:
+					printf(" GREATER THAN OR EQUAL TO ");
+					break;
 				case OP_BITAND:
 					printf(" BIT AND ");
 					break;
