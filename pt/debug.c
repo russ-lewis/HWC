@@ -107,7 +107,7 @@ void dump_stmt(PT_stmt *obj, int spaces)
 			break;
 
 		case STMT_DECL:
-			printf("stmt: DECL, that is %s and has the decl vars:\n", obj->isPublic?"public":"private");
+			printf("stmt: DECL, that is %s, is%s a subpart, and has the decl vars:\n", obj->isPublic?"public":"private", obj->isSubpart?"":" not");
 			dump_decl(obj->stmtDecl, spaces+2);
 			break;
 
@@ -262,13 +262,13 @@ void dump_expr(PT_expr *obj, int spaces)
 					printf(" GREATER THAN OR EQUAL TO ");
 					break;
 				case OP_BITAND:
-					printf(" BIT AND ");
+					printf(" BITWISE AND ");
 					break;
 				case OP_AND:
 					printf(" AND ");
 					break;
 				case OP_BITOR:
-					printf(" BIT OR ");
+					printf(" BITWISE OR ");
 					break;
 				case OP_OR:
 					printf(" OR ");
@@ -299,6 +299,11 @@ void dump_expr(PT_expr *obj, int spaces)
 			dump_helper(spaces+2);
 			printf("RHand:\n");
 			dump_expr(obj->rHand, spaces+4);
+			break;
+
+		case EXPR_BITNOT:
+			printf("Expr: BITWISE NOT, with expr\n");
+			dump_expr(obj->notExpr, spaces+2);
 			break;
 
 		case EXPR_NOT:

@@ -26,6 +26,7 @@ struct PT_stmt
 
 	/* STMT_DECL */
 	int isPublic;       // 1 for true, 0 for false
+	int isSubpart;      // 1 for true, 0 for false
 	PT_decl *stmtDecl;
 
 	/* STMT_BLOCK */

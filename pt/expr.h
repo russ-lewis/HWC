@@ -10,6 +10,7 @@ enum {
 	EXPR_NUM,
 	EXPR_BOOL,
 	EXPR_TWOOP,
+	EXPR_BITNOT,
 	EXPR_NOT,
 	EXPR_DOT,
 	EXPR_ARR,
@@ -57,7 +58,7 @@ struct PT_expr
 	PT_expr *lHand;
 	PT_expr *rHand;
 
-	/* EXPR_NOT */
+	/* EXPR_NOT and EXPR_BITNOT */
 	PT_expr *notExpr;
 
 	/* EXPR_DOT */

@@ -197,19 +197,22 @@ stmt:
 		                             $$->stmts = $2; }
 	|	"subpart" field
 		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode     = STMT_DECL;
-		                             $$->isPublic = 2;
-		                             $$->stmtDecl = $2; }
+		                             $$->mode      = STMT_DECL;
+		                             $$->isPublic  = 0;
+		                             $$->isSubpart = 1;
+		                             $$->stmtDecl  = $2; }
 	|	"public"  field
 		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode     = STMT_DECL;
-		                             $$->isPublic = 1;
-		                             $$->stmtDecl = $2; }
+		                             $$->mode      = STMT_DECL;
+		                             $$->isPublic  = 1;
+		                             $$->isSubpart = 0;
+		                             $$->stmtDecl  = $2; }
 	|	"private" field
 		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode     = STMT_DECL;
-		                             $$->isPublic = 0;
-		                             $$->stmtDecl = $2; }
+		                             $$->mode      = STMT_DECL;
+		                             $$->isPublic  = 0;
+		                             $$->isSubpart = 0;
+		                             $$->stmtDecl  = $2; }
 	|	expr '=' expr ';'
 		                           { printf("-Statement of expr = expr\n");
 		                             $$ = malloc(sizeof(PT_stmt));
@@ -448,7 +451,7 @@ expr3:
 		                     $$->mode    = EXPR_NOT;
 		                     $$->notExpr = $2; }
 	|	'~' expr3          { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode    = EXPR_NOT;
+		                     $$->mode    = EXPR_BITNOT;
 		                     $$->notExpr = $2; }
 ;
 
