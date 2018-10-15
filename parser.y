@@ -428,6 +428,9 @@ expr3:
 	|	'!' expr3          { $$ = malloc(sizeof(PT_expr));
 		                     $$->mode    = EXPR_NOT;
 		                     $$->notExpr = $2; }
+	|	'~' expr3          { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode    = EXPR_NOT;
+		                     $$->notExpr = $2; }
 ;
 
 expr4:

@@ -175,6 +175,8 @@ _*[a-zA-Z][_a-zA-Z0-9]*		return tokenLookup(yytext, 0);
 [=]					return yytext[0];
 ;						return yytext[0];
 ,						return yytext[0];
+!						return yytext[0];
+~						return yytext[0];
 [\&\|\^]				return yytext[0];
 [<>]					return yytext[0];
 
