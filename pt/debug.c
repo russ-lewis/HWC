@@ -111,6 +111,11 @@ void dump_stmt(PT_stmt *obj, int spaces)
 			dump_decl(obj->stmtDecl, spaces+2);
 			break;
 
+		case STMT_BLOCK:
+			printf("stmt: BLOCK, that has stmts...\n");
+			dump_stmt(obj->stmts, spaces+2);
+			break;
+
 		case STMT_CONN:
 			printf("stmt: CONNECTION, with left and right exprs:\n");
 			dump_expr(obj->lHand, spaces+2);

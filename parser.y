@@ -195,6 +195,11 @@ stmt:
 		                             $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode  = STMT_BLOCK;
 		                             $$->stmts = $2; }
+	|	"subpart" field
+		                           { $$ = malloc(sizeof(PT_stmt));
+		                             $$->mode     = STMT_DECL;
+		                             $$->isPublic = 2;
+		                             $$->stmtDecl = $2; }
 	|	"public"  field
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode     = STMT_DECL;
