@@ -6,7 +6,8 @@
 #include "phase1.h"
 
 
-HWC_PlugType *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype)
+HWC_PlugType *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype,
+                                 HWC_NameScope    *fileScope)
 {
 	assert(0);    // TODO
 
