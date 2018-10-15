@@ -27,7 +27,7 @@ HWC_NameScope *semPhase1_file(PT_file *parsedFile)
 		{
 			name = cur->partDecl->name;
 
-			thing->part = semPhase1_part(cur->partDecl);
+			thing->part = semPhase1_part(cur->partDecl, names);
 			  assert(thing->part != NULL);
 			thing->plugtype = NULL;
 		}
@@ -36,7 +36,7 @@ HWC_NameScope *semPhase1_file(PT_file *parsedFile)
 			name = cur->plugtypeDecl->name;
 
 			thing->part = NULL;
-			thing->plugtype = semPhase1_plugtype(cur->plugtypeDecl);
+			thing->plugtype = semPhase1_plugtype(cur->plugtypeDecl, names);
 			  assert(thing->plugtype != NULL);
 		}
 

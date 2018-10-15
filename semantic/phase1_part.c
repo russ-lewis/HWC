@@ -1,57 +1,38 @@
 
 #include <stdio.h>
 #include <malloc.h>
+#include <memory.h>
+
 #include <assert.h>
 
 #include "phase1.h"
 
 
-HWC_Part *semPhase1_part(PT_part_decl *parsedPart)
+HWC_Part *semPhase1_part(PT_part_decl *parsedPart, HWC_NameScope *fileNames)
 {
-	assert(0);    // TODO
-
-#if 0
-	HWC_NameScope *names = nameScope_malloc(NULL);
-
-	// should we traverse through the linked list in the correct order?
-	// This version walks through them backwards (that is, it obeys the
-	// structure of the structure of the list)
-
-	PT_file_decl *cur = parsedFile->decls;
-	while (cur != NULL)
+	HWC_Part *retval = malloc(sizeof(HWC_Part));
+	if (retval == NULL)
 	{
-		assert((cur->partDecl != NULL) != (cur->plugtypeDecl != NULL));
+		assert(0);   // TODO: debug message
+		return NULL;
+	}
+	memset(retval, 0, sizeof(*retval));
 
-		char *name;
-		HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
-		  assert(thing != NULL);   // TODO: better error checking
 
-		if (cur->partDecl != NULL)
-		{
-			name = cur->partDecl->name;
+	retval->phases_completed = retval->phases_begun = 1;
 
-			thing->part = semPhase1_part(cur->partDecl);
-			  assert(thing->part != NULL);
-			thing->plugtype = NULL;
-		}
-		else if (cur->plugtypeDecl != NULL)
-		{
-			name = cur->plugtypeDecl->name;
-
-			thing->part = NULL;
-			thing->plugtype = semPhase1_plugtype(cur->plugtypeDecl);
-			  assert(thing->plugtype != NULL);
-		}
-
-		if (nameScope_search(names, name) != NULL)
-		{
-			assert(0);   // TODO: report syntax error
-		}
-
-		nameScope_add(names, name,thing);
+	retval->publicNames = nameScope_malloc(fileNames);
+	if (retval->publicNames == NULL)
+	{
+		assert(0);   // TODO: debug message
+		free(retval);
+		return NULL;
 	}
 
-	return names;
-#endif
+
+	assert(0);    // TODO: fill in stmts
+
+
+	return retval;
 }
 

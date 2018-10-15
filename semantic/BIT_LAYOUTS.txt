@@ -1,0 +1,214 @@
+BIT LAYOUTS
+
+In order to implement the compiler, we must have a way of unambiguously
+identifying bits (or ranges of bits) inside plugs and parts.  We need,
+when we do this, to be able to account both for the *types* and for the
+instantiation of the types - however, we have to also recognize a third,
+hybrid situation: which is the instantiation of a type *inside* of the
+declaration of another.
+
+To handle this, we will first look at plugtypes, then plug expressions -
+and then generalize to parts.
+
+PLUG TYPES
+
+Let us consider a plug *type* as an abstract entity.  We will not (yet)
+consider specific *expressions* that reference plugs.
+
+Now, every plugtype has a size, which is equal to the number of bits in
+the type.  The size is easy to calculate: 1 bit for 'bit' variables,
+sizeof(TYPE) for other plugtypes, and N*sizeof(ELEMENT) for arrays.
+
+In the same way, it is trivial to assign indices to each of the bits in
+the interface: an interface with X bits will have indices [0,X-1].  We
+will assign the indices in declaration order: that is, the very first
+bit, of the very first field in the interface, will be given index 0.
+
+Note that, with compound types, it is not necessary to copy all of the
+details from the embedded type into the larger one.  We can instead
+pick it up indirectly.  For example, consider the types
+  plugtype Foo
+  {
+      bit[32] a;
+      Bar     thing;
+      bit[32] b;
+  }
+The data structure which represents Foo need only have three elements of
+information:
+      - name="a"      type=array_of(bit)   offset=0
+      - name="thing"  type=Bar             offset=32
+      - name="b"      type=array_of(bit)   offset=51
+(Note we're assuming that sizeof(Bar) is 19 bits.)
+
+Thus, the data structure knows the offset of all three named fields; if
+we have an expression which traverses into the 'thing' field, then the
+new expression will know that its current type is Bar, and we can calculate
+futher offsets from there.
+
+ABSTRACT FIELD REFERENCE EXPRESSIONS
+
+In later versions of HWC (not the current one), we will probably end up
+implementing an offsetof() expression.  Using the example above, for instance,
+a programmer might write this line of code:
+  int pos = offsetof(Foo.thing.x);
+
+In this case, pos would be set to the index of the the 'x' field inside of
+Bar, *relative* to the larger Foo struct.  We would calculate the expression
+as follows.
+
+First, we would notice the Foo expression.  Since this is the name of a
+plugtype, we would build an expression which directly models that:
+      - type=Foo     (this is a pointer to the actual plugtype struct in the compiler)
+
+When we then see the '.' operator (with the IDENT being "thing"), we would
+build a new expression, which is a 'field-of-plugtype' expression.  We look
+up 'thing' inside the plugtype and discover that it is a valid field name;
+using that information, we extract a type, and an offset relative to the
+overall struct:
+      - type=Bar    offset=32
+
+  QUESTION: Is there any reason for "plugtype" expression to be different than
+            "field of plugtype"?  Why not view the former as simply a field at
+            offset 0, which coincidentally has the same type as the entire
+            plugtype?
+
+You will notice that this expression has *discarded* any explicit memory of
+the fact that it was rooted in a Foo plugtype; however, it retains *implicit*
+memory, in that it knows that the current expression refers to a sub-field
+inside a plugtype, where the sub-field begins at 32 bits into the larger
+plugtype.  (Later, if we wanted to add debug or pretty-print metadata which
+retained the "Foo.thing" text, that would be fine, but it would not change the
+fact that the *logical* expression doesn't require the full context.)
+
+Now, we notice that we have another '.' expression, where the IDENT is "x".
+We do another lookup into the Bar type.  Presumably, x is a field of Bar;
+let's suppose that it is at offset 10 into the Bar struct, and that it is
+a single bit.  We would build a second field-of-plugtype expression, with the
+following parameters:
+      - type=bit    offset=42
+
+Next, we notice that this expression is the parameter to an offsetof()
+expression; the offsetof() expression simply extracts the offset field; thus,
+the type of the offsetof() expression is INT, with value=42.  This is what
+will be assigned to the compile-time variable.
+
+..for CONCRETE PLUG FIELD EXPRESSIONS see below, after we've discussed parts..
+
+PART DECLARATIONS
+
+We will handle part declarations somewhat like interface declarations; we will
+assign indices to various bits in the part.  However, the need to distinguish
+between public and private plugs - and also the need to be able to reference
+the fields of subcomponents - makes the discussion more complex.
+
+For parts, it's important to realize that not all of the fields that take up
+space in the "bit space" are directly accessible from the part; for instance,
+the private plugs of a subcomponent and *all* plugs and other names in
+sub-subcomponents are both inaccessible.  However, we still have to account for
+the face that we have to access these (though indirectly), and that the
+simulation will have to track them.  Morever, we may decide, in a
+wiring-diagram optimizer, that we might perform connections which "access
+private fields" - because those private fields are (in effect) aliased by
+public ones.
+
+We considered, in this system, having both positive and negative indices (to
+encode the public/private distinction), but after further consideration this
+didn't appear to be a wise design decision.  Instead, we will have a single
+"bit space" for each part declaration, just like for each plugtype.  The bit
+space includes space for all of the plugs (public and private), as well as
+all of the bit spaces of all of the subcomponents.  Thus, both public and
+private bits share the same space.  (Stated another way, the bit space
+contains all of the plugs, on every component, all the way down to the most
+deeply buried subcomponent.)
+
+We will enforce the public/private distiction by having multiple NameScope
+objects: the public one only lists the public plugs of this part; this is the
+one that will be accessed by all code *outside* this part.  The private
+NameScope (which has the public one as its parent) lists all of the private
+plugs, plus the names of all of the subcomponents.  Thus, code inside the
+part will be able to access both public and private names, but code outside
+the part will only be able to access the public plugs.
+
+Thus, the public and private bits will share the same space, and the only way
+that we will enforce the public/private distinction is *implicitly*, by how
+we construct the NameScope objects.
+
+(Note that this system, viewed in another way, automatically and implicitly
+solves the "prevent code from accessing the private bits of a subcomponent
+problem.  The private NameScope of the *enclosing* part has an entry which
+gives an offset value (position in the bit space) and a type (the type of the
+other part).  The lookup of the name finds this entry in the table - and is
+given only the part declaration for the subcomponent's type.  But this part
+declaration *ONLY* has access to the public NameScope of the embedded type -
+and thus, accessing the private fields is simply *IMPOSSIBLE*.)
+
+INSTANTIATING A PART (inside another part)
+
+To instantiate a part inside another part, we need to do very little; we
+simply set up a name inside the enclosing part's private NameScope, and link
+it to the part-declaration struct for the smaller part.  Of course, the
+bit-space of the enclosing part includes the *entire* bit-space of the
+subcomponent (plus other things) - but otherwise, the enclosing part doesn't
+have any knowledge of the subcompnent.  In particular, it doesn't "copy" the
+fields of the sub-component up; it just includes them implicitly, by
+referencing the sub-component's type.
+
+CONCRETE PART AND PLUG REFERENCE EXPRESSIONS
+
+Of course, it is critical that we understand how expressions like
+    part1.a.b
+actually work.  However, this logic primarily resides inside the *expression*,
+not the part itself.  That is, the expression 'part1' looks up a given name,
+and we find (in this case) that it happens to be the name of a subcomponent in
+the current context.  We thus build an 'part' expression:
+    offset=123    type=X
+Then, to handle the .a part of the expression, we search the (public) NameScope
+of X for the name 'a', we find it, and we build a new expression.  Let's assume
+that 'a', inside of X, is a reference to a *plug*, at offset 20 inside the X
+type, and that it has type Y.  Thus, our new expression is a 'concrete plug
+reference' expression, with the following parameters:
+    offset=143    type=Y
+We then process the .b part of the expression, by looking up 'b' in the
+NameScope of Y, and build another 'concrete plug reference' expression.
+
+Now, note that each such expression is *internal* to the part!  That is, each
+expression which ends up referring to various plugs (and building connections
+and/or conditions) will be stored inside the part itself, and all offsets
+listed inside will be relative to the start of the bit-space for that part.
+Thus, if we consider subcomponents, we'll see that there are connections
+*INSIDE* the subcomponent, which are important parts of the overall logic of
+the enclosing part - but which are only stored inside the subcomponent itself,
+and which use offsets relative to the subcomponent.  If the enclosing part
+contains multiple copies of the subcomponent, then we still have only *ONE*
+copy of each such connection, since it's defined inside the type declaration of
+the subcomponent's type.
+
+INSTANTIATING A PART (in the global space)
+
+Now, the discussion turns to the absolute space.  Various parts (which are
+stored abstractly, as declarations) are instantiated into a single 'main' part.
+(In HWC, the 'main' part represents the entire system.)  We need to turn the
+various abstract statements (each using offsets which are relative to the
+part's local bit-space) into absolute statements in the global space - ready
+for compilation into a wiring diagram.
+
+To do this, we have a recursive 'instantiate()' function.  Starting at the
+main part, and recursing into each subcomponent, it translates the abstract
+statements into concrete statements in the global space.  (Note that the
+global space is the same as the bit-space of 'main.')
+
+This recursive function includes two parameters: the type of the part that it
+must instantiate, and the current offset into the global space.  This function
+simply iterates through the statements, making a copy of each statement into
+the wiring diagram; the copies use absolute addresses, not local addresses.
+This function also copies all bottom-level "real" components (which are all
+implicit components arising from logical expressions) into the wiring diagram,
+connecting each to the proper bits in the global space.  Finally, the function
+recurses into each subcomponent, passing it the correct offset.
+
+In this way, the abstract types (and the statements contained within them) are
+converted to a concete wiring diagram.  In the wiring diagram, all offsets into
+the bit-space are absolute offsets (that is, offsets into the global space) and
+each wire and component has been instantiated as many times as may be
+necessary.
+

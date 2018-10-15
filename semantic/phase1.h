@@ -37,8 +37,8 @@ HWC_NameScope *semPhase1_file(PT_file *parsedFile);
 typedef struct HWC_Part     HWC_Part;
 typedef struct HWC_PlugType HWC_Plugtype;
 
-HWC_Part     *semPhase1_part    (PT_part_decl     *parsedPart);
-HWC_Plugtype *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype);
+HWC_Part     *semPhase1_part    (PT_part_decl     *parsedPart,     HWC_NameScope *fileScope);
+HWC_Plugtype *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype, HWC_NameScope *fileScope);
 
 
 #endif

@@ -251,7 +251,21 @@ stmt:
 		                         $$ = malloc(sizeof(PT_stmt));
 		                         $$->mode      = STMT_ASRT;
 		                         $$->assertion = $3; }
+
+	|	"unittest" opt_unittest_varlist       '{' opt_stmts '}' { printf("TODO: implement unittest statements\n"); }
+	|	"unittest" opt_unittest_varlist IDENT '{' opt_stmts '}' { printf("TODO: implement unittest statements\n"); }
 ;
+
+opt_unittest_varlist:
+		%empty
+	|	'(' unittest_varlist ')'
+;
+
+unittest_varlist:
+		                     IDENT
+	|	unittest_varlist ',' IDENT
+;
+
 
 
 plugtype_decl:
