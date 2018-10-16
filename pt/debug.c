@@ -55,30 +55,10 @@ void dump_part_decl(PT_part_decl *obj, int spaces)
 	if(obj == NULL)
 		return;
 
-	//dump_helper(spaces);
-   //printf("Part_decl| named '%s', with part_stmts: \n", obj->name);
-	//dump_part_stmt(obj->part_stmts, spaces+2);
-
 	dump_helper(spaces);
 	printf("Part_decl: named '%s', with stmts: \n", obj->name);
 	dump_stmt(obj->stmts, spaces+2);
 }
-
-/*
-void dump_part_stmt(PT_part_stmt *obj, int spaces)
-{
-	if(obj == NULL)
-		return;
-
-	// Call first since linked list is backwards
-	dump_part_stmt(obj->prev, spaces);
-
-	dump_helper(spaces);
-
-   printf("Part_stmt: named '%s', %s with type:\n", obj->name, obj->isPub?"public":"private");
-	dump_type(obj->type, spaces+2);
-}
-*/
 
 void dump_array_decl(PT_array_decl *obj, int spaces)
 {
@@ -95,7 +75,6 @@ void dump_array_decl(PT_array_decl *obj, int spaces)
 }
 
 
-
 // ---- DECLARED IN pt/plugtype.h ----
 
 void dump_plugtype_decl(PT_plugtype_decl *obj, int spaces)
@@ -106,26 +85,9 @@ void dump_plugtype_decl(PT_plugtype_decl *obj, int spaces)
 	dump_helper(spaces);
 
    printf("Plugtype_decl: named '%s', with fields\n", obj->name);
-	//dump_plugtype_field(obj->fields, spaces+2);
 	dump_decl(obj->fields, spaces+2);
 }
 
-/*
-void dump_plugtype_field(PT_plugtype_field *obj, int spaces)
-{
-	if(obj == NULL)
-		return;
-
-	// Call first since linked list is backwards
-	dump_plugtype_field(obj->prev, spaces);
-
-	dump_helper(spaces);
-
-   printf("Plugtype_field: named '%s', with type and array_decl\n", obj->name);
-	dump_type(obj->type, spaces+2);
-	dump_array_decl(obj->arraySuffix, spaces+2);
-}
-*/
 
 // ---- DECLARED IN pt/stmt.h ----
 
@@ -145,8 +107,13 @@ void dump_stmt(PT_stmt *obj, int spaces)
 			break;
 
 		case STMT_DECL:
-			printf("stmt: DECL, that is %s and has the decl vars:\n", obj->isPublic?"public":"private");
+			printf("stmt: DECL, that is %s, is%s a subpart, and has the decl vars:\n", obj->isPublic?"public":"private", obj->isSubpart?"":" not");
 			dump_decl(obj->stmtDecl, spaces+2);
+			break;
+
+		case STMT_BLOCK:
+			printf("stmt: BLOCK, that has stmts...\n");
+			dump_stmt(obj->stmts, spaces+2);
 			break;
 
 		case STMT_CONN:
@@ -180,8 +147,13 @@ void dump_stmt(PT_stmt *obj, int spaces)
 			printf("stmt: ELSE STMT\n");
 			dump_stmt(obj->elseStmts, spaces+2);
 			break;
-	}
 
+		case STMT_ASRT:
+			printf("stmt: ASSERTION\n");
+			dump_expr(obj->assertion, spaces+2);
+			break;
+
+	}
 }
 
 void dump_decl(PT_decl *obj, int spaces)
@@ -194,7 +166,6 @@ void dump_decl(PT_decl *obj, int spaces)
 
 	dump_helper(spaces);
 
-	// TODO: Add a debug statement for public/private
    printf("Declaration: named '%s', with type and array_decl\n", obj->name);
 	dump_type(obj->type, spaces+2);
 	dump_array_decl(obj->arraySuffix, spaces+2);
@@ -249,7 +220,7 @@ void dump_expr(PT_expr *obj, int spaces)
 	switch (obj->mode)
 	{
 		default:
-			printf("-- debug: UNRECOGNIZED TYPE ---\n");
+			printf("--- debug: UNRECOGNIZED EXPR ---\n");
 			break;
 
 		case EXPR_IDENT:
@@ -260,14 +231,105 @@ void dump_expr(PT_expr *obj, int spaces)
 			printf("Expr: NUM, value of %s\n", obj->num);
 			break;
 
-		case EXPR_EQUAL:
-			printf("Expr: EQUAL, with exprs\n");
+		case EXPR_BOOL:
+			printf("Expr: BOOL, value of %d\n", obj->value);
+			break;
+
+		case EXPR_TWOOP:
+			printf("Expr: TWOOP of mode");
+			// Is there a way to compress this code?
+			switch (obj->opMode)
+			{
+				default:
+					printf("\n-- debug: UNRECOGNIZED TWO OP EXPR ---\n");
+					break;
+				case OP_EQUALS:
+					printf(" EQUALS ");
+					break;
+				case OP_NEQUAL:
+					printf(" NEQUAL ");
+					break;
+				case OP_LESS:
+					printf(" LESS THAN ");
+					break;
+				case OP_GREATER:
+					printf(" GREATER THAN ");
+					break;
+				case OP_LESSEQ:
+					printf(" LESS THAN OR EQUAL TO ");
+					break;
+				case OP_GREATEREQ:
+					printf(" GREATER THAN OR EQUAL TO ");
+					break;
+				case OP_BITAND:
+					printf(" BITWISE AND ");
+					break;
+				case OP_AND:
+					printf(" AND ");
+					break;
+				case OP_BITOR:
+					printf(" BITWISE OR ");
+					break;
+				case OP_OR:
+					printf(" OR ");
+					break;
+				case OP_XOR:
+					printf(" XOR ");
+					break;
+				case OP_PLUS:
+					printf(" PLUS ");
+					break;
+				case OP_MINUS:
+					printf(" MINUS ");
+					break;
+				case OP_TIMES:
+					printf(" TIMES ");
+					break;
+				case OP_DIVIDE:
+					printf(" DIVIDE ");
+					break;
+				case OP_MODULO:
+					printf(" MODULO ");
+					break;
+			}
+			printf("with exprs\n");
 			dump_helper(spaces+2);
 			printf("LHand:\n");
 			dump_expr(obj->lHand, spaces+4);
 			dump_helper(spaces+2);
 			printf("RHand:\n");
 			dump_expr(obj->rHand, spaces+4);
+			break;
+
+		case EXPR_BITNOT:
+			printf("Expr: BITWISE NOT, with expr\n");
+			dump_expr(obj->notExpr, spaces+2);
+			break;
+
+		case EXPR_NOT:
+			printf("Expr: NOT, with expr\n");
+			dump_expr(obj->notExpr, spaces+2);
+			break;
+
+		case EXPR_DOT:
+			printf("Expr: DOT, using expr\n");
+			dump_expr(obj->dotExpr, spaces+2);
+			dump_helper(spaces);
+			printf(" accessing field:\n");
+			dump_expr(obj->field, spaces+2);
+			break;
+
+		case EXPR_ARR:
+			printf("Expr: ARR, into array expr\n");
+			dump_expr(obj->arrayExpr, spaces+2);
+			dump_helper(spaces);
+			printf(" index of\n");
+			dump_expr(obj->indexExpr, spaces+2);
+			break;
+
+		case EXPR_PAREN:
+			printf("EXPR: PAREN, with expr of\n");
+			dump_expr(obj->paren, spaces+2);
 			break;
 	}
 }

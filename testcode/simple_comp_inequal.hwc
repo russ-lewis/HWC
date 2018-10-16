@@ -1,0 +1,17 @@
+// Probably shouldn't pass the semantic phase
+part simple_comp_inequal
+{
+	public bit a, b;
+
+	if(a < b)
+		a = 0;
+
+	if(a <= b)
+		a = 1;
+
+	if(a > b)
+		b = 0;
+
+	if(a >= b)
+		b = 1;
+}

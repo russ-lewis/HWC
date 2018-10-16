@@ -10,10 +10,12 @@ typedef struct PT_expr PT_expr;
 
 enum {
 	STMT_DECL = 1,
+	STMT_BLOCK,
 	STMT_CONN,
 	STMT_FOR,
 	STMT_IF,
 	STMT_ELSE,
+	STMT_ASRT,
 };
 
 struct PT_stmt
@@ -24,7 +26,11 @@ struct PT_stmt
 
 	/* STMT_DECL */
 	int isPublic;       // 1 for true, 0 for false
+	int isSubpart;      // 1 for true, 0 for false
 	PT_decl *stmtDecl;
+
+	/* STMT_BLOCK */
+	PT_stmt *stmts;     // is a linked list
 
 	/* STMT_CONN */
 	PT_expr *lHand;
@@ -43,6 +49,9 @@ struct PT_stmt
 
 	/* STMT_ELSE */
 	PT_stmt *elseStmts;
+
+	/* STMT_ASRT */
+	PT_expr *assertion;
 };
 
 

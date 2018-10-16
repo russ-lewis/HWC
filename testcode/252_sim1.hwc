@@ -56,7 +56,7 @@ part Sim1_2sComplement
 	public bit[32] in;
 	public bit[32] out;
 
-	Sim1_ADD adder;
+	subpart Sim1_ADD adder;
 	adder.a = in;
 	adder.b = 1;
 	out = adder.out;
@@ -67,8 +67,8 @@ part Sim1_SUB
 	public bit[32] a,b;
 	public bit[32] out;
 
-	Sim1_ADD          adder;
-	Sim1_2sComplement comp;
+	subpart Sim1_ADD          adder;
+	subpart Sim1_2sComplement comp;
 
 	adder.a = a;
 

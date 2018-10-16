@@ -87,6 +87,7 @@
 %type<decl> opt_fields
 %type<decl> fields
 %type<decl> field
+%type<decl> field_decls
 
 %type<array_decl> opt_array_decls
 %type<array_decl> array_decls
@@ -97,6 +98,9 @@
 %type<expr> expr2
 %type<expr> expr3
 %type<expr> expr4
+%type<expr> expr5
+%type<expr> expr6
+%type<expr> expr7
 
 
 /* this solves the if-else chaining problem.  Canonical example is the
@@ -108,7 +112,8 @@
  *          stmt
  */
 %right "if" "else"
-
+/* Probably not the best fix. Discuss with Russ. */
+%left  '+' '-' '*' '/' '%' '&' "&&" '|' "||" '^'
 
 /* Grammar Rules */
 %%
@@ -137,13 +142,13 @@
  */
 
 file:
-		%empty             { $$ = malloc(sizeof(PT_file));
-		                     $$->decls = NULL;
-		                     bisonParseRoot = $$; }
+		%empty           { $$ = malloc(sizeof(PT_file));
+		                   $$->decls = NULL;
+		                   bisonParseRoot = $$; }
 
-	|	file_decls         { $$ = malloc(sizeof(PT_file));
-		                     $$->decls = $1;
-		                     bisonParseRoot = $$; }
+	|	file_decls       { $$ = malloc(sizeof(PT_file));
+		                   $$->decls = $1;
+		                   bisonParseRoot = $$; }
 ;
 
 file_decls:
@@ -181,29 +186,33 @@ stmts:
 	|	stmts stmt   { $$ = $2; $$->prev = $1;   }
 ;
 
-/* TODO: CHANGE THESE TO "pub/priv" plugtype_fields */
 stmt:
-		'{'       '}'              { $$ = NULL; } /* NOP STATEMENT */
-
-	|	'{' stmts '}'              { $$ = $2; }   /* TODO: make this a actual
-		                                           * nested types, since it's a
-		                                           * name scope.
-		                                           *
-		                                           * BUG BUG BUG - we'll lose all
-		                                           * but the last stmt when this
-		                                           * is linked to another!
-		                                           */
-
+		'{' opt_stmts '}'          { /* we need to nest this block as a
+		                              * single statement because (a) it's
+		                              * currently a list, not one stmt; and
+		                              * (b) because it creates a name scope.
+		                              */
+		                             $$ = malloc(sizeof(PT_stmt));
+		                             $$->mode  = STMT_BLOCK;
+		                             $$->stmts = $2; }
+	|	"subpart" field
+		                           { $$ = malloc(sizeof(PT_stmt));
+		                             $$->mode      = STMT_DECL;
+		                             $$->isPublic  = 0;
+		                             $$->isSubpart = 1;
+		                             $$->stmtDecl  = $2; }
 	|	"public"  field
 		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode     = STMT_DECL;
-		                             $$->isPublic = 1;
-		                             $$->stmtDecl = $2; }
+		                             $$->mode      = STMT_DECL;
+		                             $$->isPublic  = 1;
+		                             $$->isSubpart = 0;
+		                             $$->stmtDecl  = $2; }
 	|	"private" field
 		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode     = STMT_DECL;
-		                             $$->isPublic = 0;
-		                             $$->stmtDecl = $2; }
+		                             $$->mode      = STMT_DECL;
+		                             $$->isPublic  = 0;
+		                             $$->isSubpart = 0;
+		                             $$->stmtDecl  = $2; }
 	|	expr '=' expr ';'
 		                           { printf("-Statement of expr = expr\n");
 		                             $$ = malloc(sizeof(PT_stmt));
@@ -238,12 +247,18 @@ stmt:
 		                         $$->ifStmts = $5;
 		                         $$->ifElse  = NULL; }
 	|	"if" '(' expr ')' stmt "else" stmt
-		                                   { printf("-Statement of if stmt\n");
-		                                     $$ = malloc(sizeof(PT_stmt));
-		                                     $$->mode    = STMT_IF;
-		                                     $$->ifExpr  = $3;
-		                                     $$->ifStmts = $5;
-		                                     $$->ifElse  = $7; }
+		                       { printf("-Statement of if stmt\n");
+		                         $$ = malloc(sizeof(PT_stmt));
+		                         $$->mode    = STMT_IF;
+		                         $$->ifExpr  = $3;
+		                         $$->ifStmts = $5;
+		                         $$->ifElse  = $7; }
+
+	|	"assert" '(' expr ')' ';'
+		                       { printf("-Statement of assertion\n");
+		                         $$ = malloc(sizeof(PT_stmt));
+		                         $$->mode      = STMT_ASRT;
+		                         $$->assertion = $3; }
 
 	|	"unittest" opt_unittest_varlist       '{' opt_stmts '}' { printf("TODO: implement unittest statements\n"); }
 	|	"unittest" opt_unittest_varlist IDENT '{' opt_stmts '}' { printf("TODO: implement unittest statements\n"); }
@@ -278,12 +293,27 @@ fields:
 	|	fields field   { $$ = $2; $$->prev = $1;   }
 ;
 
+/* Added support for "bit a, b[1], c[4], d;" with idea from: */
+/* https://stackoverflow.com/a/33066472 */
+/* HOWEVER, THIS SOLUTION BREAKS THE ASSUMPTION THAT WHEN A pt_decl IS DISCLARED IN A PART AS A STATEMENT, THE prev FIELD IN pt_decl IS NULL */
+/* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? */
+/* Maybe not, since we could trust the Semantic phase to make sense of it */
 field:
-		type IDENT opt_array_decls ';'
+		field_decls ';'	{ $$ = $1; }
+;
+
+field_decls:
+		type IDENT opt_array_decls
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->type = $1;
 		                   $$->name = $2;
 		                   $$->arraySuffix = $3; }
+	|	field_decls ',' IDENT opt_array_decls
+		                 { $$ = malloc(sizeof(PT_decl));
+		                   $$->prev = $1;
+		                   $$->type = $1->type;
+		                   $$->name = $3;
+		                   $$->arraySuffix = $4; }
 ;
 
 
@@ -310,45 +340,161 @@ array_decls:
 type:
 		"bit"              { $$ = malloc(sizeof(PT_type));
 		                     $$->mode = TYPE_BIT; }
-	|	IDENT					 { $$ = malloc(sizeof(PT_type));
-									$$->mode  = TYPE_IDENT;
-									$$->ident = $1; }
+	|	IDENT              { $$ = malloc(sizeof(PT_type));
+		                     $$->mode  = TYPE_IDENT;
+		                     $$->ident = $1; }
 	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
 	|	type '[' expr2 ']'   { printf("--Array of size [EXPR] declared\n");
-		                     $$ = malloc(sizeof(PT_type));
-		                     $$->mode = TYPE_ARRAY;
-		                     $$->base = $1;
-		                     $$->len  = $3; }
+		                       $$ = malloc(sizeof(PT_type));
+		                       $$->mode = TYPE_ARRAY;
+		                       $$->base = $1;
+		                       $$->len  = $3; }
 ;
 
 
-
+/* Note to self(Jackson): It is better to call this "expr" instead of "expr1" */
+/* This is because nonterminals trying to use "expr" shouldn't care about if "expr" is one of several. */
+/* ie, it's good implementation hiding. */
 expr:
 		expr2
-	|	expr2 "==" expr2			{	$$ = malloc(sizeof(PT_expr));
-											$$->mode  = EXPR_EQUAL;
-											$$->lHand = $1;
-											$$->rHand = $3; }
-;
+	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_EQUALS;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 "!=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_NEQUAL;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '<' expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_LESS;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '>' expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_GREATER;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 "<=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_LESSEQ;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 ">=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_GREATEREQ;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
 
+/* Should insert an expr3 to allow for chaining of && and || and so on */
+/* Is there any way to compress these down? There's a lot of redundant code */
 expr2:
 		expr3
-	|	'!' expr2				{ /* TODO */ }
+	|	expr2 '&'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_BITAND;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 "&&" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_AND;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '|'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_BITOR;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 "||" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_OR;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '^'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_XOR;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '+'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_PLUS;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '-'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_MINUS;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '*'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_TIMES;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '/'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_DIVIDE;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+	|	expr2 '%'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_MODULO;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
 ;
 
+/* I presume !!!!!!!!!expr is something the semantic phase handles */
 expr3:
 		expr4
-	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
-	|	expr3 '[' expr2 ']'   { /* TODO */ }
+	|	'!' expr3          { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode    = EXPR_NOT;
+		                     $$->notExpr = $2; }
+	|	'~' expr3          { $$ = malloc(sizeof(PT_expr));
+		                     $$->mode    = EXPR_BITNOT;
+		                     $$->notExpr = $2; }
 ;
 
 expr4:
-		IDENT						{	$$ = malloc(sizeof(PT_expr));
-										$$->mode = EXPR_IDENT;
-										$$->name = $1; }
-	|	NUM						{	$$ = malloc(sizeof(PT_expr));
-										$$->mode = EXPR_NUM;
-										$$->num  = $1; }
+		expr5
+	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
+	|	expr4 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                        $$->mode      = EXPR_ARR;
+		                        $$->arrayExpr = $1;
+		                        $$->indexExpr = $3; }
+;
+
+expr5:
+		expr6
+	|	expr5 '.' expr6       /* Do we allow expr.expr.expr.expr endlessly, or only expr.expr? I think it's the later, but I made it the former just in case */
+		                      /* Do we allow expr5.expr4[expr3]? This code doesn't allow for that, and shift/reduce conflicts are created when I try. */
+		                      /*    Fixing the above shift/reduce conflict idea: Swap expr4 and expr5's components. */
+                            { $$ = malloc(sizeof(PT_expr));
+		                        $$->mode    = EXPR_DOT;
+		                        $$->dotExpr = $1;
+		                        $$->field   = $3; }
+;
+
+expr6:
+		expr7
+	|	'(' expr ')'         { $$ = malloc(sizeof(PT_expr));
+		                       $$->mode  = EXPR_PAREN;
+		                       $$->paren = $2; }
+;
+
+expr7:
+		IDENT   { $$ = malloc(sizeof(PT_expr));
+		          $$->mode  = EXPR_IDENT;
+		          $$->name  = $1; }
+	|	NUM     { $$ = malloc(sizeof(PT_expr));
+		          $$->mode  = EXPR_NUM;
+		          $$->num   = $1; }
+	|	"true"  { $$ = malloc(sizeof(PT_expr));
+		          $$->mode  = EXPR_BOOL;
+		          $$->value = 1;  }
+	|	"false" { $$ = malloc(sizeof(PT_expr));
+		          $$->mode  = EXPR_BOOL;
+		          $$->value = 0;  }
 ;
 
 

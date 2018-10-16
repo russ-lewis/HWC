@@ -1,0 +1,21 @@
+// Made this test to help me visualize the "{ stmts }" bug
+part several_stmt_bracket
+{
+	public bit a, b, c, d;
+
+	// As of now, this only returns b = d and b = c	
+	{
+		a = c;
+		b = d;
+	}
+	{
+		a = d;
+		b = c;
+	}
+	// But this returns all stmts
+	if(a == b)
+	{
+		c = d;
+		d = c;
+	}
+}
