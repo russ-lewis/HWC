@@ -1,0 +1,11 @@
+part nestedParens
+{
+	public bit a;
+	public bit b;
+	public bit c;
+	public bit d;
+
+	// Try to understand this. I can't.
+	if((a == ((c == a) == b)) == ((b == ((c == a) == b)) == (a == c)))
+		d = a;
+}

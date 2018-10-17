@@ -91,8 +91,40 @@ struct HWC_Nameable
 
 
 
-void nameScope_dump(HWC_NameScope*, int prefixLen);
+/* HACK
+ *
+ * Since compile.c violates the encapsulation, we moved the struct definition
+ * into the header.  We'll move it back into the .c file if we later
+ * re-enforce the encapsulation.
+ */
+typedef struct HWC_NameScope_elem HWC_NameScope_elem;
+struct HWC_NameScope
+{
+	// we'll auto-free() when this goes to zero
+	int refCount;
 
+	// this is the enclosing scope
+	HWC_NameScope *parent;
+
+	/* TODO: replace this linked list with a more efficient data
+	 *       structure.  How about a binary tree, with empty subtrees
+	 *       pointing directly to subtrees in the parent, would that
+	 *       work???
+	 */
+	HWC_NameScope_elem *list;
+};
+
+struct HWC_NameScope_elem
+{
+	char         *name;
+	HWC_Nameable *thing;
+
+	HWC_NameScope_elem *next;
+};
+
+
+
+void nameScope_dump(HWC_NameScope*, int prefixLen);
 
 
 #endif

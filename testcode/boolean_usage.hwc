@@ -1,0 +1,11 @@
+part boolean_usage
+{
+	public bit a;
+	public bit b;
+
+	a = true;
+	b = false;
+
+	if(a != true)
+		b = true;
+}
