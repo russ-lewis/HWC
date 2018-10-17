@@ -91,5 +91,9 @@ struct HWC_Nameable
 
 
 
+void nameScope_dump(HWC_NameScope*, int prefixLen);
+
+
+
 #endif
 

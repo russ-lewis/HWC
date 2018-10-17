@@ -28,7 +28,7 @@ struct PT_type
 };
 
 
-void dump_type(PT_type *obj, int spaces);
+void dump_pt_type(PT_type *obj, int spaces);
 
 
 #endif

@@ -27,8 +27,8 @@ struct PT_file_decl
 
 // Debug functions
 
-void dump_file     (PT_file      *obj, int spaces);
-void dump_file_decl(PT_file_decl *obj, int spaces);
+void dump_pt_file     (PT_file      *obj, int spaces);
+void dump_pt_file_decl(PT_file_decl *obj, int spaces);
 
 
 #endif

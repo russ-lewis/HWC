@@ -7,7 +7,7 @@ ALL_HEADERS=$(wildcard pt/*.h semantic/*.h)
 
 PARSE_SRC=lex.yy.c parser.tab.c compile.c
 PT_SRC=pt/debug.c
-SEM_SRC=semantic/names.c \
+SEM_SRC=semantic/debug.c semantic/names.c \
         semantic/phase1_file.c semantic/phase1_part.c semantic/phase1_plugtype.c
 
 

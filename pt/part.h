@@ -43,9 +43,9 @@ struct PT_array_decl
 
 // Debug functions
 
-void dump_part_decl (PT_part_decl  *obj, int spaces);
+void dump_pt_part_decl (PT_part_decl  *obj, int spaces);
 //void dump_part_stmt (PT_part_stmt  *obj, int spaces);
-void dump_array_decl(PT_array_decl *obj, int spaces);
+void dump_pt_array_decl(PT_array_decl *obj, int spaces);
 
 
 #endif

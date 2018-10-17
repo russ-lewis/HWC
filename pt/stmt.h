@@ -59,8 +59,8 @@ struct PT_decl
 
 // Debug functions
 
-void dump_stmt(PT_stmt *obj, int spaces);
-void dump_decl(PT_decl *obj, int spaces);
+void dump_pt_stmt(PT_stmt *obj, int spaces);
+void dump_pt_decl(PT_decl *obj, int spaces);
 
 
 #endif

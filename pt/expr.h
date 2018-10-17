@@ -32,7 +32,7 @@ struct PT_expr
 
 // Debug function
 
-void dump_expr(PT_expr *obj, int spaces);
+void dump_pt_expr(PT_expr *obj, int spaces);
 
 #endif
 

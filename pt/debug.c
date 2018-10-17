@@ -20,7 +20,7 @@ static void dump_helper(int spaces)
 
 // ---- DECLARED IN pt/file.h ----
 
-void dump_file(PT_file *obj, int spaces)
+void dump_pt_file(PT_file *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
@@ -28,29 +28,29 @@ void dump_file(PT_file *obj, int spaces)
 	dump_helper(spaces);
 
    printf("File with the following decls: \n");
-	dump_file_decl(obj->decls, spaces+2);
+	dump_pt_file_decl(obj->decls, spaces+2);
 }
 
-void dump_file_decl(PT_file_decl *obj, int spaces)
+void dump_pt_file_decl(PT_file_decl *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
 
 	// Call first since linked list is backwards
-	dump_file_decl(obj->prev, spaces);
+	dump_pt_file_decl(obj->prev, spaces);
 
 	dump_helper(spaces);
 
    printf("File_decl with these decls: \n");
-	dump_part_decl(obj->partDecl, spaces+2);
-	dump_plugtype_decl(obj->plugtypeDecl, spaces+2);
+	dump_pt_part_decl(obj->partDecl, spaces+2);
+	dump_pt_plugtype_decl(obj->plugtypeDecl, spaces+2);
 }
 
 
 
 // ---- DECLARED IN pt/part.h ----
 
-void dump_part_decl(PT_part_decl *obj, int spaces)
+void dump_pt_part_decl(PT_part_decl *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
@@ -61,7 +61,7 @@ void dump_part_decl(PT_part_decl *obj, int spaces)
 
 	dump_helper(spaces);
 	printf("Part_decl: named '%s', with stmts: \n", obj->name);
-	dump_stmt(obj->stmts, spaces+2);
+	dump_pt_stmt(obj->stmts, spaces+2);
 }
 
 /*
@@ -80,25 +80,25 @@ void dump_part_stmt(PT_part_stmt *obj, int spaces)
 }
 */
 
-void dump_array_decl(PT_array_decl *obj, int spaces)
+void dump_pt_array_decl(PT_array_decl *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
 
 	// Call first since linked list is backwards
-	dump_array_decl(obj->prev, spaces);
+	dump_pt_array_decl(obj->prev, spaces);
 
 	dump_helper(spaces);
 
    printf("Array_decl: Size of\n");
-	dump_expr(obj->size, spaces+2);
+	dump_pt_expr(obj->size, spaces+2);
 }
 
 
 
 // ---- DECLARED IN pt/plugtype.h ----
 
-void dump_plugtype_decl(PT_plugtype_decl *obj, int spaces)
+void dump_pt_plugtype_decl(PT_plugtype_decl *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
@@ -107,7 +107,7 @@ void dump_plugtype_decl(PT_plugtype_decl *obj, int spaces)
 
    printf("Plugtype_decl: named '%s', with fields\n", obj->name);
 	//dump_plugtype_field(obj->fields, spaces+2);
-	dump_decl(obj->fields, spaces+2);
+	dump_pt_decl(obj->fields, spaces+2);
 }
 
 /*
@@ -129,12 +129,12 @@ void dump_plugtype_field(PT_plugtype_field *obj, int spaces)
 
 // ---- DECLARED IN pt/stmt.h ----
 
-void dump_stmt(PT_stmt *obj, int spaces)
+void dump_pt_stmt(PT_stmt *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
 
-	dump_stmt(obj->prev, spaces);
+	dump_pt_stmt(obj->prev, spaces);
 
 	dump_helper(spaces);
 
@@ -146,13 +146,13 @@ void dump_stmt(PT_stmt *obj, int spaces)
 
 		case STMT_DECL:
 			printf("stmt: DECL, that is %s and has the decl vars:\n", obj->isPublic?"public":"private");
-			dump_decl(obj->stmtDecl, spaces+2);
+			dump_pt_decl(obj->stmtDecl, spaces+2);
 			break;
 
 		case STMT_CONN:
 			printf("stmt: CONNECTION, with left and right exprs:\n");
-			dump_expr(obj->lHand, spaces+2);
-			dump_expr(obj->rHand, spaces+2);
+			dump_pt_expr(obj->lHand, spaces+2);
+			dump_pt_expr(obj->rHand, spaces+2);
 			break;
 
 		case STMT_FOR:
@@ -161,49 +161,49 @@ void dump_stmt(PT_stmt *obj, int spaces)
 			printf("var: %s\n", obj->forVar);
 			dump_helper(spaces+2);
 			printf("Bgn:\n");
-			dump_expr(obj->forBegin, spaces+4);
+			dump_pt_expr(obj->forBegin, spaces+4);
 			dump_helper(spaces+2);
 			printf("End=:\n");
-			dump_expr(obj->forEnd, spaces+4);
+			dump_pt_expr(obj->forEnd, spaces+4);
 			dump_helper(spaces+2);
 			printf("Stmts:\n");
-			dump_stmt(obj->forStmts, spaces+4);
+			dump_pt_stmt(obj->forStmts, spaces+4);
 			break;
 
 		case STMT_IF:
 			printf("stmt: IF CHECK\n");
-			dump_expr(obj->ifExpr, spaces+2);
-			dump_stmt(obj->ifStmts, spaces+2);
+			dump_pt_expr(obj->ifExpr, spaces+2);
+			dump_pt_stmt(obj->ifStmts, spaces+2);
 			break;
 
 		case STMT_ELSE:
 			printf("stmt: ELSE STMT\n");
-			dump_stmt(obj->elseStmts, spaces+2);
+			dump_pt_stmt(obj->elseStmts, spaces+2);
 			break;
 	}
 
 }
 
-void dump_decl(PT_decl *obj, int spaces)
+void dump_pt_decl(PT_decl *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
 
 	// Call first since linked list is backwards
-	dump_decl(obj->prev, spaces);
+	dump_pt_decl(obj->prev, spaces);
 
 	dump_helper(spaces);
 
 	// TODO: Add a debug statement for public/private
    printf("Declaration: named '%s', with type and array_decl\n", obj->name);
-	dump_type(obj->type, spaces+2);
-	dump_array_decl(obj->arraySuffix, spaces+2);
+	dump_pt_type(obj->type, spaces+2);
+	dump_pt_array_decl(obj->arraySuffix, spaces+2);
 }
 
 
 // ---- DECLARED IN pt/type.h ----
 
-void dump_type(PT_type *obj, int spaces)
+void dump_pt_type(PT_type *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
@@ -223,11 +223,11 @@ void dump_type(PT_type *obj, int spaces)
 		case TYPE_ARRAY:
 			printf("type: ARRAY\n");          // line 1
 
-			dump_type(obj->base, spaces+2);   // line 2
+			dump_pt_type(obj->base, spaces+2);   // line 2
 
 			dump_helper(spaces);
 			printf("len = ");     // line 3
-			dump_expr(obj->len, 0);
+			dump_pt_expr(obj->len, 0);
 			break;
 
 		case TYPE_IDENT:
@@ -239,7 +239,7 @@ void dump_type(PT_type *obj, int spaces)
 
 // ---- DECLARED IN pt/expr.h ----
 
-void dump_expr(PT_expr *obj, int spaces)
+void dump_pt_expr(PT_expr *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
@@ -264,10 +264,10 @@ void dump_expr(PT_expr *obj, int spaces)
 			printf("Expr: EQUAL, with exprs\n");
 			dump_helper(spaces+2);
 			printf("LHand:\n");
-			dump_expr(obj->lHand, spaces+4);
+			dump_pt_expr(obj->lHand, spaces+4);
 			dump_helper(spaces+2);
 			printf("RHand:\n");
-			dump_expr(obj->rHand, spaces+4);
+			dump_pt_expr(obj->rHand, spaces+4);
 			break;
 	}
 }

@@ -30,7 +30,7 @@ struct PT_plugtype_field
 
 // Debug functions
 
-void dump_plugtype_decl (PT_plugtype_decl  *obj, int spaces);
+void dump_pt_plugtype_decl (PT_plugtype_decl  *obj, int spaces);
 //void dump_plugtype_field(PT_plugtype_field *obj, int spaces);
 
 
