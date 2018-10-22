@@ -25,8 +25,23 @@ struct HWC_Expr
 
 	/* EXPR_SUBCOMPONENT */
 	HWC_PartInstance *subcomponent;
+
+	/* EXPR_IDENT  - uses name                     */
+	/* EXPR_NUM    - uses name                     */
+	/* EXPR_BOOL   - uses       value              */
+	/* EXPR_TWOOP  - uses       value, exprA,exprB */
+	/* EXPR_NOT    - uses              exprA       */
+   /* EXPR_BITNOT - uses              exprA       */
+	/* EXPR_DOT    - uses              exprA,exprB */
+	/* EXPR_ARR    - uses              exprA,exprB */
+	/* EXPR_PAREN  - uses              exprA       */
+
+	char     *name;
+	int       value;
+	HWC_Expr *exprA, *exprB;
 };
 
+void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output);
 
 #endif
 

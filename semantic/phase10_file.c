@@ -46,7 +46,7 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 			assert(0);   // TODO: report syntax error
 		}
 
-		nameScope_add(names, name,thing);
+		nameScope_add(names, name, thing);
 	}
 
 	return names;
