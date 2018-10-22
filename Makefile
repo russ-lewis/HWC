@@ -39,4 +39,4 @@ clean :
 	-rm -f parser.output
 	-rm -f lex.yy.c
 	-rm -f hwcCompile
-#add @ in front of -rm is you wanna cancel the output to stdout
+#add @ in front of -rm if you wanna cancel the output to stdout

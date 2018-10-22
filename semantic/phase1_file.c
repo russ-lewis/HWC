@@ -17,6 +17,7 @@ HWC_NameScope *semPhase1_file(PT_file *parsedFile)
 	PT_file_decl *cur = parsedFile->decls;
 	while (cur != NULL)
 	{
+		// Make sure "cur" is either a part or a plugtype
 		assert((cur->partDecl != NULL) != (cur->plugtypeDecl != NULL));
 
 		char *name;
