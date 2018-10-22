@@ -87,6 +87,12 @@ struct HWC_WiringLogic
 
 struct HWC_WiringConnection
 {
+	int size;     // how many bits?
+	int to;       // index of 1st bit of the lhs of the assignment
+	int from;     // index of 1st bit of the rhs of the assignment
+
+	int condition;   // -1 if not conditional
+	int isUndir;     // 1 if undirected; 0 if directed
 };
 
 

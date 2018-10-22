@@ -22,7 +22,7 @@ extern int yylineno;
 
 
 // implemented by the code in the parser, called by the lexer.
-int tokenLookup(char *str, int assertFound);
+int tokenLookup(char *str);
 
 
 

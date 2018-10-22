@@ -32,7 +32,7 @@
  */
 %code requires {
 	#include "parsercommon.h"
-	#include "pt/all.h"
+	#include "wiring/core.h"
 }
 
 
@@ -40,8 +40,8 @@
 /* these are the tokens which are not implicitly declared with "keyword"
  * down in the grammar below.
  */
-%token<str> NUM
-%token<str> IDENT
+%token<num> NUM
+%token<str> STR
 
 /* this generates the yytname[] table, used by tokenLookup() below */
 %token-table
@@ -56,64 +56,36 @@
 
 /* this declares the various types which can be stored in yylval. */
 %union {
+	int   num;
 	char *str;
 
-	PT_file      *file;
-	PT_file_decl *file_decl;
+	HWC_Wiring *core;
 
-	PT_part_decl *part_decl;
-	PT_plugtype_decl  *plugtype_decl;
+	struct {
+		int arrayLen;
+		HWC_WiringMemory *array;
+		int curCount;
+	} mem;
 
-	PT_stmt *stmt;
-	PT_decl *decl;
+	struct {
+		int arrayLen;
+		HWC_WiringLogic *array;
+		int curCount;
+	} logic;
 
-	PT_array_decl *array_decl;
-
-	PT_type *type;
-
-	PT_expr *expr;
+	struct {
+		int arrayLen;
+		HWC_WiringConnection *array;
+		int curCount;
+	} connections;
 }
 
-%type<file>      file
-%type<file_decl> file_decls
-%type<file_decl> file_decl
-
-%type<part_decl> part_decl
-%type<stmt> opt_stmts
-%type<stmt> stmts
-%type<stmt> stmt
-
-%type<plugtype_decl>  plugtype_decl
-%type<decl> opt_fields
-%type<decl> fields
-%type<decl> field
-%type<decl> field_decls
-
-%type<array_decl> opt_array_decls
-%type<array_decl> array_decls
-
-%type<type> type
-
-%type<expr> expr
-%type<expr> expr2
-%type<expr> expr3
-%type<expr> expr4
-%type<expr> expr5
-%type<expr> expr6
-%type<expr> expr7
+%type<core>        file
+%type<mem>         mem
+%type<logic>       logic
+%type<connections> connections
 
 
-/* this solves the if-else chaining problem.  Canonical example is the
- * shift-reduce conflict that happens in this example code:
- *      if (a)
- *        if (a)
- *          stmt
- *        else
- *          stmt
- */
-%right "if" "else"
-/* Probably not the best fix. Discuss with Russ. */
-%left  '+' '-' '*' '/' '%' '&' "&&" '|' "||" '^'
 
 /* Grammar Rules */
 %%
@@ -142,352 +114,85 @@
  */
 
 file:
-		%empty           { $$ = malloc(sizeof(PT_file));
-		                   $$->decls = NULL;
-		                   bisonParseRoot = $$; }
+	/* NOTE: one rule, several lines! */
+	"version" ':' NUM '.' NUM
+	"debug" '=' STR
+	"bits" NUM
+	mem
+	logic
+	connections
+		{ assert($3 == 1 && $5 == 0);
+		    // TODO: handle the debug string 
 
-	|	file_decls       { $$ = malloc(sizeof(PT_file));
-		                   $$->decls = $1;
-		                   bisonParseRoot = $$; }
-;
+		  bisonParseRoot = $$ = malloc(sizeof(HWC_Wiring));
+		  $$->numBits = $10;
 
-file_decls:
-		           file_decl   { $$ = $1; $$->prev = NULL; }
-	|	file_decls file_decl   { $$ = $2; $$->prev = $1;   }
-;
+		  assert($11.curCount == $11.arrayLen);
+		  $$->numMemRanges = $11.arrayLen;
+		  $$->mem          = $11.array;
 
-file_decl:
-		part_decl        { $$ = malloc(sizeof(PT_file_decl));
-		                   $$->partDecl     = $1;
-		                   $$->plugtypeDecl = NULL; }
+		  assert($12.curCount == $12.arrayLen);
+		  $$->numLogicalOperators = $12.arrayLen;
+		  $$->logic               = $12.array;
 
-	|	plugtype_decl    { $$ = malloc(sizeof(PT_file_decl));
-		                   $$->partDecl     = NULL;
-		                   $$->plugtypeDecl = $1; }
-;
-
-
-
-part_decl:
-		"part" IDENT '{' opt_stmts '}'
-		                 { $$ = malloc(sizeof(PT_part_decl));
-		                   $$->name  = $2;
-		                   $$->stmts = $4; }
-;
-
-opt_stmts:
-		%empty  { $$ = NULL; }
-	|	stmts   { $$ = $1; }
-;
-
-stmts:
-		      stmt   { $$ = $1; $$->prev = NULL; }
-	|	stmts stmt   { $$ = $2; $$->prev = $1;   }
-;
-
-stmt:
-		'{' opt_stmts '}'          { /* we need to nest this block as a
-		                              * single statement because (a) it's
-		                              * currently a list, not one stmt; and
-		                              * (b) because it creates a name scope.
-		                              */
-		                             $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode  = STMT_BLOCK;
-		                             $$->stmts = $2; }
-	|	"subpart" field
-		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode      = STMT_DECL;
-		                             $$->isPublic  = 0;
-		                             $$->isSubpart = 1;
-		                             $$->stmtDecl  = $2; }
-	|	"public"  field
-		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode      = STMT_DECL;
-		                             $$->isPublic  = 1;
-		                             $$->isSubpart = 0;
-		                             $$->stmtDecl  = $2; }
-	|	"private" field
-		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode      = STMT_DECL;
-		                             $$->isPublic  = 0;
-		                             $$->isSubpart = 0;
-		                             $$->stmtDecl  = $2; }
-	|	expr '=' expr ';'
-		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode  = STMT_CONN;
-		                             $$->lHand = $1;
-		                             $$->rHand = $3; }
-	|	"for" '(' IDENT ';' expr ".." expr ')' stmt
-		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode     = STMT_FOR;
-		                             $$->forVar   = $3;
-		                             $$->forBegin = $5;
-		                             $$->forEnd   = $7; 
-		                             $$->forStmts = $9; }
-
-		/* THIS IS A WEIRD HACK TO MAKE BISON WORK.
-		 *
-		 * Bison says that "the rule gets its precedence from the last
-		 * terminal symbol" - so, by default, this has the precedence
-		 * of the ')' token.  We explicitly must set the precedence
-		 * here.
-		 *
-		 * However, that is not required in the "else" case, since it
-		 * gets its precedence from "else".
-		 */
-	|	%prec "if"
-		"if" '(' expr ')' stmt
-		                       { $$ = malloc(sizeof(PT_stmt));
-		                         $$->mode    = STMT_IF;
-		                         $$->ifExpr  = $3;
-		                         $$->ifStmts = $5;
-		                         $$->ifElse  = NULL; }
-	|	"if" '(' expr ')' stmt "else" stmt
-		                       { $$ = malloc(sizeof(PT_stmt));
-		                         $$->mode    = STMT_IF;
-		                         $$->ifExpr  = $3;
-		                         $$->ifStmts = $5;
-		                         $$->ifElse  = $7; }
-
-	|	"assert" '(' expr ')' ';'
-		                       { $$ = malloc(sizeof(PT_stmt));
-		                         $$->mode      = STMT_ASRT;
-		                         $$->assertion = $3; }
-
-	|	"unittest" opt_unittest_varlist       '{' opt_stmts '}' { printf("TODO: implement unittest statements\n"); }
-	|	"unittest" opt_unittest_varlist IDENT '{' opt_stmts '}' { printf("TODO: implement unittest statements\n"); }
-;
-
-opt_unittest_varlist:
-		%empty
-	|	'(' unittest_varlist ')'
-;
-
-unittest_varlist:
-		                     IDENT
-	|	unittest_varlist ',' IDENT
+		  assert($13.curCount == $13.arrayLen);
+		  $$->numConnections = $13.arrayLen;
+		  $$->conns          = $13.array;
+		}
 ;
 
 
+/* this is very strange!  We want to pre-allocate an array, and the file
+ * tells us the proper length before we begin.  So we'll parse the first
+ * line as the *DEEPEST* non-terminal, and then expand upon it with other
+ * lines.
+ *
+ * Of course, this is left-associative parsing, which in other languages
+ * could lead to ambigous parsing.  But in our simplified, keyword-heavy
+ * language, that's never a problem.  The lookahead always tells us, with
+ * complete unambiguity, what sort of element is coming next.
+ */
+mem:
+		"memory" "count" NUM
+			{ $$.arrayLen = $3;
+			  $$.array = malloc($3 * sizeof(HWC_WiringMemory));
+			  $$.curCount = 0; }
 
-plugtype_decl:
-		"plugtype" IDENT '{' opt_fields '}'
-		                  { $$ = malloc(sizeof(PT_plugtype_decl));
-		                    $$->name   = $2;
-		                    $$->fields = $4; }
+	|	mem "memory" "size" NUM "read" NUM "write" NUM
+			{ assert($1.curCount < $1.arrayLen);
+			  $$.arrayLen = $1.arrayLen;
+			  $$.array    = $1.array;
+			  $$.curCount = $1.curCount+1;
+			  $$.array[$$.curCount-1].size  = $4;
+			  $$.array[$$.curCount-1].read  = $6;
+			  $$.array[$$.curCount-1].write = $8; }
 ;
 
-opt_fields:
-		%empty  { $$ = NULL; }
-	|	fields  { $$ = $1;   }
+logic:
+		"logic" "count" NUM
+			{ assert($3 == 0);   // TODO: support logic statements!
+			  $$.arrayLen = $3;
+			  $$.array = malloc($3 * sizeof(HWC_WiringLogic));
+			  $$.curCount = 0; }
 ;
 
-fields:
-		       field   { $$ = $1; $$->prev = NULL; }
-	|	fields field   { $$ = $2; $$->prev = $1;   }
-;
+connections:
+		"connection" "count" NUM
+			{ $$.arrayLen = $3;
+			  $$.array = malloc($3 * sizeof(HWC_WiringConnection));
+			  $$.curCount = 0; }
 
-/* Added support for "bit a, b[1], c[4], d;" with idea from: */
-/* https://stackoverflow.com/a/33066472 */
-/* HOWEVER, THIS SOLUTION BREAKS THE ASSUMPTION THAT WHEN A pt_decl IS DISCLARED IN A PART AS A STATEMENT, THE prev FIELD IN pt_decl IS NULL */
-/* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? */
-/* Maybe not, since we could trust the Semantic phase to make sense of it */
-field:
-		field_decls ';'	{ $$ = $1; }
-;
-
-field_decls:
-		type IDENT opt_array_decls
-		                 { $$ = malloc(sizeof(PT_decl));
-		                   $$->type = $1;
-		                   $$->name = $2;
-		                   $$->arraySuffix = $3; }
-	|	field_decls ',' IDENT opt_array_decls
-		                 { $$ = malloc(sizeof(PT_decl));
-		                   $$->prev = $1;
-		                   $$->type = $1->type;
-		                   $$->name = $3;
-		                   $$->arraySuffix = $4; }
-;
-
-
-opt_array_decls:
-		%empty            { $$ = NULL; }
-	|	array_decls       { $$ = $1;   }
-;
-
-array_decls:
-		            '[' expr ']'
-		                  { $$ = malloc(sizeof(PT_array_decl));
-		                    $$->size = $2;
-		                    $$->prev = NULL; }
-
-	|	array_decls '[' expr ']'
-		                  { $$ = malloc(sizeof(PT_array_decl));
-		                    $$->size = $3;
-		                    $$->prev = $1; }
-
-;
-
-
-
-type:
-		"bit"              { $$ = malloc(sizeof(PT_type));
-		                     $$->mode = TYPE_BIT; }
-	|	IDENT              { $$ = malloc(sizeof(PT_type));
-		                     $$->mode  = TYPE_IDENT;
-		                     $$->ident = $1; }
-	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
-	|	type '[' expr2 ']'   { $$ = malloc(sizeof(PT_type));
-		                       $$->mode = TYPE_ARRAY;
-		                       $$->base = $1;
-		                       $$->len  = $3; }
-;
-
-
-/* Note to self(Jackson): It is better to call this "expr" instead of "expr1" */
-/* This is because nonterminals trying to use "expr" shouldn't care about if "expr" is one of several. */
-/* ie, it's good implementation hiding. */
-expr:
-		expr2
-	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_EQUALS;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 "!=" expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_NEQUAL;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '<' expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_LESS;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '>' expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_GREATER;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 "<=" expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_LESSEQ;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 ">=" expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_GREATEREQ;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-
-/* Should insert an expr3 to allow for chaining of && and || and so on */
-/* Is there any way to compress these down? There's a lot of redundant code */
-expr2:
-		expr3
-	|	expr2 '&'  expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_BITAND;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 "&&" expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_AND;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '|'  expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_BITOR;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 "||" expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_OR;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '^'  expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_XOR;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '+'  expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_PLUS;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '-'  expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_MINUS;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '*'  expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_TIMES;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '/'  expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_DIVIDE;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-	|	expr2 '%'  expr2   { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_MODULO;
-		                     $$->lHand  = $1;
-		                     $$->rHand  = $3; }
-;
-
-/* I presume !!!!!!!!!expr is something the semantic phase handles */
-expr3:
-		expr4
-	|	'!' expr3          { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode    = EXPR_NOT;
-		                     $$->notExpr = $2; }
-	|	'~' expr3          { $$ = malloc(sizeof(PT_expr));
-		                     $$->mode    = EXPR_BITNOT;
-		                     $$->notExpr = $2; }
-;
-
-expr4:
-		expr5
-	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
-	|	expr4 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
-		                        $$->mode      = EXPR_ARR;
-		                        $$->arrayExpr = $1;
-		                        $$->indexExpr = $3; }
-;
-
-expr5:
-		expr6
-	|	expr5 '.' expr6       /* Do we allow expr.expr.expr.expr endlessly, or only expr.expr? I think it's the later, but I made it the former just in case */
-		                      /* Do we allow expr5.expr4[expr3]? This code doesn't allow for that, and shift/reduce conflicts are created when I try. */
-		                      /*    Fixing the above shift/reduce conflict idea: Swap expr4 and expr5's components. */
-                            { $$ = malloc(sizeof(PT_expr));
-		                        $$->mode    = EXPR_DOT;
-		                        $$->dotExpr = $1;
-		                        $$->field   = $3; }
-;
-
-expr6:
-		expr7
-	|	'(' expr ')'         { $$ = malloc(sizeof(PT_expr));
-		                       $$->mode  = EXPR_PAREN;
-		                       $$->paren = $2; }
-;
-
-expr7:
-		IDENT   { $$ = malloc(sizeof(PT_expr));
-		          $$->mode  = EXPR_IDENT;
-		          $$->name  = $1; }
-	|	NUM     { $$ = malloc(sizeof(PT_expr));
-		          $$->mode  = EXPR_NUM;
-		          $$->num   = $1; }
-	|	"true"  { $$ = malloc(sizeof(PT_expr));
-		          $$->mode  = EXPR_BOOL;
-		          $$->value = 1;  }
-	|	"false" { $$ = malloc(sizeof(PT_expr));
-		          $$->mode  = EXPR_BOOL;
-		          $$->value = 0;  }
+	|	connections "connection" "size" NUM "to" NUM "from" NUM
+			{ assert($1.curCount < $1.arrayLen);
+			  $$.arrayLen = $1.arrayLen;
+			  $$.array    = $1.array;
+			  $$.curCount = $1.curCount+1;
+			  $$.array[$$.curCount-1].size = $4;
+			  $$.array[$$.curCount-1].to   = $6;
+			  $$.array[$$.curCount-1].from = $8;
+			  $$.array[$$.curCount-1].condition = -1;  // not conditional
+			  $$.array[$$.curCount-1].isUndir   =  0;  // is directed
+			}
 ;
 
 
@@ -501,15 +206,11 @@ void yyerror(char const *s)
 
 
 
-/* this looks up a possible-IDENT in a table of strings generated by Bison; if
- * we find it, then we return the correct ID for that keyword.  But if we don't
- * find it, then strdup() the string to a new string, save it into yylval, and
- * then report an IDENT.
- *
- * Note that if assertFound==1, then we won't support the IDENT case at the
- * end.
+/* NOTE: This is the same as the matching function in hwcCompile, except that
+ *       IDENT tokens are not supported in this parser.  So we *always* assert
+ *       that the token was found.
  */
-int tokenLookup(char *str, int assertFound)
+int tokenLookup(char *str)
 {
 	int i;
 	int len = strlen(str);
@@ -550,16 +251,8 @@ int tokenLookup(char *str, int assertFound)
 	}
 
 
-	/* if we get here, then we failed the search.  Was that expected to
-	 * be possible?
-	 */
-	if (assertFound)
-	{
-		assert(0);   // TODO
-	}
-
-	/* otherwise, save the string in the yylval, and we can return */
-	yylval.str = strdup(str);
-	return IDENT;
+	/* invalid keyword! */
+	fprintf(stderr, "WIRING DIAGRAM PARSE ERROR: Invalid keyword '%s'\n", str);
+	return 256;   // ERROR token
 }
 

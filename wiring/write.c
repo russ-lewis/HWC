@@ -42,26 +42,39 @@ int wiring_write(HWC_Wiring *core)
 	fprintf(fp, "bits %d\n", core->numBits);
 	fprintf(fp, "\n");
 
-	fprintf(fp, "memory: %d ranges\n", core->numMemRanges);
+	fprintf(fp, "memory count %d\n", core->numMemRanges);
 	for (i=0; i<core->numMemRanges; i++)
 	{
-		fprintf(fp, "  memory range size %d read %d write %d\n",
+		fprintf(fp, "  memory size %d read %d write %d\n",
 		            core->mem[i].size,
 		            core->mem[i].read, core->mem[i].write);
 	}
 	fprintf(fp, "\n");
 
-	fprintf(fp, "logic: %d operators\n", core->numLogicalOperators);
+	fprintf(fp, "logic count %d\n", core->numLogicalOperators);
 	for (i=0; i<core->numLogicalOperators; i++)
 	{
 assert(0); // TODO
+		fprintf(fp, "  logic AND size %d a %d b %d out %d\n",
+		            1,2,3,4);
 	}
 	fprintf(fp, "\n");
 
-	fprintf(fp, "connections: %d connections\n", core->numConnections);
+	
+	fprintf(fp, "connection count %d\n", core->numConnections);
 	for (i=0; i<core->numConnections; i++)
 	{
-assert(0); // TODO
+		fprintf(fp, "  connection ");
+
+		// if(conditional)
+		//	fprintf(fp , "(condition %d) ");
+
+		// if(undirected)
+		//	fprintf(fp , "(undirected) ");
+
+		fprintf(fp, "size %d to %d from %d\n",
+		            core->conns[i].size,
+		            core->conns[i].to, core->conns[i].from);
 	}
 	fprintf(fp, "\n");
 
