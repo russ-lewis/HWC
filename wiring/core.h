@@ -72,6 +72,23 @@ struct HWC_Wiring
 };
 
 
+struct HWC_WiringMemory
+{
+	int size;     // how many bits?
+	int read;     // index of 1st bit of the 'read' side
+	int write;    // index of 1st bit of the 'write' side
+};
+
+
+struct HWC_WiringLogic
+{
+};
+
+
+struct HWC_WiringConnection
+{
+};
+
 
 #endif
 
