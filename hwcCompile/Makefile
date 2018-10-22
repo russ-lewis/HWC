@@ -1,25 +1,32 @@
 COMP=gcc -Wall -g -std=gnu99
 #-fprofile-arcs -ftest-coverage
 
+ROOT=..
+
+PT=pt
+SEMANTIC=semantic
+WIRING=${ROOT}/wiring
+SIM=${ROOT}/sim
 
 
-ALL_HEADERS=$(wildcard pt/*.h semantic/*.h)
+
+ALL_HEADERS=$(wildcard ${PT}/*.h ${semantic}/*.h ${WIRING}/*.h ${SIM}/*.h)
 
 PARSE_SRC=lex.yy.c parser.tab.c compile.c
-PT_SRC=pt/debug.c
-SEM_SRC=semantic/names.c semantic/debug.c \
-        semantic/phase10_file.c semantic/phase10_part.c semantic/phase10_plugtype.c \
-        semantic/phase20_part.c \
-        semantic/phase30_part.c \
-        semantic/phase40_part.c semantic/phase40_plugtype.c
-WIRE_SRC=wiring/build_part.c wiring/write.c
+PT_SRC=${PT}/debug.c
+SEM_SRC=${SEMANTIC}/names.c ${SEMANTIC}/debug.c \
+        ${SEMANTIC}/phase10_file.c ${SEMANTIC}/phase10_part.c ${SEMANTIC}/phase10_plugtype.c \
+        ${SEMANTIC}/phase20_part.c \
+        ${SEMANTIC}/phase30_part.c \
+        ${SEMANTIC}/phase40_part.c ${SEMANTIC}/phase40_plugtype.c
+WIRE_SRC=${WIRING}/build_part.c ${WIRING}/write.c
 
 
 
 all : hwcCompile
 
 hwcCompile : $(ALL_HEADERS) $(PARSE_SRC) $(PT_SRC) $(SEM_SRC) $(WIRE_SRC)
-	$(COMP) -I. -o hwcCompile $(PARSE_SRC) $(PT_SRC) $(SEM_SRC) $(WIRE_SRC) -lm
+	$(COMP) -I. -I${ROOT} -o hwcCompile $(PARSE_SRC) $(PT_SRC) $(SEM_SRC) $(WIRE_SRC) -lm
 
 
 # https://stackoverflow.com/questions/13436832/bison-not-creating-the-tab-h-file
