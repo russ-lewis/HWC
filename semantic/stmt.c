@@ -28,7 +28,8 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 	// Reset head of list, now that we know the length
 	currPTstmt = input;
 	int i;
-	for(i = 0; i < len; i++)
+	// Iterate backwards, since all stmt lists from the parser are in reverse order
+	for(i = len-1; i >= 0; i--)
 	{
 		HWC_Stmt *currStmt = output+i;
 		currStmt->mode = currPTstmt->mode;
