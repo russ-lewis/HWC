@@ -3,11 +3,15 @@
 #include <malloc.h>
 #include <assert.h>
 
-#include "phase1.h"
+#include "phase10.h"
 
 
-HWC_NameScope *semPhase1_file(PT_file *parsedFile)
+HWC_PlugType *semPhase10_plugtype(PT_plugtype_decl *parsedPlugtype,
+                                 HWC_NameScope    *fileScope)
 {
+	assert(0);    // TODO
+
+#if 0
 	HWC_NameScope *names = nameScope_malloc(NULL);
 
 	// should we traverse through the linked list in the correct order?
@@ -27,7 +31,7 @@ HWC_NameScope *semPhase1_file(PT_file *parsedFile)
 		{
 			name = cur->partDecl->name;
 
-			thing->part = semPhase1_part(cur->partDecl, names);
+			thing->part = semPhase10_part(cur->partDecl);
 			  assert(thing->part != NULL);
 			thing->plugtype = NULL;
 		}
@@ -36,7 +40,7 @@ HWC_NameScope *semPhase1_file(PT_file *parsedFile)
 			name = cur->plugtypeDecl->name;
 
 			thing->part = NULL;
-			thing->plugtype = semPhase1_plugtype(cur->plugtypeDecl, names);
+			thing->plugtype = semPhase10_plugtype(cur->plugtypeDecl);
 			  assert(thing->plugtype != NULL);
 		}
 
@@ -49,5 +53,6 @@ HWC_NameScope *semPhase1_file(PT_file *parsedFile)
 	}
 
 	return names;
+#endif
 }
 

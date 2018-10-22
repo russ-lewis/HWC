@@ -30,15 +30,15 @@
  * Also, note that you will be passed an object with a single refCount; if
  * you discard this NameScope, then you must decrement the refcount on it.
  */
-HWC_NameScope *semPhase1_file(PT_file *parsedFile);
+HWC_NameScope *semPhase10_file(PT_file *parsedFile);
 
 
 
 typedef struct HWC_Part     HWC_Part;
 typedef struct HWC_PlugType HWC_Plugtype;
 
-HWC_Part     *semPhase1_part    (PT_part_decl     *parsedPart,     HWC_NameScope *fileScope);
-HWC_Plugtype *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype, HWC_NameScope *fileScope);
+HWC_Part     *semPhase10_part    (PT_part_decl     *parsedPart,     HWC_NameScope *fileScope);
+HWC_Plugtype *semPhase10_plugtype(PT_plugtype_decl *parsedPlugtype, HWC_NameScope *fileScope);
 
 
 #endif
