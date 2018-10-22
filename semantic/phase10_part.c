@@ -6,7 +6,7 @@
 #include <assert.h>
 
 #include "phase10.h"
-#include "stmt.c" // Ask Russ about a better way to include this. Possibly through makefile?
+#include "stmt.c" // Ask Russ about a better way to include this. Obviously through Makefile, but right now it's too complex for me to understand :(
 
 HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileNames)
 {
