@@ -10,7 +10,7 @@ SIM=${ROOT}/sim
 
 
 
-ALL_HEADERS=$(wildcard ${PT}/*.h ${semantic}/*.h ${WIRING}/*.h ${SIM}/*.h)
+ALL_HEADERS=$(wildcard ${PT}/*.h ${SEMANTIC}/*.h ${WIRING}/*.h ${SIM}/*.h)
 
 PARSE_SRC=lex.yy.c parser.tab.c compile.c
 PT_SRC=${PT}/debug.c
