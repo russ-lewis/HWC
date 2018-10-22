@@ -24,9 +24,9 @@ int main(int argc, char **argv)
 
 	if (argc == 2 && strcmp(argv[1], "--debug=parse") == 0)
 		debug = 1;
-	else if (argc == 2 && strcmp(argv[1], "--debug=semantic_phase1") == 0)
+	else if (argc == 2 && strcmp(argv[1], "--debug=semantic_phase10") == 0)
 		debug = 2;
-	else if (argc == 2 && strcmp(argv[1], "--debug=semantic_phase4") == 0)
+	else if (argc == 2 && strcmp(argv[1], "--debug=semantic_phase40") == 0)
 		debug = 3;
 	else if (argc == 2 && strcmp(argv[1], "-?") == 0)
 		syntaxHelp = 1;
@@ -42,8 +42,8 @@ int main(int argc, char **argv)
 		printf("SYNTAX: %s [--debug=MODE]\n", argv[0]);
 		printf("  debug MODEs:\n");
 		printf("    parse\n");
-		printf("    semantic_phase1\n");
-		printf("    semantic_phase4\n");
+		printf("    semantic_phase10\n");
+		printf("    semantic_phase40\n");
 		return 0;
 	}
 
@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	/* shall we "stop and dump state" for the semantic phase? */
 	if (debug == 2)
 	{
-		printf("---- DEBUG: DUMPING SEMANTIC (after phase 1) ----\n");
+		printf("---- DEBUG: DUMPING SEMANTIC (after phase 10) ----\n");
 		nameScope_dump(fileScope, 0);
 		return 0;
 	}
@@ -124,7 +124,7 @@ int main(int argc, char **argv)
 	/* shall we "stop and dump state" for the semantic phase? */
 	if (debug == 3)
 	{
-		printf("---- DEBUG: DUMPING SEMANTIC (after phase 4) ----\n");
+		printf("---- DEBUG: DUMPING SEMANTIC (after phase 40) ----\n");
 		nameScope_dump(fileScope, 0);
 		return 0;
 	}
