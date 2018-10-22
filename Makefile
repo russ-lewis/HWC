@@ -8,11 +8,11 @@ ALL_HEADERS=$(wildcard pt/*.h semantic/*.h)
 PARSE_SRC=lex.yy.c parser.tab.c compile.c
 PT_SRC=pt/debug.c
 SEM_SRC=semantic/names.c semantic/debug.c \
-        semantic/phase1_file.c semantic/phase1_part.c semantic/phase1_plugtype.c \
-        semantic/phase2_part.c \
-        semantic/phase3_part.c \
-        semantic/phase4_part.c semantic/phase4_plugtype.c
-WIRE_SRC=wiring/build_part.c
+        semantic/phase10_file.c semantic/phase10_part.c semantic/phase10_plugtype.c \
+        semantic/phase20_part.c \
+        semantic/phase30_part.c \
+        semantic/phase40_part.c semantic/phase40_plugtype.c
+WIRE_SRC=wiring/build_part.c wiring/write.c
 
 
 

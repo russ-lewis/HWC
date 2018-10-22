@@ -3,15 +3,11 @@
 #include <malloc.h>
 #include <assert.h>
 
-#include "phase1.h"
+#include "phase10.h"
 
 
-HWC_PlugType *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype,
-                                 HWC_NameScope    *fileScope)
+HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 {
-	assert(0);    // TODO
-
-#if 0
 	HWC_NameScope *names = nameScope_malloc(NULL);
 
 	// should we traverse through the linked list in the correct order?
@@ -21,6 +17,7 @@ HWC_PlugType *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype,
 	PT_file_decl *cur = parsedFile->decls;
 	while (cur != NULL)
 	{
+		// Make sure "cur" is either a part or a plugtype
 		assert((cur->partDecl != NULL) != (cur->plugtypeDecl != NULL));
 
 		char *name;
@@ -31,7 +28,7 @@ HWC_PlugType *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype,
 		{
 			name = cur->partDecl->name;
 
-			thing->part = semPhase1_part(cur->partDecl);
+			thing->part = semPhase10_part(cur->partDecl, names);
 			  assert(thing->part != NULL);
 			thing->plugtype = NULL;
 		}
@@ -40,7 +37,7 @@ HWC_PlugType *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype,
 			name = cur->plugtypeDecl->name;
 
 			thing->part = NULL;
-			thing->plugtype = semPhase1_plugtype(cur->plugtypeDecl);
+			thing->plugtype = semPhase10_plugtype(cur->plugtypeDecl, names);
 			  assert(thing->plugtype != NULL);
 		}
 
@@ -53,6 +50,5 @@ HWC_PlugType *semPhase1_plugtype(PT_plugtype_decl *parsedPlugtype,
 	}
 
 	return names;
-#endif
 }
 

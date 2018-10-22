@@ -4,9 +4,10 @@
 
 #include "parser.tab.h"
 #include "pt/all.h"
-#include "semantic/phase1.h"
-#include "semantic/phase4.h"
+#include "semantic/phase10.h"
+#include "semantic/phase40.h"
 #include "wiring/build.h"
+#include "wiring/write.h"
 
 
 // global, shared with the parser, through parsercommon.h
@@ -49,7 +50,6 @@ int main(int argc, char **argv)
 
 	/* run the parser.  Then collect the root object from Bison */
 	int parseRetval = yyparse();
-	printf("yyparse() retval: %d\n", parseRetval);
 	if (parseRetval != 0)
 		return parseRetval;
 
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 	 * into a NameScope object, as well as doing first-step transformation
 	 * of the parse tree into the local format.
 	 */
-	HWC_NameScope *fileScope = semPhase1_file(bisonParseRoot);
+	HWC_NameScope *fileScope = semPhase10_file(bisonParseRoot);
 
 	/* shall we "stop and dump state" for the semantic phase? */
 	if (debug == 2)
@@ -114,9 +114,9 @@ int main(int argc, char **argv)
 		       (cur->thing->plugtype != NULL));
 
 		if (cur->thing->part != NULL)
-			semPhase4_part(cur->thing->part);
+			semPhase40_part(cur->thing->part);
 		else
-			semPhase4_plugtype(cur->thing->plugtype);
+			semPhase40_plugtype(cur->thing->plugtype);
 
 		cur = cur->next;
 	}
@@ -143,9 +143,10 @@ int main(int argc, char **argv)
 
 	/* build the wiring diagram! */
 	HWC_Wiring *wiring = buildWiringDiagram(thing->part);
+	if (wiring == NULL)
+		return 1;   // the wiring generator must have already printed an error message
 
 
-	printf("TODO: implement semantic phase 4\n");
-	return 0;
+	return wiring_write(wiring);
 }
 
