@@ -40,6 +40,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 				assert(0); // TODO: Potentially better error message?
 				break;
 			case STMT_DECL:
+				// TODO: Add these to namescope
 				currStmt->isPub = currPTstmt->isPublic;
 				currStmt->isSub = currPTstmt->isSubpart;
 				// TODO
