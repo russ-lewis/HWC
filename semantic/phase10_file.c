@@ -44,7 +44,7 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 			  assert(thing->plugtype != NULL);
 		}
 
-		// Makue sure the name of the part/plug is not already in the nameScope
+		// Make sure the name of the part/plug is not already in the nameScope
 		// Already done in nameScope_add. Should this stay here?
 		if (nameScope_search(names, name) != NULL)
 		{
@@ -59,4 +59,5 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 
 	return names;
 }
+
 
