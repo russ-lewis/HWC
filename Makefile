@@ -12,7 +12,7 @@ SEM_SRC=semantic/names.c semantic/debug.c \
         semantic/phase2_part.c \
         semantic/phase3_part.c \
         semantic/phase4_part.c semantic/phase4_plugtype.c
-WIRE_SRC=wiring/build_part.c
+WIRE_SRC=wiring/build_part.c wiring/write.c
 
 
 

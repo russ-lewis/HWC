@@ -7,6 +7,7 @@
 #include "semantic/phase1.h"
 #include "semantic/phase4.h"
 #include "wiring/build.h"
+#include "wiring/write.h"
 
 
 // global, shared with the parser, through parsercommon.h
@@ -49,7 +50,6 @@ int main(int argc, char **argv)
 
 	/* run the parser.  Then collect the root object from Bison */
 	int parseRetval = yyparse();
-	printf("yyparse() retval: %d\n", parseRetval);
 	if (parseRetval != 0)
 		return parseRetval;
 
@@ -143,9 +143,10 @@ int main(int argc, char **argv)
 
 	/* build the wiring diagram! */
 	HWC_Wiring *wiring = buildWiringDiagram(thing->part);
+	if (wiring == NULL)
+		return 1;   // the wiring generator must have already printed an error message
 
 
-	printf("TODO: implement semantic phase 4\n");
-	return 0;
+	return wiring_write(wiring);
 }
 
