@@ -1,0 +1,31 @@
+# HWC Wiring Diagram
+version: 1.0
+
+debug=""
+
+bits 9
+
+memory count 0
+
+logic count 0
+  logic EQ  size 1 a 4 b 5 out 6      # control == 0
+  logic NOT size 1 a 7     out 8      # else-of (control==0)
+
+connection count 1
+  connection               size 1 to 4 from 0       # 'control' to left side of EQ
+  connection               size 1 to 5 from ZERO    # constant ZERO to right side of EQ
+  connection (condition 6) size 1 to 3 from 1       # out = in[0]
+  connection (condition 8) size 1 to 3 from 2       # out = in[1]
+
+#part simple_if
+#{
+#	public bit control;      # bit 0
+#	public bit[2] in;        # bits 1,2
+#	public bit out;          # bit 3
+#
+#	if (control == 0)        # EQ:  bits 4(inputA) 5(inputB) 6(result)
+#		out = in[0];
+#	else                     # NOT: bits 7(in) 8(out)
+#		out = in[1];
+#}
+
