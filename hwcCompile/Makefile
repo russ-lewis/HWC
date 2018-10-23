@@ -12,7 +12,7 @@ SIM=${ROOT}/sim
 
 ALL_HEADERS=$(wildcard ${PT}/*.h ${SEMANTIC}/*.h ${WIRING}/*.h ${SIM}/*.h)
 
-PARSE_SRC=lex.yy.c parser.tab.c compile.c
+PARSE_SRC=lex.yy.c parser.tab.c compile_main.c
 PT_SRC=${PT}/debug.c
 SEM_SRC=${SEMANTIC}/names.c ${SEMANTIC}/debug.c \
         ${SEMANTIC}/phase10_file.c ${SEMANTIC}/phase10_part.c ${SEMANTIC}/phase10_plugtype.c \
