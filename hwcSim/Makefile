@@ -37,5 +37,5 @@ clean :
 	-rm -f parser.tab.h
 	-rm -f parser.output
 	-rm -f lex.yy.c
-	-rm -f hwcCompile
+	-rm -f hwcSim
 #add @ in front of -rm is you wanna cancel the output to stdout
