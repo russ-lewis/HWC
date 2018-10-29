@@ -91,6 +91,7 @@
 %type<logic_op>    logic_op
 %type<num>         logic_b_opt
 %type<connections> connections
+%type<num>         connection_opt_condition
 
 
 
@@ -183,7 +184,7 @@ logic:
 			  $$.curCount = 0; }
 
 	|	logic "logic" logic_op "size" NUM "a" NUM logic_b_opt "out" NUM
-			{ assert(($3.binary == 1) == ($8 != -1));  // TODO: make this a syntax error
+			{ assert(($3.binary == 1) == ($8 != WIRING_BIT_INVALID));  // TODO: make this a syntax error
 
 			  assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
 
@@ -207,8 +208,8 @@ logic_op:
 ;
 
 logic_b_opt:
-		%empty    { $$ = -1; }   // NUM only accepts positive, so -1 is invalid
-	|	"b" NUM   { $$ = $2; }
+		%empty    { $$ = WIRING_BIT_INVALID; }
+	|	"b" NUM   { $$ = $2;                 }
 ;
 
 connections:
@@ -217,18 +218,23 @@ connections:
 			  $$.array = malloc($3 * sizeof(HWC_WiringConnection));
 			  $$.curCount = 0; }
 
-	|	connections "connection" "size" NUM "to" NUM "from" NUM
+	|	connections "connection" connection_opt_condition "size" NUM "to" NUM "from" NUM
 			{ assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
 
 			  $$.arrayLen = $1.arrayLen;
 			  $$.array    = $1.array;
 			  $$.curCount = $1.curCount+1;
-			  $$.array[$$.curCount-1].size = $4;
-			  $$.array[$$.curCount-1].to   = $6;
-			  $$.array[$$.curCount-1].from = $8;
-			  $$.array[$$.curCount-1].condition = -1;  // not conditional
+			  $$.array[$$.curCount-1].size = $5;
+			  $$.array[$$.curCount-1].to   = $7;
+			  $$.array[$$.curCount-1].from = $9;
+			  $$.array[$$.curCount-1].condition = $3;
 			  $$.array[$$.curCount-1].isUndir   =  0;  // is directed
 			}
+;
+
+connection_opt_condition:
+		%empty                    { $$ = WIRING_BIT_INVALID; }
+	|	'(' "condition" NUM ')'   { $$ = $3;                 }
 ;
 
 

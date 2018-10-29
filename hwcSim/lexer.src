@@ -75,6 +75,28 @@ int yydebug = 1;
 
 
 
+  /* NUMERIC CONSTANTS
+   *
+   * Matches decimal or hexdecimal constants.  Underscores are allowed anywhere,
+   * and ignored.
+   *
+   * Negative constants are not allowed.
+   *
+   * UPDATE: Support the keyword "ZERO" as a special NUM, representing a
+   *         compile-time constant of flexible length.  We'll use
+   *         WIRING_CONST_ZERO as the value; core.h defines that (and other
+   *         negative "numbers", which represent other special cases, such as
+   *         WIRING_BIT_INVALID).
+   */
+0|[1-9][0-9]*		yylval.num = atoi(yytext); return NUM;
+"ZERO"                  yylval.num = WIRING_CONST_ZERO; return NUM;
+
+
+  /* STRINGS */
+\"(\\[^\n]|[^"\n])*\"	yylval.str = strdup(yytext); return STR;
+
+
+
   /* KEYWORDS
    *
    * This matches all keywords.  (This language doesn't have identifiers.)
@@ -84,23 +106,10 @@ int yydebug = 1;
    * we will return the assigned token ID for this keyword.
    *
    * If not, the parse terminates.
+   *
+   * UPDATE: Moved this *below* NUM, so that we could handle the "ZERO" keyword.
    */
 _*[a-zA-Z][_a-zA-Z0-9]*		return tokenLookup(yytext);
-
-
-
-  /* NUMERIC CONSTANTS
-   *
-   * Matches decimal or hexdecimal constants.  Underscores are allowed anywhere,
-   * and ignored.
-   *
-   * Negative constants are not allowed.
-   */
-0|[1-9][0-9]*		yylval.num = atoi(yytext); return NUM;
-
-
-  /* STRINGS */
-\"(\\[^\n]|[^"\n])*\"	yylval.str = strdup(yytext); return STR;
 
 
 
@@ -110,7 +119,7 @@ _*[a-zA-Z][_a-zA-Z0-9]*		return tokenLookup(yytext);
    * are a single character only, so we can just return the ASCII value as the
    * token type.
    */
-[:.=]			return yytext[0];
+[:.=()]			return yytext[0];
 
   /* LEXER ERROR, the default case */
 .				{ printf("Unrecognized character %d='%c' at line %d col %d.\n",yytext[0],yytext[0], yylloc.first_line, yylloc.first_column); return 256; }

@@ -2,6 +2,19 @@
 #define __WIRING_CORE_H__INCLUDED__
 
 
+/* all valid index values are non-negative.  But we find it handy to have
+ * a few special values, which represent unusual situations.
+ */
+enum {
+	// represents "no such bit", such as the 'b' input for a NOT gate
+	WIRING_BIT_INVALID = -1,
+
+	// represents a constant 0 (printed as ZERO in the wiring diagram),
+	// which is an arbitrary-size compile-time constant.
+	WIRING_CONST_ZERO = -1000,
+};
+
+
 /* WIRING (CORE)
  *
  * This declares the HWC_Wiring struct, and the various subtypes used by it:
@@ -103,7 +116,7 @@ struct HWC_WiringConnection
 	int to;       // index of 1st bit of the lhs of the assignment
 	int from;     // index of 1st bit of the rhs of the assignment
 
-	int condition;   // -1 if not conditional
+	int condition;   // WIRING_BIT_INVALID if not conditional
 	int isUndir;     // 1 if undirected; 0 if directed
 };
 
