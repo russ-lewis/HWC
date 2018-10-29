@@ -58,7 +58,6 @@ struct PT_stmt
 struct PT_decl
 {
 	/* linked list, in reverse order of declaration */
-	/* This should be null if this is part of a PT_stmt */
 	PT_decl *prev;
 
 	PT_type *type;

@@ -8,21 +8,25 @@
 
 HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 {
+	// nameScope for the whole file
 	HWC_NameScope *names = nameScope_malloc(NULL);
 
-	// should we traverse through the linked list in the correct order?
+	// Should we traverse through the linked list in the correct order?
 	// This version walks through them backwards (that is, it obeys the
-	// structure of the structure of the list)
+	//   structure of the structure of the list)
 
 	PT_file_decl *cur = parsedFile->decls;
+	// Iterate through all the parts and plugtypes in the file
 	while (cur != NULL)
 	{
+		// Make sure "cur" is either a part or a plugtype, but not both
 		assert((cur->partDecl != NULL) != (cur->plugtypeDecl != NULL));
 
 		char *name;
 		HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
 		  assert(thing != NULL);   // TODO: better error checking
 
+		// Get the name of the part/plug and run semPhase10 on it
 		if (cur->partDecl != NULL)
 		{
 			name = cur->partDecl->name;
@@ -40,14 +44,20 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 			  assert(thing->plugtype != NULL);
 		}
 
+		// Make sure the name of the part/plug is not already in the nameScope
+		// Already done in nameScope_add. Should this stay here?
 		if (nameScope_search(names, name) != NULL)
 		{
 			assert(0);   // TODO: report syntax error
 		}
 
-		nameScope_add(names, name,thing);
+		// Add the part/plug (including its name) to the nameScope
+		nameScope_add(names, name, thing);
+
+		cur = cur->prev;
 	}
 
 	return names;
 }
+
 
