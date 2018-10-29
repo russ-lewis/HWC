@@ -74,6 +74,11 @@
 	} logic;
 
 	struct {
+		int type;
+		int binary;
+	} logic_op;
+
+	struct {
 		int arrayLen;
 		HWC_WiringConnection *array;
 		int curCount;
@@ -83,6 +88,8 @@
 %type<core>        file
 %type<mem>         mem
 %type<logic>       logic
+%type<logic_op>    logic_op
+%type<num>         logic_b_opt
 %type<connections> connections
 
 
@@ -159,7 +166,8 @@ mem:
 			  $$.curCount = 0; }
 
 	|	mem "memory" "size" NUM "read" NUM "write" NUM
-			{ assert($1.curCount < $1.arrayLen);
+			{ assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
+
 			  $$.arrayLen = $1.arrayLen;
 			  $$.array    = $1.array;
 			  $$.curCount = $1.curCount+1;
@@ -170,10 +178,37 @@ mem:
 
 logic:
 		"logic" "count" NUM
-			{ assert($3 == 0);   // TODO: support logic statements!
-			  $$.arrayLen = $3;
+			{ $$.arrayLen = $3;
 			  $$.array = malloc($3 * sizeof(HWC_WiringLogic));
 			  $$.curCount = 0; }
+
+	|	logic "logic" logic_op "size" NUM "a" NUM logic_b_opt "out" NUM
+			{ assert(($3.binary == 1) == ($8 != -1));  // TODO: make this a syntax error
+
+			  assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
+
+			  $$.arrayLen = $1.arrayLen;
+			  $$.array    = $1.array;
+			  $$.curCount = $1.curCount+1;
+			  $$.array[$$.curCount-1].type = $3.type;
+			  $$.array[$$.curCount-1].size = $5;
+			  $$.array[$$.curCount-1].a    = $7;
+			  $$.array[$$.curCount-1].b    = $8;
+			  $$.array[$$.curCount-1].out  = $10; }
+;
+
+logic_op:
+		"AND"     { $$.type = WIRING_AND; $$.binary = 1; }
+	|	"OR"      { $$.type = WIRING_OR;  $$.binary = 1; }
+	|	"XOR"     { $$.type = WIRING_XOR; $$.binary = 1; }
+	|	"NOT"     { $$.type = WIRING_NOT; $$.binary = 0; }
+	|	"EQ"      { $$.type = WIRING_EQ;  $$.binary = 1; }
+	|	"NEQ"     { $$.type = WIRING_NEQ; $$.binary = 1; }
+;
+
+logic_b_opt:
+		%empty    { $$ = -1; }   // NUM only accepts positive, so -1 is invalid
+	|	"b" NUM   { $$ = $2; }
 ;
 
 connections:
@@ -183,7 +218,8 @@ connections:
 			  $$.curCount = 0; }
 
 	|	connections "connection" "size" NUM "to" NUM "from" NUM
-			{ assert($1.curCount < $1.arrayLen);
+			{ assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
+
 			  $$.arrayLen = $1.arrayLen;
 			  $$.array    = $1.array;
 			  $$.curCount = $1.curCount+1;

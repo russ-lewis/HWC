@@ -80,8 +80,20 @@ struct HWC_WiringMemory
 };
 
 
+enum {
+	WIRING_AND = 1,
+	WIRING_OR,
+	WIRING_XOR,
+	WIRING_NOT,
+	WIRING_EQ,
+	WIRING_NEQ,
+};
 struct HWC_WiringLogic
 {
+	int type;     // use the enum above
+	int size;
+	int a,b;      // b is ignored for NOT, but used for all others
+	int out;
 };
 
 

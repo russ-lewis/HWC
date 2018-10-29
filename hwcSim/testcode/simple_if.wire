@@ -7,11 +7,11 @@ bits 9
 
 memory count 0
 
-logic count 0
+logic count 2
   logic EQ  size 1 a 4 b 5 out 6      # control == 0
   logic NOT size 1 a 7     out 8      # else-of (control==0)
 
-connection count 1
+connection count 4
   connection               size 1 to 4 from 0       # 'control' to left side of EQ
   connection               size 1 to 5 from ZERO    # constant ZERO to right side of EQ
   connection (condition 6) size 1 to 3 from 1       # out = in[0]

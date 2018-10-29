@@ -12,7 +12,7 @@ int wiring_write(HWC_Wiring *core)
 	printf("TODO: %s: Add parameters to allow the user to control the output filename.\n",
 	       __func__);
 
-	FILE *fp = fopen("compile.wire", "w");
+	FILE *fp = fopen("out.wire", "w");
 	if (fp == NULL)
 	{
 		perror("Could not open the file to write the wiring diagram");
@@ -54,9 +54,34 @@ int wiring_write(HWC_Wiring *core)
 	fprintf(fp, "logic count %d\n", core->numLogicalOperators);
 	for (i=0; i<core->numLogicalOperators; i++)
 	{
-assert(0); // TODO
-		fprintf(fp, "  logic AND size %d a %d b %d out %d\n",
-		            1,2,3,4);
+		char *name;
+		int binary = 1; // default value; changed by NOT
+
+		// why use this switch instead of a lookup table?  For
+		// better sanity-checking that the values line up.  Maybe
+		// we'll optimize for performance later???
+		switch(core->logic[i].type)
+		{
+		default:
+			assert(0);   // TODO: unsupported type
+
+		case WIRING_AND: name = "AND"; break;
+		case WIRING_OR : name = "OR "; break;
+		case WIRING_XOR: name = "XOR"; break;
+		case WIRING_NOT: name = "NOT"; binary = 0; break;
+		case WIRING_EQ : name = "EQ "; break;
+		case WIRING_NEQ: name = "NEQ"; break;
+		}
+
+		fprintf(fp, "  logic %s size %d a %d",
+		            name,
+		            core->logic[i].size,
+		            core->logic[i].a);
+
+		if (binary)
+			fprintf(fp, " b %d", core->logic[i].b);
+
+		fprintf(fp, " out %d\n", core->logic[i].out);
 	}
 	fprintf(fp, "\n");
 
