@@ -38,4 +38,5 @@ clean :
 	-rm -f parser.output
 	-rm -f lex.yy.c
 	-rm -f hwcSim
+	-rm -f hwcSim.exe.stackdump
 #add @ in front of -rm is you wanna cancel the output to stdout
