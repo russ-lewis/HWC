@@ -4,6 +4,7 @@
 
 typedef struct PT_type PT_type;
 
+typedef struct PT_expr PT_expr;
 
 enum {
 	TYPE_BIT = 1,

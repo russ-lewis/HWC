@@ -14,6 +14,9 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 	// Should we traverse through the linked list in the correct order?
 	// This version walks through them backwards (that is, it obeys the
 	//   structure of the structure of the list)
+	// FOLLOW-UP: It doesn't matter, because no part or plugtype cares
+	//   about the namescope of the other types.
+	//   So, order is arbitrary.
 
 	PT_file_decl *cur = parsedFile->decls;
 	// Iterate through all the parts and plugtypes in the file
@@ -44,12 +47,14 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 			  assert(thing->plugtype != NULL);
 		}
 
-		// Make sure the name of the part/plug is not already in the nameScope
-		// Already done in nameScope_add. Should this stay here?
+		// Removed because this assert already happens in add(), but I figured
+		//   it should be preserved for example.
+		/*
 		if (nameScope_search(names, name) != NULL)
 		{
 			assert(0);   // TODO: report syntax error
 		}
+		*/
 
 		// Add the part/plug (including its name) to the nameScope
 		nameScope_add(names, name, thing);

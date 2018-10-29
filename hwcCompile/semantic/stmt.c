@@ -1,5 +1,9 @@
 #include "stmt.h"
-#include "expr.c"
+
+
+#include <stdio.h>
+#include <malloc.h>
+#include <assert.h>
 
 /*
 Takes the given grammar PT_stmt and creates a corresponding semantic HWC_Stmt from it.
@@ -9,7 +13,7 @@ The most notable changes are:
  - malloc()s memory for the caller
 Returns an int corresponding to the length of the array of statements
 */
-int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
+int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_NameScope *fileScope, HWC_Part *caller)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
@@ -40,14 +44,15 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 				assert(0); // TODO: Potentially better error message?
 				break;
 			case STMT_DECL:
-				// TODO: Add these to namescope
+				// TODO: WARNING HERE ABOUT caller not being of type Nameable
+				nameScope_add(fileScope, currPTstmt->stmtDecl->name, caller);
 				currStmt->isPub = currPTstmt->isPublic;
 				currStmt->isSub = currPTstmt->isSubpart;
 				// TODO
 				printf("Remember, Decl is not implemented yet...\n");
 				break;
 			case STMT_BLOCK:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, currStmt->stmtA);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, currStmt->stmtA, fileScope, caller);
 				break;
 			case STMT_CONN:
 				convertPTexprIntoHWCexpr(currPTstmt->lHand, currStmt->exprA);
@@ -57,14 +62,14 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 				currStmt->name  = currPTstmt->forVar;
 				convertPTexprIntoHWCexpr(currPTstmt->forBegin, currStmt->exprA);
 				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , currStmt->exprB);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, currStmt->stmtA);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, currStmt->stmtA, fileScope, caller);
 			case STMT_IF:
 				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, currStmt->exprA);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, currStmt->stmtA);
-				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , currStmt->stmtB);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, currStmt->stmtA, fileScope, caller);
+				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , currStmt->stmtB, fileScope, caller);
 				break;
 			case STMT_ELSE:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, currStmt->stmtA);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, currStmt->stmtA, fileScope, caller);
 				break;
 			case STMT_ASRT:
 				convertPTexprIntoHWCexpr(currPTstmt->assertion, currStmt->exprA);

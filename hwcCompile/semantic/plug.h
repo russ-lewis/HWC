@@ -8,7 +8,7 @@
  * TODO...
  */
 
-typedef HWC_Plug     HWC_Plug;
+typedef struct HWC_Plug HWC_Plug;
 struct HWC_Plug
 {
 	// TODO

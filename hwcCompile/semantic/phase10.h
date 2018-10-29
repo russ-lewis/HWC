@@ -15,7 +15,7 @@
 
 #include "part.h"
 #include "plugtype.h"
-
+#include "stmt.h"
 
 
 /* This takes a parse-tree at the file level as input, and returns a
