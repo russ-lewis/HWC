@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
+#include <ctype.h>
 
 #include "core.h"
 #include "write.h"
 
+
+
+static void print_debug(FILE *fp, char *debug);
 
 int wiring_write(HWC_Wiring *core)
 {
@@ -18,11 +23,6 @@ int wiring_write(HWC_Wiring *core)
 		perror("Could not open the file to write the wiring diagram");
 		return 1;
 	}
-
-	/* we use a goto-to-leave strategy, so we need a variable to hold
-	 * the value that we plan to return.
-	 */
-	int retval = 0;
 
 
 	/* a little header, to make things obvious for a user.  It also
@@ -45,9 +45,11 @@ int wiring_write(HWC_Wiring *core)
 	fprintf(fp, "memory count %d\n", core->numMemRanges);
 	for (i=0; i<core->numMemRanges; i++)
 	{
-		fprintf(fp, "  memory size %d read %d write %d\n",
+		fprintf(fp, "  memory size %d read %d write %d",
 		            core->mem[i].size,
 		            core->mem[i].read, core->mem[i].write);
+
+		print_debug(fp, core->mem[i].debug);
 	}
 	fprintf(fp, "\n");
 
@@ -80,8 +82,12 @@ int wiring_write(HWC_Wiring *core)
 
 		if (binary)
 			fprintf(fp, " b %d", core->logic[i].b);
+		else
+			fprintf(fp, "    ");
 
-		fprintf(fp, " out %d\n", core->logic[i].out);
+		fprintf(fp, " out %d", core->logic[i].out);
+
+		print_debug(fp, core->logic[i].debug);
 	}
 	fprintf(fp, "\n");
 
@@ -91,21 +97,43 @@ int wiring_write(HWC_Wiring *core)
 	{
 		fprintf(fp, "  connection ");
 
-		// if(conditional)
-		//	fprintf(fp , "(condition %d) ");
+		if(core->conns[i].condition != WIRING_BIT_INVALID)
+			fprintf(fp , "(condition %d) ", core->conns[i].condition);
+		else
+			fprintf(fp , "              ");
 
 		// if(undirected)
 		//	fprintf(fp , "(undirected) ");
 
-		fprintf(fp, "size %d to %d from %d\n",
+		fprintf(fp, "size %d to %d from ",
 		            core->conns[i].size,
-		            core->conns[i].to, core->conns[i].from);
+		            core->conns[i].to);
+
+		if (core->conns[i].from != WIRING_CONST_ZERO)
+			fprintf(fp, "%d", core->conns[i].from);
+		else
+			fprintf(fp, "ZERO");
+
+		print_debug(fp, core->conns[i].debug);
 	}
 	fprintf(fp, "\n");
 
-
-OUT:
-	fclose(fp);
-	return retval;
+	return 0;
 }
+
+
+static void print_debug(FILE *fp, char *debug)
+{
+	if (debug == NULL)
+	{
+		fprintf(fp, "\n");
+		return;
+	}
+
+
+	// TODO: eventually, add code that interprets (and can
+	//       re-create) escape characters, especially \n
+	fprintf(fp, "\tdebug=%s\n", debug);
+}
+
 

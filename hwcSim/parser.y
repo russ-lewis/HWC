@@ -92,6 +92,7 @@
 %type<num>         logic_b_opt
 %type<connections> connections
 %type<num>         connection_opt_condition
+%type<str>         opt_debug
 
 
 
@@ -166,7 +167,7 @@ mem:
 			  $$.array = malloc($3 * sizeof(HWC_WiringMemory));
 			  $$.curCount = 0; }
 
-	|	mem "memory" "size" NUM "read" NUM "write" NUM
+	|	mem "memory" "size" NUM "read" NUM "write" NUM opt_debug
 			{ assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
 
 			  $$.arrayLen = $1.arrayLen;
@@ -174,7 +175,8 @@ mem:
 			  $$.curCount = $1.curCount+1;
 			  $$.array[$$.curCount-1].size  = $4;
 			  $$.array[$$.curCount-1].read  = $6;
-			  $$.array[$$.curCount-1].write = $8; }
+			  $$.array[$$.curCount-1].write = $8;
+			  $$.array[$$.curCount-1].debug = $9; }
 ;
 
 logic:
@@ -183,7 +185,7 @@ logic:
 			  $$.array = malloc($3 * sizeof(HWC_WiringLogic));
 			  $$.curCount = 0; }
 
-	|	logic "logic" logic_op "size" NUM "a" NUM logic_b_opt "out" NUM
+	|	logic "logic" logic_op "size" NUM "a" NUM logic_b_opt "out" NUM opt_debug
 			{ assert(($3.binary == 1) == ($8 != WIRING_BIT_INVALID));  // TODO: make this a syntax error
 
 			  assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
@@ -191,11 +193,12 @@ logic:
 			  $$.arrayLen = $1.arrayLen;
 			  $$.array    = $1.array;
 			  $$.curCount = $1.curCount+1;
-			  $$.array[$$.curCount-1].type = $3.type;
-			  $$.array[$$.curCount-1].size = $5;
-			  $$.array[$$.curCount-1].a    = $7;
-			  $$.array[$$.curCount-1].b    = $8;
-			  $$.array[$$.curCount-1].out  = $10; }
+			  $$.array[$$.curCount-1].type  = $3.type;
+			  $$.array[$$.curCount-1].size  = $5;
+			  $$.array[$$.curCount-1].a     = $7;
+			  $$.array[$$.curCount-1].b     = $8;
+			  $$.array[$$.curCount-1].out   = $10;
+			  $$.array[$$.curCount-1].debug = $11; }
 ;
 
 logic_op:
@@ -218,7 +221,7 @@ connections:
 			  $$.array = malloc($3 * sizeof(HWC_WiringConnection));
 			  $$.curCount = 0; }
 
-	|	connections "connection" connection_opt_condition "size" NUM "to" NUM "from" NUM
+	|	connections "connection" connection_opt_condition "size" NUM "to" NUM "from" NUM opt_debug
 			{ assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
 
 			  $$.arrayLen = $1.arrayLen;
@@ -228,13 +231,18 @@ connections:
 			  $$.array[$$.curCount-1].to   = $7;
 			  $$.array[$$.curCount-1].from = $9;
 			  $$.array[$$.curCount-1].condition = $3;
-			  $$.array[$$.curCount-1].isUndir   =  0;  // is directed
-			}
+			  $$.array[$$.curCount-1].isUndir   =  0;
+			  $$.array[$$.curCount-1].debug     = $10; }
 ;
 
 connection_opt_condition:
 		%empty                    { $$ = WIRING_BIT_INVALID; }
 	|	'(' "condition" NUM ')'   { $$ = $3;                 }
+;
+
+opt_debug:
+		%empty            { $$ = NULL; }
+	|	"debug" '=' STR   { $$ = $3;   }
 ;
 
 

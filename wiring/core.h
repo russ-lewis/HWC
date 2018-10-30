@@ -90,6 +90,8 @@ struct HWC_WiringMemory
 	int size;     // how many bits?
 	int read;     // index of 1st bit of the 'read' side
 	int write;    // index of 1st bit of the 'write' side
+
+	char *debug;
 };
 
 
@@ -107,6 +109,8 @@ struct HWC_WiringLogic
 	int size;
 	int a,b;      // b is ignored for NOT, but used for all others
 	int out;
+
+	char *debug;
 };
 
 
@@ -118,6 +122,8 @@ struct HWC_WiringConnection
 
 	int condition;   // WIRING_BIT_INVALID if not conditional
 	int isUndir;     // 1 if undirected; 0 if directed
+
+	char *debug;
 };
 
 
