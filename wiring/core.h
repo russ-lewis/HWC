@@ -32,11 +32,13 @@ enum {
  *                      range inputs.  Gives the bit-index of the start of the
  *                      input and output field(s).
  *
- *    HWC_WiringConnection - represents an unconditional connection.  Can
- *                     handle range connections.  Gives the in and out
- *                     locations.  If conditional, gives the (single) bit
- *                     which controls the condition.  If undirected, has a
- *                     flag to indicate that.
+ *    HWC_WiringConnection - represents a connection.  Can handle range
+ *                           connections.  Gives the in and out locations.  If
+ *                           conditional, gives the (single) bit which
+ *                           controls the condition.  If undirected, has a
+ *                           flag to indicate that.
+ *
+ *    HWC_WiringAssert - represents an assertion.
  *
  * NOTE: You will observe that the types listed only have enough information
  *       to read/write the wiring diagram file.  It does *NOT* include any
@@ -50,6 +52,7 @@ typedef struct HWC_Wiring           HWC_Wiring;
 typedef struct HWC_WiringMemory     HWC_WiringMemory;
 typedef struct HWC_WiringLogic      HWC_WiringLogic;
 typedef struct HWC_WiringConnection HWC_WiringConnection;
+typedef struct HWC_WiringAssert     HWC_WiringAssert;
 
 struct HWC_Wiring
 {
@@ -82,6 +85,12 @@ struct HWC_Wiring
 	 */
 	int numConnections;
 	HWC_WiringConnection *conns;
+
+	/* an array of HWC_WiringAssert objects.  Each object represents a
+	 * single assertion, which always reads a single bit.
+	 */
+	int numAsserts;
+	HWC_WiringAssert *asserts;
 };
 
 
@@ -122,6 +131,14 @@ struct HWC_WiringConnection
 
 	int condition;   // WIRING_BIT_INVALID if not conditional
 	int isUndir;     // 1 if undirected; 0 if directed
+
+	char *debug;
+};
+
+
+struct HWC_WiringAssert
+{
+	int bit;     // the bit to read
 
 	char *debug;
 };

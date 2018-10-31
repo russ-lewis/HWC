@@ -42,6 +42,7 @@ int wiring_write(HWC_Wiring *core)
 	fprintf(fp, "bits %d\n", core->numBits);
 	fprintf(fp, "\n");
 
+
 	fprintf(fp, "memory count %d\n", core->numMemRanges);
 	for (i=0; i<core->numMemRanges; i++)
 	{
@@ -52,6 +53,7 @@ int wiring_write(HWC_Wiring *core)
 		print_debug(fp, core->mem[i].debug);
 	}
 	fprintf(fp, "\n");
+
 
 	fprintf(fp, "logic count %d\n", core->numLogicalOperators);
 	for (i=0; i<core->numLogicalOperators; i++)
@@ -115,6 +117,15 @@ int wiring_write(HWC_Wiring *core)
 			fprintf(fp, "ZERO");
 
 		print_debug(fp, core->conns[i].debug);
+	}
+	fprintf(fp, "\n");
+
+
+	fprintf(fp, "assert count %d\n", core->numAsserts);
+	for (i=0; i<core->numAsserts; i++)
+	{
+		fprintf(fp, "  assert %d", core->asserts[i].bit);
+		print_debug(fp, core->asserts[i].debug);
 	}
 	fprintf(fp, "\n");
 

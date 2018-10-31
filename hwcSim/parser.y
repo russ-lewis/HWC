@@ -83,6 +83,12 @@
 		HWC_WiringConnection *array;
 		int curCount;
 	} connections;
+
+	struct {
+		int arrayLen;
+		HWC_WiringAssert *array;
+		int curCount;
+	} asserts;
 }
 
 %type<core>        file
@@ -91,6 +97,7 @@
 %type<logic_op>    logic_op
 %type<num>         logic_b_opt
 %type<connections> connections
+%type<asserts>     asserts
 %type<num>         connection_opt_condition
 %type<str>         opt_debug
 
@@ -130,6 +137,7 @@ file:
 	mem
 	logic
 	connections
+	asserts
 		{ assert($3 == 1 && $5 == 0);
 		    // TODO: handle the debug string 
 
@@ -147,6 +155,10 @@ file:
 		  assert($13.curCount == $13.arrayLen);
 		  $$->numConnections = $13.arrayLen;
 		  $$->conns          = $13.array;
+
+		  assert($14.curCount == $14.arrayLen);
+		  $$->numAsserts = $14.arrayLen;
+		  $$->asserts    = $14.array;
 		}
 ;
 
@@ -238,6 +250,22 @@ connections:
 connection_opt_condition:
 		%empty                    { $$ = WIRING_BIT_INVALID; }
 	|	'(' "condition" NUM ')'   { $$ = $3;                 }
+;
+
+asserts:
+		"assert" "count" NUM
+			{ $$.arrayLen = $3;
+			  $$.array = malloc($3 * sizeof(HWC_WiringAssert));
+			  $$.curCount = 0; }
+
+	|	asserts "assert" NUM opt_debug
+			{ assert($1.curCount < $1.arrayLen);  // TODO: make this a syntax error
+
+			  $$.arrayLen = $1.arrayLen;
+			  $$.array    = $1.array;
+			  $$.curCount = $1.curCount+1;
+			  $$.array[$$.curCount-1].bit   = $3;
+			  $$.array[$$.curCount-1].debug = $4; }
 ;
 
 opt_debug:

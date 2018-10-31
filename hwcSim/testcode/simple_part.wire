@@ -10,5 +10,7 @@ memory count 0
 logic count 0
 
 connection count 1
-  connection size 1 to 1 from 0
+  connection               size 1 to 1 from 0
+
+assert count 0
 
