@@ -1,0 +1,19 @@
+Authors:
+--------
+  Russ Lewis        2018-current
+  Jackson Lindsay   2018-current
+
+
+
+Concept/Spec:
+-------------
+Written by Russ Lewis, starting 2010 or earlier.  Updated gradually over time,
+including consultation from Jackson.
+
+
+Honors Thesis, 18-19:
+---------------------
+Jackson and Russ worked together to develop a Bison-based compiler, written
+from scratch but implementing (a subset of) an updated version of the old
+spec.
+
