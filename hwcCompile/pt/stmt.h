@@ -6,6 +6,8 @@ typedef struct PT_stmt PT_stmt;
 typedef struct PT_decl PT_decl;
 
 typedef struct PT_expr PT_expr;
+typedef struct PT_type PT_type;
+typedef struct PT_array_decl PT_array_decl;
 
 
 enum {

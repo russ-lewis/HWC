@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <malloc.h>
+#include <assert.h>
+
 #include "expr.h"
 
 // Assumes the second parameter is an HWC_Expr you want to convert into

@@ -6,8 +6,6 @@
 
 #include "names.h"
 #include "expr.h"
-#include "stmt.h"
-
 
 typedef struct HWC_Stmt HWC_Stmt;
 struct HWC_Stmt
@@ -31,7 +29,7 @@ struct HWC_Stmt
 	//HWC_Decl  decl;
 };
 
-int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt *);
+int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt *, HWC_NameScope *, HWC_Part *);
 
 #endif
 
