@@ -1,6 +1,6 @@
 Here are the semantic phases as I currently envision them:
 
-PHASE 1
+PHASE 10
 
 Build NameScope objects; populate them.  Convert parse tree to new form
 (including converting all linked lists to arrays); add all implicit
@@ -12,9 +12,9 @@ be populated.)
 This phase doesn't do very much semantic checking; we don't expect to report
 many user errors here.
 
-PHASE 2
+PHASE 20
 
-In phase 2, we use the NameScope objects that we've built to do name lookups.
+In phase 20, we use the NameScope objects that we've built to do name lookups.
 We look up both root names (the first IDENT in a dot chain), and also the
 following dot expressions.  Since sizes and offsets are not yet known, the
 expressions cannot be mapped all the way to offsets, but we store the
@@ -22,9 +22,9 @@ pointers to the NameScope entries for each such expression.
 
 This phase generates lots of user errors (undefined name).
 
-PHASE 3
+PHASE 30
 
-In phase 3, we calculate the size of every plugtype and part.  The process
+In phase 30, we calculate the size of every plugtype and part.  The process
 iterates over all of the file-level declarations in the primary file, but
 recurses through all of the types used in the entire system.  (When we
 implement generics, this means that we will instantiate every copy of a
@@ -42,7 +42,7 @@ in the offsets for each type.
 Once we have all of the offsets, it is possible to generate all of the
 connection statements in each part.
 
-PHASE 4
+PHASE 40
 
 In this phase, we verify that all of the indices used in index/slice
 expressions are valid.  In the previous phase, we had already *used* these
