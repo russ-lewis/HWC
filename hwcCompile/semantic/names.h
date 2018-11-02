@@ -79,6 +79,7 @@ typedef struct HWC_Part     HWC_Part;
 typedef struct HWC_PlugType HWC_PlugType;
 typedef struct HWC_Type     HWC_Type;
 typedef struct HWC_Plug     HWC_Plug;
+typedef struct HWC_Decl     HWC_Decl;
 
 struct HWC_Nameable
 {
@@ -87,6 +88,7 @@ struct HWC_Nameable
 	HWC_PlugType *plugtype;
 	HWC_Type     *type;
 	HWC_Plug     *plug;
+	HWC_Decl     *decl;
 };
 
 

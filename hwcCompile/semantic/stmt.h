@@ -26,10 +26,10 @@ struct HWC_Stmt
 	HWC_Stmt *stmtA, *stmtB;
 	int       sizeA,  sizeB; // Could we compress sizeA and sizeB with isPub and isSub?
 	int       isPub,  isSub; // Efficient, but poor naming. And I assume memory isn't at a premium.
-	//HWC_Decl  decl;
+	HWC_Decl  decl;
 };
 
-int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt *, HWC_NameScope *, HWC_Part *);
+int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt *, HWC_Part *);
 
 #endif
 

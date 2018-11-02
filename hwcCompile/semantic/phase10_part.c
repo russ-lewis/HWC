@@ -7,6 +7,7 @@
 
 #include "phase10.h"
 
+// fileScope the name scope for the entire file
 HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 {
 	HWC_Part *retval = malloc(sizeof(HWC_Part));
@@ -20,6 +21,7 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 
 	retval->phases_completed = retval->phases_begun = 10;
 
+	// Create publicNames, and make "fileScope" its parent
 	retval->publicNames = nameScope_malloc(fileScope);
 	if (retval->publicNames == NULL)
 	{
@@ -29,7 +31,7 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 	}
 
 	// Implementation can be found in stmts.c
-	retval->stmts_len = convertPTstmtIntoHWCstmt(parsedPart->stmts, retval->stmts, fileScope, retval);
+	retval->stmts_len = convertPTstmtIntoHWCstmt(parsedPart->stmts, retval->stmts, retval);
 
 	return retval;
 }

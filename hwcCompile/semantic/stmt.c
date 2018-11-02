@@ -1,3 +1,4 @@
+
 #include "stmt.h"
 
 
@@ -11,9 +12,14 @@ The most notable changes are:
  - Conversion from linked list structure to array
  - Compression of struct fields
  - malloc()s memory for the caller
+Arguments:
+ - input, a pointer to the statement to convert
+ - output, a pointer to the HWC_Stmt to fill in
+ - caller, 
+***NOTE: Could remove output parameter, because caller contains output (see function call in phase10_part.c)
 Returns an int corresponding to the length of the array of statements
 */
-int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_NameScope *fileScope, HWC_Part *caller)
+int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_Part *caller)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
@@ -44,10 +50,13 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_NameScope *fi
 				assert(0); // TODO: Potentially better error message?
 				break;
 			case STMT_DECL:
-				// TODO: WARNING HERE ABOUT caller not being of type Nameable
-				nameScope_add(fileScope, currPTstmt->stmtDecl->name, caller);
+				HWC_Nameable *nameableDecl = malloc(sizeof(HWC_Nameable));
+					assert(thing != NULL);   // TODO: better error checking
+				// thing->Decl = whatever we make
+				nameScope_add(caller->publicNames, currPTstmt->stmtDecl->name, nameableDecl);
 				currStmt->isPub = currPTstmt->isPublic;
 				currStmt->isSub = currPTstmt->isSubpart;
+				// currStmt->decl = conversionFunction()
 				// TODO
 				printf("Remember, Decl is not implemented yet...\n");
 				break;
@@ -59,6 +68,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_NameScope *fi
 				convertPTexprIntoHWCexpr(currPTstmt->rHand, currStmt->exprB);
 				break;
 			case STMT_FOR:
+				// TODO: Should add to nameScope as well?
 				currStmt->name  = currPTstmt->forVar;
 				convertPTexprIntoHWCexpr(currPTstmt->forBegin, currStmt->exprA);
 				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , currStmt->exprB);
