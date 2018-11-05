@@ -7,8 +7,23 @@
 typedef struct HWC_Decl HWC_Decl;
 struct HWC_Decl
 {
-
+	char     *name
+	HWC_Type *type;
+	HWC_Expr *expr;
 };
+
+struct PT_decl
+{
+	/* linked list, in reverse order of declaration */
+	PT_decl *prev;
+
+	PT_type *type;
+	char *name;
+	PT_array_decl *arraySuffix;
+};
+
+
+int convert PTdeclIntoHWCdecl(PT_Decl *, HWC_Decl *);
 
 #endif
 
