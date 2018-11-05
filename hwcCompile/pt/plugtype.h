@@ -12,6 +12,7 @@ struct PT_plugtype_decl
 {
 	char *name;
 	// These should all be of type STMT_DECL
+	//	PT_stmt *stmts;
 	PT_decl *fields;
 };
 
