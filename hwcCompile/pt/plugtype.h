@@ -11,8 +11,9 @@ typedef struct PT_array_decl PT_array_decl;   // actually defined in part.h
 struct PT_plugtype_decl
 {
 	char *name;
+
 	// These should all be of type STMT_DECL
-	PT_decl *fields;
+	PT_stmt *stmts;
 };
 
 
