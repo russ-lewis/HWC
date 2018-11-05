@@ -88,7 +88,7 @@
 %type<stmt> opt_plugtype_stmts
 %type<stmt> plugtype_stmts
 
-%type<stmt> declStmt
+%type<stmt> decl_stmt
 %type<decl> decl_fields
 
 %type<array_decl> opt_array_decls
@@ -196,15 +196,15 @@ stmt:
 		                             $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode  = STMT_BLOCK;
 		                             $$->stmts = $2; }
-	|	"subpart" declStmt
+	|	"subpart" decl_stmt
 		                           { $$ = $2;
 		                             $$->isPublic  = 0;
 		                             $$->isSubpart = 1; }
-	|	"public"  declStmt
+	|	"public"  decl_stmt
 		                           { $$ = $2;
 		                             $$->isPublic  = 1;
 		                             $$->isSubpart = 0; }
-	|	"private" declStmt
+	|	"private" decl_stmt
 		                           { $$ = $2;
 		                             $$->isPublic  = 0;
 		                             $$->isSubpart = 0; }
@@ -279,10 +279,10 @@ opt_plugtype_stmts:
 ;
 
 plugtype_stmts:
-		               declStmt { $$ = $1;
+		               decl_stmt { $$ = $1;
 		                          $$->isPublic  = 1;
 		                          $$->isSubpart = 0; }
-	|	plugtype_stmts declStmt { $$ = $2;
+	|	plugtype_stmts decl_stmt { $$ = $2;
 		                          $$->prev = $1;
 		                          $$->isPublic  = 1;
 		                          $$->isSubpart = 0; }
@@ -294,7 +294,7 @@ plugtype_stmts:
 /* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? */
 /* Maybe not, since we could trust the Semantic phase to make sense of it */
 
-declStmt:
+decl_stmt:
 		decl_fields ';'
 		      { $$ = malloc(sizeof(PT_stmt));
 		        $$->prev      = NULL;   /* user may override this */
