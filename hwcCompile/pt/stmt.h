@@ -57,6 +57,15 @@ struct PT_stmt
 };
 
 
+
+/* this struct is used to store the parse tree for the nonterminals
+ * 'decl_fields', as well as its various sub-nonterminals inside that.
+ * Each decl_field struct represents a single name in a comma-separated
+ * list of names, inside a single declaration statement.  It contains
+ * the type of the statement (which is identical for all of the decls
+ * in a list), as well as the name and array metadata (which is NULL
+ * if there were no per-name array suffixes).
+ */
 struct PT_decl
 {
 	/* linked list, in reverse order of declaration */
@@ -66,6 +75,8 @@ struct PT_decl
 	char *name;
 	PT_array_decl *arraySuffix;
 };
+
+
 
 // Debug functions
 

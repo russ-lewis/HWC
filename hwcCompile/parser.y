@@ -84,10 +84,12 @@
 %type<stmt> stmt
 
 %type<plugtype_decl>  plugtype_decl
-%type<decl> opt_fields
-%type<decl> fields
-%type<decl> field
-%type<decl> field_decls
+
+%type<stmt> opt_plugtype_stmts
+%type<stmt> plugtype_stmts
+
+%type<stmt> declStmt
+%type<decl> decl_fields
 
 %type<array_decl> opt_array_decls
 %type<array_decl> array_decls
@@ -194,24 +196,18 @@ stmt:
 		                             $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode  = STMT_BLOCK;
 		                             $$->stmts = $2; }
-	|	"subpart" field
-		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode      = STMT_DECL;
+	|	"subpart" declStmt
+		                           { $$ = $2;
 		                             $$->isPublic  = 0;
-		                             $$->isSubpart = 1;
-		                             $$->stmtDecl  = $2; }
-	|	"public"  field
-		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode      = STMT_DECL;
+		                             $$->isSubpart = 1; }
+	|	"public"  declStmt
+		                           { $$ = $2;
 		                             $$->isPublic  = 1;
-		                             $$->isSubpart = 0;
-		                             $$->stmtDecl  = $2; }
-	|	"private" field
-		                           { $$ = malloc(sizeof(PT_stmt));
-		                             $$->mode      = STMT_DECL;
+		                             $$->isSubpart = 0; }
+	|	"private" declStmt
+		                           { $$ = $2;
 		                             $$->isPublic  = 0;
-		                             $$->isSubpart = 0;
-		                             $$->stmtDecl  = $2; }
+		                             $$->isSubpart = 0; }
 	|	expr '=' expr ';'
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             $$->mode  = STMT_CONN;
@@ -271,20 +267,25 @@ unittest_varlist:
 
 
 plugtype_decl:
-		"plugtype" IDENT '{' opt_fields '}'
+		"plugtype" IDENT '{' opt_plugtype_stmts '}'
 		                  { $$ = malloc(sizeof(PT_plugtype_decl));
-		                    $$->name   = $2;
-		                    $$->fields = $4; }
+		                    $$->name  = $2;
+		                    $$->stmts = $4; }
 ;
 
-opt_fields:
-		%empty  { $$ = NULL; }
-	|	fields  { $$ = $1;   }
+opt_plugtype_stmts:
+		%empty          { $$ = NULL; }
+	|	plugtype_stmts  { $$ = $1;   }
 ;
 
-fields:
-		       field   { $$ = $1; $$->prev = NULL; }
-	|	fields field   { $$ = $2; $$->prev = $1;   }
+plugtype_stmts:
+		               declStmt { $$ = $1;
+		                          $$->isPublic  = 1;
+		                          $$->isSubpart = 0; }
+	|	plugtype_stmts declStmt { $$ = $2;
+		                          $$->prev = $1;
+		                          $$->isPublic  = 1;
+		                          $$->isSubpart = 0; }
 ;
 
 /* Added support for "bit a, b[1], c[4], d;" with idea from: */
@@ -292,17 +293,23 @@ fields:
 /* HOWEVER, THIS SOLUTION BREAKS THE ASSUMPTION THAT WHEN A pt_decl IS DISCLARED IN A PART AS A STATEMENT, THE prev FIELD IN pt_decl IS NULL */
 /* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? */
 /* Maybe not, since we could trust the Semantic phase to make sense of it */
-field:
-		field_decls ';'	{ $$ = $1; }
+
+declStmt:
+		decl_fields ';'
+		      { $$ = malloc(sizeof(PT_stmt));
+		        $$->prev      = NULL;   /* user may override this */
+		        $$->mode      = STMT_DECL;
+		           /* NOTE: the user *MUST* set public and subPart */
+		        $$->stmtDecl  = $1; }
 ;
 
-field_decls:
+decl_fields:
 		type IDENT opt_array_decls
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->type = $1;
 		                   $$->name = $2;
 		                   $$->arraySuffix = $3; }
-	|	field_decls ',' IDENT opt_array_decls
+	|	decl_fields ',' IDENT opt_array_decls
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->prev = $1;
 		                   $$->type = $1->type;
