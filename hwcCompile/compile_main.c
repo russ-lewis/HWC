@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <getopt.h>
 #include <assert.h>
 
 #include "parser.tab.h"
@@ -17,35 +18,59 @@ PT_file *bisonParseRoot;
 
 int main(int argc, char **argv)
 {
-	/* parse the command-line arguments.  TODO: make use of getopt() */
-
+	char *outfile = NULL;
 	int debug = 0;   // if nonzero, is the place to "stop and dump state"
-	int syntaxHelp = 0;
 
-	if (argc == 2 && strcmp(argv[1], "--debug=parse") == 0)
-		debug = 1;
-	else if (argc == 2 && strcmp(argv[1], "--debug=semantic_phase10") == 0)
-		debug = 2;
-	else if (argc == 2 && strcmp(argv[1], "--debug=semantic_phase40") == 0)
-		debug = 3;
-	else if (argc == 2 && strcmp(argv[1], "-?") == 0)
-		syntaxHelp = 1;
-	else if (argc != 1)
-	{
-		fprintf(stderr, "ERROR: Invalid command line argument!\n");
-		syntaxHelp = 1;
-	}
-	/* else NOP, the default state is just fine! */
 
-	if (syntaxHelp)
+	/* example code: https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Options.html#Getopt-Long-Options */
+
+	struct option options[] = {
+            { "o",     required_argument, NULL, 'o' },
+            { "debug", required_argument, NULL, 'd' },
+            { 0,0,0,0 }
+	};
+
+	int opt;
+	while ((opt = getopt_long(argc, argv, "o:", options, NULL)) != -1)
 	{
-		printf("SYNTAX: %s [--debug=MODE]\n", argv[0]);
-		printf("  debug MODEs:\n");
-		printf("    parse\n");
-		printf("    semantic_phase10\n");
-		printf("    semantic_phase40\n");
-		return 0;
+		switch (opt)
+		{
+		case 'o':
+			outfile = optarg;
+			break;
+
+		case 'd':
+			if (strcmp(optarg, "parse") == 0)
+			{
+				debug = 1;
+				break;     // do *NOT* fallthrough
+			}
+			if (strcmp(optarg, "semantic_phase10") == 0)
+			{
+				debug = 2;
+				break;     // do *NOT* fallthrough
+			}
+			if (strcmp(optarg, "semantic_phase40") == 0)
+			{
+				debug = 3;
+				break;     // do *NOT* fallthrough
+			}
+			else
+			{
+				fprintf(stderr, "ERROR: The only supported debug modes are 'parse', 'semantic_phase10', 'semantic_phase40'\n");
+				// intentional fallthrough
+			}
+
+		case '?':
+			fprintf(stderr, "SYNTAX: %s [--debug=MODE] [-o <outfile>]\n", argv[0]);
+			fprintf(stderr, "  debug MODEs:\n");
+			fprintf(stderr, "    parse\n");
+			fprintf(stderr, "    semantic_phase10\n");
+			fprintf(stderr, "    semantic_phase40\n");
+			return 1;
+		}
 	}
+
 
 
 	/* run the parser.  Then collect the root object from Bison */
@@ -147,6 +172,6 @@ int main(int argc, char **argv)
 		return 1;   // the wiring generator must have already printed an error message
 
 
-	return wiring_write(wiring);
+	return wiring_write(wiring, outfile);
 }
 
