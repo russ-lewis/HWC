@@ -6,6 +6,7 @@
 #include "parser.tab.h"
 #include "wiring/core.h"
 #include "wiring/write.h"
+#include "sim/graph.h"
 
 
 // global, shared with the parser, through parsercommon.h
@@ -71,6 +72,9 @@ int main(int argc, char **argv)
 		wiring_write(core, outfile);
 		return 0;
 	}
+
+
+	HWC_sim_graph *graph = HWC_sim_buildGraph(core);
 
 
 	assert(0);   // TODO
