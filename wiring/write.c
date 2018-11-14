@@ -10,14 +10,14 @@
 
 static void print_debug(FILE *fp, char *debug);
 
-int wiring_write(HWC_Wiring *core)
+int wiring_write(HWC_Wiring *core, char *filename)
 {
 	int i;
 
-	printf("TODO: %s: Add parameters to allow the user to control the output filename.\n",
-	       __func__);
+	if (filename == NULL)
+		filename = "out.wire";
 
-	FILE *fp = fopen("out.wire", "w");
+	FILE *fp = fopen(filename, "w");
 	if (fp == NULL)
 	{
 		perror("Could not open the file to write the wiring diagram");

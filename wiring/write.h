@@ -11,7 +11,7 @@
 
 typedef struct HWC_Wiring HWC_Wiring;
 
-int wiring_write(HWC_Wiring*);
+int wiring_write(HWC_Wiring*, char *outfile);
 
 
 #endif
