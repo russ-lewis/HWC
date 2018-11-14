@@ -6,6 +6,7 @@
 
 #include "names.h"
 #include "expr.h"
+#include "decl.h"
 
 typedef struct HWC_Stmt HWC_Stmt;
 struct HWC_Stmt
@@ -25,7 +26,7 @@ struct HWC_Stmt
 	HWC_Expr *exprA, *exprB;
 	HWC_Stmt *stmtA, *stmtB;
 	int       sizeA,  sizeB; // Could we compress sizeA and sizeB with isPub and isSub?
-	int       isPub,  isSub; // Efficient, but poor naming. And I assume memory isn't at a premium.
+	int       isPub,  isSub; // Aligned, but poor naming. And I assume memory isn't at a premium.
 	HWC_Decl  decl;
 };
 

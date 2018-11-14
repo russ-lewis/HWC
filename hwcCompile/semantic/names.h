@@ -87,7 +87,7 @@ struct HWC_Nameable
 	HWC_Part     *part;
 	HWC_PlugType *plugtype;
 	HWC_Type     *type;
-	HWC_Plug     *plug;
+	HWC_Plug     *plug; // Instance of a plugtype
 	HWC_Decl     *decl;
 };
 

@@ -15,18 +15,16 @@ The most notable changes are:
 Arguments:
  - input, a pointer to the statement to convert
  - output, a pointer to the HWC_Stmt to fill in
- - caller, 
-***NOTE: Could remove output parameter, because caller contains output (see function call in phase10_part.c)
 Returns an int corresponding to the length of the array of statements
 */
-int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_Part *caller)
+int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
 	while(currPTstmt != NULL)
 	{
-		currPTstmt = currPTstmt->prev;
 		len++;
+		currPTstmt = currPTstmt->prev;
 	}
 
 	output = malloc(sizeof(HWC_Stmt)*len);
@@ -50,6 +48,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_Part *caller)
 				assert(0); // TODO: Potentially better error message?
 				break;
 			case STMT_DECL:
+				/*
 				HWC_Nameable *nameableDecl = malloc(sizeof(HWC_Nameable));
 					assert(thing != NULL);   // TODO: better error checking
 				// thing->Decl = whatever we make
@@ -59,9 +58,11 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_Part *caller)
 				// currStmt->decl = conversionFunction()
 				// TODO
 				printf("Remember, Decl is not implemented yet...\n");
+				*/
+				printf("What should I do with decls?\n");
 				break;
 			case STMT_BLOCK:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, currStmt->stmtA, fileScope, caller);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, currStmt->stmtA, fileScope);
 				break;
 			case STMT_CONN:
 				convertPTexprIntoHWCexpr(currPTstmt->lHand, currStmt->exprA);
@@ -72,14 +73,14 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_Part *caller)
 				currStmt->name  = currPTstmt->forVar;
 				convertPTexprIntoHWCexpr(currPTstmt->forBegin, currStmt->exprA);
 				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , currStmt->exprB);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, currStmt->stmtA, fileScope, caller);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, currStmt->stmtA, fileScope);
 			case STMT_IF:
 				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, currStmt->exprA);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, currStmt->stmtA, fileScope, caller);
-				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , currStmt->stmtB, fileScope, caller);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, currStmt->stmtA, fileScope);
+				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , currStmt->stmtB, fileScope);
 				break;
 			case STMT_ELSE:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, currStmt->stmtA, fileScope, caller);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, currStmt->stmtA, fileScope);
 				break;
 			case STMT_ASRT:
 				convertPTexprIntoHWCexpr(currPTstmt->assertion, currStmt->exprA);
@@ -91,4 +92,22 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output, HWC_Part *caller)
 
 
 	return len;
+}
+
+
+int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output)
+{
+	PT_stmt *currPTstmt = input;
+	while(currPTstmt != NULL)
+	{
+		if(currPTstmt->mode == STMT_DECL)
+		{
+			
+int convertPTdeclIntoHWCdecl(PT_Decl *, HWC_Decl *);
+
+
+		}
+
+		currPTstmt = currPTstmt->prev;
+	}
 }

@@ -2,10 +2,6 @@
 #define __SEMANTIC_DECL_H__INCLUDED__
 
 
-#include <pt/stmt.h>    // we'll re-use the modes from the parser
-
-
-
 /* this struct represents a declaration, as represented in the semantic
  * phase.  Each of these declarations is inside of a PT_stmt in the parse
  * tree, but will be extracted, early in the semantic phase, into an array
@@ -58,8 +54,7 @@ struct HWC_Decl
 };
 
 
-
-int convert PTdeclIntoHWCdecl(PT_Decl *, HWC_Decl *);
+int convertPTdeclIntoHWCdecl(PT_Decl *, HWC_Decl *);
 
 #endif
 
