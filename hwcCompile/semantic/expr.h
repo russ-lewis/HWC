@@ -4,7 +4,8 @@
 
 #include "plug.h"
 #include "partinstance.h"
-
+#include "decl.h"
+typedef struct HWC_Decl HWC_Decl;
 
 #include <pt/expr.h>    // we'll re-use the modes from the parser, but then
                         // add some more

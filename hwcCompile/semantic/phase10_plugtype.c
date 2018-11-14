@@ -33,6 +33,6 @@ HWC_PlugType *semPhase10_plugtype(PT_plugtype_decl *parsedPlugtype,
 #endif
 
 	// Implementation can be found in stmts.c
-	retval->stmts_len = convertPTstmtIntoHWCstmt(parsedPart->stmts, retval->stmts, retval);
+	//retval->stmts_len = convertPTstmtIntoHWCstmt(parsedPart->stmts, retval->stmts, retval);
 }
 

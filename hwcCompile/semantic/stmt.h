@@ -30,7 +30,8 @@ struct HWC_Stmt
 	HWC_Decl  decl;
 };
 
-int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt *, HWC_Part *);
+int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt *);
+int extractHWCdeclsFromPTstmts(PT_stmt *, HWC_Decl *);
 
 #endif
 

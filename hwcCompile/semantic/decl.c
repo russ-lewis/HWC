@@ -25,9 +25,10 @@ int convertPTstmtIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 {
 	PT_decl *currPTdecl = input;
 
+	/*
 	struct PT_decl
 	{
-   /* linked list, in reverse order of declaration */
+   /* linked list, in reverse order of declaration
    PT_decl *prev;
 
    PT_type *type;
@@ -35,7 +36,7 @@ int convertPTstmtIntoHWCdecl(PT_decl *input, HWC_Decl *output)
    PT_array_decl *arraySuffix;
 	};
 
-
+	*/
 
 	/*
 	int len = 0;

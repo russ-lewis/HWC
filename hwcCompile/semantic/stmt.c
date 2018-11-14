@@ -62,7 +62,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 				printf("What should I do with decls?\n");
 				break;
 			case STMT_BLOCK:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, currStmt->stmtA, fileScope);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, currStmt->stmtA);
 				break;
 			case STMT_CONN:
 				convertPTexprIntoHWCexpr(currPTstmt->lHand, currStmt->exprA);
@@ -73,14 +73,14 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 				currStmt->name  = currPTstmt->forVar;
 				convertPTexprIntoHWCexpr(currPTstmt->forBegin, currStmt->exprA);
 				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , currStmt->exprB);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, currStmt->stmtA, fileScope);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, currStmt->stmtA);
 			case STMT_IF:
 				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, currStmt->exprA);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, currStmt->stmtA, fileScope);
-				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , currStmt->stmtB, fileScope);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, currStmt->stmtA);
+				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , currStmt->stmtB);
 				break;
 			case STMT_ELSE:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, currStmt->stmtA, fileScope);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, currStmt->stmtA);
 				break;
 			case STMT_ASRT:
 				convertPTexprIntoHWCexpr(currPTstmt->assertion, currStmt->exprA);
@@ -98,16 +98,15 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output)
 {
 	PT_stmt *currPTstmt = input;
+	int len = 0;
+
 	while(currPTstmt != NULL)
 	{
 		if(currPTstmt->mode == STMT_DECL)
-		{
-			
-int convertPTdeclIntoHWCdecl(PT_Decl *, HWC_Decl *);
-
-
-		}
-
+			len++;
 		currPTstmt = currPTstmt->prev;
 	}
+//			convertPTdeclIntoHWCdecl(, input->decl);
+
+	return len;
 }

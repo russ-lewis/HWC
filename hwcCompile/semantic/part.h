@@ -20,10 +20,16 @@ struct HWC_Part
 
 
 
-	HWC_NameScope *publicNames;
+	HWC_NameScope * publicNames;
+	HWC_NameScope *privateNames;
 
 	HWC_Stmt *stmts;
 	int       stmts_len;
+
+	HWC_Decl *decls;
+	int       decls_len;
+
+	// TODO: Field for sizeof Part
 };
 
 

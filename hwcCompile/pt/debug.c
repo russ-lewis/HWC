@@ -85,7 +85,7 @@ void dump_pt_plugtype_decl(PT_plugtype_decl *obj, int spaces)
 	dump_helper(spaces);
 
    printf("Plugtype_decl: named '%s', with fields\n", obj->name);
-	dump_pt_decl(obj->fields, spaces+2);
+	dump_pt_stmt(obj->stmts, spaces+2);
 }
 
 
