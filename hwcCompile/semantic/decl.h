@@ -1,7 +1,7 @@
 #ifndef __SEMANTIC_DECL_H__INCLUDED__
 #define __SEMANTIC_DECL_H__INCLUDED__
 
-/* this struct represents a declaration, as represented in the semantic
+/* This struct represents a declaration, as represented in the semantic
  * phase.  Each of these declarations is inside of a PT_stmt in the parse
  * tree, but will be extracted, early in the semantic phase, into an array
  * of structs, stored directly in the PlugType or Part.
@@ -19,12 +19,12 @@
  *       enclosing PlugType or Part.
  */
 #include <pt/stmt.h>
+#include <pt/part.h> // Need for PT_array_decl
 #include "expr.h"
 
 typedef struct HWC_Expr HWC_Expr;
 typedef struct HWC_PlugType HWC_PlugType;
 typedef struct HWC_Part HWC_Part;
-
 
 typedef struct HWC_Decl HWC_Decl;
 struct HWC_Decl
@@ -59,8 +59,7 @@ struct HWC_Decl
 	int index;
 };
 
-
-int convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
+void convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
 
 #endif
 

@@ -19,7 +19,7 @@ SEM_SRC=${SEMANTIC}/names.c ${SEMANTIC}/debug.c \
         ${SEMANTIC}/phase20_part.c \
         ${SEMANTIC}/phase30_part.c \
         ${SEMANTIC}/phase40_part.c ${SEMANTIC}/phase40_plugtype.c \
-        ${SEMANTIC}/stmt.c ${SEMANTIC}/expr.c
+        ${SEMANTIC}/stmt.c ${SEMANTIC}/expr.c ${SEMANTIC}/decl.c
 WIRE_SRC=${WIRING}/build_part.c ${WIRING}/write.c
 
 

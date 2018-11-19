@@ -7,51 +7,55 @@
 #include <assert.h>
 
 /*
-TODO: Changed header comment
-
-Takes the given grammar PT_stmt and creates a corresponding semantic HWC_Stmt from it.
-The most notable changes are:
- - Conversion from linked list structure to array
- - Compression of struct fields
- - malloc()s memory for the caller
-Arguments:
- - input, a pointer to the statement to convert
- - output, a pointer to the HWC_Stmt to fill in
- - caller, 
-***NOTE: Could remove output parameter, because caller contains output (see function call in phase10_part.c)
-Returns an int corresponding to the length of the array of statements
+TODO: Change header comment
 */
-int convertPTstmtIntoHWCdecl(PT_decl *input, HWC_Decl *output)
+void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 {
-	PT_decl *currPTdecl = input;
+	output = malloc(sizeof(HWC_Decl));
+
+	assert(0);
+	// TODO: What to put for these vars? Comment copied below.
+	/* In a Decl that is part of a PlugType, we know for *sure* that
+	 * the base type of the Decl is another PlugType.  In a Part, there
+	 * can be some Decl's that refer to PlugType's (the various plugs of
+	 * the Part), and others that refer to Part's (the various
+	 * subcomponents).
+	 *
+	 * NOTE: We do not need to remember public/private in this struct,
+	 *       because that information is implicitly stored - it simply
+	 *       tells us which NameScope(s) will contain the name for this
+	 *       Decl.
+	 */
+	//HWC_PlugType *base_plugType;
+	//HWC_Part     *base_part;
+
+	// TODO: Below is a copy of the PT_array_decl struct, which is where we get the expr for this decl from
+	//       How should we accout for arraySuffix->prev being valid?
+	/*
+	struct PT_array_decl
+	{
+		PT_array_decl *prev;
+
+		PT_expr *size;
+	};
+	*/
+	if(input->arraySuffix == NULL)
+		output->expr = NULL;
+	else
+		convertPTexprIntoHWCexpr(input->arraySuffix->size, output->expr);
+
+	// Temp dummy value that might be useful later
+	output->index = -1; // TODO: Is this necessary?
 
 	/*
 	struct PT_decl
 	{
-   /* linked list, in reverse order of declaration
+   //linked list, in reverse order of declaration
    PT_decl *prev;
 
    PT_type *type;
    char *name;
    PT_array_decl *arraySuffix;
 	};
-
 	*/
-
-	/*
-	int len = 0;
-	while(currPTstmt != NULL)
-	{
-		currPTstmt = currPTstmt->prev;
-		len++;
-	}
-
-	output = malloc(sizeof(HWC_Stmt)*len);
-	if(output == NULL)
-	{
-		assert(0); // TODO: Better error message?
-	}
-	*/
-
-	return 0;
 }

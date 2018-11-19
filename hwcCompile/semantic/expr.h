@@ -38,7 +38,7 @@ struct HWC_Expr
 	/* EXPR_PAREN  - uses              exprA       */
 
 	char     *name; // Rewritten in Phase 20 to create decl
-	HWC_Decl *decl;
+	HWC_Decl *decl; // Points to decl that declared this expr
 	int       value;
 	HWC_Expr *exprA, *exprB;
 };
