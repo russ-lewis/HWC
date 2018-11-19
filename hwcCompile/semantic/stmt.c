@@ -47,18 +47,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 				assert(0); // TODO: Potentially better error message?
 				break;
 			case STMT_DECL:
-				/*
-				HWC_Nameable *nameableDecl = malloc(sizeof(HWC_Nameable));
-					assert(thing != NULL);   // TODO: better error checking
-				// thing->Decl = whatever we make
-				nameScope_add(caller->publicNames, currPTstmt->stmtDecl->name, nameableDecl);
-				currStmt->isPub = currPTstmt->isPublic;
-				currStmt->isSub = currPTstmt->isSubpart;
-				// currStmt->decl = conversionFunction()
-				// TODO
-				printf("Remember, Decl is not implemented yet...\n");
-				*/
-				printf("What should I do with decls?\n");
+				// NOP, but keeping case here for symmetry
 				break;
 			case STMT_BLOCK:
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, currStmt->stmtA);
@@ -93,16 +82,26 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 	return len;
 }
 
+/*
+TODO: Header comment
+*/
 int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
 
-	// TODO: STMT_DECLs have their own lists of decls, make sure to add these too
 	while(currPTstmt != NULL)
 	{
 		if(currPTstmt->mode == STMT_DECL)
-			len++;
+		{
+			// Nested while() because PT_decls have their own list of decls.
+			PT_decl *currPTdecl = currPTstmt->stmtDecl;
+			while(currPTdecl != NULL)
+			{
+				len++;
+				currPTdecl = currPTdecl->prev;
+			}
+		}
 		currPTstmt = currPTstmt->prev;
 	}
 
@@ -121,10 +120,15 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output)
 		HWC_Decl *currDecl = output+count;
 		if(currPTstmt->mode == STMT_DECL)
 		{
-			convertPTdeclIntoHWCdecl(currPTstmt->stmtDecl, currDecl);
-			count--;
+			// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
+			PT_decl *currPTdecl = currPTstmt->stmtDecl;
+			while(currPTdecl != NULL)
+			{
+				convertPTdeclIntoHWCdecl(currPTdecl, currDecl);
+				count--;
+				currPTdecl = currPTdecl->prev;
+			}
 		}
-
 		currPTstmt = currPTstmt->prev;
 	}
 
