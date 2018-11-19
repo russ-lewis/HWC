@@ -14,20 +14,9 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	output = malloc(sizeof(HWC_Decl));
 
 	assert(0);
-	// TODO: What to put for these vars? Comment copied below.
-	/* In a Decl that is part of a PlugType, we know for *sure* that
-	 * the base type of the Decl is another PlugType.  In a Part, there
-	 * can be some Decl's that refer to PlugType's (the various plugs of
-	 * the Part), and others that refer to Part's (the various
-	 * subcomponents).
-	 *
-	 * NOTE: We do not need to remember public/private in this struct,
-	 *       because that information is implicitly stored - it simply
-	 *       tells us which NameScope(s) will contain the name for this
-	 *       Decl.
-	 */
-	//HWC_PlugType *base_plugType;
-	//HWC_Part     *base_part;
+	// Note: Don't set *base_plugType or *base_part yet. Set typeName so we can check their validity later.
+	// TODO:
+	//typeName = input->type->
 
 	// TODO: Below is a copy of the PT_array_decl struct, which is where we get the expr for this decl from
 	//       How should we accout for arraySuffix->prev being valid?
