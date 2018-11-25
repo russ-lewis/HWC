@@ -32,14 +32,16 @@ struct HWC_Decl
 {
 
 	/*
-	"typeName" is useful in phase10 because we are populating the namescope with the names of decls,
+	"type" is useful in phase10 because we are populating the namescope with the names of decls,
 	  but we can't check for the existence of parts/plugtypes outside of our own.
-	Once we know whether the type of a name is valid, "typeName" becomes useless and base_p* below
-	  stores the relevant type that this decl is an instantiation of.
+	Once we know whether the type of a name is valid, "type" becomes useless and base_p* below
+	  stores the relevant type this decl is an instantiation of.
 	Example: [PartName  partInstance;]
-	          ^typeName ^stored implicitly in nameScope
+				[bit       foo;         ]
+	          ^type     ^stored implicitly in nameScope
 	*/
-	char *typeName;
+	int type;
+
 
 	/* In a Decl that is part of a PlugType, we know for *sure* that
 	 * the base type of the Decl is another PlugType.  In a Part, there

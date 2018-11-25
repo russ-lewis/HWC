@@ -83,7 +83,9 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 }
 
 /*
-TODO: Header comment
+Given a list of PT_stmts, extracts all PT_decls and converts them into HWC_Decls.
+This is done in a separate step from all other HWC_Stmts because decls are added to the namescope of the part/plugtype.
+Returns an int corresponding to the length of the HWC_Decl array malloc'd in "output".
 */
 int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output)
 {
