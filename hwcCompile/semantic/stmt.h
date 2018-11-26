@@ -2,7 +2,6 @@
 #define __SEMANTIC_STMT_H__INCLUDED__
 
 
-
 #include <pt/stmt.h>    // we'll re-use the modes from the parser
 
 #include "names.h"
