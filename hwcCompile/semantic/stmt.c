@@ -108,6 +108,14 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 				currPTdecl = currPTdecl->prev;
 			}
 		}
+		// TODO: Can remove this check if the program runs too slow, since the grammar ensures that the only stmts in plugtypes are decls.
+		// Use the fact that PlugTypes have no private statements to check if the caller is a PlugType
+		else if(priv == NULL)
+		{
+			// The grammar should prevent non-decl statements from being found in plugtypes, but check just in case.
+			fprintf(stderr, "Statement that isn't a declaration found in a plugtype. Should be impossible, but obviously isn't. Crashing.\n");
+			assert(0);
+		}
 		currPTstmt = currPTstmt->prev;
 	}
 
@@ -133,7 +141,9 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
 				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
 				thing->decl = currHWCdecl;
-				if(currPTstmt->isPublic == 1)
+				// 1st check is for Parts    , makes sure the stmt is public
+				// 2nd check if for PlugTypes, makes all decls public
+				if(currPTstmt->isPublic == 1 || priv == NULL)
 					nameScope_add(publ, currPTdecl->name, thing);
 				else
 					nameScope_add(priv, currPTdecl->name, thing);

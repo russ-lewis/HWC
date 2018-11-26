@@ -2,9 +2,12 @@
 #define __SEMANTIC_PLUGTYPE_H__INCLUDED__
 
 
+#include "names.h"
+#include "decl.h"
+
 // Maybe just want to reference "plug" struct instead?
-typedef struct plugtype plugtype;
-struct plugtype
+typedef struct HWC_PlugType HWC_PlugType;
+struct HWC_PlugType
 {
 	/* these track the progress of the semantic phase.  The 'completed'
 	 * field tells us which semantic phase is done for this type; calling
