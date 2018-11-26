@@ -11,8 +11,10 @@ struct plugtype {
 };
 
 // Presumably put primitive "bit" here
-plugtype BIT;
-BIT.wire = 0;
+/*
+plugtype BitPrimitive;
+BitPrimitive.wire = 0;
+*/
 
 
 #endif // __SEMANTIC_PLUGTYPE_H__INCLUDEDED__
