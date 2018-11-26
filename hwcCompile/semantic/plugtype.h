@@ -2,6 +2,8 @@
 #define __SEMANTIC_PLUGTYPE_H__INCLUDED__
 
 
+#include <malloc.h>
+
 #include "names.h"
 #include "decl.h"
 
@@ -29,10 +31,13 @@ struct HWC_PlugType
 };
 
 // Presumably put primitive "bit" here
-/*
-plugtype BitPrimitive;
-BitPrimitive.wire = 0;
-*/
 
+/*
+HWC_PlugType *BitType = malloc(sizeof(HWC_PlugType));
+BitType->phases_completed = 40;
+BitType->publicNames = NULL;
+BitType->decls = NULL; // TODO: What kind of decl should be here?
+BitType->decls_len = 1;
+*/
 
 #endif // __SEMANTIC_PLUGTYPE_H__INCLUDEDED__
