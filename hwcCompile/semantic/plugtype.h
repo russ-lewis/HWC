@@ -32,12 +32,10 @@ struct HWC_PlugType
 
 // Presumably put primitive "bit" here
 
-/*
-HWC_PlugType *BitType = malloc(sizeof(HWC_PlugType));
-BitType->phases_completed = 40;
-BitType->publicNames = NULL;
-BitType->decls = NULL; // TODO: What kind of decl should be here?
-BitType->decls_len = 1;
-*/
+extern HWC_PlugType BitType;
+// In one c file, allocate space by re-declaraing
+// In other c files, include this header and BitType can be used
+// size of should be one
+// namescope should be null
 
 #endif // __SEMANTIC_PLUGTYPE_H__INCLUDEDED__
