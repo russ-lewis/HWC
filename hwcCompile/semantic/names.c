@@ -105,7 +105,9 @@ HWC_Nameable *nameScope_search(HWC_NameScope *obj, char *name)
 	return nameScope_search(obj->parent, name);
 }
 
-
+/*
+Associates "name" with "thing" inside the given nameScope "obj"
+*/
 void nameScope_add(HWC_NameScope *obj, char *name, HWC_Nameable *thing)
 {
 	assert(obj != NULL);

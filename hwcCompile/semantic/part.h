@@ -19,7 +19,6 @@ struct HWC_Part
 	int phases_begun;
 
 
-
 	HWC_NameScope * publicNames;
 	HWC_NameScope *privateNames;
 

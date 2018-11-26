@@ -85,12 +85,13 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 	return len;
 }
 
+// TODO: Maybe move to decl.c instead?
 /*
 Given a list of PT_stmts, extracts all PT_decls and converts them into HWC_Decls.
 This is done in a separate step from all other HWC_Stmts because decls are added to the namescope of the part/plugtype.
 Returns an int corresponding to the length of the HWC_Decl array malloc'd in "output".
 */
-int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output)
+int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *publ, HWC_NameScope *priv)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
@@ -122,14 +123,21 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output)
 	int count = len-1;
 	while(currPTstmt != NULL)
 	{
-		HWC_Decl *currDecl = output+count;
+		HWC_Decl *currHWCdecl = output+count;
 		if(currPTstmt->mode == STMT_DECL)
 		{
 			// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
 			PT_decl *currPTdecl = currPTstmt->stmtDecl;
 			while(currPTdecl != NULL)
 			{
-				convertPTdeclIntoHWCdecl(currPTdecl, currDecl);
+				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
+				thing->decl = currHWCdecl;
+				if(currPTstmt->isPublic == 1)
+					nameScope_add(publ, currPTdecl->name, thing);
+				else
+					nameScope_add(priv, currPTdecl->name, thing);
+
 				count--;
 				currPTdecl = currPTdecl->prev;
 			}
