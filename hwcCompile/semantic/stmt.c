@@ -62,10 +62,13 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 				convertPTexprIntoHWCexpr(currPTstmt->forBegin, currStmt->exprA);
 				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , currStmt->exprB);
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, currStmt->stmtA);
+				printf("TODO: How to account for decls within FOR stmts?\n");
+				break;
 			case STMT_IF:
 				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, currStmt->exprA);
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, currStmt->stmtA);
 				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , currStmt->stmtB);
+				printf("TODO: How to account for decls within IF stmts?\n");
 				break;
 			case STMT_ELSE:
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, currStmt->stmtA);

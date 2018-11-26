@@ -41,6 +41,7 @@ struct HWC_Decl
 	          ^type     ^stored implicitly in nameScope
 	*/
 	int type;
+	char *typeName;
 
 
 	/* In a Decl that is part of a PlugType, we know for *sure* that
