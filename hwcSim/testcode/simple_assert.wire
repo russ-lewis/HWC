@@ -1,0 +1,19 @@
+# HWC Wiring Diagram
+version: 1.0
+
+debug=""
+
+bits 5
+
+memory count 0
+
+logic count 1
+  logic EQ  size 1 a 2 b 3 out 4	debug="3:9-3:14"
+
+connection count 2
+  connection               size 1 to 2 from 0
+  connection               size 1 to 3 from 1
+
+assert count 1
+  assert 4	debug="3:2-3:16"
+

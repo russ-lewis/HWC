@@ -60,20 +60,6 @@ void dump_pt_part_decl(PT_part_decl *obj, int spaces)
 	dump_pt_stmt(obj->stmts, spaces+2);
 }
 
-void dump_pt_array_decl(PT_array_decl *obj, int spaces)
-{
-	if(obj == NULL)
-		return;
-
-	// Call first since linked list is backwards
-	dump_pt_array_decl(obj->prev, spaces);
-
-	dump_helper(spaces);
-
-   printf("Array_decl: Size of\n");
-	dump_pt_expr(obj->size, spaces+2);
-}
-
 
 // ---- DECLARED IN pt/plugtype.h ----
 
@@ -166,9 +152,8 @@ void dump_pt_decl(PT_decl *obj, int spaces)
 
 	dump_helper(spaces);
 
-   printf("Declaration: named '%s', with type and array_decl\n", obj->name);
+   printf("Declaration: named '%s', with type\n", obj->name);
 	dump_pt_type(obj->type, spaces+2);
-	dump_pt_array_decl(obj->arraySuffix, spaces+2);
 }
 
 

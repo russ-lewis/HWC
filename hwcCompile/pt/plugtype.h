@@ -5,7 +5,6 @@
 typedef struct PT_plugtype_decl  PT_plugtype_decl;
 
 typedef struct PT_decl PT_decl;
-typedef struct PT_array_decl PT_array_decl;   // actually defined in part.h
 
 
 struct PT_plugtype_decl

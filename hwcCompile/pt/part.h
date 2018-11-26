@@ -3,7 +3,6 @@
 
 
 typedef struct PT_part_decl PT_part_decl;
-typedef struct PT_array_decl PT_array_decl;
 
 typedef struct PT_stmt PT_stmt;
 typedef struct PT_type PT_type;
@@ -19,18 +18,10 @@ struct PT_part_decl
 };
 
 
-struct PT_array_decl
-{
-	PT_array_decl *prev;
-
-	PT_expr *size;
-};
-
 
 // Debug functions
 
 void dump_pt_part_decl (PT_part_decl  *obj, int spaces);
-void dump_pt_array_decl(PT_array_decl *obj, int spaces);
 
 
 #endif

@@ -4,7 +4,7 @@ COMP=gcc -Wall -g -std=gnu99
 ROOT=..
 
 WIRING=${ROOT}/wiring
-SIM=${ROOT}/sim
+SIM=sim
 
 
 
@@ -12,13 +12,14 @@ ALL_HEADERS=$(wildcard ${WIRING}/*.h ${SIM}/*.h)
 
 PARSE_SRC=lex.yy.c parser.tab.c sim_main.c
 WIRE_SRC=${WIRING}/write.c
+SIM_SRC=${SIM}/graph.c
 
 
 
 all : hwcSim
 
-hwcSim : $(ALL_HEADERS) $(PARSE_SRC) $(WIRE_SRC)
-	$(COMP) -I. -I${ROOT} -o hwcSim $(PARSE_SRC) $(WIRE_SRC) -lm
+hwcSim : $(ALL_HEADERS) $(PARSE_SRC) $(WIRE_SRC) $(SIM_SRC)
+	$(COMP) -I. -I${ROOT} -o hwcSim $(PARSE_SRC) $(WIRE_SRC) $(SIM_SRC) -lm
 
 
 # https://stackoverflow.com/questions/13436832/bison-not-creating-the-tab-h-file

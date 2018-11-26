@@ -1,0 +1,51 @@
+part Sim2_HalfAdder
+{
+	public bit a,b;
+	public bit sum, carryOut;
+
+	sum = a ^ b;
+	carryOut = a & b;
+}
+
+part Sim2_FullAdder
+{
+	public bit a,b,carryIn;
+	public bit sum, carryOut;
+
+	subpart Sim2_HalfAdder one,two;
+
+	one.a = a;
+	one.b = b;
+
+	two.a = one.sum;
+	two.b = carryIn;
+
+	sum = two.sum;
+	carryOut = one.carryOut | two.carryOut;
+}
+
+part Sim2_Adder32
+{
+	public bit[32] a,b;
+	public bit[32] sum;
+	public bit     carryOut, overflow;
+
+	subpart Sim2_FullAdder[32] adders;
+
+	for (i; 0..32)
+	{
+		adders[i].a = a[i];
+		adders[i].b = b[i];
+
+		if (i == 0)
+			adder[0].carryIn = 0;
+		else
+			adder[i].carryIn = adder[i-1].carryOut;
+
+		sum[i] = adder[i].sum;
+	}
+
+	carryOut = adder[31].carryOut;
+	overflow = (a[31] == b[31]) & (sum[31] != b[31]);
+}
+

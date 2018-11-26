@@ -37,16 +37,19 @@ part Sim1_ADD
 	public bit     carryOut;
 	public bit     overflow;
 
-	private bit[33] carry;
+	private bit[32] carryOuts;
 
-	carry[0] = 0;
 	for (i; 0..32)
 	{
 		sum[i] = a[i] ^ b[i] ^ carryIns[i];
-		carry[i+1] = a[i] & b[i] | a[i] & carry[i] | b[i] & carry[i];
+
+		if (i == 0)
+			carryOuts[i] = a[i] & b[i];
+		else
+			carryOuts[i] = a[i] & b[i] | a[i] & carryOuts[i-1] | b[i] & carryOuts[i-1];
 	}
 
-	carryOut = carry[32];
+	carryOut = carryOuts[31];
 	overflow = (a[31] == b[31]) & (sum[31] != a[31]);
 }
 
