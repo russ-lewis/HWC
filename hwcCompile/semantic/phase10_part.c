@@ -6,7 +6,11 @@
 
 #include "phase10.h"
 
-// fileScope the name scope for the entire file
+
+/*
+TODO: Header comment.
+*/
+// fileScope is the name scope for the entire file
 HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 {
 	HWC_Part *retval = malloc(sizeof(HWC_Part));
