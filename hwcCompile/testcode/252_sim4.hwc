@@ -1,0 +1,419 @@
+public Sim4_SingleCycleCPU
+{
+	subpart Sim4_ROMemory instMem[1024];
+	subpart Sim4_RWMemory dataMem[1024];
+
+	private memory(bit[32])     curPC;
+	private memory(bit[32][32]) regs;
+	private memory(bit    [32]) hi,lo;
+
+	// this is the instruction itself
+	public bit[32] curInst;
+	curInst = instMem.read(curPC);
+
+	// instruction fields!
+	public bit[ 6] opcode;	
+	public bit[ 5] rs,rt,rd;
+	public bit[ 6] shamt;
+	public bit[ 6] funct;
+	public bit[16] imm16;
+	public bit[32] imm_signExtended, imm_zeroExtended;
+	public bit[26] address;
+
+	opcode = instruction[26..];
+	rs     = instruction[21..26];
+	rt     = instruction[16..21];
+	rd     = instruction[11..16];
+	shamt  = instruction[ 6..11];
+	funct  = instruction[ 0.. 6];
+	imm16  = instruction[ 0..16];
+
+	imm_signExtended[0..16] = imm16;
+	for (i; 16..32)
+		imm_signExtended[i] = imm16[15];
+
+	imm_zeroExtended[ 0..16] = imm16;
+	imm_zeroExtended[16..32] = 0;
+
+	// control bits
+	public bit    ALUsrc;
+	public bit[3] ALU_op;
+	public bit    ALU_bNegate;
+	public bit    memRead, memWrite, memToReg;
+	public bit    regDst, regWrite;
+	public bit    branch, jump;
+
+	private bit extra_branchRev;
+	private bit extra_immZeroExt;
+
+	if (opcode == 2)
+	{
+		// J
+		ALUsrc      = 0;   // don't care
+		ALU_op      = 0;   // don't care
+		ALU_bNegate = 0;   // don't care
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;   // don't care
+		regDst      = 0;   // don't care
+		regWrite    = 0;
+		branch      = 0;
+		jump        = 1;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 0;
+	}
+	else if (opcode == 3)
+	{
+		// JAL
+static assert(0);
+/* --- TODO ---
+		ALUsrc      = 0;   // don't care
+		ALU_op      = 0;   // don't care
+		ALU_bNegate = 0;   // don't care
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;   // don't care
+		regDst      = 0;   // don't care
+		regWrite    = 0;
+		branch      = 0;
+		jump        = 1;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 0;
+ */
+	}
+	else if (opcode == 4 || opcode == 5)
+	{
+		// 4: BEQ
+		// 5: BNE
+		ALUsrc      = 1;
+		ALU_op      = 2;   // SUB
+		ALU_bNegate = 1;
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;   // don't care
+		regDst      = 0;   // don't care
+		regWrite    = 0;
+		branch      = 1;
+		jump        = 0;
+
+		extra_branchRev  = opcode[0];   // LSB
+		extra_immZeroExt = 0;
+	}
+	else if (opcode == 8 || opcode == 9)
+	{
+		// 8: ADDI
+		// 9: ADDIU
+		ALUsrc      = 1;
+		ALU_op      = 2;   // ADD
+		ALU_bNegate = 0;
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;
+		regDst      = 0;
+		regWrite    = 1;
+		branch      = 0;
+		jump        = 0;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 0;
+	}
+	else if (opcode == 10 || opcode == 11)
+	{
+		// 10: SLTI
+		// 11: SLTIU
+		ALUsrc      = 1;
+		ALU_op      = 3;   // SLT
+		ALU_bNegate = 1;
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;
+		regDst      = 0;
+		regWrite    = 1;
+		branch      = 0;
+		jump        = 0;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 0;
+	}
+	else if (opcode == 12)
+	{
+		// 12: ANDI
+		ALUsrc      = 1;
+		ALU_op      = 0;   // AND
+		ALU_bNegate = 0;
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;
+		regDst      = 0;
+		regWrite    = 1;
+		branch      = 0;
+		jump        = 0;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 1;
+	}
+	else if (opcode == 13)
+	{
+		// 13: ORI
+		ALUsrc      = 1;
+		ALU_op      = 1;   // OR
+		ALU_bNegate = 0;
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;
+		regDst      = 0;
+		regWrite    = 1;
+		branch      = 0;
+		jump        = 0;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 1;
+	}
+	else if (opcode == 14)
+	{
+		// 14: XORI
+		ALUsrc      = 1;
+		ALU_op      = 4;   // XOR
+		ALU_bNegate = 0;
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;
+		regDst      = 0;
+		regWrite    = 1;
+		branch      = 0;
+		jump        = 0;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 1;
+	}
+	else if (opcode == 15)
+	{
+static assert(0);
+/* --- TODO ---
+		// 15: LUI
+		ALUsrc      = 1;
+		ALU_op      = 4;   // XOR
+		ALU_bNegate = 0;
+		memRead     = 0;
+		memWrite    = 0;
+		memToReg    = 0;
+		regDst      = 0;
+		regWrite    = 1;
+		branch      = 0;
+		jump        = 0;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 1;
+ */
+	}
+	else if (opcode == 35 || opcode == 43)
+	{
+		// 35: LW
+		// 43: SW
+		ALUsrc      = 1;
+		ALU_op      = 2;   // ADD
+		ALU_bNegate = 0;
+		memRead     =  opcode[3];    // the value-8 bit
+		memWrite    = !memRead;
+		memToReg    =  memRead;
+		regDst      = 0;
+		regWrite    =  memRead;
+		branch      = 0;
+		jump        = 0;
+
+		extra_branchRev  = 0;
+		extra_immZeroExt = 0;
+	}
+	else if (opcode == 0)
+	{
+		else if (funct == 32 || opcode == 33 ||
+		         funct == 34 || opcode == 35)
+		{
+			// 32,33: ADD,ADDU
+			// 34,35: SUB,SUBU
+			ALUsrc      = 0;
+			ALU_op      = 2;   // ADD
+			ALU_bNegate = opcode[1];    // the value-2 bit
+			memRead     = 0;
+			memWrite    = 0;
+			memToReg    = 0;
+			regDst      = 1;
+			regWrite    = 1;
+			branch      = 0;
+			jump        = 0;
+
+			extra_branchRev  = 0;
+			extra_immZeroExt = 0;
+		}
+		else if (funct == 36)
+		{
+			// 36: AND
+			ALUsrc      = 0;
+			ALU_op      = 0;   // AND
+			ALU_bNegate = 0;
+			memRead     = 0;
+			memWrite    = 0;
+			memToReg    = 0;
+			regDst      = 1;
+			regWrite    = 1;
+			branch      = 0;
+			jump        = 0;
+
+			extra_branchRev  = 0;
+			extra_immZeroExt = 0;
+		}
+		else if (funct == 37)
+		{
+			// 37: OR
+			ALUsrc      = 0;
+			ALU_op      = 1;   // OR
+			ALU_bNegate = 0;
+			memRead     = 0;
+			memWrite    = 0;
+			memToReg    = 0;
+			regDst      = 1;
+			regWrite    = 1;
+			branch      = 0;
+			jump        = 0;
+
+			extra_branchRev  = 0;
+			extra_immZeroExt = 0;
+		}
+		else if (funct == 38)
+		{
+			// 38: XOR
+			ALUsrc      = 0;
+			ALU_op      = 4;   // XOR
+			ALU_bNegate = 0;
+			memRead     = 0;
+			memWrite    = 0;
+			memToReg    = 0;
+			regDst      = 1;
+			regWrite    = 1;
+			branch      = 0;
+			jump        = 0;
+
+			extra_branchRev  = 0;
+			extra_immZeroExt = 0;
+		}
+		else if (funct == 42 || funct == 43)
+		{
+			// 42: SLT
+			// 43: SLTU
+			ALUsrc      = 0;
+			ALU_op      = 3;   // SLT
+			ALU_bNegate = 1;
+			memRead     = 0;
+			memWrite    = 0;
+			memToReg    = 0;
+			regDst      = 1;
+			regWrite    = 1;
+			branch      = 0;
+			jump        = 0;
+
+			extra_branchRev  = 0;
+			extra_immZeroExt = 0;
+		}
+		else
+		{
+			assert(0);   // unsupported funct field, opcode==0
+		}
+	}
+	else
+	{
+		assert(0);   // unsupported opcode
+	}
+
+TODO
+
+	// read register values
+	public bit[32] rsVal, rtVal;
+
+	subpart Mux(32,bit[32]) rsMux,rtMux;
+	rsMux.control = rs;
+	rtMux.control = rt;
+	rsMux.inputs = regs;
+	rtMux.inputs = regs;
+	rsVal = rsMux.out;
+	rtVal = rtMux.out;
+
+	// ALU inputs
+	public bit[32] aluInput1, aluInput2;
+
+	aluInput1 = rsVal;
+
+	if (ALUsrc == 0)
+		aluInput2 = rtVal;
+	else
+	{
+		if (extra_immZeroExt == 0)
+			aluInput2 = imm_signExtend;
+		else
+			aluInput2 = imm_zeroExtend;
+	}
+
+	// ALU calculations
+	public bit[32] ALUresult;
+
+	subpart Sim3_ALU alu;
+	alu.op      = ALU_op;
+	alu.bNegate = ALU_bNegate;
+	alu.a       = aluInput1;
+	alu.b       = aluInput2;
+	aluResult = alu.result;
+
+	// memory operations
+	public bit[32] memResult;
+
+	if (memRead)
+		memResult = dataMem.read(ALUresult);
+	else
+		memResult = 0;
+
+	if (memWrite)
+		dataMem.write(ALUresult, rtVal);
+
+	// regs update
+	if (regWrite)
+	{
+		private bit[32] writeVal;
+		private bit[5]  writeReg;
+
+		if (memToReg == 0)
+			writeVal = ALUresult;
+		else
+			writeVal = memResult;
+
+		if (regDst == 1)
+			writeReg = rd;
+		else
+			writeReg = rt;
+
+		regs[writeReg] = writeVal;
+	}
+
+	// update the PC
+	public bit[32] newPC;
+
+	subpart Adder32 pcAdder;
+	pcAdder.a = curPC;
+	pcAdder.b = 4;
+
+	subpart Adder32 branchAdder;
+	branchAdder.a = pcAdder.sum;
+	branchAdder.b = imm_signExtended;
+
+	if (branch && ((aluResult == 0) ^ extra_branchRev))
+		newPC = branchAdder.sum;
+	else if (jump)
+	{
+		newPC[30..32] = 0;         // two least-significant bits
+		newPC[ 4..30] = address;   // 26 bits from the instruction
+		newPC[ 0.. 4] = pcAdder.sum[0..4];  // top 4 bits from PC
+	}
+	else
+		newPC = pcAdder.sum;
+}
+

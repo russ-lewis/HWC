@@ -1,0 +1,81 @@
+part Sim3_MUX_8by1
+{
+	public bit[3] control;
+	public bit[8] in;
+	public bit    out;
+
+	for (i; 0..8)
+	{
+		if (control == i)
+			out = in[i];
+	}
+}
+
+part Sim3_ALUElement
+{
+	public bit[3] op;
+	public bit    bInvert;
+	public bit    carryIn;
+	public bit    less;
+	public bit    a,b;
+
+	public bit    result, addResult, carryOut;
+
+	subpart Sim2_FullAdder adder;
+
+	adder.a = a;
+
+	if (bInvert == 0)
+		adder.b =  b;
+	else
+		adder.b = !b;
+
+	addResult = adder.sum;
+	carryOut  = adder.carryOut;
+
+	if (op == 0)
+		result = a & b;
+	else if (op == 1)
+		result = a | b;
+	else if (op == 2)
+		result = addResult;
+	else if (op == 3)
+		result = less;
+	else if (op == 4)
+		result = a ^ b;
+	else
+		assert(false);    // unsupported op
+}
+
+part Sim3_ALU
+{
+	public bit[3]  op;
+	public bit     bNegate;
+	public bit[32] a,b;
+	public bit[32] result;
+
+	subpart Sim3_ALUElement[32] elems;
+
+	for (i; 0..32)
+	{
+		elems[i].op 
+		elems[i].bInvert = bNegate;
+
+		if (i == 0)
+		{
+			elems[i].carryIn = bNegate;
+			elems[i].less    = elems[31].addResult;
+		}
+		else
+		{
+			elems[i].carryIn = elems[i-1].carryOut;
+			elems[i].less    = 0;
+		}
+
+		elems[i].a = a[i];
+		elems[i].b = b[i];
+
+		result[i] = elems[i].result;
+	}
+}
+
