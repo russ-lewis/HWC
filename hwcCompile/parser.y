@@ -67,8 +67,6 @@
 	PT_stmt *stmt;
 	PT_decl *decl;
 
-	PT_array_decl *array_decl;
-
 	PT_type *type;
 
 	PT_expr *expr;
@@ -88,9 +86,6 @@
 %type<decl> fields
 %type<decl> field
 %type<decl> field_decls
-
-%type<array_decl> opt_array_decls
-%type<array_decl> array_decls
 
 %type<type> type
 
@@ -297,38 +292,17 @@ field:
 ;
 
 field_decls:
-		type IDENT opt_array_decls
+		/* NOTE: We've removed support for suffix array declartions! */
+		type IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->type = $1;
-		                   $$->name = $2;
-		                   $$->arraySuffix = $3; }
-	|	field_decls ',' IDENT opt_array_decls
+		                   $$->name = $2; }
+	|	field_decls ',' IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->prev = $1;
 		                   $$->type = $1->type;
-		                   $$->name = $3;
-		                   $$->arraySuffix = $4; }
+		                   $$->name = $3; }
 ;
-
-
-opt_array_decls:
-		%empty            { $$ = NULL; }
-	|	array_decls       { $$ = $1;   }
-;
-
-array_decls:
-		            '[' expr ']'
-		                  { $$ = malloc(sizeof(PT_array_decl));
-		                    $$->size = $2;
-		                    $$->prev = NULL; }
-
-	|	array_decls '[' expr ']'
-		                  { $$ = malloc(sizeof(PT_array_decl));
-		                    $$->size = $3;
-		                    $$->prev = $1; }
-
-;
-
 
 
 type:
