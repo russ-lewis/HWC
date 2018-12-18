@@ -1,0 +1,87 @@
+part Cache_DirectMapped
+{
+	// hardcoded to 1024 cache lines, each 32 bytes in size
+	//
+	//   TODO: when generics are supported, implement a generic version!
+	//
+	//   TODO: update this to include writes, and also to support
+	//         single-byte operations.  I excluded those for this
+	//         version, as it was a little more complex than I wanted
+	//         students to have to do.
+
+
+	memory(Line_data_32bytes_tag_17bits)[1024] lines;
+
+	public bit[32] addrIn;
+	public bit     hit;
+	public bit[32] dataIO;   // if read, then this is output; if write, this is input
+
+	// this is our access to main memory.  In a more advanced system,
+	// this would probably be an *interface*, with an external component
+	// linking the two pieces together.
+	subcomp MainMemory mem;
+
+
+
+	// split the address into its fields
+	private bit[ 5] byteOffset = addrIn[ 0.. 5];
+	private bit[10]   index    = addrIn[10..15];
+	private bit[17]    tag     = addrIn[  ..15];
+
+	assert(byteOffset & 0x3 == 0);
+	private bit[3] wordOffset = byteOffset >> 2;
+
+
+	// auto-MUX: select the correct cache line, based on the index field
+	private auto curLine = lines[index];
+
+
+	// first, figure out if the access was a hit
+	hit = curLine.valid & (curLine.tag == tag);
+
+
+	// the 'data' plug here represents the data of this cache line.  It
+	// is either taken from the cache, or it's the value that is read from
+	// the main memory.
+
+	private bit[256] data;
+	if (hit)
+	{
+		data = curLine.data;
+
+		// leave the memory alone!
+		mem.read = 0;
+	}
+	else
+	{
+		mem.addrIn = addrIn >> 5;
+		mem.read   = 1;
+
+		data = mem.data;
+
+		lines[index].tag   = tag;
+		lines[index].data  = data;
+		lines[index].valid = 1;
+	}
+
+
+	// read the actual word from the cache line.
+
+	private bit[8][32] words;
+	for (i: 0..8)
+		words[i] = data[32*i .. 32*i+32];
+	dataIO = words[wordOffset];
+
+	dataIO = ((bit[8][32])data)[wordOffset];
+}
+
+
+
+interface Line_data_32bytes_tag_17bits
+{
+	public bit      valid;
+	public bit[17]  tag;
+
+	public bit[256] data;
+}
+
