@@ -1,0 +1,130 @@
+part Cache(int SET_SIZE, int NUM_CACHE_LINES, int BYTES_PER_CACHE_LINE)
+{
+	int numSets = NUM_CACHE_LINES / SET_SIZE;
+
+	int  dataBits = BYTES_PER_CACHE_LINE * 8;
+	int    boBits = logBase2(BYTES_PER_CACHE_LINE);
+	int indexBits = logBase2(NUM_CACHE_LINES);
+	int   tagBits = 32 - boBits - indexBits;
+
+
+	// inputs
+	public bit[32] addrIn;
+	public bit     word;    // 0:word    1:byte
+
+	// outputs
+	public bit     hit;
+	public bit[32] data;
+
+
+	private memory(CacheSet(SET_SIZE,TAG_BITS,DATA_BITS))[numSets] sets;
+	subcomp HitChecker_CacheSet(SET_SIZE,TAG_BITS,DATA_BITS) checker;
+
+
+	private bit[   boBits] bo    = addrIn[..boBits];
+	private bit[indexBits] index = addrIn[  boBits..(boBits+indexBits)];
+	private bit[  tagBits] tag   = addrIn[          (boBits+indexBits)..];
+
+	checker.linesIn    = sets[index];
+	checker.reqTag     = tag;
+	checker.word       = word;
+	checker.byteOffset = bo;
+
+	hit  = checker.hit;
+	data = checker.data;
+}
+
+
+
+interface CacheLine(int TAG_BITS, int DATA_BITS)
+{
+	bit            valid;
+	bit[ TAG_BITS] tag;
+	bit[DATA_BITS] data;
+}
+
+interface CacheSet(int SET_SIZE, int TAG_BITS, int DATA_BITS)
+{
+	CacheLine(TAG_BITS,DATA_BITS)[SET_SIZE] lines;
+}
+
+
+
+part HitChecker_CacheLine(int TAG_BITS, int DATA_BITS)
+{
+	static assert( TAG_BITS >  0);
+	static assert(DATA_BITS >= 32);
+
+	// input, part 1: just the input from the proper line
+	public CacheLine(TAG_BITS, DATA_BITS) lineIn;
+
+	// input, part 2: what tag are we looking for?
+	public bit[TAG_BITS] reqTag;
+
+	// input, part 3: what part of the cache line are we trying to read?
+	int boBits = logBase2(DATA_BITS);
+	public bit         word;   // 0=byte
+	public bit[boBits] byteOffset;
+
+	// output
+	public bit     hit;
+	public bit[32] data;
+
+
+	hit = lineIn.valid & (lineIn.tag == reqTag);
+
+	private typeof(lineIn.data) tmpData;
+	if (hit)
+		tmpData = lineIn.data;
+	else
+		tmpData = 0;
+
+	private bit[                    2] byteInWord = byteOffSet[..2];
+	private bit[logBase2(DATA_BITS)-2] wordOffset = byteOffSet[  2..];
+
+	private bit[32] tmpWord = ((bit[boBits/4][32])tmpData)[wordOffset];
+
+	if (word)
+	{
+		assert(byteInWord == 0);
+		data = tmpWord;
+	}
+	else
+	{
+		data[  8..] = 0;
+		data[..8  ] = ((bit[4][8])tmpWord)[byteInWord];
+	}
+}
+
+part HitChecker_CacheSet(int SET_SIZE, int TAG_BITS, int DATA_BITS)
+{
+	public CacheLine(TAG_BITS, DATA_BITS)[SET_SIZE] linesIn;
+
+	public bit[TAG_BITS] reqTag;
+
+	int boBits = logBase2(DATA_BITS);
+	public bit         word;
+	public bit[boBits] byteOffsets;
+
+	public flag    hit;
+	public bit[32] data;
+
+	subcomp HitChecker_CacheLine(TAG_BITS,DATA_BITS)[SET_SIZE] checkers;
+
+
+	for (i: 0..SET_SIZE)
+	{
+		checkers[i].lineIn     = linesIn[i];
+
+		checkers[i].reqTag     = reqTag;
+		checkers[i].word       = word;
+		checkers[i].byteOffset = byteOffset;
+
+		if (checkers[i].hit)
+		{
+			hit  = 1;
+			data = checkers[i].data;
+		}
+	}
+}
+
