@@ -12,7 +12,7 @@ ALL_HEADERS=$(wildcard ${WIRING}/*.h ${SIM}/*.h)
 
 PARSE_SRC=lex.yy.c parser.tab.c sim_main.c
 WIRE_SRC=${WIRING}/write.c
-SIM_SRC=${SIM}/graph.c
+SIM_SRC=${SIM}/graph2.c
 
 
 

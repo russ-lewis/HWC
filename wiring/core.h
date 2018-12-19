@@ -25,20 +25,20 @@ enum {
  *                 unconditional and condition connections.  Has a list of
  *                 bit ranges which are flags.
  *
- *    HWC_WiringMemory - represents a range of memory cells.  Gives the size
- *                       and bit-index of both the read and write elements.
+ *    HWC_Wiring_Memory - represents a range of memory cells.  Gives the size
+ *                        and bit-index of both the read and write elements.
  *
- *    HWC_WiringLogic - represents a single logical operator.  Can handle
- *                      range inputs.  Gives the bit-index of the start of the
- *                      input and output field(s).
+ *    HWC_Wiring_Logic - represents a single logical operator.  Can handle
+ *                       range inputs.  Gives the bit-index of the start of the
+ *                       input and output field(s).
  *
- *    HWC_WiringConnection - represents a connection.  Can handle range
- *                           connections.  Gives the in and out locations.  If
- *                           conditional, gives the (single) bit which
- *                           controls the condition.  If undirected, has a
- *                           flag to indicate that.
+ *    HWC_Wiring_Connection - represents a connection.  Can handle range
+ *                            connections.  Gives the in and out locations.  If
+ *                            conditional, gives the (single) bit which
+ *                            controls the condition.  If undirected, has a
+ *                            flag to indicate that.
  *
- *    HWC_WiringAssert - represents an assertion.
+ *    HWC_Wiring_Assert - represents an assertion.
  *
  * NOTE: You will observe that the types listed only have enough information
  *       to read/write the wiring diagram file.  It does *NOT* include any
@@ -48,11 +48,11 @@ enum {
  */
 
 
-typedef struct HWC_Wiring           HWC_Wiring;
-typedef struct HWC_WiringMemory     HWC_WiringMemory;
-typedef struct HWC_WiringLogic      HWC_WiringLogic;
-typedef struct HWC_WiringConnection HWC_WiringConnection;
-typedef struct HWC_WiringAssert     HWC_WiringAssert;
+typedef struct HWC_Wiring            HWC_Wiring;
+typedef struct HWC_Wiring_Memory     HWC_Wiring_Memory;
+typedef struct HWC_Wiring_Logic      HWC_Wiring_Logic;
+typedef struct HWC_Wiring_Connection HWC_Wiring_Connection;
+typedef struct HWC_Wiring_Assert     HWC_Wiring_Assert;
 
 struct HWC_Wiring
 {
@@ -65,36 +65,36 @@ struct HWC_Wiring
 	 */
 	int numBits;
 
-	/* an array of HWC_WiringMemory objects.  Each object represents a
+	/* an array of HWC_Wiring_Memory objects.  Each object represents a
 	 * single contiguous range of memory cells; there are bit-indices for
 	 * both the read and write sides.
 	 */
 	int numMemRanges;
-	HWC_WiringMemory *mem;
+	HWC_Wiring_Memory *mem;
 
-	/* an array of HWC_WiringLogic objects.  Each object represents a
+	/* an array of HWC_Wiring_Logic objects.  Each object represents a
 	 * single logical operator, which can be over a single bit or over
 	 * many bits.
 	 */
 	int numLogicalOperators;
-	HWC_WiringLogic *logic;
+	HWC_Wiring_Logic *logic;
 
-	/* an array of HWC_WiringConnection objects.  Each object represents a
+	/* an array of HWC_Wiring_Connection objects.  Each object represents a
 	 * single connection, which might be over a single bit, or a range of
 	 * them.  Handles conditional and undirected connections as well.
 	 */
 	int numConnections;
-	HWC_WiringConnection *conns;
+	HWC_Wiring_Connection *conns;
 
-	/* an array of HWC_WiringAssert objects.  Each object represents a
+	/* an array of HWC_Wiring_Assert objects.  Each object represents a
 	 * single assertion, which always reads a single bit.
 	 */
 	int numAsserts;
-	HWC_WiringAssert *asserts;
+	HWC_Wiring_Assert *asserts;
 };
 
 
-struct HWC_WiringMemory
+struct HWC_Wiring_Memory
 {
 	int size;     // how many bits?
 	int read;     // index of 1st bit of the 'read' side
@@ -112,7 +112,7 @@ enum {
 	WIRING_EQ,
 	WIRING_NEQ,
 };
-struct HWC_WiringLogic
+struct HWC_Wiring_Logic
 {
 	int type;     // use the enum above
 	int size;
@@ -123,7 +123,7 @@ struct HWC_WiringLogic
 };
 
 
-struct HWC_WiringConnection
+struct HWC_Wiring_Connection
 {
 	int size;     // how many bits?
 	int to;       // index of 1st bit of the lhs of the assignment
@@ -136,7 +136,7 @@ struct HWC_WiringConnection
 };
 
 
-struct HWC_WiringAssert
+struct HWC_Wiring_Assert
 {
 	int bit;     // the bit to read
 

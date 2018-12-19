@@ -1,5 +1,5 @@
-#ifndef __SIM_GRAPH_C__INCLUDED__
-#define __SIM_GRAPH_C__INCLUDED__
+#ifndef __SIM_GRAPH2_H__INCLUDED__
+#define __SIM_GRAPH2_H__INCLUDED__
 
 
 #include <wiring/core.h>
@@ -213,6 +213,8 @@ struct HWC_Sim_Graph
 	/* one bit for each bit in the simulation. */
 	char *bits;
 
+
+
 	/* doubly linked list, length grows and shrinks as the clock cycle
 	 * progresses.  This is the node which represents the range which
 	 * begins at bit 0.  It is *NOT* a dummy node!
@@ -222,37 +224,70 @@ struct HWC_Sim_Graph
 
 
 	/* this is the current queue of components which are pending
-	 * notification.  We always pull from the head.  In LIFO mode, we
-	 * always add at the head, and ignore the tail pointer.  In FIFO
-	 * mode, we add at the tail.
+	 * notification.  It is a doubly-linked, circular list, so the node
+	 * below is a dummy node.
 	 *
-	 * In LIFO mode, tail is always NULL.  In either mode, the head
-	 * is NULL iff the list is empty.
-	 */
-	HWC_Sim_Component *notifyList_head;
-	HWC_Sim_Component *notifyList_tail;
-
-
-
-	/* a linked list of notification structs; each maps a range to a
-	 * component that reads it.  The various components have pointers
-	 * into the middle of this list, indicating where they should start
-	 * the 'notification search'.
+	 * When removing nodes from this list, we always pull from the head.
+	 * In LIFO mode, we also add at the head, and thus this functions as
+	 * a stack.  In FIFO mode, we always add at the tail, so it functions
+	 * as a queue.
 	 *
-	 * This list is static once built.
-	 */
-	HWC_Sim_NotifyNode *notifyTable;
-
-
-
-	/* all of the various components are stored in arrays - although, for
-	 * almost all code, we will access them through a network of pointers
-	 * to individual elements.
+	 * Note, however, that any "touch" of a node will cause the node to
+	 * be moved in the list; since there are two different places where
+	 * the node might be (and we're not sure, at any given moment, which
+	 * list a node is in), our strategy is always to *remove* a node from
+	 * its current position, and place it into its new position.
 	 *
-	 * However, the arrays are useful in that they make it possible to
-	 * iterate through the components of a given type.
+	 * PENDING
+	 *
+	 * As noted above, there are actually *two* lists; a TODO list, and a
+	 * "deferred" list.  Nodes in the TODO list represent nodes that have
+	 * recently had one of their inputs updated, and we haven't yet had
+	 * time to look at them; when we finally look at them, we will decide
+	 * whether or not it is now possible to write to the output.
+	 *
+	 * If a component is able to write to its *entire* output, then it
+	 * will definitely do so.  However, if it is only able to write to
+	 * *part* of the output, (or, if the value that it is writing is
+	 * FLOATING), then it will "defer" itself; it makes no changes to the
+	 * bits, but will add itself to the (tail) of the deferred list.
+	 *
+	 * If such a component later has one of its inputs updated, it will
+	 * be removed from where it currently is, and placed on the TODO
+	 * list; then it will be considered again later.  It might post its
+	 * results, or it might be deferred again.
+	 *
+	 * While nodes can be moved from the deferred list into the TODO list
+	 * based on updates to their inputs, they will not be reconsidered so
+	 * long as they stay on the deferred list - until the TODO list is
+	 * completely empty.  If the TODO list is empty, we will begin taking
+	 * nodes from the deferred list; we normally expect this process to
+	 * result in adding new nodes to the TODO list (which will again take
+	 * priority).  However, over time, we expect, as more and more values
+	 * are calculated, that the deferred list will empty.  Normally, it
+	 * will empty without explicit action; as inputs are updated, we will
+	 * move things from deferred back into TODO, notice that the updates
+	 * can be written, and do so.  However, when this is not possible, we
+	 * will take nodes from the deferred list and tell their components
+	 * post "any and all possible output bits" - even though it's not the
+	 * full range.
+	 *
+	 * WHY DEFER?
+	 *
+	 * Think about situations where you have a single connection, which
+	 * moves many, many bits all at once, but where the various bits are
+	 * calculated by a large number of individual pieces of logic - such
+	 * as reading the bits of output from an ALU.
+	 *
+	 * In such a situation, it may occasionally be useful and necessary
+	 * to treat each bit individually - but more often, we want to
+	 * "collect" all of the bits before we move the entire output to a
+	 * new location.  Thus, while the individual bits are completing
+	 * their work, the big copy operation will continually defer itself -
+	 * until the *ENTIRE* move happens, all at once.
 	 */
-TODO: do we store the pointers to the wiring objects, poitners to the HWC_Sim_Component, or something else???
+	HWC_Sim_Component todo;
+	HWC_Sim_Component deferred;
 
 
 
@@ -262,18 +297,19 @@ TODO: do we store the pointers to the wiring objects, poitners to the HWC_Sim_Co
 	 * cycle.
 	 */
 	int               memoryCount;
-	HWC_WiringMemory *memory;
+	HWC_Wiring_Memory *memory;
 
 	/* we do *NOT* need to know the length of these arrays, since we never
 	 * iterate through them - we simply access them from a 
 	 */
-	HWC_WiringLogic      *logic;
-	HWC_WiringConnection *connections;
-	HWC_WiringAssert     *asserts;
+	HWC_Wiring_Logic      *logic;
+	HWC_Wiring_Connection *connections;
+	HWC_Wiring_Assert     *asserts;
 };
 
 
 HWC_Sim_Graph *HWC_Sim_buildGraph(HWC_Wiring*);
+
 
 
 #endif
