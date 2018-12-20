@@ -2,74 +2,76 @@
 #define __WIRING_OVERLAP_LIST_H__INCLUDED__
 
 
-#include <assert.h>
-
-
 /* OVERLAP LIST
  *
- * The "overlap list" is a critical part of both the simulation, and also any
- * dead-code elimination that we implement in the future - although they will
- * use it in slightly different ways.  The purpose of the list is to have a
- * data structure which gives us information about which bits are read and
- * written by which components, at a per-bit granularity.  But it avoids the
- * obvious (and terrible) linked-list-per-bit cost of a naive implementation.
+ * The "overlap list" is a representation of the edges in the graph.
  *
- * The list itself is a doubly-linked circular list; each node stores range
- * information (indicating which bist are used), as well as metadata which
- * indicates *how* the bits are used (read/write, as well as the component
- * involved).
+ * Generally, the graph is made up of nodes, which represent components in
+ * the wiring diagram, and edges, which represent the dependencies between
+ * them.  More specifically, the edge includes an edge from X to Y if the
+ * component X writes to a range of bits which overlaps at last one bit from
+ * at least one of the inputs of Y.
  *
- * The nodes of the list are always sorted; they are sorted first by the
- * *starting* bit, and later by the *ending* bit (when the starting bits are
- * identical).
+ * There are (conceptually) two edge lists for each wiring diagram - although
+ * the simulator only uses one of them.  One edge list represents all of the
+ * input ranges, and is useful for traversing *forward* through edges (from
+ * components that write, to components that read).  The other, which
+ * represents all of the output ranges, is useful for traversing *backward*
+ * through edges (from components that read, to the writers that connect to
+ * them).  Each list can also be used to perform global searches of the
+ * bit space (such as looking for any "dead" bits - meaning bits that are
+ * either not read, not written, or both).
  *
- * TODO: do we want another list in parallel, which swaps the key preference,
- *       to make it efficient to to *backwards* searches???
+ * Both lists are always sorted by the *start* of each range, with the end of
+ * each range being a secondary key.  (Sometimes, ranges will be identical -
+ * in that case, the ordering between the identical ranges is undefined.)
  *
- * The simulation uses this list to figure out what components need to be
- * alerted when a bit is updated.  Each component that writes to a range of
- * bits has, along with the index into the bit array, a pointer to one of the
- * nodes in the overlap list.  This is never, a pointer to its own node  in
- * the list; instead, it is always a pointer to a node that comes *earlier* in
- * the list.  This pointer is set up before the simulation begins, and never
- * changes; it is defined to point to the *FIRST* node in the list that
- * represents a *READ* of any bit in the output range we're consiering.  In
- * other words, this node gives us the first component (perhaps of many)
- * which needs to be alerted when this component writes a value to one of its
- * bits.
+ * While components with similar ranges tend to have similar edges, it is
+ * not as simple as just saying, "all ranges starting at this point in the
+ * list represent edges from X in the graph."  Instead, you must perform a
+ * linear search through the list, finding the subset of ranges in the list
+ * which overlap with the bits you are interested in.  While this is a
+ * linear search, it should be fairly quick in most cases, since the search
+ * can skip over large sections of the list.
  *
- * When a component actually writes one or more bits (we hope, normally, that
- * a component writes to its entire range at once, but this is not always
- * true), it scans through the list, starting at the saved node.  It continues
- * scanning until it finds a node whose range starts *AFTER* the end of the
- * range that is being written; by the definition of the sorting of the list,
- * we know that none of the nodes after this in the list can overlap the range
- * being written.
+ * To facilitate this, each component has pointers into the list, which it
+ * maintains throughout the analysis or simulation; each pointer represents,
+ * for an input or output range, the *first* element in the appropriate list
+ * which overlaps this range.  (Output ranges point to elements in the
+ * input list; input ranges point to elements in the output list.  But
+ * remember that the simulator doesn't use the output list, so these pointers
+ * are NULL in that case.)
  *
- * The purpose of the scan, of course, is to find all of the components which
- * might be affected by the write; to do this, we calculate the intersection
- * of the write range with the range of each node on the list.  Sometimes, we
- * may find that the intersection is null (in which case we ignore the node
- * and move on); other times, we may find that the node is affected, and so
- * we move the node onto the simulation's TODO list.
+ * To search through the list, we specify the starting node (as in the
+ * previous paragraph), and the actual range we want to inspect.  We iterate
+ * through the list until the *start* of the current node (inclusive) is
+ * >= the end (exclusive) of the range we're searching.  (The search can end
+ * there because we know, by the ordering guarantees, that none of the
+ * components listed in the rest of the list can start any earlier.)
  */
 
 
 
+#include "wiring/core.h"
+
+
+
 typedef struct HWC_Wiring_OverlapList HWC_Wiring_OverlapList;
+
 struct HWC_Wiring_OverlapList
 {
-	// all of the nodes in the list are organized into a doubly-linked
-	// circular list!
-	HWC_Wiring_OverlapList *prev,*next;
-
+	// the overlap list(s) are doubly-linked, circular lists.
+	//
+	// each struct can actually be part of *2* lists, which is why
+	// we have duplicates of the next/prev links.  The E links are
+	// used for the "end of range" list; the unadorned links are
+	// used for the primary (start of range) list.
+	HWC_Wiring_OverlapList *prev, *next;
+	HWC_Wiring_OverlapList *prevE,*nextE;
 
 	// what is the range of bits covered by this access?
 	int start;  // inclusive
 	int end;    // exclusive
-
-	// is this access a read or a write operation?
-	int read;   // 1-read the bits;   0-write the bits
 
 	// what is the component that performs the access?  Exactly one
 	// of these bits will be non-NULL.
@@ -81,10 +83,8 @@ struct HWC_Wiring_OverlapList
 
 
 
-int wiring_overlapList_compare(HWC_Wiring_OverlapList *a,
-                               HWC_Wiring_OverlapList *b);
-
 void wiring_overlapList_insert(HWC_Wiring_OverlapList *list,
+                               HWC_Wiring_OverlapList *listE,    // can be NULL
                                HWC_Wiring_OverlapList *newNode);
 
 
