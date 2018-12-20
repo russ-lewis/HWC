@@ -74,7 +74,8 @@ int main(int argc, char **argv)
 	}
 
 
-	HWC_Sim_Graph *graph = HWC_Sim_buildGraph(core);
+	HWC_Wiring_OverlapList *overlap = HWC_Wiring_buildOverlapList(core);
+	HWC_Sim                *sim     = HWC_Sim_build(core, overlap);
 
 
 	assert(0);   // TODO

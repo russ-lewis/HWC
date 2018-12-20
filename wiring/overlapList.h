@@ -2,7 +2,10 @@
 #define __WIRING_OVERLAP_LIST_H__INCLUDED__
 
 
+
 /* OVERLAP LIST
+ *
+ * TODO: should we make this an array instead???
  *
  * The "overlap list" is a representation of the edges in the graph.
  *
@@ -80,6 +83,13 @@ struct HWC_Wiring_OverlapList
 	HWC_Wiring_Connection *conn;
 	HWC_Wiring_Assert     *asrt;
 };
+
+
+
+HWC_Wiring_OverlapList *HWC_Wiring_buildOverlapList(HWC_Wiring *wiring)
+{
+	TODO
+}
 
 
 
