@@ -286,6 +286,9 @@ struct HWC_Sim_Graph
 	 * their work, the big copy operation will continually defer itself -
 	 * until the *ENTIRE* move happens, all at once.
 	 */
+
+TODO: these need to be either defined previously, or else turned into pointers
+
 	HWC_Sim_Component todo;
 	HWC_Sim_Component deferred;
 
