@@ -2,6 +2,12 @@
 git clone
 
 
+# setting up password saving (permanent, dangerous on a shared filesystem!)
+#   - has to be set up with every repo
+git config credential.helper store
+    # will record the password next time you need it
+
+
 # status
 git status
 git log
