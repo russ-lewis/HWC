@@ -13,28 +13,6 @@ TODO: Should we remove *fileScope argument? On one hand, it isn't used. On the o
 HWC_PlugType *semPhase10_plugtype(PT_plugtype_decl *parsedPlugtype,
                                  HWC_NameScope    *fileScope)
 {
-	assert(0);    // TODO
-
-#if 0
-		else if (cur->plugtypeDecl != NULL)
-		{
-			name = cur->plugtypeDecl->name;
-
-			thing->part = NULL;
-			thing->plugtype = semPhase10_plugtype(cur->plugtypeDecl);
-			  assert(thing->plugtype != NULL);
-		}
-
-		if (nameScope_search(names, name) != NULL)
-		{
-			assert(0);   // TODO: report syntax error
-		}
-
-		nameScope_add(names, name,thing);
-	}
-
-	return names;
-#endif
 	HWC_PlugType *retval = malloc(sizeof(HWC_PlugType));
 	if (retval == NULL)
 	{
