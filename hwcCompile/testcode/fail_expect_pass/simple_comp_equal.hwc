@@ -1,0 +1,10 @@
+part simple_comp_equal   // this will short circuit every time, intentionally!
+{
+	public bit a, b;
+
+	if(a == b)
+		a = 0;
+
+	if(a != b)
+		b = 0;
+}
