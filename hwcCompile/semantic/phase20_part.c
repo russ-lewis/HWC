@@ -40,7 +40,7 @@ int semPhase20_part(HWC_Part *part)
 	if (part->phases_completed >= 20)
 		return 0;
 
-
+	
 
 	assert(0);   // TODO
 }

@@ -39,6 +39,9 @@ struct HWC_Decl
 	Example: [PartName  partInstance;]
 				[bit       foo;         ]
 	          ^type     ^stored implicitly in nameScope
+
+	"type"     is a renaming of PT type's mode
+	"typeName"                            ident
 	*/
 	int type;
 	char *typeName;
