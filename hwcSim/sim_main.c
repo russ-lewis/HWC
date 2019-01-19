@@ -74,8 +74,7 @@ int main(int argc, char **argv)
 	}
 
 
-	HWC_Wiring_OverlapList *overlap = HWC_Wiring_buildOverlapList(core);
-	HWC_Sim                *sim     = HWC_Sim_build(core, overlap);
+	// HWC_Sim *sim = HWC_Sim_build(core, overlap);
 
 
 	assert(0);   // TODO
