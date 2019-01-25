@@ -45,6 +45,11 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
 		currDecl = plugtype->decls[i];
+		if(checkDeclName(&currDecl, plugtype->publicNames, 1) == 0)
+		{
+			// TODO: Error message for when not found in namescope
+
+		}
 	}
 
 	assert(0);   // TODO

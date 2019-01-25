@@ -40,7 +40,28 @@ int semPhase20_part(HWC_Part *part)
 	if (part->phases_completed >= 20)
 		return 0;
 
-	
+	HWC_Decl currDecl;
+	int i;
+	for(i = 0; i < part->decls_len; i++)
+	{
+		currDecl = part->decls[i];
+		if(checkDeclName(&currDecl, part->publicNames, 0) != 0)
+		{
+			// TODO: Error message for when not found in namescope
+
+		}
+	}
+
+	HWC_Stmt currStmt;
+	for(i = 0; i < part->stmts_len; i++)
+	{
+		currStmt = part->stmts[i];
+		if(checkStmtName(&currStmt, part->publicNames) != 0)
+		{
+			// TODO: Error message for when not found in namescope
+
+		}
+	}
 
 	assert(0);   // TODO
 }

@@ -22,6 +22,7 @@
 #include <pt/part.h> // Need for PT_array_decl
 #include <pt/type.h>
 #include "expr.h"
+#include "names.h"
 
 typedef struct HWC_Expr HWC_Expr;
 typedef struct HWC_PlugType HWC_PlugType;
@@ -78,6 +79,7 @@ struct HWC_Decl
 };
 
 void convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
+int checkDeclName(HWC_Decl *, HWC_NameScope *, int);
 
 #endif
 

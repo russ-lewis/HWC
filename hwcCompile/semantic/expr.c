@@ -63,3 +63,14 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output)
 			break;
 	}
 }
+
+/*
+TODO: Header comment
+Retval is 0 if no errors, 1 or more oetherwise
+*/
+int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
+{
+
+
+	return 0;
+}

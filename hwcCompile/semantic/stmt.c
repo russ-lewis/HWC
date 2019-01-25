@@ -161,3 +161,52 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 
 	return len;
 }
+
+/*
+TODO: Add header comment
+Returns 0 when no error, >= 1 when errors, indicating how many errors
+*/
+// TODO: 
+int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
+{
+	int retval = 0;
+
+	switch(currStmt->mode)
+	{
+		default:
+			assert(0); // TODO: Potentially better error message?
+			break;
+		case STMT_DECL:
+			// NOP, but keeping case here for symmetry
+			break;
+		case STMT_BLOCK:
+			retval += checkStmtName(currStmt->stmtA, currScope);
+			break;
+		case STMT_CONN:
+			retval += checkExprName(currStmt->exprA, currScope);
+			retval += checkExprName(currStmt->exprB, currScope);
+			break;
+	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
+		case STMT_FOR:
+			// TODO: Also check for "name" here?
+			retval += checkExprName(currStmt->exprA, currScope);
+			retval += checkExprName(currStmt->exprB, currScope);
+
+			retval += checkStmtName(currStmt->stmtA, currScope);
+			break;
+		case STMT_IF:
+			retval += checkExprName(currStmt->exprA, currScope);
+
+			retval += checkStmtName(currStmt->stmtA, currScope);
+			retval += checkStmtName(currStmt->stmtB, currScope);
+			break;
+		case STMT_ELSE:
+			retval += checkStmtName(currStmt->stmtA, currScope);
+			break;
+		case STMT_ASRT:
+			retval += checkExprName(currStmt->exprA, currScope);
+			break;
+	}
+
+	return retval;
+}
