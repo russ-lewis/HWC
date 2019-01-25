@@ -82,10 +82,12 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			if(currName->plugtype == NULL && currName->part == NULL)
 				assert(0);
 
-			// TODO: Add error message
 			// Check to make sure a Part declaration isn't inside a plugtype
 			if(isWithinPlug == 1 && currName->part != NULL)
+			{
+				fprintf(stderr, "Part declaration inside a plugtype!\n");
 				assert(0);
+			}
 
 			if(currName->part != NULL)
 				currDecl->base_part     = currName->part;
