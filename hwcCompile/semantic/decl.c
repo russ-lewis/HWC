@@ -51,6 +51,10 @@ TODO: Add actually good header comment
 */
 int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug)
 {
+	// Declared currName up here instead of below TYPE_IDENT because of
+	// https://stackoverflow.com/a/18496414
+	// Neat!
+	HWC_Nameable *currName;
 	switch (currDecl->type)
 	{
 		default:
@@ -70,7 +74,6 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			break;
 
 		case TYPE_IDENT:
-			HWC_Nameable *currName;
 			currName = nameScope_search(currScope, currDecl->typeName);
 			if(currName == NULL)
 				return 1;
