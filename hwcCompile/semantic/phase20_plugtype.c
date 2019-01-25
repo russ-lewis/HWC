@@ -40,18 +40,22 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 	if (plugtype->phases_completed >= 20)
 		return 0;
 
+	int retval = 0;
+
 	HWC_Decl currDecl;
 	int i;
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
 		currDecl = plugtype->decls[i];
-		if(checkDeclName(&currDecl, plugtype->publicNames, 1) == 0)
+		retval = checkDeclName(&currDecl, plugtype->publicNames, 1);
+		if(retval != 0)
 		{
 			// TODO: Error message for when not found in namescope
 
 		}
 	}
 
-	assert(0);   // TODO
+	// TODO: Returns number of errors found. Good idea?
+	return retval;
 }
 
