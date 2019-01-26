@@ -18,6 +18,7 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output)
 	output->mode = input->mode;
 	switch(input->mode)
 	{
+		//TODO: Error message?
 		default:
 			break;
 		case(EXPR_PLUG):
@@ -62,4 +63,75 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output)
 			convertPTexprIntoHWCexpr(input->paren, output->exprA);
 			break;
 	}
+}
+
+/*
+TODO: Header comment
+Retval is 0 if no errors, 1 or more oetherwise
+*/
+int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
+{
+	int retval = 0;
+	HWC_Nameable *currName;
+
+	switch(currExpr->mode)
+	{
+		default:
+			break;
+		case(EXPR_PLUG):
+			// TODO: Need conversion from PT to HWC before doing this.
+			printf("Checking name of plug has not be implemented yet.\n");
+			break;
+		case(EXPR_SUBCOMPONENT):
+			// TODO: Need conversion from PT to HWC before doing this.
+			printf("Checking name of subcomponent has not be implemented yet.\n");
+			break;
+		case(EXPR_IDENT):
+			currName = nameScope_search(currScope, currExpr->name);
+			// TODO: Error messages
+			if(currName == NULL)
+				retval++;
+			else if(currName->decl == NULL)
+				retval++;
+			else
+				currExpr->decl = currName->decl;
+			break;
+		case(EXPR_NUM):
+			currName = nameScope_search(currScope, currExpr->name);
+			// TODO: Error messages
+			if(currName == NULL)
+				retval++;
+			else if(currName->decl == NULL)
+				retval++;
+			else
+				currExpr->decl = currName->decl;
+			break;
+		case(EXPR_BOOL):
+			// TODO: NOP?
+			break;
+		case(EXPR_TWOOP):
+			// TODO: Anything to do with "currExpr->value" here?
+			retval += checkExprName(currExpr->exprA, currScope);
+			retval += checkExprName(currExpr->exprB, currScope);
+			break;
+		case(EXPR_BITNOT):
+			retval += checkExprName(currExpr->exprA, currScope);
+			break;
+		case(EXPR_NOT):
+			retval += checkExprName(currExpr->exprA, currScope);
+			break;
+		case(EXPR_DOT):
+			retval += checkExprName(currExpr->exprA, currScope);
+			retval += checkExprName(currExpr->exprB, currScope);
+			break;
+		case(EXPR_ARR):
+			retval += checkExprName(currExpr->exprA, currScope);
+			retval += checkExprName(currExpr->exprB, currScope);
+			break;
+		case(EXPR_PAREN):
+			retval += checkExprName(currExpr->exprA, currScope);
+			break;
+	}
+
+	return retval;
 }

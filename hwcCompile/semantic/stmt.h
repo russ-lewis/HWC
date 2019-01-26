@@ -2,7 +2,6 @@
 #define __SEMANTIC_STMT_H__INCLUDED__
 
 
-
 #include <pt/stmt.h>    // we'll re-use the modes from the parser
 
 #include "names.h"
@@ -14,7 +13,7 @@ struct HWC_Stmt
 {
 	int mode;
 
-	/* STMT_DECL  - uses isPub, isSub, decl             */
+	/* STMT_DECL  - uses isPub, isSub,                  */
 	/* STMT_BLOCK - uses                    stmtA       */
 	/* STMT_CONN  - uses       exprA,exprB              */
 	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
@@ -28,11 +27,11 @@ struct HWC_Stmt
 	HWC_Stmt *stmtA, *stmtB;
 	int       sizeA,  sizeB; // Could we compress sizeA and sizeB with isPub and isSub?
 	int       isPub,  isSub; // Aligned, but poor naming. And I assume memory isn't at a premium.
-	HWC_Decl  decl;
 };
 
 int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt *);
 int extractHWCdeclsFromPTstmts(PT_stmt *, HWC_Decl *, HWC_NameScope *, HWC_NameScope *);
+int checkStmtName(HWC_Stmt *, HWC_NameScope *);
 
 #endif
 

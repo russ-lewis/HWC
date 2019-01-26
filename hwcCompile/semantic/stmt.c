@@ -108,6 +108,14 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 				currPTdecl = currPTdecl->prev;
 			}
 		}
+		// TODO: Can remove this check if the program runs too slow, since the grammar ensures that the only stmts in plugtypes are decls.
+		// Use the fact that PlugTypes have no private statements to check if the caller is a PlugType
+		else if(priv == NULL)
+		{
+			// The grammar should prevent non-decl statements from being found in plugtypes, but check just in case.
+			fprintf(stderr, "Statement that isn't a declaration found in a plugtype. Should be impossible, but obviously isn't. Crashing.\n");
+			assert(0);
+		}
 		currPTstmt = currPTstmt->prev;
 	}
 
@@ -133,7 +141,9 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
 				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
 				thing->decl = currHWCdecl;
-				if(currPTstmt->isPublic == 1)
+				// 1st check is for Parts    , makes sure the stmt is public
+				// 2nd check if for PlugTypes, makes all decls public
+				if(currPTstmt->isPublic == 1 || priv == NULL)
 					nameScope_add(publ, currPTdecl->name, thing);
 				else
 					nameScope_add(priv, currPTdecl->name, thing);
@@ -150,4 +160,53 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 	assert(count+1 == 0);
 
 	return len;
+}
+
+/*
+TODO: Add header comment
+Returns 0 when no error, >= 1 when errors, indicating how many errors
+*/
+// TODO: 
+int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
+{
+	int retval = 0;
+
+	switch(currStmt->mode)
+	{
+		default:
+			assert(0); // TODO: Potentially better error message?
+			break;
+		case STMT_DECL:
+			// NOP, but keeping case here for symmetry
+			break;
+		case STMT_BLOCK:
+			retval += checkStmtName(currStmt->stmtA, currScope);
+			break;
+		case STMT_CONN:
+			retval += checkExprName(currStmt->exprA, currScope);
+			retval += checkExprName(currStmt->exprB, currScope);
+			break;
+	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
+		case STMT_FOR:
+			// TODO: Also check for "name" here?
+			retval += checkExprName(currStmt->exprA, currScope);
+			retval += checkExprName(currStmt->exprB, currScope);
+
+			retval += checkStmtName(currStmt->stmtA, currScope);
+			break;
+		case STMT_IF:
+			retval += checkExprName(currStmt->exprA, currScope);
+
+			retval += checkStmtName(currStmt->stmtA, currScope);
+			retval += checkStmtName(currStmt->stmtB, currScope);
+			break;
+		case STMT_ELSE:
+			retval += checkStmtName(currStmt->stmtA, currScope);
+			break;
+		case STMT_ASRT:
+			retval += checkExprName(currStmt->exprA, currScope);
+			break;
+	}
+
+	return retval;
 }
