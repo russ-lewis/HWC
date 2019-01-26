@@ -4,9 +4,9 @@
 
 #include "names.h"
 #include "stmt.h"
+#include "decl.h"
 
-
-typedef HWC_Part     HWC_Part;
+typedef struct HWC_Part HWC_Part;
 struct HWC_Part
 {
 	/* these track the progress of the semantic phase.  The 'completed'

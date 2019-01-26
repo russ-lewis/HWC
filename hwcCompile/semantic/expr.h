@@ -5,6 +5,7 @@
 #include "plug.h"
 #include "partinstance.h"
 #include "decl.h"
+#include "names.h"
 
 #include <pt/expr.h>    // we'll re-use the modes from the parser, but then
                         // add some more
@@ -44,6 +45,7 @@ struct HWC_Expr
 };
 
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output);
+int checkExprName(HWC_Expr *, HWC_NameScope *);
 
 #endif
 

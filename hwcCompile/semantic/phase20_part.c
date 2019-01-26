@@ -40,8 +40,39 @@ int semPhase20_part(HWC_Part *part)
 	if (part->phases_completed >= 20)
 		return 0;
 
+	int retval = 0;
 
+	HWC_Decl currDecl;
+	int i;
+	for(i = 0; i < part->decls_len; i++)
+	{
+		currDecl = part->decls[i];
+		int numError = checkDeclName(&currDecl, part->publicNames, 0);
+		if(numError != 0)
+		{
+			// TODO: Error message for when not found in namescope
 
-	assert(0);   // TODO
+		}
+		retval += numError;
+	}
+
+	// There's no iteration for expr-essions because they're found within stmts.
+	// TODO: Can a Stmt appear in both this list and as part of another stmt? 
+	HWC_Stmt currStmt;
+	for(i = 0; i < part->stmts_len; i++)
+	{
+		currStmt = part->stmts[i];
+		int numError = checkStmtName(&currStmt, part->publicNames);
+		if(numError != 0)
+		{
+			// TODO: Error message for when not found in namescope
+
+		}
+		retval += numError;
+	}
+
+	// Returns number of errors found, if something else doesn't break
+	// TODO: Good idea?
+	return retval;
 }
 

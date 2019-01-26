@@ -22,6 +22,7 @@
 #include <pt/part.h> // Need for PT_array_decl
 #include <pt/type.h>
 #include "expr.h"
+#include "names.h"
 
 typedef struct HWC_Expr HWC_Expr;
 typedef struct HWC_PlugType HWC_PlugType;
@@ -39,6 +40,9 @@ struct HWC_Decl
 	Example: [PartName  partInstance;]
 				[bit       foo;         ]
 	          ^type     ^stored implicitly in nameScope
+
+	"type"     is a renaming of PT type's mode
+	"typeName"                            ident
 	*/
 	int type;
 	char *typeName;
@@ -75,6 +79,7 @@ struct HWC_Decl
 };
 
 void convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
+int checkDeclName(HWC_Decl *, HWC_NameScope *, int);
 
 #endif
 

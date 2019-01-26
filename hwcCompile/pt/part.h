@@ -18,7 +18,6 @@ struct PT_part_decl
 };
 
 
-
 // Debug functions
 
 void dump_pt_part_decl (PT_part_decl  *obj, int spaces);
