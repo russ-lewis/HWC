@@ -52,9 +52,7 @@ printf("TODO: line %d\n", __LINE__);
 		}
 
 		if (cur->thing->part != NULL)
-		{
 			part_dump(cur->thing->part, prefixLen+4);
-		}
 
 		if (cur->thing->plugtype != NULL)
 		{
@@ -72,9 +70,7 @@ printf("TODO: line %d\n", __LINE__);
 		}
 
 		if (cur->thing->decl != NULL)
-		{
-printf("TODO: line %d\n", __LINE__);
-		}
+			decl_dump(cur->thing->decl, prefixLen+4);
 
 		cur = cur->next;
 	}
@@ -126,4 +122,40 @@ printf("TODO: line %d\n", __LINE__);
 	}
 
 }
+
+
+
+void decl_dump(HWC_Decl *decl, int prefixLen)
+{
+	print_prefix(prefixLen);
+	printf("--- Decl %p ---\n", decl);
+
+	print_prefix(prefixLen);
+	printf("type: %d typeName: %s\n", decl->type, decl->typeName);
+
+	print_prefix(prefixLen);
+	printf("base: plugtype %p part %p\n", decl->base_plugType, decl->base_part);
+
+	if (decl->base_plugType != NULL)
+	{
+printf("TODO: line %d\n", __LINE__);
+	}
+
+	if (decl->base_part != NULL)
+	{
+printf("TODO: line %d\n", __LINE__);
+	}
+
+	print_prefix(prefixLen);
+	printf("expr: %p\n", decl->expr);
+
+	if (decl->expr != NULL)
+	{
+printf("TODO: line %d\n", __LINE__);
+	}
+
+	print_prefix(prefixLen);
+	printf("index: %d\n", decl->index);
+}
+
 

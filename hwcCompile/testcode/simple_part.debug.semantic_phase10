@@ -12,10 +12,18 @@
       parent=0x0
         name: output
         type: file 0x0 part 0x0 plugtype 0x0 type 0x0 plug 0x0 decl 0x60003ca60
-TODO: line 76
+          --- Decl 0x60003ca60 ---
+          type: 0 typeName: (null)
+          base: plugtype 0x0 part 0x0
+          expr: 0x0
+          index: 0
         name: input
         type: file 0x0 part 0x0 plugtype 0x0 type 0x0 plug 0x0 decl 0x60003ca30
-TODO: line 76
+          --- Decl 0x60003ca30 ---
+          type: 0 typeName: (null)
+          base: plugtype 0x0 part 0x0
+          expr: 0x0
+          index: 0
     privateNames: 0x60003ca10
       --- NameScope 0x60003ca10 ---
       refcount=1
@@ -23,13 +31,13 @@ TODO: line 76
       <no names>
     stmts: len=3
       [0]
-TODO: line 114
+TODO: line 110
       [1]
-TODO: line 114
+TODO: line 110
       [2]
-TODO: line 114
+TODO: line 110
     decls: len=2
       [0]
-TODO: line 125
+TODO: line 121
       [1]
-TODO: line 125
+TODO: line 121
