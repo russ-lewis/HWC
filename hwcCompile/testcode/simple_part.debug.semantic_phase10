@@ -1,2 +1,35 @@
 ---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
-TODO: implement me: nameScope_dump()
+ --- NameScope 0x60003c950 ---
+ refcount=1
+ parent=0x0
+  name: testPart
+  type: file 0x0 part 0x60003c9b0 plugtype 0x0 type 0x0 plug 0x0 decl 0x0
+    --- Part 0x60003c9b0 ---
+    phases: begun 10 completed 10
+    publicNames: 0x60003c9f0
+      --- NameScope 0x60003c9f0 ---
+      refcount=1
+      parent=0x0
+        name: output
+        type: file 0x0 part 0x0 plugtype 0x0 type 0x0 plug 0x0 decl 0x60003ca60
+TODO: line 76
+        name: input
+        type: file 0x0 part 0x0 plugtype 0x0 type 0x0 plug 0x0 decl 0x60003ca30
+TODO: line 76
+    privateNames: 0x60003ca10
+      --- NameScope 0x60003ca10 ---
+      refcount=1
+      parent=0x60003c950
+      <no names>
+    stmts: len=3
+      [0]
+TODO: line 114
+      [1]
+TODO: line 114
+      [2]
+TODO: line 114
+    decls: len=2
+      [0]
+TODO: line 125
+      [1]
+TODO: line 125
