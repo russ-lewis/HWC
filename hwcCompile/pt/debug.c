@@ -152,7 +152,7 @@ void dump_pt_decl(PT_decl *obj, int spaces)
 
 	dump_helper(spaces);
 
-   printf("Declaration: named '%s', with type\n", obj->name);
+   printf("Declaration: named '%s', with type (isMem=%d)\n", obj->name, obj->isMem);
 	dump_pt_type(obj->type, spaces+2);
 }
 

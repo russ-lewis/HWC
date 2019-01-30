@@ -299,15 +299,22 @@ decl_stmt:
 ;
 
 decl_fields:
-		/* NOTE: We've removed support for suffix array declartions! */
+		/* NOTE: We've removed support for suffix array declarations! */
 		type IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->type = $1;
+		                   $$->isMem = 0;
 		                   $$->name = $2; }
+	|	"memory" '(' type ')' IDENT
+		                 { $$ = malloc(sizeof(PT_decl));
+		                   $$->type = $3;
+		                   $$->isMem = 1;
+		                   $$->name = $5; }
 	|	decl_fields ',' IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   $$->prev = $1;
 		                   $$->type = $1->type;
+		                   $$->isMem = $1->isMem;
 		                   $$->name = $3; }
 ;
 

@@ -47,6 +47,8 @@ struct HWC_Decl
 	int type;
 	char *typeName;
 
+	int isMem;
+
 
 	/* In a Decl that is part of a PlugType, we know for *sure* that
 	 * the base type of the Decl is another PlugType.  In a Part, there

@@ -146,7 +146,7 @@ void decl_dump(HWC_Decl *decl, int prefixLen)
 	printf("--- Decl %p ---\n", decl);
 
 	print_prefix(prefixLen);
-	printf("type: %d typeName: %s\n", decl->type, decl->typeName);
+	printf("type: %d typeName: %s isMem: %d\n", decl->type, decl->typeName, decl->isMem);
 
 	print_prefix(prefixLen);
 	printf("base: plugtype %p part %p\n", decl->base_plugType, decl->base_part);
