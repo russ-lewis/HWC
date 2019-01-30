@@ -2,6 +2,7 @@
 
 #include "names.h"
 #include "part.h"
+#include "stmt.h"
 
 
 
@@ -107,7 +108,14 @@ void part_dump(HWC_Part *part, int prefixLen)
 		print_prefix(prefixLen+2);
 		printf("[%d]\n", i);
 
-printf("TODO: line %d\n", __LINE__);
+		if (part->stmts == NULL)
+		{
+			print_prefix(prefixLen+4);
+			printf("<part->stmts is NULL>\n");
+			continue;
+		}
+
+		stmt_dump(&part->stmts[i], prefixLen+4);
 	}
 
 	print_prefix(prefixLen);
@@ -117,6 +125,13 @@ printf("TODO: line %d\n", __LINE__);
 	{
 		print_prefix(prefixLen+2);
 		printf("[%d]\n", i);
+
+		if (part->decls == NULL)
+		{
+			print_prefix(prefixLen+4);
+			printf("<part->decls is NULL>\n");
+			continue;
+		}
 
 printf("TODO: line %d\n", __LINE__);
 	}
@@ -156,6 +171,42 @@ printf("TODO: line %d\n", __LINE__);
 
 	print_prefix(prefixLen);
 	printf("index: %d\n", decl->index);
+}
+
+
+
+char *stmt_mode2str(int mode)
+{
+	switch (mode)
+	{
+	case STMT_DECL:		return "STMT_DECL";
+	case STMT_BLOCK:	return "STMT_BLOCK";
+	case STMT_CONN:		return "STMT_CONN";
+	case STMT_FOR:		return "STMT_FOR";
+	case STMT_IF:		return "STMT_IF";
+	case STMT_ELSE:		return "STMT_ELSE";
+	case STMT_ASRT:		return "STMT_ASRT";
+	}
+
+
+	// this is a terrible design, in computer-science-purist perspective,
+	// because it returns a static buffer.  But it's workable as a hackish
+	// debug-only, never-used-in-parallel sort of situation.
+
+	static char buf[256];
+	sprintf(buf, "ERROR: Unrecognized stmt->mode %d\n", mode);
+	return buf;
+}
+
+void stmt_dump(HWC_Stmt *stmt, int prefixLen)
+{
+	print_prefix(prefixLen);
+	printf("--- Stmt %p ---\n", stmt);
+
+	print_prefix(prefixLen);
+	printf("mode: %s\n", stmt_mode2str(stmt->mode));
+
+printf("TODO: line %d\n", __LINE__);
 }
 
 

@@ -1,0 +1,31 @@
+---- DEBUG: DUMPING PARSE TREE ----
+File with the following decls: 
+  File_decl with these decls: 
+    Part_decl: named 'simple_for', with stmts: 
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'in', with type
+          type: ARRAY
+            type: BIT
+          len = Expr: NUM, value of 32
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'out', with type
+          type: ARRAY
+            type: BIT
+          len = Expr: NUM, value of 32
+      stmt: FOR LOOP
+        var: i
+        Bgn:
+          Expr: NUM, value of 0
+        End=:
+          Expr: NUM, value of 32
+        Stmts:
+          stmt: BLOCK, that has stmts...
+            stmt: CONNECTION, with left and right exprs:
+              Expr: ARR, into array expr
+                Expr: IDENT, name = out
+               index of
+                Expr: IDENT, name = i
+              Expr: ARR, into array expr
+                Expr: IDENT, name = in
+               index of
+                Expr: IDENT, name = i

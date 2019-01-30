@@ -1,0 +1,27 @@
+---- DEBUG: DUMPING PARSE TREE ----
+File with the following decls: 
+  File_decl with these decls: 
+    Part_decl: named 'simple_if', with stmts: 
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'control', with type
+          type: BIT
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'in', with type
+          type: ARRAY
+            type: BIT
+          len = Expr: NUM, value of 2
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'out', with type
+          type: BIT
+      stmt: IF CHECK
+        Expr: TWOOP of mode EQUALS with exprs
+          LHand:
+            Expr: IDENT, name = control
+          RHand:
+            Expr: NUM, value of 0
+        stmt: CONNECTION, with left and right exprs:
+          Expr: IDENT, name = out
+          Expr: ARR, into array expr
+            Expr: IDENT, name = in
+           index of
+            Expr: NUM, value of 0

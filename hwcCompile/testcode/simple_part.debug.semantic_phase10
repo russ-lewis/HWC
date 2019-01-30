@@ -31,13 +31,13 @@
       <no names>
     stmts: len=3
       [0]
-TODO: line 110
+        <part->stmts is NULL>
       [1]
-TODO: line 110
+        <part->stmts is NULL>
       [2]
-TODO: line 110
+        <part->stmts is NULL>
     decls: len=2
       [0]
-TODO: line 121
+        <part->decls is NULL>
       [1]
-TODO: line 121
+        <part->decls is NULL>

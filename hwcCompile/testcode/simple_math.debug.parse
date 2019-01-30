@@ -1,0 +1,48 @@
+---- DEBUG: DUMPING PARSE TREE ----
+File with the following decls: 
+  File_decl with these decls: 
+    Part_decl: named 'simple_math', with stmts: 
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'a', with type
+          type: BIT
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'b', with type
+          type: BIT
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'c', with type
+          type: BIT
+      stmt: CONNECTION, with left and right exprs:
+        Expr: IDENT, name = c
+        Expr: TWOOP of mode PLUS with exprs
+          LHand:
+            Expr: IDENT, name = a
+          RHand:
+            Expr: IDENT, name = b
+      stmt: CONNECTION, with left and right exprs:
+        Expr: IDENT, name = c
+        Expr: TWOOP of mode MINUS with exprs
+          LHand:
+            Expr: IDENT, name = a
+          RHand:
+            Expr: IDENT, name = b
+      stmt: CONNECTION, with left and right exprs:
+        Expr: IDENT, name = c
+        Expr: TWOOP of mode TIMES with exprs
+          LHand:
+            Expr: IDENT, name = a
+          RHand:
+            Expr: IDENT, name = b
+      stmt: CONNECTION, with left and right exprs:
+        Expr: IDENT, name = c
+        Expr: TWOOP of mode DIVIDE with exprs
+          LHand:
+            Expr: IDENT, name = a
+          RHand:
+            Expr: IDENT, name = b
+      stmt: CONNECTION, with left and right exprs:
+        Expr: IDENT, name = c
+        Expr: TWOOP of mode MODULO with exprs
+          LHand:
+            Expr: IDENT, name = a
+          RHand:
+            Expr: IDENT, name = b

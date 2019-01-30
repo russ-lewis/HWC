@@ -1,0 +1,15 @@
+---- DEBUG: DUMPING PARSE TREE ----
+File with the following decls: 
+  File_decl with these decls: 
+    Plugtype_decl: named 'simple', with fields
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'a', with type
+          type: BIT
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'b', with type
+          type: BIT
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'c', with type
+          type: ARRAY
+            type: BIT
+          len = Expr: NUM, value of 3
