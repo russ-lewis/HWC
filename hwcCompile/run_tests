@@ -5,7 +5,7 @@
 attempt=0
 passed=0
 
-for TESTCASE in $(ls -1 testcode/*.debug.* | grep -v test_out | grep -v FAIL)
+for TESTCASE in $(find testcode -name *.debug.* | grep -v test_out | grep -v FAIL)
 do
   attempts=$((attempts+1))
 
@@ -24,10 +24,18 @@ do
     continue
   fi
 
+  if [[ -f $base.wire ]]
+  then
+    echo "Testcase $TESTCASE failed: the .wire file was created."
+    mv $base.debug.$phase.test_out $base.debug.$phase.FAIL
+    mv $base.wire                  $base.debug.$phase.FAIL_wire
+    continue
+  fi
+
   if [[ $(diff $base.debug.$phase $base.debug.$phase.test_out) != "" ]]
   then
     echo "Testcase $TESTCASE failed."
-    diff $base.debug.$phase $base.debug.$phase.test_out 1>&2
+      #diff $base.debug.$phase $base.debug.$phase.test_out 1>&2
 
     mv $base.debug.$phase.test_out $base.debug.$phase.FAIL
     continue
@@ -37,4 +45,46 @@ do
 
   attempts=$((attempts+1))
 done
+
+
+for TESTCASE in $(find testcode -name *.expect_fail | grep -v test_out | grep -v FAIL)
+do
+  attempts=$((attempts+1))
+
+  base=$(echo $TESTCASE | rev | cut -f2- -d'.' | rev)
+
+  rm $base.expect_fail 2>/dev/null
+
+  ./hwcCompile < $base.hwc > $base.expect_fail.test_out 2>&1
+  rc=$?
+
+  if [[ $rc != 0 ]]
+  then
+    echo "Testcase $TESTCASE failed, rc=$rc."
+    mv $base.expect_fail.test_out $base.expect_fail.FAIL_rc_$rc
+    continue
+  fi
+
+  if [[ -f $base.wire ]]
+  then
+    echo "Testcase $TESTCASE failed: the .wire file was created."
+    mv $base.expect_fail.test_out $base.expect_fail.FAIL
+    mv $base.wire                 $base.expect_fail.FAIL_wire
+    continue
+  fi
+
+  if [[ $(diff $base.expect_fail $base.expect_fail.test_out) != "" ]]
+  then
+    echo "Testcase $TESTCASE failed."
+      #diff $base.expect_fail $base.expect_fail.test_out 1>&2
+
+    mv $base.expect_fail.test_out $base.expect_fail.FAIL
+    continue
+  fi
+
+  rm $base.expect_fail.test_out
+
+  attempts=$((attempts+1))
+done
+
 
