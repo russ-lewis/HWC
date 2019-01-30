@@ -3,13 +3,13 @@ File with the following decls:
   File_decl with these decls: 
     Plugtype_decl: named 'simple', with fields
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'a', with type
+        Declaration: named 'a', with type (isMem=0)
           type: BIT
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'b', with type
+        Declaration: named 'b', with type (isMem=0)
           type: BIT
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'c', with type
+        Declaration: named 'c', with type (isMem=0)
           type: ARRAY
             type: BIT
           len = Expr: NUM, value of 3

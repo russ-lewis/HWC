@@ -18,13 +18,13 @@ static void print_prefix(int cnt)
 void nameScope_dump(HWC_NameScope *names, int prefixLen)
 {
 	print_prefix(prefixLen);
-	printf("--- NameScope %p ---\n", names);
+	printf("--- NameScope ---\n");
 
 	print_prefix(prefixLen);
 	printf("refcount=%d\n", names->refCount);
 
 	print_prefix(prefixLen);
-	printf("parent=%p\n", names->parent);
+	printf("parent=<TODO>\n");
 
 	HWC_NameScope_elem *cur = names->list;
 	if (cur == NULL)
@@ -37,15 +37,6 @@ void nameScope_dump(HWC_NameScope *names, int prefixLen)
 	{
 		print_prefix(prefixLen+2);
 		printf("name: %s\n", cur->name);
-
-		print_prefix(prefixLen+2);
-		printf("type: file %p part %p plugtype %p type %p plug %p decl %p\n",
-		       cur->thing->file,
-		       cur->thing->part,
-		       cur->thing->plugtype,
-		       cur->thing->type,
-		       cur->thing->plug,
-		       cur->thing->decl);
 
 		if (cur->thing->file != NULL)
 		{
@@ -82,19 +73,19 @@ printf("TODO: line %d\n", __LINE__);
 void part_dump(HWC_Part *part, int prefixLen)
 {
 	print_prefix(prefixLen);
-	printf("--- Part %p ---\n", part);
+	printf("--- Part ---\n");
 
 	print_prefix(prefixLen);
 	printf("phases: begun %d completed %d\n", part->phases_begun, part->phases_completed);
 
 	print_prefix(prefixLen);
-	printf("publicNames: %p\n", part->publicNames);
+	printf("publicNames: <TODO>\n");
 
 	if (part->publicNames != NULL)
 		nameScope_dump(part->publicNames, prefixLen+2);
 
 	print_prefix(prefixLen);
-	printf("privateNames: %p\n", part->privateNames);
+	printf("privateNames: <TODO>\n");
 
 	if (part->privateNames != NULL)
 		nameScope_dump(part->privateNames, prefixLen+2);
@@ -143,13 +134,10 @@ printf("TODO: line %d\n", __LINE__);
 void decl_dump(HWC_Decl *decl, int prefixLen)
 {
 	print_prefix(prefixLen);
-	printf("--- Decl %p ---\n", decl);
+	printf("--- Decl ---\n");
 
 	print_prefix(prefixLen);
 	printf("type: %d typeName: %s isMem: %d\n", decl->type, decl->typeName, decl->isMem);
-
-	print_prefix(prefixLen);
-	printf("base: plugtype %p part %p\n", decl->base_plugType, decl->base_part);
 
 	if (decl->base_plugType != NULL)
 	{
@@ -162,7 +150,7 @@ printf("TODO: line %d\n", __LINE__);
 	}
 
 	print_prefix(prefixLen);
-	printf("expr: %p\n", decl->expr);
+	printf("expr: <TODO>\n");
 
 	if (decl->expr != NULL)
 	{
@@ -201,7 +189,7 @@ char *stmt_mode2str(int mode)
 void stmt_dump(HWC_Stmt *stmt, int prefixLen)
 {
 	print_prefix(prefixLen);
-	printf("--- Stmt %p ---\n", stmt);
+	printf("--- Stmt ---\n");
 
 	print_prefix(prefixLen);
 	printf("mode: %s\n", stmt_mode2str(stmt->mode));

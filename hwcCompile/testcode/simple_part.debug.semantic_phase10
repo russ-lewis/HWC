@@ -1,33 +1,28 @@
 ---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
- --- NameScope 0x60003c950 ---
+ --- NameScope ---
  refcount=1
- parent=0x0
+ parent=<TODO>
   name: testPart
-  type: file 0x0 part 0x60003c9b0 plugtype 0x0 type 0x0 plug 0x0 decl 0x0
-    --- Part 0x60003c9b0 ---
+    --- Part ---
     phases: begun 10 completed 10
-    publicNames: 0x60003c9f0
-      --- NameScope 0x60003c9f0 ---
+    publicNames: <TODO>
+      --- NameScope ---
       refcount=1
-      parent=0x0
+      parent=<TODO>
         name: output
-        type: file 0x0 part 0x0 plugtype 0x0 type 0x0 plug 0x0 decl 0x60003ca60
-          --- Decl 0x60003ca60 ---
-          type: 0 typeName: (null)
-          base: plugtype 0x0 part 0x0
-          expr: 0x0
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
           index: 0
         name: input
-        type: file 0x0 part 0x0 plugtype 0x0 type 0x0 plug 0x0 decl 0x60003ca30
-          --- Decl 0x60003ca30 ---
-          type: 0 typeName: (null)
-          base: plugtype 0x0 part 0x0
-          expr: 0x0
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
           index: 0
-    privateNames: 0x60003ca10
-      --- NameScope 0x60003ca10 ---
+    privateNames: <TODO>
+      --- NameScope ---
       refcount=1
-      parent=0x60003c950
+      parent=<TODO>
       <no names>
     stmts: len=3
       [0]

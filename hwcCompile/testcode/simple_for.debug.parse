@@ -3,12 +3,12 @@ File with the following decls:
   File_decl with these decls: 
     Part_decl: named 'simple_for', with stmts: 
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'in', with type
+        Declaration: named 'in', with type (isMem=0)
           type: ARRAY
             type: BIT
           len = Expr: NUM, value of 32
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'out', with type
+        Declaration: named 'out', with type (isMem=0)
           type: ARRAY
             type: BIT
           len = Expr: NUM, value of 32
