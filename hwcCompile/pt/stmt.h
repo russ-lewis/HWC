@@ -71,6 +71,8 @@ struct PT_decl
 	PT_decl *prev;
 
 	PT_type *type;
+	int      isMem;
+
 	char *name;
 };
 

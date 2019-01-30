@@ -1,0 +1,15 @@
+---- DEBUG: DUMPING PARSE TREE ----
+File with the following decls: 
+  File_decl with these decls: 
+    Part_decl: named 'simple_assert', with stmts: 
+      stmt: DECL, that is public, is not a subpart, and has the decl vars:
+        Declaration: named 'a', with type (isMem=0)
+          type: BIT
+        Declaration: named 'b', with type (isMem=0)
+          type: BIT
+      stmt: ASSERTION
+        Expr: TWOOP of mode EQUALS with exprs
+          LHand:
+            Expr: IDENT, name = a
+          RHand:
+            Expr: IDENT, name = b

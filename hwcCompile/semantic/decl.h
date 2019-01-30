@@ -47,6 +47,8 @@ struct HWC_Decl
 	int type;
 	char *typeName;
 
+	int isMem;
+
 
 	/* In a Decl that is part of a PlugType, we know for *sure* that
 	 * the base type of the Decl is another PlugType.  In a Part, there
@@ -80,6 +82,10 @@ struct HWC_Decl
 
 void convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
 int checkDeclName(HWC_Decl *, HWC_NameScope *, int);
+
+
+
+void decl_dump(HWC_Decl*, int prefixLen);
 
 #endif
 
