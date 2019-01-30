@@ -1,6 +1,7 @@
 part tick_tock
 {
-	memory(bit) state;
+	private memory(bit) state;
+
 	public bit out;
 
 	out = state;

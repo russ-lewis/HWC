@@ -1,0 +1,40 @@
+---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
+ --- NameScope ---
+ refcount=1
+ parent=<TODO>
+  name: Test
+    --- Part ---
+    phases: begun 10 completed 10
+    publicNames: <TODO>
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: jkl
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: 0
+        name: asdf
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: 0
+    privateNames: <TODO>
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+      <no names>
+    stmts: len=4
+      [0]
+        <part->stmts is NULL>
+      [1]
+        <part->stmts is NULL>
+      [2]
+        <part->stmts is NULL>
+      [3]
+        <part->stmts is NULL>
+    decls: len=2
+      [0]
+        <part->decls is NULL>
+      [1]
+        <part->decls is NULL>

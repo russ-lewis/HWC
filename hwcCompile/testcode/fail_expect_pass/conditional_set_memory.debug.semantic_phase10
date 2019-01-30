@@ -1,0 +1,69 @@
+TODO: How to account for decls within IF stmts?
+TODO: How to account for decls within IF stmts?
+---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
+ --- NameScope ---
+ refcount=1
+ parent=<TODO>
+  name: conditional_memory
+    --- Part ---
+    phases: begun 10 completed 10
+    publicNames: <TODO>
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: data
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: 0
+        name: setVal
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: 0
+        name: set
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: 0
+        name: getVal
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: 0
+        name: get
+          --- Decl ---
+          type: 0 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: 0
+    privateNames: <TODO>
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+      <no names>
+    stmts: len=7
+      [0]
+        <part->stmts is NULL>
+      [1]
+        <part->stmts is NULL>
+      [2]
+        <part->stmts is NULL>
+      [3]
+        <part->stmts is NULL>
+      [4]
+        <part->stmts is NULL>
+      [5]
+        <part->stmts is NULL>
+      [6]
+        <part->stmts is NULL>
+    decls: len=5
+      [0]
+        <part->decls is NULL>
+      [1]
+        <part->decls is NULL>
+      [2]
+        <part->decls is NULL>
+      [3]
+        <part->decls is NULL>
+      [4]
+        <part->decls is NULL>
