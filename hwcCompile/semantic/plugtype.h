@@ -30,12 +30,10 @@ struct HWC_PlugType
 	// TODO: Field for sizeof Part
 };
 
-// Presumably put primitive "bit" here
-
 extern HWC_PlugType BitType;
 // In one c file, allocate space by re-declaraing
 // In other c files, include this header and BitType can be used
 // size of should be one
 // namescope should be null
 
-#endif // __SEMANTIC_PLUGTYPE_H__INCLUDEDED__
+#endif // __SEMANTIC_PLUGTYPE_H__INCLUDED__

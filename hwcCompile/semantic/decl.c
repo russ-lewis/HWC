@@ -63,9 +63,7 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			break;
 
 		case TYPE_BIT:
-			// TODO: Add default plugtype 'bit'
-			fprintf(stderr, "TODO: Add BIT!\n");
-			assert(0);
+			currDecl->base_plugType = &BitType;
 			break;
 
 		case TYPE_ARRAY:

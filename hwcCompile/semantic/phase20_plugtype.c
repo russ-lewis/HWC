@@ -4,8 +4,18 @@
 #include "phase20.h"
 
 
+// Is this the best place to declare/initialize BitType?
+HWC_PlugType BitType;
+
 int semPhase20_plugtype(HWC_PlugType *plugtype)
 {
+	BitType.publicNames = NULL;
+	BitType.phases_completed = -1;
+	BitType.phases_begun = -1;
+	BitType.decls = NULL;
+	BitType.decls_len = -1;
+
+
 	/* phase 1 is executed right at the beginning, when we are doing
 	 * phase 1 of the file.
 	 */

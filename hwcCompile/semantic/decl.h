@@ -23,6 +23,7 @@
 #include <pt/type.h>
 #include "expr.h"
 #include "names.h"
+#include "plugtype.h"
 
 typedef struct HWC_Expr HWC_Expr;
 typedef struct HWC_PlugType HWC_PlugType;
