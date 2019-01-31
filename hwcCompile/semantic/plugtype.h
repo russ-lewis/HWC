@@ -31,10 +31,11 @@ struct HWC_PlugType
 	int size;
 };
 
+/*
+BitType represents the "Bit" primitive in HWC
+ Its size is 1
+ It does not have a namescope
+*/
 extern HWC_PlugType BitType;
-// In one c file, allocate space by re-declaraing
-// In other c files, include this header and BitType can be used
-// size of should be one
-// namescope should be null
 
 #endif // __SEMANTIC_PLUGTYPE_H__INCLUDED__

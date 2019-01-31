@@ -5,7 +5,7 @@
 
 
 // Initialization of BitType, an extern var from plugtype.h , which is used for all "Bit" declarations
-HWC_PlugType BitType = { .publicNames = NULL, .phases_completed = -1, .phases_begun = -1, .decls = NULL, .decls_len = -1};
+HWC_PlugType BitType = { .publicNames = NULL, .phases_completed = -1, .phases_begun = -1, .decls = NULL, .decls_len = -1, .size = 1};
 
 /*
 Performs phase 20 on the given part.
