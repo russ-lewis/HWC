@@ -5,7 +5,7 @@
 #include "semantic/phase30.h"
 
 
-int semPhase30_part(HWC_Part *part)
+int semPhase30_plugtype(HWC_PlugType *plugtype)
 {
 	if (part->phases_completed >= 30)
 		return 0;
@@ -28,7 +28,24 @@ int semPhase30_part(HWC_Part *part)
 		return 0;
 
 
+	int retval = 0;
+
+	HWC_Decl currDecl;
+	int i;
+	for(i = 0; i < plugtype->decls_len; i++)
+	{
+		currDecl = plugtype->decls[i];
+		retval = checkDeclName(&currDecl, plugtype->publicNames, 1);
+		if(retval != 0)
+		{
+			// TODO: Error message for when not found in namescope
+
+		}
+	}
 
 	assert(0);   // TODO
+
+	// TODO: Returns number of errors found. Good idea?
+	return retval;
 }
 

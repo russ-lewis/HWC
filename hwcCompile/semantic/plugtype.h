@@ -28,6 +28,7 @@ struct HWC_PlugType
 	int       decls_len;
 
 	// TODO: Field for sizeof Part
+	int size;
 };
 
 extern HWC_PlugType BitType;
