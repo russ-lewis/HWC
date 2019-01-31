@@ -4,9 +4,15 @@
 #include "phase20.h"
 
 
-// Is this the best place to declare/initialize BitType?
+// Initialization of BitType, an extern var from plugtype.h , which is used for all "Bit" declarations
 HWC_PlugType BitType = { .publicNames = NULL, .phases_completed = -1, .phases_begun = -1, .decls = NULL, .decls_len = -1};
 
+/*
+Performs phase 20 on the given part.
+To be specific, convert all "name"/"char *" variables into pointers to other HWC structs.
+
+Returns how many errors were found during this function.
+*/
 int semPhase20_plugtype(HWC_PlugType *plugtype)
 {
 	/* phase 1 is executed right at the beginning, when we are doing

@@ -4,6 +4,12 @@
 #include "phase20.h"
 
 
+/*
+Performs phase 20 on the given part.
+To be specific, convert all "name"/"char *" variables into pointers to other HWC structs.
+
+Returns how many errors were found during this function.
+*/
 int semPhase20_part(HWC_Part *part)
 {
 	/* phase 1 is executed right at the beginning, when we are doing

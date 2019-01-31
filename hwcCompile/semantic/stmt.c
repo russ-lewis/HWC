@@ -12,8 +12,8 @@ The most notable changes are:
  - Compression of struct fields
  - malloc()s memory for the caller
 Arguments:
- - input, a pointer to the statement to convert
- - output, a pointer to the HWC_Stmt to fill in
+ - *input, a pointer to the statement to convert
+ - *output, a pointer to the HWC_Stmt to fill in
 Returns an int corresponding to the length of the array of statements
 */
 int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
@@ -163,13 +163,17 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 }
 
 /*
-TODO: Add header comment
-Returns 0 when no error, >= 1 when errors, indicating how many errors
+Ensures that the names used within the given statement are valid within the statement's namescope.
+
+ - *currStmt is the statement to check
+ - *currScope is the relevant namescope for the stmt
+
+Returns 0 if no error, >= 1 if errors to indicate how many errors.
 */
-// TODO: 
 int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 {
 	int retval = 0;
+	HWC_Nameable *currName;
 
 	switch(currStmt->mode)
 	{
@@ -188,7 +192,13 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			break;
 	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
 		case STMT_FOR:
-			// TODO: Also check for "name" here?
+			currName = nameScope_search(currScope, currStmt->name);
+			// If the name was found, report an error. The name we're checking for should be unique to this for-loop.
+			// TODO: Error message
+			// TODO: Modify this check later, once we decide if for-loop vars should be added to the namescope or not.
+			if(currName != NULL)
+				retval++;
+
 			retval += checkExprName(currStmt->exprA, currScope);
 			retval += checkExprName(currStmt->exprB, currScope);
 
