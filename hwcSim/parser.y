@@ -63,13 +63,13 @@
 
 	struct {
 		int arrayLen;
-		HWC_WiringMemory *array;
+		HWC_Wiring_Memory *array;
 		int curCount;
 	} mem;
 
 	struct {
 		int arrayLen;
-		HWC_WiringLogic *array;
+		HWC_Wiring_Logic *array;
 		int curCount;
 	} logic;
 
@@ -80,13 +80,13 @@
 
 	struct {
 		int arrayLen;
-		HWC_WiringConnection *array;
+		HWC_Wiring_Connection *array;
 		int curCount;
 	} connections;
 
 	struct {
 		int arrayLen;
-		HWC_WiringAssert *array;
+		HWC_Wiring_Assert *array;
 		int curCount;
 	} asserts;
 }
@@ -176,7 +176,7 @@ file:
 mem:
 		"memory" "count" NUM
 			{ $$.arrayLen = $3;
-			  $$.array = malloc($3 * sizeof(HWC_WiringMemory));
+			  $$.array = malloc($3 * sizeof(HWC_Wiring_Memory));
 			  $$.curCount = 0; }
 
 	|	mem "memory" "size" NUM "read" NUM "write" NUM opt_debug
@@ -194,7 +194,7 @@ mem:
 logic:
 		"logic" "count" NUM
 			{ $$.arrayLen = $3;
-			  $$.array = malloc($3 * sizeof(HWC_WiringLogic));
+			  $$.array = malloc($3 * sizeof(HWC_Wiring_Logic));
 			  $$.curCount = 0; }
 
 	|	logic "logic" logic_op "size" NUM "a" NUM logic_b_opt "out" NUM opt_debug
@@ -230,7 +230,7 @@ logic_b_opt:
 connections:
 		"connection" "count" NUM
 			{ $$.arrayLen = $3;
-			  $$.array = malloc($3 * sizeof(HWC_WiringConnection));
+			  $$.array = malloc($3 * sizeof(HWC_Wiring_Connection));
 			  $$.curCount = 0; }
 
 	|	connections "connection" connection_opt_condition "size" NUM "to" NUM "from" NUM opt_debug
@@ -255,7 +255,7 @@ connection_opt_condition:
 asserts:
 		"assert" "count" NUM
 			{ $$.arrayLen = $3;
-			  $$.array = malloc($3 * sizeof(HWC_WiringAssert));
+			  $$.array = malloc($3 * sizeof(HWC_Wiring_Assert));
 			  $$.curCount = 0; }
 
 	|	asserts "assert" NUM opt_debug

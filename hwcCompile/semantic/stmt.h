@@ -8,6 +8,8 @@
 #include "expr.h"
 #include "decl.h"
 
+
+
 typedef struct HWC_Stmt HWC_Stmt;
 struct HWC_Stmt
 {
@@ -29,9 +31,13 @@ struct HWC_Stmt
 	int       isPub,  isSub; // Aligned, but poor naming. And I assume memory isn't at a premium.
 };
 
+
+
 int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt *);
 int extractHWCdeclsFromPTstmts(PT_stmt *, HWC_Decl *, HWC_NameScope *, HWC_NameScope *);
 int checkStmtName(HWC_Stmt *, HWC_NameScope *);
+
+void stmt_dump(HWC_Stmt*, int prefixLen);
 
 #endif
 

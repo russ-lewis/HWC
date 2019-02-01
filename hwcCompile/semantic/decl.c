@@ -43,6 +43,8 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	output->type     = convert->mode;
 	output->typeName = convert->ident;
 
+	output->isMem    = input->isMem;
+
 	output->base_plugType = NULL;
 	output->base_part     = NULL;
 

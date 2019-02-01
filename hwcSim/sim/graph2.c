@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "sim/graph.h"
 #include "wiring/core.h"
 
+#include "sim/graph2.h"
 
 
-HWC_sim_graph *HWC_sim_buildGraph(HWC_Wiring *wiring)
+
+HWC_Sim_Graph *HWC_Sim_buildGraph(HWC_Wiring *wiring)
 {
 	assert(0);	// TODO
 }

@@ -37,7 +37,7 @@ indicate that a type is in-process, so that we can detect recursive
 definitions.
 
 Once we know the sizes of the various sub-types used by a type, we will fill
-in the offsets for each type.
+in the offsets for each declaration.
 
 Once we have all of the offsets, it is possible to generate all of the
 connection statements in each part.

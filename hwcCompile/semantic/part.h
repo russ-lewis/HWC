@@ -32,5 +32,9 @@ struct HWC_Part
 };
 
 
+
+void part_dump(HWC_Part*, int prefixLen);
+
+
 #endif
 
