@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 	/* dump debug state, if requested */
 	if (debug == 1)
 	{
-		wiring_write(core, outfile);
+		wiring_write(core, stdout);
 		return 0;
 	}
 

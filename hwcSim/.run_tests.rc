@@ -1,0 +1,6 @@
+HWC_BIN=hwcSim
+
+HWC_SUFFIX=wire
+
+# set to empty string to disable the "output not expected on failure" check
+HWC_OUTPUT_SUFFIX=

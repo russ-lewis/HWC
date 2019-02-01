@@ -172,6 +172,9 @@ int main(int argc, char **argv)
 		return 1;   // the wiring generator must have already printed an error message
 
 
-	return wiring_write(wiring, outfile);
+	FILE *out = fopen(outfile, "w");
+	int rc = wiring_write(wiring, out);
+	fclose(out);
+	return rc;
 }
 
