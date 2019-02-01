@@ -37,3 +37,5 @@
         <part->decls is NULL>
       [1]
         <part->decls is NULL>
+
+rc=0

@@ -13,3 +13,5 @@ File with the following decls:
           type: ARRAY
             type: BIT
           len = Expr: NUM, value of 3
+
+rc=0

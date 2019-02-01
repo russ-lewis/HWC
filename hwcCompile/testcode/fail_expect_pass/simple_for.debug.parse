@@ -28,3 +28,5 @@ File with the following decls:
               Expr: IDENT, name = in
              index of
               Expr: IDENT, name = i
+
+rc=0

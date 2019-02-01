@@ -14,15 +14,13 @@ do
 
   rm $base.debug.$phase.* 2>/dev/null
 
-  ./hwcCompile --debug=$phase < $base.hwc > $base.debug.$phase.test_out 2>&1
-  rc=$?
+  {
+    ./hwcCompile --debug=$phase < $base.hwc
+    rc=$?
 
-  if [[ $rc != 0 ]]
-  then
-    echo "Testcase $TESTCASE failed, rc=$rc."
-    mv $base.debug.$phase.test_out $base.debug.$phase.FAIL_rc_$rc
-    continue
-  fi
+    echo
+    echo rc=$rc
+  } > $base.debug.$phase.test_out 2>&1
 
   if [[ -f $base.wire ]]
   then
@@ -53,17 +51,15 @@ do
 
   base=$(echo $TESTCASE | rev | cut -f2- -d'.' | rev)
 
-  rm $base.expect_fail 2>/dev/null
+  rm $base.expect_fail.* 2>/dev/null
 
-  ./hwcCompile < $base.hwc > $base.expect_fail.test_out 2>&1
-  rc=$?
+  {
+    ./hwcCompile < $base.hwc
+    rc=$?
 
-  if [[ $rc != 0 ]]
-  then
-    echo "Testcase $TESTCASE failed, rc=$rc."
-    mv $base.expect_fail.test_out $base.expect_fail.FAIL_rc_$rc
-    continue
-  fi
+    echo
+    echo rc=$?
+  } > $base.expect_fail.test_out 2>&1
 
   if [[ -f $base.wire ]]
   then
@@ -82,7 +78,7 @@ do
     continue
   fi
 
-  rm $base.expect_fail.test_out
+  rm $base.expect_fail.*
 
   attempts=$((attempts+1))
 done

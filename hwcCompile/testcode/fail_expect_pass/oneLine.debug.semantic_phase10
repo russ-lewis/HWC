@@ -45,3 +45,5 @@ TODO: line 51
         <part->decls is NULL>
       [2]
         <part->decls is NULL>
+
+rc=0
