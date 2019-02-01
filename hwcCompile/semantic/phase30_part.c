@@ -5,6 +5,8 @@
 #include "semantic/phase30.h"
 
 
+// Return number of errors
+// MAKE SURE RETVAL OF PHASE 20 AND 30 ARE ZERO
 int semPhase30_part(HWC_Part *part)
 {
 	if (part->phases_completed >= 30)
@@ -32,3 +34,5 @@ int semPhase30_part(HWC_Part *part)
 	assert(0);   // TODO
 }
 
+
+// Create helper function that returns size as int or at least sets size for given part/plugtype
