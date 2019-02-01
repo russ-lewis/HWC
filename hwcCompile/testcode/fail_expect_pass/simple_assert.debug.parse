@@ -13,3 +13,5 @@ File with the following decls:
             Expr: IDENT, name = a
           RHand:
             Expr: IDENT, name = b
+
+rc=0

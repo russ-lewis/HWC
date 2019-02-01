@@ -42,6 +42,10 @@ struct HWC_Expr
 	HWC_Decl *decl; // Points to decl that declared this expr
 	int       value;
 	HWC_Expr *exprA, *exprB;
+
+	// Offset into current Part
+	// For EXPR_NOT, BITNOT, and TWOOP add 1 bit for output of condition
+	int offset;
 };
 
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output);

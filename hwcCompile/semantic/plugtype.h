@@ -28,14 +28,14 @@ struct HWC_PlugType
 	int       decls_len;
 
 	// TODO: Field for sizeof Part
+	int size;
 };
 
-// Presumably put primitive "bit" here
-
+/*
+BitType represents the "Bit" primitive in HWC
+ Its size is 1
+ It does not have a namescope
+*/
 extern HWC_PlugType BitType;
-// In one c file, allocate space by re-declaraing
-// In other c files, include this header and BitType can be used
-// size of should be one
-// namescope should be null
 
-#endif // __SEMANTIC_PLUGTYPE_H__INCLUDEDED__
+#endif // __SEMANTIC_PLUGTYPE_H__INCLUDED__

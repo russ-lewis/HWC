@@ -4,9 +4,14 @@
 
 #include "expr.h"
 
-// Assumes the second parameter is an HWC_Expr you want to convert into
-// We do this to match convertPTstmtIntoHWCstmt
-// Is this good design? Should the functions return HWC_Expr/HWC_Stmt and take an int* as a param if required?
+/*
+Converts PT exprs into HWC exprs. What a good function name.
+
+ - *input is a pointer to the PT_expr to convert
+ - *output is a non-initialized HWC_Expr that this function will fill in
+
+Returns nothing, since all meaningful work is done upon *output
+*/
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output)
 {
 	output = malloc(sizeof(HWC_Expr));
@@ -66,8 +71,12 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output)
 }
 
 /*
-TODO: Header comment
-Retval is 0 if no errors, 1 or more oetherwise
+Ensures that the names used within the given expression are valid within the expression's namescope.
+
+ - *currExpr is the expression to check
+ - *currScope is the relevant namescope for the expr
+
+Returns 0 if no errors, >= 1 if errors to indicate how many errors.
 */
 int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 {
@@ -86,21 +95,15 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 			// TODO: Need conversion from PT to HWC before doing this.
 			printf("Checking name of subcomponent has not be implemented yet.\n");
 			break;
+		// Not a mistake, IDENT and NUM use the same code.
 		case(EXPR_IDENT):
-			currName = nameScope_search(currScope, currExpr->name);
-			// TODO: Error messages
-			if(currName == NULL)
-				retval++;
-			else if(currName->decl == NULL)
-				retval++;
-			else
-				currExpr->decl = currName->decl;
-			break;
 		case(EXPR_NUM):
 			currName = nameScope_search(currScope, currExpr->name);
 			// TODO: Error messages
+			// If the name could not be found.
 			if(currName == NULL)
 				retval++;
+			// If the name doesn't correspond to a declaration.
 			else if(currName->decl == NULL)
 				retval++;
 			else

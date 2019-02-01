@@ -1,2 +1,1 @@
-Multi-level arrays are currently not supported in HWC.
-assertion "0" failed: file "semantic/decl.c", line 28, function: convertPTdeclIntoHWCdecl
+FIXME: This testcase currently crashes due to an assert() failure.  I can't build a reliable 'expect' file until this is fixed, since the error messages produce by assert() are not predictable.

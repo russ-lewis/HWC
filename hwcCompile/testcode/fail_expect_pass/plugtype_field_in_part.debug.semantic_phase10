@@ -36,3 +36,5 @@
         <part->decls is NULL>
   name: Foo
 TODO: line 51
+
+rc=0

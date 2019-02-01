@@ -7,8 +7,14 @@
 #include "phase10.h"
 
 /*
-TODO: Header comment
-TODO: Should we remove *fileScope argument? On one hand, it isn't used. On the other, it could be useful one day and it mirrors semPhase10_part.
+Converts the given PT_plugtype_decl into the semantic's (HWC) version of Plugtypes.
+As part of this, converts all decls and stmts within the Plugtype into their HWC versions.
+
+ - parsedPlugtype is the current PT plugtype that will be converted into HWC form
+ - fileScope is the name scope for the entire file
+ NOTE: *fileScope is unused in this function, but has been kept to mirror semPhase10_part
+
+Returns a pointer to the created HWC_Plugtype.
 */
 HWC_PlugType *semPhase10_plugtype(PT_plugtype_decl *parsedPlugtype,
                                  HWC_NameScope    *fileScope)
@@ -35,8 +41,10 @@ HWC_PlugType *semPhase10_plugtype(PT_plugtype_decl *parsedPlugtype,
 
 	HWC_Decl *decl_list_head = NULL;
 	// Implementation can be found in stmts.c
-	// Creates an ordered (? Not necessary) list of decls within this part.
+	// Creates an ordered list of decls within this plugtype.
 	retval->decls_len = extractHWCdeclsFromPTstmts(parsedPlugtype->stmts, decl_list_head, retval->publicNames, NULL);
+
+	// TODO: Same question as in phase10_part
 
 	return retval;
 }

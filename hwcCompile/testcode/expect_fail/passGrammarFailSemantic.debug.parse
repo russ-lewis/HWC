@@ -20,3 +20,5 @@ File with the following decls:
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'output', with type (isMem=0)
           type: IDENT, input
+
+rc=0
