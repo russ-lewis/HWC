@@ -17,5 +17,7 @@ struct HWC_Graph
 
 
 
+HWC_Graph *HWC_Graph_build(HWC_Wiring*);
+
 #endif
 

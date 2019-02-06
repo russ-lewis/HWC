@@ -4,22 +4,24 @@ COMP=gcc -Wall -g -std=gnu99
 ROOT=..
 
 WIRING=${ROOT}/wiring
+GRAPH=${ROOT}/graph
 SIM=sim
 
 
 
 ALL_HEADERS=$(wildcard ${WIRING}/*.h ${SIM}/*.h)
 
-PARSE_SRC=sim_main.c
+MAIN_SRC=sim_main.c
 WIRE_SRC=${WIRING}/write.c ${WIRING}/lex.yy.c ${WIRING}/parser.tab.c
-SIM_SRC=${SIM}/state.c
+GRAPH_SRC=${GRAPH}/core.c
+SIM_SRC=${SIM}/state.c ${SIM}/tick.c
 
 
 
 all : hwcSim
 
-hwcSim : $(ALL_HEADERS) $(PARSE_SRC) $(WIRE_SRC) $(SIM_SRC)
-	$(COMP) -I. -I${ROOT} -o hwcSim $(PARSE_SRC) $(WIRE_SRC) $(SIM_SRC) -lm
+hwcSim : $(ALL_HEADERS) $(MAIN_SRC) $(WIRE_SRC) $(GRAPH_SRC) $(SIM_SRC)
+	$(COMP) -I. -I${ROOT} -o hwcSim $(MAIN_SRC) $(WIRE_SRC) $(GRAPH_SRC) $(SIM_SRC) -lm
 
 
 ${WIRING}/parser.tab.c ${WIRING}/parser.tab.h ${WIRING}/lex.yy.c : ${WIRING}/parser.y ${WIRING}/lexer.src 

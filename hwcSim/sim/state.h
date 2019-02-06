@@ -1,5 +1,5 @@
-#ifndef __SIM_GRAPH2_H__INCLUDED__
-#define __SIM_GRAPH2_H__INCLUDED__
+#ifndef __SIM_STATE_H__INCLUDED__
+#define __SIM_STATE_H__INCLUDED__
 
 
 #include "graph/core.h"

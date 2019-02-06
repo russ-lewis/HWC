@@ -7,6 +7,7 @@
 #include "wiring/core.h"
 #include "wiring/write.h"
 #include "sim/state.h"
+#include "sim/tick.h"
 
 
 // global, shared with the parser, through parsercommon.h
@@ -63,20 +64,25 @@ int main(int argc, char **argv)
 	if (parseRetval != 0)
 		return parseRetval;
 
-	HWC_Wiring *core = bisonParseRoot;
-	assert(core != NULL);
+	HWC_Wiring *wiring = bisonParseRoot;
+	assert(wiring != NULL);
 
 	/* dump debug state, if requested */
 	if (debug == 1)
 	{
-		wiring_write(core, stdout);
+		wiring_write(wiring, stdout);
 		return 0;
 	}
 
 
-	// HWC_Sim *sim = HWC_Sim_build(core, overlap);
+	HWC_Graph *graph = HWC_Graph_build(wiring);
+	assert(graph != NULL);
+
+	HWC_Sim_State *sim = HWC_Sim_buildState(graph);
+	assert(sim != NULL);
 
 
-	assert(0);   // TODO
+	while (1)
+		HWC_Sim_doTick(sim);
 }
 
