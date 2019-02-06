@@ -23,10 +23,11 @@
  */
 
 
-#include "sim/components.h"
+#include "graph/components.h"
 
 
 
+typedef struct HWC_Graph_OverlapRange HWC_Graph_OverlapRange;
 struct HWC_Graph_OverlapRange
 {
 	int start;  // inclusive
@@ -39,11 +40,7 @@ struct HWC_Graph_OverlapRange
 
 // returns an array which encodes the overlap range.  The last entry has a
 // terminator, which is start=end=-1, comp=NULL
-HWC_Graph_OverlapRange *HWC_Graph_buildOverlapTable_forward(HWC_Wiring *wiring)
-{
-	TODO
-}
-
+HWC_Graph_OverlapRange *HWC_Graph_buildOverlapTable_forward(HWC_Wiring *wiring);
 
 #endif
 

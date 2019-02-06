@@ -19,21 +19,32 @@ HWC_Sim_State *HWC_Sim_buildState(HWC_Graph *graph)
 	retval->numBits = graph->wiring->numBits;
 	assert(retval->numBits > 0);
 
-	retval->bits    = HWC_Sim_bitsAlloc(retval->numBits);
+	retval->bits = HWC_Sim_bitsAlloc(retval->numBits);
 	if (retval->bits == NULL)
 	{
 		free(retval);
 		return NULL;
 	}
 
-	retval->numMemBits = HWC_Sim_calcNumMemBits(graph->wiring);
-	if (retval->numMemBits == 0)
-		retval->memBits = NULL;
+	if (graph->wiring->numMemRanges == 0)
+	{
+		retval->memOffsets = NULL;
+		retval->memBits    = NULL;
+	}
 	else
 	{
-		retval->memBits = HWC_Sim_memBitsAlloc(retval->numMemBits);
+		retval->memOffsets = HWC_Sim_buildMemOffsets(graph->wiring);
+		if (retval->memOffsets == NULL)
+		{
+			free(retval->bits);
+			free(retval);
+			return NULL;
+		}
+
+		retval->memBits = HWC_Sim_memBitsAlloc(retval->memOffsets[graph->wiring->numMemRanges]);
 		if (retval->memBits == NULL)
 		{
+			free(retval->memOffsets);
 			free(retval->bits);
 			free(retval);
 			return NULL;

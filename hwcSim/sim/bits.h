@@ -4,10 +4,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 #include <assert.h>
 
 #include "wiring/core.h"
 #include "sim/runtime_errors.h"
+#include "sim/notify.h"
+#include "graph/overlapTable.h"
 
 
 
@@ -40,9 +43,18 @@ printf("FIXME: %s(): Convert to using mmap()\n", __func__);
 	return calloc(numBytes,1);
 }
 
+static inline void HWC_Sim_bitsWipe(char *buf, int numBits)
+{
+	// round up
+	int numBytes = (numBits+3)/4;
+
+printf("FIXME: %s(): Convert to using mmap()\n", __func__);
+	memset(buf, 0, numBytes);
+}
 
 
-static inline int bit_get_state(char *buf, int indx)
+
+static inline int HWC_Sim_bit_getState(char *buf, int indx)
 {
 	// there are 4 states per byte.  bit[0] in the space is the low-order
 	// two bits of the first byte.
@@ -52,64 +64,116 @@ static inline int bit_get_state(char *buf, int indx)
 
 
 
-static inline int bit_is_floating(char *buf, int indx)
+static inline int HWC_Sim_bit_isFloating(char *buf, int indx)
 {
-	return bit_get_state(buf, indx) == 0;
+	return HWC_Sim_bit_getState(buf, indx) == 0;
 }
 
-static inline int bit_is_set(char *buf, int indx)
+static inline int HWC_Sim_bit_isValid(char *buf, int indx)
 {
-	int state = bit_get_state(buf,indx);
+	int state = HWC_Sim_bit_getState(buf,indx);
 	return state == 2 || state == 3;
 }
 
-static inline int bit_range_is_set(char *buf, int indx,int len)
+static inline int HWC_Sim_bit_rangeIsValid(char *buf, int indx,int len)
 {
 	assert(len > 0);
 
 	int i;
 	for (i=0; i<len; i++)
-		if (bit_is_set(buf, indx+i) == 0)
+		if (HWC_Sim_bit_isValid(buf, indx+i) == 0)
 			return 0;
 	return 1;
 }
 
 
 
-static inline void bit_set(char *buf, int indx, int val)
+static inline int HWC_Sim_readBit(char *buf, int indx)
+{
+	int state = HWC_Sim_bit_getState(buf,indx);
+	assert((state & 0x2) == 1);   // valid bit must be set!
+
+	return state & 0x1;
+}
+
+static inline void HWC_Sim_writeBit(char *buf, int indx, int val,
+                                    HWC_Graph_OverlapRange *notify)
 {
 	assert(val == 0 || val == 1);
 	int state = 2+val;
 
-	if (bit_get_state(buf,indx) != 0)
+	if (HWC_Sim_bit_getState(buf,indx) != 0)
 	{
 		HWC_Sim_reportShortCircuit(indx);
 		return;
 	}
 
 	buf[indx/4] |= (state << (2*(indx%4)));
+
+	if (notify != NULL)
+		HWC_Sim_notify(notify, indx,1);
 }
 
-static inline void bit_set_range(char *buf, int indx,int len, unsigned long val)
+static inline void HWC_Sim_writeBitRange(char *buf, int indx,int len, unsigned long val,
+                                         HWC_Graph_OverlapRange *notify)
 {
 	assert(len > 0 && len < 8*sizeof(val));
-
 	assert((val >> len) == 0);
 
 	int i;
 	for (i=0; i<len; i++)
-		bit_set(buf, indx+i, (val >> i) & 0x1);
+		HWC_Sim_writeBit(buf, indx+i, (val >> i) & 0x1, NULL);
+
+	if (notify != NULL)
+		HWC_Sim_notify(notify, indx,len);
 }
 
 
 
-static inline int HWC_Sim_calcNumMemBits(HWC_Wiring *wiring)
+static inline void HWC_Sim_writeRawBit(char *buf, int indx, int val)
 {
-	int retval = 0;
+	assert(val == 0 || val == 1);
+
+	int byte =        indx/8;
+	int mask = (1 << (indx%8));
+
+	if (val == 0)
+		buf[byte] &= ~mask;
+	else
+		buf[byte] |=  mask;
+}
+
+static inline void HWC_Sim_writeRawBitRange(char *buf, int indx,int len, unsigned long val)
+{
+	assert(len > 0 && len < 8*sizeof(val));
+	assert((val >> len) == 0);
 
 	int i;
+	for (i=0; i<len; i++)
+		HWC_Sim_writeRawBit(buf, indx+i, (val >> i) & 0x1);
+}
+
+
+
+static inline int *HWC_Sim_buildMemOffsets(HWC_Wiring *wiring)
+{
+	assert(wiring->numMemRanges > 0);
+
+	int *retval = malloc((wiring->numMemRanges+1) * sizeof(int));
+	if (retval == NULL)
+		return NULL;
+
+	int cur = 0;
+	int i;
 	for (i=0; i<wiring->numMemRanges; i++)
-		retval += wiring->mem[i].size;
+	{
+		retval[i] = cur;
+		cur += wiring->mem[i].size;
+	}
+
+	// this is never used, except to figure out the length of the
+	// total memory set.
+	retval[wiring->numMemRanges] = cur;
 
 	return retval;
 }
@@ -121,6 +185,30 @@ static inline char *HWC_Sim_memBitsAlloc(int numBits)
 
 	// NOTE: All memory cells start as 0
 	return calloc(numBytes,1);
+}
+
+
+
+static inline void HWC_Sim_copyRawToBitSpace(char *bitSpaceBuf,
+                                             int bitSpacePos, int size,
+                                             char *rawBuf,
+                                             int rawPos,
+                                             HWC_Graph_OverlapRange *notify)
+{
+printf("FIXME: %s(): Do block-wise copying\n", __func__);
+
+	int i;
+	for (i=0; i<size; i++)
+	{
+		int rawByte = (rawPos+i)/8;
+		int rawBit  = (rawPos+i)%8;
+
+		int val = (rawBuf[rawByte] >> rawBit) & 0x1;
+		HWC_Sim_writeBit(bitSpaceBuf, bitSpacePos+i, val, NULL);
+	}
+
+	if (notify != NULL)
+		HWC_Sim_notify(notify, bitSpacePos,size);
 }
 
 

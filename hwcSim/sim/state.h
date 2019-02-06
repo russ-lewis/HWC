@@ -37,8 +37,14 @@ struct HWC_Sim_State
 	 *   - Copy from the memory space into the appropriate (read-side)
 	 *     bits.
 	 */
-	int   numMemBits;
 	char *memBits;
+
+	/* for each of the memory units in the wiring diagram, we have an
+	 * integer in this array, which gives the position, in the raw bit
+	 * array above (memBits), where we store the backing data for that
+	 * memory cell.
+	 */
+	int *memOffsets;
 
 
 

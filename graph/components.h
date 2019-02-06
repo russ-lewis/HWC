@@ -6,6 +6,11 @@
 
 
 
+// body declared in "graph/overlapTable.h"
+typedef struct HWC_Graph_OverlapRange HWC_Graph_OverlapRange;
+
+
+
 typedef struct HWC_Graph_Component HWC_Graph_Component;
 struct HWC_Graph_Component
 {
@@ -16,6 +21,7 @@ struct HWC_Graph_Component
 
 	struct {
 		int start,end;
+		HWC_Graph_OverlapRange *notifyStart;
 	} in1,in2, out;
 
 
@@ -68,10 +74,10 @@ struct HWC_Graph_Component
 
 enum HWC_Graph_ComponentType
 {
-	HWC_SIM_COMP_MEM = 1,
-	HWC_SIM_COMP_LOGIC,
-	HWC_SIM_COMP_CONN,
-	HWC_SIM_COMP_ASSERT,
+	HWC_GRAPH_COMP_MEM = 1,
+	HWC_GRAPH_COMP_LOGIC,
+	HWC_GRAPH_COMP_CONN,
+	HWC_GRAPH_COMP_ASSERT,
 };
 
 
