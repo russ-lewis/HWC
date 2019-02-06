@@ -2,7 +2,12 @@
 #define __SIM_BITS_H__INCLUDED__
 
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
+
+#include "wiring/core.h"
+#include "sim/runtime_errors.h"
 
 
 
@@ -23,6 +28,17 @@
  *     01 - RESERVED - not currently used.  In the future, will require a
  *                     lookup in a more complex data structure.
  */
+
+
+
+static inline char *HWC_Sim_bitsAlloc(int numBits)
+{
+	// round up
+	int numBytes = (numBits+3)/4;
+
+printf("FIXME: %s(): Convert to using mmap()\n", __func__);
+	return calloc(numBytes,1);
+}
 
 
 
@@ -67,11 +83,11 @@ static inline void bit_set(char *buf, int indx, int val)
 
 	if (bit_get_state(buf,indx) != 0)
 	{
-		reportShortCircuit(indx);
+		HWC_Sim_reportShortCircuit(indx);
 		return;
 	}
 
-	buf[indx/4] |= (val << (2*(indx%4)));
+	buf[indx/4] |= (state << (2*(indx%4)));
 }
 
 static inline void bit_set_range(char *buf, int indx,int len, unsigned long val)
@@ -83,6 +99,28 @@ static inline void bit_set_range(char *buf, int indx,int len, unsigned long val)
 	int i;
 	for (i=0; i<len; i++)
 		bit_set(buf, indx+i, (val >> i) & 0x1);
+}
+
+
+
+static inline int HWC_Sim_calcNumMemBits(HWC_Wiring *wiring)
+{
+	int retval = 0;
+
+	int i;
+	for (i=0; i<wiring->numMemRanges; i++)
+		retval += wiring->mem[i].size;
+
+	return retval;
+}
+
+static inline char *HWC_Sim_memBitsAlloc(int numBits)
+{
+	// round up
+	int numBytes = (numBits+7)/8;
+
+	// NOTE: All memory cells start as 0
+	return calloc(numBytes,1);
 }
 
 

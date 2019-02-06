@@ -16,7 +16,7 @@ struct HWC_Sim_State
 	int  numBits;
 
 	/* two bits for each bit in the simulation. */
-	char *bits_audit_to_make_sure_you_alloc_2x;
+	char *bits;
 
 
 	/* how many bits of memory do we need to store?  Note that we store
@@ -38,7 +38,7 @@ struct HWC_Sim_State
 	 *     bits.
 	 */
 	int   numMemBits;
-	char *memBits_audit_to_make_sure_you_alloc_1x;   // unlike the bit space, which is 2x !
+	char *memBits;
 
 
 
