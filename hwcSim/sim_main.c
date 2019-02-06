@@ -3,10 +3,10 @@
 #include <getopt.h>
 #include <assert.h>
 
-#include "parser.tab.h"
+#include "wiring/parser.tab.h"
 #include "wiring/core.h"
 #include "wiring/write.h"
-#include "sim/graph2.h"
+#include "sim/state.h"
 
 
 // global, shared with the parser, through parsercommon.h

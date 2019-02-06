@@ -2,26 +2,13 @@
 #define __SIM_GRAPH2_H__INCLUDED__
 
 
-#include <wiring/core.h>
+#include "graph/core.h"
+#include "graph/components.h"
 
 
 
-typedef struct HWC_Sim_Graph     HWC_Sim_Graph;
-typedef struct HWC_Sim_Component HWC_Sim_Component;
-
-
-struct HWC_Sim_Component
-{
-	// these are for the todo/pending lists, see the Graph struct
-	// below.
-	HWC_Sim_Component *next, *prev;
-
-
-	// TODO: more fields!
-};
-
-
-struct HWC_Sim_Graph
+typedef struct HWC_Sim_State HWC_Sim_State;
+struct HWC_Sim_State
 {
 	/* how many bits in the total simulation?  This is useful because we
 	 * want to remap the 'bits' array below, after each clock cycle.
@@ -30,6 +17,28 @@ struct HWC_Sim_Graph
 
 	/* two bits for each bit in the simulation. */
 	char *bits_audit_to_make_sure_you_alloc_2x;
+
+
+	/* how many bits of memory do we need to store?  Note that we store
+	 * these separately from the 'bit space' of the simulation because
+	 * it is difficult, at the end of a clock cycle, to know in exactly
+	 * what order to copy the 'write' bits into the 'read' bits; also,
+	 * it's difficult to determine which bits in the system need to be
+	 * reset to FLOATING (because they are non-memory) and which should
+	 * immediately be valid (because they are the read side of memory).
+	 *
+	 * So, our simplified end-of-cycle algorithm is:
+	 *   - Iterate through all memory regions; check for valid write
+	 *     operations; copy any such bits as updates into this state
+	 *     array.
+	 *   - Wipe *all* bits in the bit space to FLOATING
+	 *
+	 * Then, at the start of the *next* clock cycle, we do:
+	 *   - Copy from the memory space into the appropriate (read-side)
+	 *     bits.
+	 */
+	int   numMemBits;
+	char *memBits_audit_to_make_sure_you_alloc_1x;   // unlike the bit space, which is 2x !
 
 
 
@@ -60,7 +69,7 @@ struct HWC_Sim_Graph
 	 * will definitely do so.  However, if it is only able to write to
 	 * *part* of the output, (or, if the value that it is writing is
 	 * FLOATING), then it will "defer" itself; it makes no changes to the
-	 * bits, but will add itself to the (tail) of the deferred list.
+	 * bits, but will add itself to the (tail of) the deferred list.
 	 *
 	 * If such a component later has one of its inputs updated, it will
 	 * be removed from where it currently is, and placed on the TODO
@@ -93,31 +102,28 @@ struct HWC_Sim_Graph
 	 * "collect" all of the bits before we move the entire output to a
 	 * new location.  Thus, while the individual bits are completing
 	 * their work, the big copy operation will continually defer itself -
-	 * until the *ENTIRE* move happens, all at once.
+	 * until the *ENTIRE* move can happen, all at once.
+	 *
+	 * Besides: if the output from the component is moderately large, then
+	 * performing a partial write requires a malloc() (to allocate the
+	 * bitmask which shows which bits have been written); waiting to
+	 * post bits until all of them are ready reduces the number of such
+	 * memory allocations which are required.
 	 */
-	HWC_Sim_Component todo;
-	HWC_Sim_Component deferred;
+	HWC_Graph_Component todo;
+	HWC_Graph_Component deferred;
 
 
 
-	/* we need to know the length of the array of memory units, since they
-	 * are the start of all computation - and also because we need to copy
-	 * from the 'write' side to the 'read' side at the end of the clock
-	 * cycle.
+	/* all static information about the components is read from the graph -
+	 * or, from the wiring diagram (which we will access through the
+	 * graph).
 	 */
-	int               memoryCount;
-	HWC_Wiring_Memory *memory;
-
-	/* we do *NOT* need to know the length of these arrays, since we never
-	 * iterate through them - we simply access them from a 
-	 */
-	HWC_Wiring_Logic      *logic;
-	HWC_Wiring_Connection *connections;
-	HWC_Wiring_Assert     *asserts;
+	HWC_Graph *graph;
 };
 
 
-HWC_Sim_Graph *HWC_Sim_buildGraph(HWC_Wiring*);
+HWC_Sim_State *HWC_Sim_buildState(HWC_Graph*);
 
 
 

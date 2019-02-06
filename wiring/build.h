@@ -4,8 +4,9 @@
 
 /* WIRING (BUILD)
  *
- * This declares the types and functions necessary for main() to initiate
- * building the wiring diagram.  This is the external interface only.
+ * This declares the types and functions necessary for main() (in the
+ * compiler) to initiate building the wiring diagram.  This is the
+ * external interface only.
  */
 
 

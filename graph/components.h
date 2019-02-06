@@ -16,7 +16,14 @@ struct HWC_Graph_Component
 
 	struct {
 		int start,end;
-	} in,out1,out2;
+	} in1,in2, out;
+
+
+	/* doubly-linked list, used for the 'todo/pending' lists during
+	 * simulation.
+	 */
+	HWC_Graph_Component *prev,*next;
+
 
 	/* this stores partial-write information.  To look at this, always
 	 * first check the integer, which can take on 2 magic values:
