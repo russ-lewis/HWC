@@ -29,6 +29,7 @@ struct HWC_Part
 	int       decls_len;
 
 	// TODO: Field for sizeof Part
+	int size;
 };
 
 

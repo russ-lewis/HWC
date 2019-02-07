@@ -143,7 +143,7 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 /*
 TODO: Header comment
 */
-int checkExprName(HWC_Expr *currExpr)
+int findExprSize(HWC_Expr *currExpr)
 {
 	int retval = 0;
 

@@ -225,7 +225,7 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 /*
 TODO: Add header comment
 */
-int findStmtSize(HWC_Stmt *input)
+int findStmtSize(HWC_Stmt *currStmt)
 {
 	int retval = 0;
 

@@ -41,7 +41,7 @@ int semPhase30_part(HWC_Part *part)
 	{
 		currDecl = part->decls[i];
 		// 0 as an argument because we are within a part
-		int size = findDeclSize(currDecl, 0);
+		int size = findDeclSize(&currDecl, 0);
 		// TODO: Is a size of zero valid? No, I would think. Make it a special error value?
 		if(size <= 0)
 		{
@@ -50,7 +50,7 @@ int semPhase30_part(HWC_Part *part)
 		}
 		else
 		{
-			currDecl->index = currIndex;
+			currDecl.index = currIndex;
 			currIndex += size;
 		}
 	}
@@ -61,7 +61,7 @@ int semPhase30_part(HWC_Part *part)
 	{
 		currStmt = part->stmts[i];
 		// 0 as an argument because we are within a part
-		int size = findDeclSize(currStmt, 0);
+		int size = findStmtSize(&currStmt);
 		// TODO: Is a size of zero valid? Yes, I would think, for statements. Think about this more.
 		if(size < 0)
 		{
@@ -70,7 +70,7 @@ int semPhase30_part(HWC_Part *part)
 		}
 		else
 		{
-			currStmt->index = currIndex;
+			//currStmt.index = currIndex;
 			currIndex += size;
 		}
 	}

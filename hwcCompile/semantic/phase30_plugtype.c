@@ -45,7 +45,7 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 	{
 		currDecl = plugtype->decls[i];
 		// 1 as an argument because we are within a plugtype
-		int size = findDeclSize(currDecl, 1);
+		int size = findDeclSize(&currDecl, 1);
 		// TODO: Is a size of zero valid? No, I would think. Make it a special error value?
 		if(size <= 0)
 		{

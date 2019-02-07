@@ -148,4 +148,6 @@ int findDeclSize(HWC_Decl *input, int isWithinPlug)
 		// TODO: Error message
 		// Likely a compiler error than a user error, since these fields should have been filled in phase20
 	}
+
+	return -1;
 }
