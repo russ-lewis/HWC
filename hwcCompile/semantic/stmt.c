@@ -220,3 +220,50 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 
 	return retval;
 }
+
+
+/*
+TODO: Add header comment
+*/
+int findStmtSize(HWC_Stmt *input)
+{
+	int retval = 0;
+
+	switch(currStmt->mode)
+	{
+		default:
+			assert(0); // TODO: Potentially better error message?
+			break;
+		case STMT_DECL:
+			// NOP, but keeping case here for symmetry
+			break;
+		case STMT_BLOCK:
+			retval += findStmtSize(currStmt->stmtA);
+			break;
+		case STMT_CONN:
+			retval += findExprSize(currStmt->exprA);
+			retval += findExprSize(currStmt->exprB);
+			break;
+		case STMT_FOR:
+		// TODO: Since FOR initializes a variable, should we add that to size?
+			retval += findExprSize(currStmt->exprA);
+			retval += findExprSize(currStmt->exprB);
+
+			retval += findStmtSize(currStmt->stmtA);
+			break;
+		case STMT_IF:
+			retval += findExprSize(currStmt->exprA);
+
+			retval += findStmtSize(currStmt->stmtA);
+			retval += findStmtSize(currStmt->stmtB);
+			break;
+		case STMT_ELSE:
+			retval += findStmtSize(currStmt->stmtA);
+			break;
+		case STMT_ASRT:
+			retval += findExprSize(currStmt->exprA);
+			break;
+	}
+
+	return retval;
+}

@@ -138,3 +138,63 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 
 	return retval;
 }
+
+
+/*
+TODO: Header comment
+*/
+int checkExprName(HWC_Expr *currExpr)
+{
+	int retval = 0;
+
+	// For EXPR_NOT, BITNOT, and TWOOP we add 1 bit for output of condition
+	switch(currExpr->mode)
+	{
+		default:
+			break;
+		case(EXPR_PLUG):
+			// TODO: Need conversion from PT to HWC before doing this.
+			printf("Checking name of plug has not be implemented yet.\n");
+			break;
+		case(EXPR_SUBCOMPONENT):
+			// TODO: Need conversion from PT to HWC before doing this.
+			printf("Checking name of subcomponent has not be implemented yet.\n");
+			break;
+		case(EXPR_IDENT):
+			retval = 0;
+			break;
+		case(EXPR_NUM):
+			retval = 0;
+			break;
+		case(EXPR_BOOL):
+			retval = 0;
+			break;
+		case(EXPR_TWOOP):
+			// TODO: Anything to do with "currExpr->value" here?
+			retval += 1;
+			retval += findExprSize(currExpr->exprA);
+			retval += findExprSize(currExpr->exprB);
+			break;
+		case(EXPR_BITNOT):
+			retval += 1;
+			retval += findExprSize(currExpr->exprA);
+			break;
+		case(EXPR_NOT):
+			retval += 1;
+			retval += findExprSize(currExpr->exprA);
+			break;
+		case(EXPR_DOT):
+			retval += findExprSize(currExpr->exprA);
+			retval += findExprSize(currExpr->exprB);
+			break;
+		case(EXPR_ARR):
+			retval += findExprSize(currExpr->exprA);
+			retval += findExprSize(currExpr->exprB);
+			break;
+		case(EXPR_PAREN):
+			retval += findExprSize(currExpr->exprA);
+			break;
+	}
+
+	return retval;
+}

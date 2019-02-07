@@ -44,12 +44,13 @@ struct HWC_Expr
 	HWC_Expr *exprA, *exprB;
 
 	// Offset into current Part
-	// For EXPR_NOT, BITNOT, and TWOOP add 1 bit for output of condition
-	int offset;
+	// For EXPR_NOT, BITNOT, and TWOOP we add 1 bit for output of condition
+	int index;
 };
 
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output);
 int checkExprName(HWC_Expr *, HWC_NameScope *);
+int findExprSize(HWC_Expr *);
 
 #endif
 

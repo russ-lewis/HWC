@@ -7,24 +7,24 @@
 
 int semPhase30_plugtype(HWC_PlugType *plugtype)
 {
-	if (part->phases_completed >= 30)
+	if (plugtype->phases_completed >= 30)
 		return 0;
 
 	// Recursive definition
-	if (part->phases_begun >= 30)
+	if (plugtype->phases_begun >= 30)
 	{
 		/* report user error */
 		assert(0);
 	}
 
-	if (part->phases_completed < 20)
+	if (plugtype->phases_completed < 20)
 	{
-		int rc = semPhase20_part(part);
+		int rc = semPhase20_plugtype(plugtype);
 		if (rc != 0)
 			return rc;
 	}
 
-	if (part->phases_completed >= 30)
+	if (plugtype->phases_completed >= 30)
 		return 0;
 
 	// TODO: Will bits necessarily go through the sem phases?
@@ -37,10 +37,10 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 
 	int retval = 0;
 
-	HWC_Decl currDecl;
+	int i;
 	int currIndex = 0;
 
-	int i;
+	HWC_Decl currDecl;
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
 		currDecl = plugtype->decls[i];
