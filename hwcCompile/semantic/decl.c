@@ -115,3 +115,37 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 	}
 	return 0;
 }
+
+
+/*
+TODO: Add header comment
+Include that, by this point, we know either base_part or base_plugType should be filled in
+   - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
+*/
+int findDeclSize(HWC_Decl *input, int isWithinPlug)
+{
+	if(input->base_plugType != NULL)
+	{
+		// TODO: Fix inconsistent capitalization
+		semPhase30_plugtype(input->base_plugType);
+		return input->base_plugType->size;
+	}
+	else if(input->base_part != NULL)
+	{
+		if(isWithinPlug == 1)
+		{
+			// TODO: Error message
+			// Plugtypes cannot contain parts
+		}
+		else
+		{
+			semPhase30_part(input->base_part);
+			return input->base_part->size;
+		}
+	}
+	else
+	{
+		// TODO: Error message
+		// Likely a compiler error than a user error, since these fields should have been filled in phase20
+	}
+}

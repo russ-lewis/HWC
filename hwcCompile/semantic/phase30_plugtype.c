@@ -27,23 +27,41 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 	if (part->phases_completed >= 30)
 		return 0;
 
+	// TODO: Will bits necessarily go through the sem phases?
+	// TODO: Is publicNames a good way to check if a plugtype is a bit?
+	//   Note: We do explicitly state this in plugtype.h, so maybe it is.
+	// This checks if our plugtype is a bit (ie, it BitType)
+	if(plugtype->publicNames == NULL)
+		return 0;
+
 
 	int retval = 0;
 
 	HWC_Decl currDecl;
+	int currIndex = 0;
+
 	int i;
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
 		currDecl = plugtype->decls[i];
-		retval = checkDeclName(&currDecl, plugtype->publicNames, 1);
-		if(retval != 0)
+		// 1 as an argument because we are within a plugtype
+		int size = findDeclSize(currDecl, 1);
+		// TODO: Is a size of zero valid? No, I would think. Make it a special error value?
+		if(size <= 0)
 		{
-			// TODO: Error message for when not found in namescope
-
+			// TODO: Error message for I dunno. Recursive definitions?
+			retval++;
+		}
+		else
+		{
+			currDecl->index = currIndex;
+			currIndex += size;
 		}
 	}
 
-	assert(0);   // TODO
+	// TODO: Is this clever, or stupid?
+	// ie, the size of something is the index at which we've stopped inserting things
+	plugtype->size = currIndex;
 
 	// TODO: Returns number of errors found. Good idea?
 	return retval;
