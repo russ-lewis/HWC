@@ -33,13 +33,6 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 		assert(0);
 	}
 
-	/* do we need to do the previous phases first? */
-	if (plugtype->phases_completed < 20)
-	{
-		int rc = semPhase20_plugtype(plugtype);
-		if (rc != 0)
-			return rc;
-	}
 
 	/* maybe, when we did the call above, we completed this phase
 	 * already?
