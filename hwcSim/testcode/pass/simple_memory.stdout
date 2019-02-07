@@ -1,63 +1,42 @@
 FIXME: Build the overlap table(s)  HWC_Graph_build() at ../graph/core.c:22
 FIXME: we do not currently populate the 'notifyStart' fields for input ranges.  HWC_Graph_build() : ../graph/core.c:250
-FIXME: HWC_Sim_bitsAlloc(): Convert to using mmap()
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=1
+mem changed: element=0 bit=0: val=1
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=0
+mem changed: element=0 bit=0: val=0
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=1
+mem changed: element=0 bit=0: val=1
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=0
+mem changed: element=0 bit=0: val=0
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=1
+mem changed: element=0 bit=0: val=1
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=0
+mem changed: element=0 bit=0: val=0
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=1
+mem changed: element=0 bit=0: val=1
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=0
+mem changed: element=0 bit=0: val=0
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=1
+mem changed: element=0 bit=0: val=1
 
 ...end of tick...
 
-FIXME: HWC_Sim_bitsWipe(): Convert to using mmap()
-FIXME: HWC_Sim_copyRawToBitSpace(): Do block-wise copying
-mem: i=0 j=0: val=0
+mem changed: element=0 bit=0: val=0
 
 ...end of tick...
 
