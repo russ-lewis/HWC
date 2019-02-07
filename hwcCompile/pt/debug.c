@@ -312,6 +312,33 @@ void dump_pt_expr(PT_expr *obj, int spaces)
 			dump_pt_expr(obj->indexExpr, spaces+2);
 			break;
 
+		case EXPR_ARR_SLICE:
+			printf("Expr: ARR_SLICE, into array expr\n");
+			dump_pt_expr(obj->arrayExpr, spaces+2);
+			dump_helper(spaces);
+			printf(" lower bound\n");
+
+			if (obj->indexExpr1 == NULL)
+			{
+				dump_helper(spaces+2);
+				printf("-- none --\n");
+			}
+			else
+				dump_pt_expr(obj->indexExpr1, spaces+2);
+
+			dump_helper(spaces);
+			printf(" upper bound\n");
+
+			if (obj->indexExpr2 == NULL)
+			{
+				dump_helper(spaces+2);
+				printf("-- none --\n");
+			}
+			else
+				dump_pt_expr(obj->indexExpr2, spaces+2);
+
+			break;
+
 		case EXPR_PAREN:
 			printf("EXPR: PAREN, with expr of\n");
 			dump_pt_expr(obj->paren, spaces+2);

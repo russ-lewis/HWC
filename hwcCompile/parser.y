@@ -443,6 +443,21 @@ expr4:
 		                        $$->mode      = EXPR_ARR;
 		                        $$->arrayExpr = $1;
 		                        $$->indexExpr = $3; }
+	|	expr4 '[' expr2 ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                                   $$->mode       = EXPR_ARR_SLICE;
+		                                   $$->arrayExpr  = $1;
+		                                   $$->indexExpr1 = $3;
+		                                   $$->indexExpr2 = $5; }
+	|	expr4 '['       ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                                   $$->mode       = EXPR_ARR_SLICE;
+		                                   $$->arrayExpr  = $1;
+		                                   $$->indexExpr1 = NULL;
+		                                   $$->indexExpr2 = $4; }
+	|	expr4 '[' expr2 ".."       ']'   { $$ = malloc(sizeof(PT_expr));
+		                                   $$->mode       = EXPR_ARR_SLICE;
+		                                   $$->arrayExpr  = $1;
+		                                   $$->indexExpr1 = $3;
+		                                   $$->indexExpr2 = NULL; }
 ;
 
 expr5:

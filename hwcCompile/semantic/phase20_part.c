@@ -30,13 +30,6 @@ int semPhase20_part(HWC_Part *part)
 		assert(0);
 	}
 
-	/* do we need to do the previous phases first? */
-	if (part->phases_completed < 20)
-	{
-		int rc = semPhase20_part(part);
-		if (rc != 0)
-			return rc;
-	}
 
 	/* maybe, when we did the call above, we completed this phase
 	 * already?

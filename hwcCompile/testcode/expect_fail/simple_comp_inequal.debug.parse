@@ -43,3 +43,5 @@ File with the following decls:
         stmt: CONNECTION, with left and right exprs:
           Expr: IDENT, name = b
           Expr: NUM, value of 1
+
+rc=0

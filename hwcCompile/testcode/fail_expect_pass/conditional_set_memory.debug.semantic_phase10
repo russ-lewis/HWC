@@ -67,3 +67,5 @@ TODO: How to account for decls within IF stmts?
         <part->decls is NULL>
       [4]
         <part->decls is NULL>
+
+rc=0

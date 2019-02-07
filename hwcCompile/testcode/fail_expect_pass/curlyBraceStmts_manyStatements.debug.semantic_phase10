@@ -63,3 +63,5 @@
         <part->decls is NULL>
       [4]
         <part->decls is NULL>
+
+rc=0

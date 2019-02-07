@@ -10,20 +10,16 @@
 
 static void print_debug(FILE *fp, char *debug);
 
-int wiring_write(HWC_Wiring *core, char *filename)
+int wiring_write(HWC_Wiring *core, FILE *fp)
 {
-	int i;
-
-	if (filename == NULL)
-		filename = "out.wire";
-
-	FILE *fp = fopen(filename, "w");
 	if (fp == NULL)
 	{
-		perror("Could not open the file to write the wiring diagram");
+		fprintf(stderr, "ERROR: %s: The fp was NULL!\n", __func__);
 		return 1;
 	}
 
+
+	int i;
 
 	/* a little header, to make things obvious for a user.  It also
 	 * supposes that we might, in the future, be well-known enough to

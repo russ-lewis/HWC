@@ -1,0 +1,163 @@
+#! /bin/bash
+
+
+if [[ ! -f .run_tests.rc ]]
+then
+  echo "ERROR: The file .run_tests.rc is not present in the current directory.  Please add it and execute this tool again!" 1>&2
+  exit 99
+fi
+
+. ./.run_tests.rc
+
+if [[ ! -x ./$HWC_BIN ]]
+then
+  echo "ERROR: The HWC binary, $HWC_BIN, is not present or is not executable." 1>&2
+  exit 98
+fi
+
+
+
+if [[ $* == "" ]]
+then
+  search=testcode/
+else
+  search=$*
+fi
+
+
+
+attempted=0
+passed=0
+
+for TESTCASE in $(find $search -name *.debug.* 2>/dev/null | grep -v test_out | grep -v FAIL)
+do
+  attempted=$((attempted+1))
+
+  phase=$(echo $TESTCASE | rev | cut -f1 -d'.' | rev)
+  base=$(echo $TESTCASE | rev | cut -f3- -d'.' | rev)
+
+  rm $base.debug.$phase.* 2>/dev/null
+
+  {
+    ./$HWC_BIN --debug=$phase < $base.$HWC_SUFFIX
+    rc=$?
+
+    echo
+    echo rc=$rc
+  } > $base.debug.$phase.test_out 2>&1
+
+  if [[ $HWC_OUTPUT_SUFFIX != "" && -f $base.$HWC_OUTPUT_SUFFIX ]]
+  then
+    echo "Testcase $TESTCASE failed: the .$HWC_OUTPUT_SUFFIX file was created."
+    mv $base.debug.$phase.test_out $base.debug.$phase.FAIL
+    mv $base.$HWC_OUTPUT_SUFFIX    $base.debug.$phase.FAIL_$HWC_OUTPUT_SUFFIX
+    continue
+  fi
+
+  if [[ $(diff $base.debug.$phase $base.debug.$phase.test_out) != "" ]]
+  then
+    echo "Testcase $TESTCASE failed."
+      #diff $base.debug.$phase $base.debug.$phase.test_out 1>&2
+
+    mv $base.debug.$phase.test_out $base.debug.$phase.FAIL
+    continue
+  fi
+
+  rm $base.debug.$phase.test_out
+
+  passed=$((passed+1))
+done
+
+
+
+for TESTCASE in $(find $search -name *.expect_fail 2>/dev/null | grep -v test_out | grep -v FAIL)
+do
+  attempted=$((attempted+1))
+
+  base=$(echo $TESTCASE | rev | cut -f2- -d'.' | rev)
+
+  rm $base.expect_fail.* 2>/dev/null
+
+  {
+    ./$HWC_BIN < $base.$HWC_SUFFIX
+    rc=$?
+
+    echo
+    echo rc=$?
+  } > $base.expect_fail.test_out 2>&1
+
+  if [[ $HWC_OUTPUT_SUFFIX != "" && -f $base.$HWC_OUTPUT_SUFFIX ]]
+  then
+    echo "Testcase $TESTCASE failed: the .$HWC_OUTPUT_SUFFIX file was created."
+    mv $base.expect_fail.test_out $base.expect_fail.FAIL
+    mv $base.$HWC_OUTPUT_SUFFIX   $base.expect_fail.FAIL_$HWC_OUTPUT_SUFFIX
+    continue
+  fi
+
+  if [[ $(diff $base.expect_fail $base.expect_fail.test_out) != "" ]]
+  then
+    echo "Testcase $TESTCASE failed."
+      #diff $base.expect_fail $base.expect_fail.test_out 1>&2
+
+    mv $base.expect_fail.test_out $base.expect_fail.FAIL
+    continue
+  fi
+
+  rm $base.expect_fail.*
+
+  passed=$((passed+1))
+done
+
+
+
+for TESTCASE in $(find $search -name *.stdout 2>/dev/null | grep -v test_out | grep -v FAIL)
+do
+  attempted=$((attempted+1))
+
+  base=$(echo $TESTCASE | rev | cut -f2- -d'.' | rev)
+
+  rm $base.stdout.* 2>/dev/null
+
+  {
+    ./$HWC_BIN < $base.$HWC_SUFFIX
+    rc=$?
+
+    echo
+    echo rc=$?
+  } > $base.stdout.test_out 2>&1
+
+  if [[ $HWC_OUTPUT_SUFFIX != "" && -f $base.$HWC_OUTPUT_SUFFIX ]]
+  then
+    echo "Testcase $TESTCASE failed: the .$HWC_OUTPUT_SUFFIX file was created."
+    mv $base.stdout.test_out    $base.stdout.FAIL
+    mv $base.$HWC_OUTPUT_SUFFIX $base.stdout.FAIL_$HWC_OUTPUT_SUFFIX
+    continue
+  fi
+
+  if [[ $(diff $base.stdout $base.stdout.test_out) != "" ]]
+  then
+    echo "Testcase $TESTCASE failed."
+      #diff $base.expect_fail $base.expect_fail.test_out 1>&2
+
+    mv $base.stdout.test_out $base.stdout.FAIL
+    continue
+  fi
+
+  rm $base.stdout.*
+
+  passed=$((passed+1))
+done
+
+
+
+if [[ $attempted = 0 ]]
+then
+  echo "ERROR: No testcases found!  Please check your search parameters!" 1>&2
+  echo "       Current Search: $search" 1>&2
+  exit 1
+fi
+
+echo
+echo "$0: Testing completed. $attempted testcases attempted, $passed passed, $((passed*100/attempted))%"
+
+

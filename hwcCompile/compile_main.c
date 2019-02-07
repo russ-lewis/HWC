@@ -6,6 +6,8 @@
 #include "parser.tab.h"
 #include "pt/all.h"
 #include "semantic/phase10.h"
+#include "semantic/phase20.h"
+#include "semantic/phase30.h"
 #include "semantic/phase40.h"
 #include "wiring/build.h"
 #include "wiring/write.h"
@@ -50,14 +52,24 @@ int main(int argc, char **argv)
 				debug = 2;
 				break;     // do *NOT* fallthrough
 			}
-			if (strcmp(optarg, "semantic_phase40") == 0)
+			if (strcmp(optarg, "semantic_phase20") == 0)
 			{
 				debug = 3;
 				break;     // do *NOT* fallthrough
 			}
+			if (strcmp(optarg, "semantic_phase30") == 0)
+			{
+				debug = 4;
+				break;     // do *NOT* fallthrough
+			}
+			if (strcmp(optarg, "semantic_phase40") == 0)
+			{
+				debug = 5;
+				break;     // do *NOT* fallthrough
+			}
 			else
 			{
-				fprintf(stderr, "ERROR: The only supported debug modes are 'parse', 'semantic_phase10', 'semantic_phase40'\n");
+				fprintf(stderr, "ERROR: The only supported debug modes are 'parse', 'semantic_phase10', 'semantic_phase20', 'semantic_phase30', 'semantic_phase40'\n");
 				// intentional fallthrough
 			}
 
@@ -138,18 +150,44 @@ int main(int argc, char **argv)
 		assert((cur->thing->part     != NULL) !=
 		       (cur->thing->plugtype != NULL));
 
-		if (cur->thing->part != NULL)
-			semPhase40_part(cur->thing->part);
+		if (debug == 3)
+		{
+			if (cur->thing->part != NULL)
+				semPhase20_part(cur->thing->part);
+			else
+				semPhase20_plugtype(cur->thing->plugtype);
+		}
+		else if (debug == 4)
+		{
+assert(0);   // phase 30 doesn't exist yet
+#if 0
+			if (cur->thing->part != NULL)
+				semPhase30_part(cur->thing->part);
+			else
+				semPhase30_plugtype(cur->thing->plugtype);
+#endif
+		}
 		else
-			semPhase40_plugtype(cur->thing->plugtype);
+		{
+			if (cur->thing->part != NULL)
+				semPhase40_part(cur->thing->part);
+			else
+				semPhase40_plugtype(cur->thing->plugtype);
+		}
 
 		cur = cur->next;
 	}
 
 	/* shall we "stop and dump state" for the semantic phase? */
-	if (debug == 3)
+	if (debug == 3 || debug == 4 || debug == 5)
 	{
-		printf("---- DEBUG: DUMPING SEMANTIC (after phase 40) ----\n");
+		if (debug == 3)
+			printf("---- DEBUG: DUMPING SEMANTIC (after phase 20) ----\n");
+		if (debug == 4)
+			printf("---- DEBUG: DUMPING SEMANTIC (after phase 30) ----\n");
+		if (debug == 5)
+			printf("---- DEBUG: DUMPING SEMANTIC (after phase 40) ----\n");
+
 		nameScope_dump(fileScope, 0);
 		return 0;
 	}
@@ -172,6 +210,9 @@ int main(int argc, char **argv)
 		return 1;   // the wiring generator must have already printed an error message
 
 
-	return wiring_write(wiring, outfile);
+	FILE *out = fopen(outfile, "w");
+	int rc = wiring_write(wiring, out);
+	fclose(out);
+	return rc;
 }
 

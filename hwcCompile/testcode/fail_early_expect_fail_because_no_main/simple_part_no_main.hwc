@@ -1,0 +1,6 @@
+part testPart {
+	public bit input;
+	public bit output;
+
+	output = input;
+}
