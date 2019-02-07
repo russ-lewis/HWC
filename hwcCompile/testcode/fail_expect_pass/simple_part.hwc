@@ -7,11 +7,11 @@ part testPart {
 
 
 part main {
-	testPart a;
+	subpart testPart a;
 	  a.input = 0;
 	  assert(a.output == 0);
 
-	testPart b;
+	subpart testPart b;
 	  b.input = 1;
 	  assert(b.output == 1);
 }

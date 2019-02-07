@@ -29,7 +29,7 @@ fi
 attempted=0
 passed=0
 
-for TESTCASE in $(find $search -name *.debug.* | grep -v test_out | grep -v FAIL)
+for TESTCASE in $(find $search -name *.debug.* 2>/dev/null | grep -v test_out | grep -v FAIL)
 do
   attempted=$((attempted+1))
 
@@ -70,7 +70,7 @@ done
 
 
 
-for TESTCASE in $(find $search -name *.expect_fail | grep -v test_out | grep -v FAIL)
+for TESTCASE in $(find $search -name *.expect_fail 2>/dev/null | grep -v test_out | grep -v FAIL)
 do
   attempted=$((attempted+1))
 
@@ -110,7 +110,7 @@ done
 
 
 
-for TESTCASE in $(find $search -name *.stdout | grep -v test_out | grep -v FAIL)
+for TESTCASE in $(find $search -name *.stdout 2>/dev/null | grep -v test_out | grep -v FAIL)
 do
   attempted=$((attempted+1))
 

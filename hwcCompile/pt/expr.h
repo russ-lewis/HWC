@@ -14,6 +14,7 @@ enum {
 	EXPR_NOT,
 	EXPR_DOT,
 	EXPR_ARR,
+	EXPR_ARR_SLICE,
 	EXPR_PAREN,
 
 	EXPR__LAST_PARSER_MODE,
@@ -65,9 +66,11 @@ struct PT_expr
 	PT_expr *dotExpr;
 	PT_expr *field;
 
-	/* EXPR_ARR */
+	/* EXPR_ARR, EXPR_ARR_SLICE */
 	PT_expr *arrayExpr;
-	PT_expr *indexExpr;
+	PT_expr *indexExpr;    // simple array index
+	PT_expr *indexExpr1;   // lower slice bounds, could be NULL
+	PT_expr *indexExpr2;   // upper slice bounds, could be NULL
 
 	/* EXPR_PAREN */
 	PT_expr *paren;
