@@ -39,7 +39,27 @@ static inline char *HWC_Sim_bitsAlloc(int numBits)
 	// round up
 	int numBytes = (numBits+3)/4;
 
-printf("FIXME: %s(): Convert to using mmap()\n", __func__);
+	// TODO: I'd like to allocate using mmap().  But while that works
+	//       just fine for this call, it doesn't work for the next
+	//       function (bitsWipe()) because (as far as I can tell)
+	//       MAP_FIXED doesn't work under Cygwin.
+#if 0
+	// round up to number of pages
+	int pageSz = getpagesize();
+	int pageBytes = (numBytes+pageSz-1) & ~(pageSz-1);
+
+	char *retval = mmap(NULL,
+	                    pageBytes,
+	                    PROT_READ | PROT_WRITE,
+	                    MAP_ANONYMOUS | MAP_PRIVATE,
+	                    0,0);
+
+	if (retval == MAP_FAILED)
+		return NULL;
+	else
+		return retval;
+#endif
+
 	return calloc(numBytes,1);
 }
 
@@ -48,7 +68,23 @@ static inline void HWC_Sim_bitsWipe(char *buf, int numBits)
 	// round up
 	int numBytes = (numBits+3)/4;
 
-printf("FIXME: %s(): Convert to using mmap()\n", __func__);
+#if 0
+	int pageSz = getpagesize();
+	int pageBytes = (numBytes+pageSz-1) & ~(pageSz-1);
+
+	// almost the same as bitsAlloc...but re-allocating in place
+	char *retval = mmap(buf,
+	                    pageBytes,
+	                    PROT_READ | PROT_WRITE,
+	                    MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED,
+	                    0,0);
+
+	// theoretically, that mmap() call can fail.  In practice, it
+	// won't.  I guess.  So I'll hack in an assert() to enforce my
+	// only partially-justifiable assumption.
+	assert(retval == buf);
+#endif
+
 	memset(buf, 0, numBytes);
 }
 
@@ -226,7 +262,11 @@ static inline void HWC_Sim_copyRawToBitSpace(char *bitSpaceBuf,
                                              int rawPos,
                                              HWC_Graph_OverlapRange *notify)
 {
-printf("FIXME: %s(): Do block-wise copying\n", __func__);
+	// TODO: make more efficient by reading/writing multiple bits at
+	//       once.  But, since there's no reason to assume that the
+	//       ranges have any association at all in how they're aligned,
+	//       any block strategy we choose will probably be misalgned
+	//       in one or the other system.  (sigh)
 
 	int i;
 	for (i=0; i<size; i++)

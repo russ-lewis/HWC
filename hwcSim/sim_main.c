@@ -95,7 +95,16 @@ int main(int argc, char **argv)
 	sim_global = sim;
 
 
-	while (1)
+	int limit = 10;   // eventually, this will be a command-line param
+
+	int count = 0;
+	while (count < limit)
+	{
 		HWC_Sim_doTick(sim);
+		count++;
+	}
+
+	printf("SIMULATION TERMINATED.  sim ran for %d ticks.\n", count);
+	return 0;
 }
 

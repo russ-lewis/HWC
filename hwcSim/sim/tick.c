@@ -73,7 +73,7 @@ void HWC_Sim_doTick(HWC_Sim_State *sim)
 				                    save_pos+j,
 				                    val);
 
-				printf("mem: i=%d j=%d: val=%d\n", i,j, val);
+				printf("mem changed: element=%d bit=%d: val=%d\n", i,j, val);
 			}
 	}
 
