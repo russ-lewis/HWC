@@ -1,9 +1,9 @@
 #include "decl.h"
 
-
 #include <stdio.h>
 #include <malloc.h>
 #include <assert.h>
+#include "part.h"
 
 /*
 Converts PT decls into HWC decls. What a good function name.

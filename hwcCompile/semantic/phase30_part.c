@@ -3,7 +3,8 @@
 
 #include "semantic/phase20.h"
 #include "semantic/phase30.h"
-
+#include "part.h"
+#include "stmt.h"
 
 // Return number of errors
 // MAKE SURE RETVAL OF PHASE 20 AND 30 ARE ZERO

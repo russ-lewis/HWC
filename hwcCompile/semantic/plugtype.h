@@ -27,7 +27,6 @@ struct HWC_PlugType
 	HWC_Decl *decls;
 	int       decls_len;
 
-	// TODO: Field for sizeof Part
 	int size;
 };
 

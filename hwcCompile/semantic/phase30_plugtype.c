@@ -4,7 +4,6 @@
 #include "semantic/phase20.h"
 #include "semantic/phase30.h"
 
-
 int semPhase30_plugtype(HWC_PlugType *plugtype)
 {
 	if (plugtype->phases_completed >= 30)
@@ -54,7 +53,7 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 		}
 		else
 		{
-			currDecl->index = currIndex;
+			currDecl.index = currIndex;
 			currIndex += size;
 		}
 	}

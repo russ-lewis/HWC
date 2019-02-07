@@ -3,8 +3,11 @@
 
 
 #include "names.h"
-#include "stmt.h"
-#include "decl.h"
+//#include "stmt.h"
+//#include "decl.h"
+
+typedef struct HWC_Stmt HWC_Stmt;
+typedef struct HWC_Decl HWC_Decl;
 
 typedef struct HWC_Part HWC_Part;
 struct HWC_Part
@@ -28,7 +31,7 @@ struct HWC_Part
 	HWC_Decl *decls;
 	int       decls_len;
 
-	// TODO: Field for sizeof Part
+
 	int size;
 };
 

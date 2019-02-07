@@ -3,6 +3,7 @@
 
 #include "phase20.h"
 
+#include "stmt.h"
 
 /*
 Performs phase 20 on the given part.
