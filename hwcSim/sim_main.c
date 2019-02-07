@@ -15,16 +15,24 @@ HWC_Wiring *bisonParseRoot;
 
 
 
+// HACK!  Get rid of this global!
+HWC_Sim_State *sim_global;
+
+
+
 int main(int argc, char **argv)
 {
+#if 0
 	char *outfile = NULL;
+#endif
+
 	int debug = 0;   // if nonzero, is the place to "stop and dump state"
 
 
 	/* example code: https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Options.html#Getopt-Long-Options */
 
 	struct option options[] = {
-            { "o",     required_argument, NULL, 'o' },
+//            { "o",     required_argument, NULL, 'o' },
             { "debug", required_argument, NULL, 'd' },
             { 0,0,0,0 }
 	};
@@ -34,9 +42,11 @@ int main(int argc, char **argv)
 	{
 		switch (opt)
 		{
+#if 0
 		case 'o':
 			outfile = optarg;
 			break;
+#endif
 
 		case 'd':
 			if (strcmp(optarg, "parse") == 0)
@@ -51,7 +61,8 @@ int main(int argc, char **argv)
 			}
 
 		case '?':
-			fprintf(stderr, "SYNTAX: %s [--debug=MODE] [-o <outfile>]\n", argv[0]);
+			// fprintf(stderr, "SYNTAX: %s [--debug=MODE] [-o <outfile>]\n", argv[0]);
+			fprintf(stderr, "SYNTAX: %s [--debug=MODE]\n", argv[0]);
 			fprintf(stderr, "  debug MODEs:\n");
 			fprintf(stderr, "    parse\n");
 			return 1;
@@ -80,6 +91,8 @@ int main(int argc, char **argv)
 
 	HWC_Sim_State *sim = HWC_Sim_buildState(graph);
 	assert(sim != NULL);
+
+	sim_global = sim;
 
 
 	while (1)

@@ -91,7 +91,7 @@ static inline int HWC_Sim_bit_rangeIsValid(char *buf, int indx,int len)
 static inline int HWC_Sim_readBit(char *buf, int indx)
 {
 	int state = HWC_Sim_bit_getState(buf,indx);
-	assert((state & 0x2) == 1);   // valid bit must be set!
+	assert((state & 0x2) == 2);   // valid bit must be set!
 
 	return state & 0x1;
 }
@@ -114,6 +114,21 @@ static inline void HWC_Sim_writeBit(char *buf, int indx, int val,
 		HWC_Sim_notify(notify, indx,1);
 }
 
+static inline unsigned long HWC_Sim_readBitRange(char *buf, int indx,int len)
+{
+	assert(len <= 8*sizeof(unsigned long));
+	unsigned long retval = 0;
+
+	int i;
+	for (i=0; i<len; i++)
+	{
+		int bit = HWC_Sim_readBit(buf, indx+i);
+		retval |= (bit << i);
+	}
+
+	return retval;
+}
+
 static inline void HWC_Sim_writeBitRange(char *buf, int indx,int len, unsigned long val,
                                          HWC_Graph_OverlapRange *notify)
 {
@@ -126,6 +141,22 @@ static inline void HWC_Sim_writeBitRange(char *buf, int indx,int len, unsigned l
 
 	if (notify != NULL)
 		HWC_Sim_notify(notify, indx,len);
+}
+
+static inline void HWC_Sim_copyBitRange(char *buf, int dst,int src, int len,
+                                        HWC_Graph_OverlapRange *notify)
+{
+	assert(len > 0);
+
+	int i;
+	for (i=0; i<len; i++)
+	{
+		int val = HWC_Sim_readBit(buf, src+i);
+		HWC_Sim_writeBit(buf, dst+i, val, NULL);
+	}
+
+	if (notify != NULL)
+		HWC_Sim_notify(notify, dst,len);
 }
 
 

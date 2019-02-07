@@ -13,7 +13,7 @@ ALL_HEADERS=$(wildcard ${WIRING}/*.h ${SIM}/*.h)
 
 MAIN_SRC=sim_main.c
 WIRE_SRC=${WIRING}/write.c ${WIRING}/lex.yy.c ${WIRING}/parser.tab.c
-GRAPH_SRC=${GRAPH}/core.c
+GRAPH_SRC=${GRAPH}/core.c ${GRAPH}/overlapTable.c
 SIM_SRC=${SIM}/state.c ${SIM}/tick.c ${SIM}/notify.c ${SIM}/runtime_errors.c
 
 

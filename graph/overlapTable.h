@@ -38,9 +38,7 @@ struct HWC_Graph_OverlapRange
 
 
 
-// returns an array which encodes the overlap range.  The last entry has a
-// terminator, which is start=end=-1, comp=NULL
-HWC_Graph_OverlapRange *HWC_Graph_buildOverlapTable_forward(HWC_Wiring *wiring);
+void HWC_Graph_sortOverlapRanges(HWC_Graph_OverlapRange*, int count);
 
 #endif
 

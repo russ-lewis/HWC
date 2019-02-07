@@ -6,6 +6,7 @@
 #include "wiring/core.h"
 
 #include "graph/components.h"
+#include "graph/overlapTable.h"
 
 
 
@@ -14,14 +15,15 @@ struct HWC_Graph
 {
 	HWC_Wiring *wiring;
 
+	HWC_Graph_OverlapRange    *overlapTable;
+	HWC_Graph_OverlapRange *revOverlapTable;
+
+
 	// the 'graph' wrappers for the 'wiring' components
 	HWC_Graph_Component *mem;
-
-#if 0  // do we need these for anything?
 	HWC_Graph_Component *logic;
 	HWC_Graph_Component *conns;
 	HWC_Graph_Component *asserts;
-#endif
 };
 
 

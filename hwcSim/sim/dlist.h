@@ -29,5 +29,34 @@ static inline HWC_Graph_Component *dlist_remove_head(HWC_Graph_Component *list)
 
 
 
+static inline void dlist_remove_if_on_a_list(HWC_Graph_Component *node)
+{
+	assert((node->next == node) == (node->prev == node));
+
+	if (node->next == node)
+		return;   // NOP
+
+	node->prev->next = node->next;
+	node->next->prev = node->prev;
+
+	node->next = node->prev = node;
+}
+
+
+
+static inline void dlist_add_head(HWC_Graph_Component *list,
+                                  HWC_Graph_Component *node)
+{
+	assert(node->next == node && node->prev == node);
+
+	node->prev = list;
+	node->next = list->next;
+
+	node->prev->next = node;
+	node->next->prev = node;
+}
+
+
+
 #endif
 
