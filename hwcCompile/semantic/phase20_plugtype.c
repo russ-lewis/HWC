@@ -58,6 +58,9 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 		retval += numError;
 	}
 
+	// TODO: Add phases_completed marker?
+	// plugtype->phases_completed = 20;
+
 	// TODO: Returns number of errors found. Good idea?
 	return retval;
 }
