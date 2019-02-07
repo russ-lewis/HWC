@@ -49,12 +49,13 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
 		currDecl = plugtype->decls[i];
-		retval = checkDeclName(&currDecl, plugtype->publicNames, 1);
-		if(retval != 0)
+		int numError = checkDeclName(&currDecl, plugtype->publicNames, 1);
+		if(numError != 0)
 		{
 			// TODO: Error message for when not found in namescope
 
 		}
+		retval += numError;
 	}
 
 	// TODO: Returns number of errors found. Good idea?
