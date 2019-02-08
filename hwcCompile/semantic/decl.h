@@ -83,7 +83,7 @@ struct HWC_Decl
 	int index;
 };
 
-void convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl **);
+void convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
 int checkDeclName(HWC_Decl *, HWC_NameScope *, int);
 int findDeclSize(HWC_Decl *, int);
 

@@ -159,13 +159,10 @@ int main(int argc, char **argv)
 		}
 		else if (debug == 4)
 		{
-assert(0);   // phase 30 doesn't exist yet
-#if 0
 			if (cur->thing->part != NULL)
 				semPhase30_part(cur->thing->part);
 			else
 				semPhase30_plugtype(cur->thing->plugtype);
-#endif
 		}
 		else
 		{

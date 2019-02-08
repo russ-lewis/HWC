@@ -11,19 +11,19 @@
       parent=<TODO>
         name: c
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
         name: b
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
         name: a
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -31,19 +31,27 @@
       <no names>
     stmts: len=4
       [0]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [1]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [2]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_CONN
+TODO: line 197
       [3]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
     decls: len=3
       [0]
-        <part->decls is NULL>
+TODO: line 127
       [1]
-        <part->decls is NULL>
+TODO: line 127
       [2]
-        <part->decls is NULL>
+TODO: line 127
 
 rc=0

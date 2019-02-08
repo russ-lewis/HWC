@@ -11,13 +11,10 @@ Converts PT decls into HWC decls. What a good function name.
  - *input is a pointer to the PT_decl to convert
  - **output_out is a non-initialized HWC_Decl that this function will fill in
 
-Returns nothing, since all meaningful work is done upon **output_out
+Returns nothing, since all meaningful work is done upon *output
 */
-void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl **output_out)
+void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 {
-	HWC_Decl *output = malloc(sizeof(HWC_Decl));
-	*output_out = output;
-
 	// Extract the "type" of the decl. See pt/type.h for details on what a type can be.
 	PT_type *convert = input->type;
 

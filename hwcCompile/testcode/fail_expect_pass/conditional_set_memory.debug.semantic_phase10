@@ -13,29 +13,32 @@ TODO: How to account for decls within IF stmts?
       parent=<TODO>
         name: data
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 1
           expr: <TODO>
-          index: 0
+TODO: line 157
+          index: -1
         name: setVal
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+TODO: line 157
+          index: -1
         name: set
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
         name: getVal
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+TODO: line 157
+          index: -1
         name: get
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -43,29 +46,43 @@ TODO: How to account for decls within IF stmts?
       <no names>
     stmts: len=7
       [0]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [1]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [2]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [3]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [4]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [5]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_IF
+TODO: line 197
       [6]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_IF
+TODO: line 197
     decls: len=5
       [0]
-        <part->decls is NULL>
+TODO: line 127
       [1]
-        <part->decls is NULL>
+TODO: line 127
       [2]
-        <part->decls is NULL>
+TODO: line 127
       [3]
-        <part->decls is NULL>
+TODO: line 127
       [4]
-        <part->decls is NULL>
+TODO: line 127
 
 rc=0

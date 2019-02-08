@@ -11,14 +11,14 @@
       parent=<TODO>
         name: output
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 3 typeName: Foo isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
         name: input
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 3 typeName: Foo isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -26,14 +26,18 @@
       <no names>
     stmts: len=2
       [0]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [1]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
     decls: len=2
       [0]
-        <part->decls is NULL>
+TODO: line 127
       [1]
-        <part->decls is NULL>
+TODO: line 127
   name: Foo
 TODO: line 51
 

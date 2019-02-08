@@ -131,14 +131,14 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope 
 	int count = len-1;
 	while(currPTstmt != NULL)
 	{
-		HWC_Decl *currHWCdecl = *(output+count);
+		HWC_Decl *currHWCdecl = (*output)+count;
 		if(currPTstmt->mode == STMT_DECL)
 		{
 			// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
 			PT_decl *currPTdecl = currPTstmt->stmtDecl;
 			while(currPTdecl != NULL)
 			{
-				convertPTdeclIntoHWCdecl(currPTdecl, &currHWCdecl);
+				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
 				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
 				thing->decl = currHWCdecl;
 				// 1st check is for Parts    , makes sure the stmt is public

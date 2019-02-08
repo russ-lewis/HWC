@@ -11,29 +11,29 @@
       parent=<TODO>
         name: baz
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
         name: bar
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
         name: foo
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
         name: jkl
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
         name: asdf
           --- Decl ---
-          type: 0 typeName: (null) isMem: 0
+          type: 1 typeName: (null) isMem: 0
           expr: <TODO>
-          index: 0
+          index: -1
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -41,27 +41,39 @@
       <no names>
     stmts: len=6
       [0]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [1]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [2]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [3]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [4]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
       [5]
-        <part->stmts is NULL>
+        --- Stmt ---
+        mode: STMT_BLOCK
+TODO: line 197
     decls: len=5
       [0]
-        <part->decls is NULL>
+TODO: line 127
       [1]
-        <part->decls is NULL>
+TODO: line 127
       [2]
-        <part->decls is NULL>
+TODO: line 127
       [3]
-        <part->decls is NULL>
+TODO: line 127
       [4]
-        <part->decls is NULL>
+TODO: line 127
 
 rc=0
