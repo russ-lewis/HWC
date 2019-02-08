@@ -8,3 +8,8 @@ part tick_tock
 	state = !state;
 }
 
+part main
+{
+	subpart tick_tock dummy;
+}
+

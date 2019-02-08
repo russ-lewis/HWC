@@ -10,3 +10,54 @@ part simple_if
 		out = in[1];
 }
 
+part main
+{
+	subpart simple_if a;
+	  a.in[0] = 0;
+	  a.in[1] = 0;
+	  a.control = 0;
+	  assert(a.out == 0);
+
+	subpart simple_if b;
+	  b.in[0] = 0;
+	  b.in[1] = 0;
+	  b.control = 1;
+	  assert(b.out == 0);
+
+	subpart simple_if c;
+	  c.in[0] = 0;
+	  c.in[1] = 1;
+	  c.control = 0;
+	  assert(c.out == 0);
+
+	subpart simple_if d;
+	  d.in[0] = 0;
+	  d.in[1] = 1;
+	  d.control = 1;
+	  assert(b.out == 1);
+
+	subpart simple_if e;
+	  e.in[0] = 1;
+	  e.in[1] = 0;
+	  e.control = 0;
+	  assert(e.out == 1);
+
+	subpart simple_if f;
+	  f.in[0] = 1;
+	  f.in[1] = 0;
+	  f.control = 1;
+	  assert(f.out == 0);
+
+	subpart simple_if g;
+	  g.in[0] = 1;
+	  g.in[1] = 1;
+	  g.control = 0;
+	  assert(g.out == 1);
+
+	subpart simple_if h;
+	  h.in[0] = 1;
+	  h.in[1] = 1;
+	  h.control = 1;
+	  assert(h.out == 1);
+}
+
