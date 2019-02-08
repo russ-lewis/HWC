@@ -1,20 +1,25 @@
----- DEBUG: DUMPING SEMANTIC (after phase 10) ----
+---- DEBUG: DUMPING SEMANTIC (after phase 40) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
-  name: Test
+  name: testPart
     --- Part ---
-    phases: begun 10 completed 10
+    phases: begun 10 completed 30
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: jkl
+        name: c
           --- Decl ---
           type: 1 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: asdf
+        name: b
+          --- Decl ---
+          type: 1 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: a
           --- Decl ---
           type: 1 typeName: (null) isMem: 0
           expr: <TODO>
@@ -24,7 +29,7 @@
       refcount=1
       parent=<TODO>
       <no names>
-    stmts: len=3
+    stmts: len=4
       [0]
         --- Stmt ---
         mode: STMT_DECL
@@ -35,12 +40,18 @@ TODO: line 197
 TODO: line 197
       [2]
         --- Stmt ---
-        mode: STMT_BLOCK
+        mode: STMT_CONN
 TODO: line 197
-    decls: len=2
+      [3]
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: line 197
+    decls: len=3
       [0]
 TODO: line 127
       [1]
+TODO: line 127
+      [2]
 TODO: line 127
 
 rc=0

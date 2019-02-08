@@ -1,30 +1,28 @@
-TODO: How to account for decls within IF stmts?
-TODO: How to account for decls within IF stmts?
-TODO: How to account for decls within IF stmts?
-TODO: How to account for decls within IF stmts?
----- DEBUG: DUMPING SEMANTIC (after phase 10) ----
+TODO: How to account for decls within FOR stmts?
+---- DEBUG: DUMPING SEMANTIC (after phase 40) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
-  name: ifelse_chain
+  name: array_slice
     --- Part ---
-    phases: begun 10 completed 10
+    phases: begun 10 completed 20
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: out
-          --- Decl ---
-          type: 1 typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-        name: in
+        name: shiftLeft4
           --- Decl ---
           type: 1 typeName: (null) isMem: 0
           expr: <TODO>
 TODO: line 157
           index: -1
-        name: control
+        name: out
+          --- Decl ---
+          type: 1 typeName: (null) isMem: 0
+          expr: <TODO>
+TODO: line 157
+          index: -1
+        name: in
           --- Decl ---
           type: 1 typeName: (null) isMem: 0
           expr: <TODO>
@@ -35,7 +33,7 @@ TODO: line 157
       refcount=1
       parent=<TODO>
       <no names>
-    stmts: len=4
+    stmts: len=7
       [0]
         --- Stmt ---
         mode: STMT_DECL
@@ -50,7 +48,19 @@ TODO: line 197
 TODO: line 197
       [3]
         --- Stmt ---
-        mode: STMT_IF
+        mode: STMT_CONN
+TODO: line 197
+      [4]
+        --- Stmt ---
+        mode: STMT_FOR
+TODO: line 197
+      [5]
+        --- Stmt ---
+        mode: STMT_CONN
+TODO: line 197
+      [6]
+        --- Stmt ---
+        mode: STMT_CONN
 TODO: line 197
     decls: len=3
       [0]
