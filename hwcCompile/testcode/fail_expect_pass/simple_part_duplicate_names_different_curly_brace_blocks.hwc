@@ -8,13 +8,13 @@ part testPart {
 
 part main {
 	{
-		testPart test;
+		subpart testPart test;
 		  test.input = 0;
 		  assert(test.output == 0);
 	}
 
 	{
-		testPart test;
+		subpart testPart test;
 		  test.input = 1;
 		  assert(test.output == 1);
 	}
