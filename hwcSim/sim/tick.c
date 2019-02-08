@@ -8,17 +8,44 @@
 
 
 
-static void dispatch_one(HWC_Sim_State*, HWC_Graph_Component*);
+static int dispatch_one(HWC_Sim_State*, HWC_Graph_Component*,
+                        int (*callback)(HWC_Sim_State*,int,int));
 
-static void dispatch_conn(HWC_Sim_State*, HWC_Graph_Component*);
-static void dispatch_logic(HWC_Sim_State*, HWC_Graph_Component*);
-static void dispatch_assert(HWC_Sim_State*, HWC_Graph_Component*);
+static int dispatch_conn(HWC_Sim_State*, HWC_Graph_Component*,
+                         int (*callback)(HWC_Sim_State*,int,int));
+
+static int dispatch_logic(HWC_Sim_State*, HWC_Graph_Component*,
+                          int (*callback)(HWC_Sim_State*,int,int));
+
+static int dispatch_assert(HWC_Sim_State*, HWC_Graph_Component*,
+                           int (*callback)(HWC_Sim_State*,int,int));
 
 
 
-void HWC_Sim_doTick(HWC_Sim_State *sim)
+void HWC_Sim_doTick(HWC_Sim_State *sim,
+                    int (*write_callback)(HWC_Sim_State*,int,int),
+                    int (*mem_update_callback)(HWC_Sim_State*,HWC_Wiring_Memory*))
 {
-	int i,j;
+	HWC_Sim_tick_init(sim);
+
+	while (HWC_Sim_tick_hasTODO(sim) || HWC_Sim_tick_hasDeferred(sim))
+	{
+		HWC_Sim_tick_dispatchSome    (sim, -1, write_callback);
+		HWC_Sim_tick_dispatchDeferred(sim,     write_callback);
+	}
+
+	HWC_Sim_tick_finish(sim, mem_update_callback);
+
+	printf("\n");
+	printf("...end of tick...\n");
+	printf("\n");
+}
+
+
+
+void HWC_Sim_tick_init(HWC_Sim_State *sim)
+{
+	int i;
 
 	// wipe the memory in the bit space.  We do not wipe it at the *end*
 	// of a cycle, since the caller might want to inspect it, maybe.
@@ -42,20 +69,71 @@ void HWC_Sim_doTick(HWC_Sim_State *sim)
 
 		                          notify);   // notify?  Yes, please!
 	}
+}
 
 
-	while (dlist_not_empty(&sim->todo) || dlist_not_empty(&sim->deferred))
+
+int HWC_Sim_tick_hasTODO(HWC_Sim_State *sim)
+{
+	return dlist_not_empty(&sim->todo);
+}
+
+int HWC_Sim_tick_hasDeferred(HWC_Sim_State *sim)
+{
+	return dlist_not_empty(&sim->deferred);
+}
+
+
+
+int HWC_Sim_tick_dispatchSome(HWC_Sim_State *sim,
+                              int count,
+                              int (*callback)(HWC_Sim_State*, int pos, int len))
+{
+	assert(count == -1 || count > 0);
+
+	int soFar = 0;
+	while (HWC_Sim_tick_hasTODO(sim) &&
+	       (count == -1 || soFar < count))
 	{
 		HWC_Graph_Component *cur;
 
-		if (dlist_not_empty(&sim->todo))
-			cur = dlist_remove_head(&sim->todo);
-		else
-			cur = dlist_remove_head(&sim->deferred);
+		assert(dlist_not_empty(&sim->todo));
+		cur = dlist_remove_head(&sim->todo);
 
-		dispatch_one(sim, cur);
+		int retval = dispatch_one(sim, cur, callback);
+		if (retval != 0)
+			break;
+
+		soFar++;
 	}
 
+	return soFar;
+}
+
+
+
+int HWC_Sim_tick_dispatchDeferred(HWC_Sim_State *sim,
+                                  int (*callback)(HWC_Sim_State*, int,int))
+{
+	if (   HWC_Sim_tick_hasTODO(sim) ||
+	     ! HWC_Sim_tick_hasDeferred(sim))
+	{
+		return 0;
+	}
+
+	HWC_Graph_Component *cur = dlist_remove_head(&sim->deferred);
+	dispatch_one(sim, cur, callback);
+	return 1;
+}
+
+
+
+int HWC_Sim_tick_finish(HWC_Sim_State *sim,
+                        int (*callback)(HWC_Sim_State*, HWC_Wiring_Memory*))
+{
+	int i,j;
+
+	int updates = 0;
 
 	// copy the 'write' bits (if any) of each memory cell into the
 	// memory storage.
@@ -74,42 +152,40 @@ void HWC_Sim_doTick(HWC_Sim_State *sim)
 				                    val);
 
 				printf("mem changed: element=%d bit=%d: val=%d\n", i,j, val);
+
+				updates++;
 			}
 	}
 
-	printf("\n");
-	printf("...end of tick...\n");
-	printf("\n");
+	return updates;
 }
 
 
 
-static void dispatch_one(HWC_Sim_State *sim, HWC_Graph_Component *cur)
+static int dispatch_one(HWC_Sim_State *sim, HWC_Graph_Component *cur,
+                        int (*callback)(HWC_Sim_State*, int,int))
 {
 	switch(cur->type)
 	{
-	case HWC_GRAPH_COMP_MEM:
-		assert(0);    // memory components should *NEVER* get on the TODO list!
-
 	case HWC_GRAPH_COMP_CONN:
-		dispatch_conn(sim, cur);
-		break;
+		return dispatch_conn(sim, cur, callback);
 
 	case HWC_GRAPH_COMP_LOGIC:
-		dispatch_logic(sim, cur);
-		break;
+		return dispatch_logic(sim, cur, callback);
 
 	case HWC_GRAPH_COMP_ASSERT:
-		dispatch_assert(sim, cur);
-		break;
+		return dispatch_assert(sim, cur, callback);
 
+	case HWC_GRAPH_COMP_MEM:   // memory components should *NEVER* get on the TODO list!
 	default:
 		assert(0);
+		return -1;   // never get here, but make the compiler happy
 	}
 }
 
 
-static void dispatch_conn(HWC_Sim_State *sim, HWC_Graph_Component *graph_conn)
+static int dispatch_conn(HWC_Sim_State *sim, HWC_Graph_Component *graph_conn,
+                         int (*callback)(HWC_Sim_State*, int,int))
 {
 	HWC_Wiring_Connection *wiring_conn = graph_conn->conn;
 
@@ -126,10 +202,16 @@ assert(0);   // TODO: implement me
 	                     wiring_conn->to, wiring_conn->from,
 	                     wiring_conn->size,
 	                     graph_conn->out.notifyStart);
+
+	if (callback != NULL)
+		assert(0);
+
+	return 0;   // keep going
 }
 
 
-static void dispatch_logic(HWC_Sim_State *sim, HWC_Graph_Component *graph_logic)
+static int dispatch_logic(HWC_Sim_State *sim, HWC_Graph_Component *graph_logic,
+                          int (*callback)(HWC_Sim_State*, int,int))
 {
 	HWC_Wiring_Logic *wiring_logic = graph_logic->logic;
 
@@ -187,13 +269,26 @@ static void dispatch_logic(HWC_Sim_State *sim, HWC_Graph_Component *graph_logic)
 
 	HWC_Sim_writeBitRange(sim->bits, wiring_logic->out, out_size, out,
 	                      graph_logic->out.notifyStart);
+
+	if (callback != NULL)
+		assert(0);
+
+	return 0;   // keep going
 }
 
 
-static void dispatch_assert(HWC_Sim_State *sim, HWC_Graph_Component *graph_assert)
+static int dispatch_assert(HWC_Sim_State *sim, HWC_Graph_Component *graph_assert,
+                           int (*callback)(HWC_Sim_State*, int,int))
 {
 	HWC_Wiring_Assert *wiring_assert = graph_assert->assertion;
 
 	assert(0);   // TODO: implement me
+
+
+
+	if (callback != NULL)
+		assert(0);
+
+	return 0;   // keep going
 }
 

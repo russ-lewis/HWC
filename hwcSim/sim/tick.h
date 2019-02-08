@@ -8,7 +8,9 @@
 
 /* this performs a complete tick, and then prints out any memory changes.
  */
-void HWC_Sim_doTick(HWC_Sim_State*);
+void HWC_Sim_doTick(HWC_Sim_State*,
+                    int (*write_callback)(HWC_Sim_State*,int,int),
+                    int (*mem_update_callback)(HWC_Sim_State*,HWC_Wiring_Memory*));
 
 
 
@@ -40,23 +42,26 @@ int HWC_Sim_tick_hasDeferred(HWC_Sim_State*);
  * and return immediately.  If it returns zero, then the process will continue
  * (or not) based on 'count' and the current contents of the TODO list.
  */
-int HWC_Sim_tick_dispatchSome(int count,
+int HWC_Sim_tick_dispatchSome(HWC_Sim_State*,
+                              int count,
                               int (*callback)(HWC_Sim_State*, int pos, int len));
 
 /* same as previous, but will only dispatch from the deferred list.  Will
  * return immediately (returning 0) if there are any elements on the TODO list.
  * Since deferred operations almost always end up posting to the bit space (and
- * thus putting other elements on the TODO list), this will *always* termiante
+ * thus putting other elements on the TODO list), this will *always* terminate
  * after the first dispatch.  It returns 0 or 1 to indicate whether or not it
  * dispatched anything.
  */
-int HWC_Sim_tick_dispatchDeferred(int (*callback)(HWC_Sim_State*, int,int));
+int HWC_Sim_tick_dispatchDeferred(HWC_Sim_State*,
+                                  int (*callback)(HWC_Sim_State*, int,int));
 
 /* must not be called unless TODO and deferred are both empty.  Returns a
  * count of the number of bits of memory modified.  Includes a callback to be
  * called for each memory cell that is updated.
  */
-int HWC_Sim_tick_finish(int (*callback)(HWC_Sim_State*, HWC_Wiring_Memory*));
+int HWC_Sim_tick_finish(HWC_Sim_State*,
+                        int (*callback)(HWC_Sim_State*, HWC_Wiring_Memory*));
 
 
 

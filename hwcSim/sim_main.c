@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 	int count = 0;
 	while (count < limit)
 	{
-		HWC_Sim_doTick(sim);
+		HWC_Sim_doTick(sim, NULL,NULL);
 		count++;
 	}
 
