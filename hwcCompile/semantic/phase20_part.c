@@ -71,8 +71,11 @@ int semPhase20_part(HWC_Part *part)
 		retval += numError;
 	}
 
+	part->phases_completed = 20;
+
 	// Returns number of errors found, if something else doesn't break
 	// TODO: Good idea?
 	return retval;
 }
+
 

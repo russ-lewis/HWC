@@ -39,10 +39,10 @@ HWC_PlugType *semPhase10_plugtype(PT_plugtype_decl *parsedPlugtype,
 	}
 	// PlugTypes have no private fields, so only create a public nameScope
 
-	HWC_Decl *decl_list_head = NULL;
+
 	// Implementation can be found in stmts.c
 	// Creates an ordered list of decls within this plugtype.
-	retval->decls_len = extractHWCdeclsFromPTstmts(parsedPlugtype->stmts, decl_list_head, retval->publicNames, NULL);
+	retval->decls_len = extractHWCdeclsFromPTstmts(parsedPlugtype->stmts, &retval->decls, retval->publicNames, NULL);
 
 	// TODO: Same question as in phase10_part
 

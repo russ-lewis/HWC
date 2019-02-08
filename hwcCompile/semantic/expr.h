@@ -48,7 +48,7 @@ struct HWC_Expr
 	int index;
 };
 
-void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output);
+void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output);
 int checkExprName(HWC_Expr *, HWC_NameScope *);
 int findExprSize(HWC_Expr *);
 

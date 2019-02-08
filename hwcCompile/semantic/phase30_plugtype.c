@@ -62,6 +62,8 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 	// ie, the size of something is the index at which we've stopped inserting things
 	plugtype->size = currIndex;
 
+	plugtype->phases_completed = 30;
+
 	// TODO: Returns number of errors found. Good idea?
 	return retval;
 }

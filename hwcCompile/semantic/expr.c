@@ -8,17 +8,18 @@
 Converts PT exprs into HWC exprs. What a good function name.
 
  - *input is a pointer to the PT_expr to convert
- - *output is a non-initialized HWC_Expr that this function will fill in
+ - **output_out is a non-initialized HWC_Expr that this function will fill in
 
-Returns nothing, since all meaningful work is done upon *output
+Returns nothing, since all meaningful work is done upon **output_out
 */
-void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output)
+void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 {
-	output = malloc(sizeof(HWC_Expr));
+	HWC_Expr *output = malloc(sizeof(HWC_Expr));
 	if(output == NULL)
 	{
 		assert(0); // TODO: Better error message?
 	}
+   *output_out = output;
 
 	output->mode = input->mode;
 	switch(input->mode)
@@ -47,25 +48,25 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr *output)
 			break;
 		case(EXPR_TWOOP):
 			output->value = input->opMode;
-			convertPTexprIntoHWCexpr(input->lHand, output->exprA);
-			convertPTexprIntoHWCexpr(input->rHand, output->exprB);
+			convertPTexprIntoHWCexpr(input->lHand, &output->exprA);
+			convertPTexprIntoHWCexpr(input->rHand, &output->exprB);
 			break;
 		case(EXPR_BITNOT):
-			convertPTexprIntoHWCexpr(input->notExpr, output->exprA);
+			convertPTexprIntoHWCexpr(input->notExpr, &output->exprA);
 			break;
 		case(EXPR_NOT):
-			convertPTexprIntoHWCexpr(input->notExpr, output->exprA);
+			convertPTexprIntoHWCexpr(input->notExpr, &output->exprA);
 			break;
 		case(EXPR_DOT):
-			convertPTexprIntoHWCexpr(input->dotExpr, output->exprA);
-			convertPTexprIntoHWCexpr(input->field  , output->exprB);
+			convertPTexprIntoHWCexpr(input->dotExpr, &output->exprA);
+			convertPTexprIntoHWCexpr(input->field  , &output->exprB);
 			break;
 		case(EXPR_ARR):
-			convertPTexprIntoHWCexpr(input->arrayExpr, output->exprA);
-			convertPTexprIntoHWCexpr(input->indexExpr, output->exprB);
+			convertPTexprIntoHWCexpr(input->arrayExpr, &output->exprA);
+			convertPTexprIntoHWCexpr(input->indexExpr, &output->exprB);
 			break;
 		case(EXPR_PAREN):
-			convertPTexprIntoHWCexpr(input->paren, output->exprA);
+			convertPTexprIntoHWCexpr(input->paren, &output->exprA);
 			break;
 	}
 }

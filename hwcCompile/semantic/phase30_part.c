@@ -81,6 +81,8 @@ int semPhase30_part(HWC_Part *part)
 	// ie, the size of something is the index at which we've stopped inserting things
 	part->size = currIndex;
 
+	part->phases_completed = 30;
+
 	return retval;
 }
 

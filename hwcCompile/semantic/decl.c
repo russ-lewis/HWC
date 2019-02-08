@@ -9,21 +9,35 @@
 Converts PT decls into HWC decls. What a good function name.
 
  - *input is a pointer to the PT_decl to convert
- - *output is a non-initialized HWC_Decl that this function will fill in
+ - **output_out is a non-initialized HWC_Decl that this function will fill in
 
-Returns nothing, since all meaningful work is done upon *output
+Returns nothing, since all meaningful work is done upon **output_out
 */
-void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
+void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl **output_out)
 {
-	output = malloc(sizeof(HWC_Decl));
+	HWC_Decl *output = malloc(sizeof(HWC_Decl));
+	*output_out = output;
 
 	// Extract the "type" of the decl. See pt/type.h for details on what a type can be.
 	PT_type *convert = input->type;
 
+	// Make sure convert has a proper mode.
+	switch (convert->mode)
+	{
+		default:
+			fprintf(stderr, "Bad mode! Value of [%d].\n", convert->mode);
+			assert(0);
+			break;
+		case TYPE_BIT:
+		case TYPE_ARRAY:
+		case TYPE_IDENT:
+			break;
+	}
+
 	// If this is an array declaration, extract the length of the array
 	if(convert->mode == TYPE_ARRAY)
 	{
-		convertPTexprIntoHWCexpr(convert->len, output->expr);
+		convertPTexprIntoHWCexpr(convert->len, &output->expr);
 		convert = convert->base;
 	}
 	else
@@ -36,6 +50,7 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 		fprintf(stderr, "Multi-level arrays are currently not supported in HWC.\n");
 		assert(0);
 	}
+
 
 	// Note: We don't set *base_plugType or *base_part yet. Set type so we can check their validity later.
 	//   We could check for and set decls of type "bit" here, but we'll need to check the part/plug name
@@ -74,6 +89,8 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 	switch (currDecl->type)
 	{
 		default:
+			fprintf(stderr, "currDecl->type == %d\n", currDecl->type);
+			fprintf(stderr, "currDecl->typeName == %s\n", currDecl->typeName);
 			// TODO: Add error message
 			assert(0);
 			break;

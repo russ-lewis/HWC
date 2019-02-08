@@ -16,7 +16,7 @@ Arguments:
  - *output, a pointer to the HWC_Stmt to fill in
 Returns an int corresponding to the length of the array of statements
 */
-int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
+int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
@@ -26,8 +26,8 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 		currPTstmt = currPTstmt->prev;
 	}
 
-	output = malloc(sizeof(HWC_Stmt)*len);
-	if(output == NULL)
+	*output = malloc(sizeof(HWC_Stmt)*len);
+	if(*output == NULL)
 	{
 		assert(0); // TODO: Better error message?
 	}
@@ -38,7 +38,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 	// Iterate backwards, since all stmt lists from the parser are in reverse order
 	for(i = len-1; i >= 0; i--)
 	{
-		HWC_Stmt *currStmt = output+i; // TODO: Make sure this indexes by the correct amount
+		HWC_Stmt *currStmt = *output+i; // TODO: Make sure this indexes by the correct amount
 		currStmt->mode = currPTstmt->mode;
 
 		switch(currPTstmt->mode)
@@ -50,31 +50,31 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt *output)
 				// NOP, but keeping case here for symmetry
 				break;
 			case STMT_BLOCK:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, currStmt->stmtA);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, &currStmt->stmtA);
 				break;
 			case STMT_CONN:
-				convertPTexprIntoHWCexpr(currPTstmt->lHand, currStmt->exprA);
-				convertPTexprIntoHWCexpr(currPTstmt->rHand, currStmt->exprB);
+				convertPTexprIntoHWCexpr(currPTstmt->lHand, &currStmt->exprA);
+				convertPTexprIntoHWCexpr(currPTstmt->rHand, &currStmt->exprB);
 				break;
 			case STMT_FOR:
 				// TODO: Should add to nameScope as well?
 				currStmt->name  = currPTstmt->forVar;
-				convertPTexprIntoHWCexpr(currPTstmt->forBegin, currStmt->exprA);
-				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , currStmt->exprB);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, currStmt->stmtA);
+				convertPTexprIntoHWCexpr(currPTstmt->forBegin, &currStmt->exprA);
+				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , &currStmt->exprB);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, &currStmt->stmtA);
 				printf("TODO: How to account for decls within FOR stmts?\n");
 				break;
 			case STMT_IF:
-				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, currStmt->exprA);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, currStmt->stmtA);
-				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , currStmt->stmtB);
+				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, &currStmt->exprA);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, &currStmt->stmtA);
+				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , &currStmt->stmtB);
 				printf("TODO: How to account for decls within IF stmts?\n");
 				break;
 			case STMT_ELSE:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, currStmt->stmtA);
+				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, &currStmt->stmtA);
 				break;
 			case STMT_ASRT:
-				convertPTexprIntoHWCexpr(currPTstmt->assertion, currStmt->exprA);
+				convertPTexprIntoHWCexpr(currPTstmt->assertion, &currStmt->exprA);
 				break;
 		}
 
@@ -91,7 +91,7 @@ Given a list of PT_stmts, extracts all PT_decls and converts them into HWC_Decls
 This is done in a separate step from all other HWC_Stmts because decls are added to the namescope of the part/plugtype.
 Returns an int corresponding to the length of the HWC_Decl array malloc'd in "output".
 */
-int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *publ, HWC_NameScope *priv)
+int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope *publ, HWC_NameScope *priv)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
@@ -119,8 +119,8 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 		currPTstmt = currPTstmt->prev;
 	}
 
-	output = malloc(sizeof(HWC_Decl)*len);
-	if(output == NULL)
+	*output = malloc(sizeof(HWC_Decl)*len);
+	if(*output == NULL)
 	{
 		assert(0); // TODO: Better error message?
 	}
@@ -131,14 +131,14 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl *output, HWC_NameScope *
 	int count = len-1;
 	while(currPTstmt != NULL)
 	{
-		HWC_Decl *currHWCdecl = output+count;
+		HWC_Decl *currHWCdecl = *(output+count);
 		if(currPTstmt->mode == STMT_DECL)
 		{
 			// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
 			PT_decl *currPTdecl = currPTstmt->stmtDecl;
 			while(currPTdecl != NULL)
 			{
-				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+				convertPTdeclIntoHWCdecl(currPTdecl, &currHWCdecl);
 				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
 				thing->decl = currHWCdecl;
 				// 1st check is for Parts    , makes sure the stmt is public
