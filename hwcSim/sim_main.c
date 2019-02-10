@@ -122,6 +122,9 @@ int main(int argc, char **argv)
 	keypad(stdscr, TRUE);  // turns on metakeys, like arrows
 	curs_set(0);   // disable the cursor
 
+	start_color();
+	init_pair(1, COLOR_WHITE, COLOR_RED);
+
 	/* TODO: move 'win' from a global into private struct, which
 	 *       will replace the 'sim' parameter to the callback.
 	 */
@@ -164,7 +167,13 @@ static int bitSpace_update_callback(HWC_Sim_State *sim, int start, int len)
 	assert(len <= 8*sizeof(val));
 
 	val = HWC_Sim_readBitRange(sim->bits, start,len);
-	printw("bit space changed: start=%d len=%d: val=%d\n", start,len, val);
+	printw("bit space changed: start=%d len=%d: val=", start,len);
+
+	attron(COLOR_PAIR(1));
+	printw("%d", val);
+	attroff(COLOR_PAIR(1));
+
+	printw("\n");
 
 	return 0;
 }
@@ -177,9 +186,14 @@ static int mem_update_callback(HWC_Sim_State *sim, HWC_Wiring_Memory *wiring_mem
 	val = HWC_Sim_readRawBitRange(sim->bits,
 	                              wiring_memory->read, wiring_memory->size);
 
-	printw("mem changed: start=%d size=%d: val=%d\n",
-	       wiring_memory->write, wiring_memory->size,
-	       val);
+	printw("mem changed: start=%d size=%d: val=",
+	       wiring_memory->write, wiring_memory->size);
+
+	attron(COLOR_PAIR(1));
+	printw("%d", val);
+	attroff(COLOR_PAIR(1));
+
+	printw("\n");
 
 	return 0;
 }
