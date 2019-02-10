@@ -25,7 +25,8 @@ void HWC_Sim_doTick(HWC_Sim_State*,
  * components to be posted to the TODO list - but none of those will be
   dispatched.
  */
-void HWC_Sim_tick_init(HWC_Sim_State*);
+void HWC_Sim_tick_init(HWC_Sim_State*,
+                       int (*write_callback)(HWC_Sim_State*,int,int));
 
 /* query functions: are there any pending components on the TODO or deferred
  * lists?

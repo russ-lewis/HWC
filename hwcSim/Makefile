@@ -16,12 +16,14 @@ WIRE_SRC=${WIRING}/write.c ${WIRING}/lex.yy.c ${WIRING}/parser.tab.c
 GRAPH_SRC=${GRAPH}/core.c ${GRAPH}/overlapTable.c
 SIM_SRC=${SIM}/state.c ${SIM}/tick.c ${SIM}/notify.c ${SIM}/runtime_errors.c
 
+LIBS=-lm -lncurses
+
 
 
 all : hwcSim
 
 hwcSim : $(ALL_HEADERS) $(MAIN_SRC) $(WIRE_SRC) $(GRAPH_SRC) $(SIM_SRC)
-	$(COMP) -I. -I${ROOT} -o hwcSim $(MAIN_SRC) $(WIRE_SRC) $(GRAPH_SRC) $(SIM_SRC) -lm
+	$(COMP) -I. -I${ROOT} -o hwcSim $(MAIN_SRC) $(WIRE_SRC) $(GRAPH_SRC) $(SIM_SRC) $(LIBS)
 
 
 ${WIRING}/parser.tab.c ${WIRING}/parser.tab.h ${WIRING}/lex.yy.c : ${WIRING}/parser.y ${WIRING}/lexer.src 

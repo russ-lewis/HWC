@@ -26,7 +26,7 @@ void HWC_Sim_doTick(HWC_Sim_State *sim,
                     int (*write_callback)(HWC_Sim_State*,int,int),
                     int (*mem_update_callback)(HWC_Sim_State*,HWC_Wiring_Memory*))
 {
-	HWC_Sim_tick_init(sim);
+	HWC_Sim_tick_init(sim, write_callback);
 
 	while (HWC_Sim_tick_hasTODO(sim) || HWC_Sim_tick_hasDeferred(sim))
 	{
@@ -35,15 +35,12 @@ void HWC_Sim_doTick(HWC_Sim_State *sim,
 	}
 
 	HWC_Sim_tick_finish(sim, mem_update_callback);
-
-	printf("\n");
-	printf("...end of tick...\n");
-	printf("\n");
 }
 
 
 
-void HWC_Sim_tick_init(HWC_Sim_State *sim)
+void HWC_Sim_tick_init(HWC_Sim_State *sim,
+                       int (*write_callback)(HWC_Sim_State*,int,int))
 {
 	int i;
 
@@ -68,6 +65,9 @@ void HWC_Sim_tick_init(HWC_Sim_State *sim)
 		                          save_pos,      // src offset
 
 		                          notify);   // notify?  Yes, please!
+
+		if (write_callback != NULL)
+			write_callback(sim, read,size);
 	}
 }
 
@@ -144,6 +144,9 @@ int HWC_Sim_tick_finish(HWC_Sim_State *sim,
 		int save_pos   = sim->memOffsets[i];
 
 		for (j=0; j<size; j++)
+		{
+			int changed = 0;
+
 			if (HWC_Sim_bit_isValid(sim->bits, write_base+j))
 			{
 				int val = HWC_Sim_readBit(sim->bits, write_base+j);
@@ -151,10 +154,17 @@ int HWC_Sim_tick_finish(HWC_Sim_State *sim,
 				                    save_pos+j,
 				                    val);
 
-				printf("mem changed: element=%d bit=%d: val=%d\n", i,j, val);
+				changed = 1;
 
 				updates++;
 			}
+
+			if (changed)
+			{
+				int retval = callback(sim, &sim->graph->wiring->mem[i]);
+				assert(retval == 0);
+			}
+		}
 	}
 
 	return updates;
@@ -204,7 +214,7 @@ assert(0);   // TODO: implement me
 	                     graph_conn->out.notifyStart);
 
 	if (callback != NULL)
-		assert(0);
+		return callback(sim, wiring_conn->to, wiring_conn->size);
 
 	return 0;   // keep going
 }
@@ -271,7 +281,7 @@ static int dispatch_logic(HWC_Sim_State *sim, HWC_Graph_Component *graph_logic,
 	                      graph_logic->out.notifyStart);
 
 	if (callback != NULL)
-		assert(0);
+		return callback(sim, wiring_logic->out, out_size);
 
 	return 0;   // keep going
 }

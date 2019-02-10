@@ -3,11 +3,15 @@
 #include <getopt.h>
 #include <assert.h>
 
+#include <ncurses.h>
+
 #include "wiring/parser.tab.h"
 #include "wiring/core.h"
 #include "wiring/write.h"
+
 #include "sim/state.h"
 #include "sim/tick.h"
+#include "sim/bits.h"
 
 
 // global, shared with the parser, through parsercommon.h
@@ -17,6 +21,14 @@ HWC_Wiring *bisonParseRoot;
 
 // HACK!  Get rid of this global!
 HWC_Sim_State *sim_global;
+
+
+
+// HACK!  Get rid of this global!
+WINDOW *win;
+
+static int bitSpace_update_callback(HWC_Sim_State*, int,int);
+static int mem_update_callback(HWC_Sim_State*, HWC_Wiring_Memory*);
 
 
 
@@ -33,8 +45,8 @@ int main(int argc, char **argv)
 
 	struct option options[] = {
 //            { "o",     required_argument, NULL, 'o' },
-            { "debug", required_argument, NULL, 'd' },
-            { 0,0,0,0 }
+	    { "debug", required_argument, NULL, 'd' },
+	    { 0,0,0,0 }
 	};
 
 	int opt;
@@ -95,16 +107,80 @@ int main(int argc, char **argv)
 	sim_global = sim;
 
 
-	int limit = 10;   // eventually, this will be a command-line param
+	/* set up ncurses.
+	 *   Thanks to http://tldp.org/HOWTO/NCURSES-Programming-HOWTO
+	 */
+	initscr();  // sets up Ncurses
+	if (has_colors() == FALSE)
+	{
+		endwin();
+		printf("Your terminal does not support color\n");
+		return 1;
+	}
+	raw();      // disables line-oriented input
+	noecho();   // disables local echo of input
+	keypad(stdscr, TRUE);  // turns on metakeys, like arrows
+	curs_set(0);   // disable the cursor
 
+	/* TODO: move 'win' from a global into private struct, which
+	 *       will replace the 'sim' parameter to the callback.
+	 */
+	win = newwin(24,80,   /* height, width */
+	              0, 0);  /* upper-left corner */
+
+	refresh();
+
+
+	int limit = 4;   // eventually, this will be a command-line param
 	int count = 0;
 	while (count < limit)
 	{
-		HWC_Sim_doTick(sim, NULL,NULL);
+		HWC_Sim_doTick( sim,
+		               &bitSpace_update_callback,
+		               &     mem_update_callback);
 		count++;
+
+		printw("\n");
+		printw("...end of tick...\n");
+		printw("\n");
 	}
 
+
+	/* clean up ncurses */
+        getch();
+        refresh();
+        endwin();
+
+
 	printf("SIMULATION TERMINATED.  sim ran for %d ticks.\n", count);
+	return 0;
+}
+
+
+
+static int bitSpace_update_callback(HWC_Sim_State *sim, int start, int len)
+{
+	unsigned long val;
+	assert(len <= 8*sizeof(val));
+
+	val = HWC_Sim_readBitRange(sim->bits, start,len);
+	printw("bit space changed: start=%d len=%d: val=%d\n", start,len, val);
+
+	return 0;
+}
+
+static int mem_update_callback(HWC_Sim_State *sim, HWC_Wiring_Memory *wiring_memory)
+{
+	unsigned long val;
+	assert(wiring_memory->size <= 8*sizeof(val));
+
+	val = HWC_Sim_readRawBitRange(sim->bits,
+	                              wiring_memory->read, wiring_memory->size);
+
+	printw("mem changed: start=%d size=%d: val=%d\n",
+	       wiring_memory->write, wiring_memory->size,
+	       val);
+
 	return 0;
 }
 
