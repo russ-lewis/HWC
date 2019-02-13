@@ -1,9 +1,12 @@
 
-#include "stmt.h"
-
 #include <stdio.h>
 #include <assert.h>
 #include <malloc.h>
+
+#include "stmt.h"
+
+#include "wiring/fileRange.h"
+
 
 /*
 Takes the given grammar PT_stmt and creates a corresponding semantic HWC_Stmt from it.
@@ -39,6 +42,9 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 	for(i = len-1; i >= 0; i--)
 	{
 		HWC_Stmt *currStmt = *output+i; // TODO: Make sure this indexes by the correct amount
+
+		fr_copy(&currStmt->fr, &currPTstmt->fr);
+
 		currStmt->mode = currPTstmt->mode;
 
 		switch(currPTstmt->mode)

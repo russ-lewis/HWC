@@ -4,6 +4,8 @@
 
 #include <pt/stmt.h>    // we'll re-use the modes from the parser
 
+#include "wiring/fileRange.h"
+
 #include "names.h"
 #include "expr.h"
 #include "decl.h"
@@ -13,6 +15,8 @@
 typedef struct HWC_Stmt HWC_Stmt;
 struct HWC_Stmt
 {
+	FileRange fr;
+
 	int mode;
 
 	/* STMT_DECL  - uses isPub, isSub,                  */

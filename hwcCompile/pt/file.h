@@ -2,6 +2,9 @@
 #define __PARSE_TREE__FILE_H__INCLUDED__
 
 
+#include "wiring/fileRange.h"
+
+
 typedef struct PT_file      PT_file;
 typedef struct PT_file_decl PT_file_decl;
 
@@ -17,6 +20,8 @@ struct PT_file
 
 struct PT_file_decl
 {
+	FileRange fr;
+
 	/* linked list of declarations, in reverse order */
 	PT_file_decl *prev;
 

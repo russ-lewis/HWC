@@ -21,6 +21,9 @@
 #include <pt/stmt.h>
 #include <pt/part.h> // Need for PT_array_decl
 #include <pt/type.h>
+
+#include "wiring/fileRange.h"
+
 #include "expr.h"
 #include "names.h"
 #include "plugtype.h"
@@ -34,6 +37,7 @@ typedef struct HWC_Part HWC_Part;
 typedef struct HWC_Decl HWC_Decl;
 struct HWC_Decl
 {
+	FileRange fr;
 
 	/*
 	"type" is useful in phase10 because we are populating the namescope with the names of decls,

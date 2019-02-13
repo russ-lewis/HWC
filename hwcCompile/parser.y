@@ -176,6 +176,7 @@ file_decl:
 part_decl:
 		"part" IDENT '{' opt_stmts '}'
 		                 { $$ = malloc(sizeof(PT_part_decl));
+		                   fr_build($$);
 		                   $$->name  = $2;
 		                   $$->stmts = $4; }
 ;

@@ -75,6 +75,9 @@ void part_dump(HWC_Part *part, int prefixLen)
 	print_prefix(prefixLen);
 	printf("--- Part ---\n");
 
+	if (part->fr.s.l == 0)
+		printf("WARNING: This 'part' object does not have line number information!\n");
+
 	print_prefix(prefixLen);
 	printf("phases: begun %d completed %d\n", part->phases_begun, part->phases_completed);
 
@@ -136,6 +139,9 @@ void decl_dump(HWC_Decl *decl, int prefixLen)
 	print_prefix(prefixLen);
 	printf("--- Decl ---\n");
 
+	if (decl->fr.s.l == 0)
+		printf("WARNING: This 'decl' object does not have line number information!\n");
+
 	print_prefix(prefixLen);
 	printf("type: %d typeName: %s isMem: %d\n", decl->type, decl->typeName, decl->isMem);
 
@@ -190,6 +196,9 @@ void stmt_dump(HWC_Stmt *stmt, int prefixLen)
 {
 	print_prefix(prefixLen);
 	printf("--- Stmt ---\n");
+
+	if (stmt->fr.s.l == 0)
+		printf("WARNING: This 'stmt' object does not have line number information!\n");
 
 	print_prefix(prefixLen);
 	printf("mode: %s\n", stmt_mode2str(stmt->mode));

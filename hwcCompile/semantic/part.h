@@ -2,9 +2,9 @@
 #define __SEMANTIC_PART_H__INCLUDED__
 
 
+#include "wiring/fileRange.h"
 #include "names.h"
-//#include "stmt.h"
-//#include "decl.h"
+
 
 typedef struct HWC_Stmt HWC_Stmt;
 typedef struct HWC_Decl HWC_Decl;
@@ -12,6 +12,8 @@ typedef struct HWC_Decl HWC_Decl;
 typedef struct HWC_Part HWC_Part;
 struct HWC_Part
 {
+	FileRange fr;
+
 	/* these track the progress of the semantic phase.  The 'completed'
 	 * field tells us which semantic phase is done for this type; calling
 	 * a generator function on this type, for one of these phases, is a
