@@ -2,6 +2,9 @@
 #define __PARSE_TREE__EXPR_H__INCLUDED__
 
 
+#include "wiring/fileRange.h"
+
+
 typedef struct PT_expr      PT_expr;
 
 
@@ -42,6 +45,8 @@ enum {
 
 struct PT_expr
 {
+	FileRange fr;
+
 	/* choose from the enum above */
 	int mode;
 

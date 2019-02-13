@@ -82,6 +82,9 @@ void dump_pt_stmt(PT_stmt *obj, int spaces)
 	if(obj == NULL)
 		return;
 
+	if (obj->fr.s.l == 0)
+		printf("WARNING: This 'stmt' object does not have line number information!\n");
+
 	dump_pt_stmt(obj->prev, spaces);
 
 	dump_helper(spaces);
@@ -147,6 +150,9 @@ void dump_pt_decl(PT_decl *obj, int spaces)
 	if(obj == NULL)
 		return;
 
+	if (obj->fr.s.l == 0)
+		printf("WARNING: This 'decl' object does not have line number information!\n");
+
 	// Call first since linked list is backwards
 	dump_pt_decl(obj->prev, spaces);
 
@@ -163,6 +169,9 @@ void dump_pt_type(PT_type *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
+
+	if (obj->fr.s.l == 0)
+		printf("WARNING: This 'type' object does not have line number information!\n");
 
 	dump_helper(spaces);
 
@@ -199,6 +208,9 @@ void dump_pt_expr(PT_expr *obj, int spaces)
 {
 	if(obj == NULL)
 		return;
+
+	if (obj->fr.s.l == 0)
+		printf("WARNING: This 'expr' object does not have line number information!\n");
 
 	dump_helper(spaces);
 

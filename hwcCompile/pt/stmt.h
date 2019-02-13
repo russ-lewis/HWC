@@ -2,6 +2,9 @@
 #define __PARSE_TREE__STMT_H__INCLUDED__
 
 
+#include "wiring/fileRange.h"
+
+
 typedef struct PT_stmt PT_stmt;
 typedef struct PT_decl PT_decl;
 
@@ -21,6 +24,8 @@ enum {
 
 struct PT_stmt
 {
+	FileRange fr;
+
 	int mode;
 	/* linked list, in reverse order of declaration */
 	PT_stmt *prev;
@@ -67,6 +72,8 @@ struct PT_stmt
  */
 struct PT_decl
 {
+	FileRange fr;
+
 	/* linked list, in reverse order of declaration */
 	PT_decl *prev;
 
