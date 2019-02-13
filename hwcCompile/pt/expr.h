@@ -2,11 +2,14 @@
 #define __PARSE_TREE__EXPR_H__INCLUDED__
 
 
+#include "wiring/fileRange.h"
+
+
 typedef struct PT_expr      PT_expr;
 
 
 enum {
-	EXPR_IDENT = 1,
+	EXPR_IDENT = 101,    // changed the enum definitions, to force non-overlapping values
 	EXPR_NUM,
 	EXPR_BOOL,
 	EXPR_TWOOP,
@@ -21,7 +24,7 @@ enum {
 };
 
 enum {
-	OP_EQUALS,
+	OP_EQUALS = 201,    // changed the enum definitions, to force non-overlapping values
 	OP_NEQUAL,
 	OP_BITAND,
 	OP_AND,
@@ -42,6 +45,8 @@ enum {
 
 struct PT_expr
 {
+	FileRange fr;
+
 	/* choose from the enum above */
 	int mode;
 

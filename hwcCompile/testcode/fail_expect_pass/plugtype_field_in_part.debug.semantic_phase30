@@ -11,12 +11,12 @@
       parent=<TODO>
         name: output
           --- Decl ---
-          type: 3 typeName: Foo isMem: 0
+          type: 403 typeName: Foo isMem: 0
           expr: <TODO>
           index: -1
         name: input
           --- Decl ---
-          type: 3 typeName: Foo isMem: 0
+          type: 403 typeName: Foo isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>
@@ -28,17 +28,17 @@
       [0]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [1]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
     decls: len=2
       [0]
-TODO: line 127
+TODO: part_dump() marker 5
       [1]
-TODO: line 127
+TODO: part_dump() marker 5
   name: Foo
-TODO: line 51
+TODO: nameScope_dump() marker 2
 
 rc=0

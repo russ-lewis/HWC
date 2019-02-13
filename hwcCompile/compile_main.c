@@ -13,8 +13,9 @@
 #include "wiring/write.h"
 
 
-// global, shared with the parser, through parsercommon.h
+// globals, shared with the parser, through parsercommon.h
 PT_file *bisonParseRoot;
+char    *bisonParse_filename;
 
 
 
@@ -83,6 +84,11 @@ int main(int argc, char **argv)
 		}
 	}
 
+
+	/* TODO: turn this into a command line argument, so that we will get
+	 *       nice filenames in the wiring diagrams.
+	 */
+	bisonParse_filename = "<stdin>";
 
 
 	/* run the parser.  Then collect the root object from Bison */

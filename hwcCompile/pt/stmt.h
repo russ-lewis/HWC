@@ -2,6 +2,9 @@
 #define __PARSE_TREE__STMT_H__INCLUDED__
 
 
+#include "wiring/fileRange.h"
+
+
 typedef struct PT_stmt PT_stmt;
 typedef struct PT_decl PT_decl;
 
@@ -10,7 +13,7 @@ typedef struct PT_type PT_type;
 
 
 enum {
-	STMT_DECL = 1,
+	STMT_DECL = 301,    // changed the enum definitions, to force non-overlapping values
 	STMT_BLOCK,
 	STMT_CONN,
 	STMT_FOR,
@@ -21,6 +24,8 @@ enum {
 
 struct PT_stmt
 {
+	FileRange fr;
+
 	int mode;
 	/* linked list, in reverse order of declaration */
 	PT_stmt *prev;
@@ -67,6 +72,8 @@ struct PT_stmt
  */
 struct PT_decl
 {
+	FileRange fr;
+
 	/* linked list, in reverse order of declaration */
 	PT_decl *prev;
 

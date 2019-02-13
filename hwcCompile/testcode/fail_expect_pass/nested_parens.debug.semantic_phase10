@@ -12,22 +12,22 @@ TODO: How to account for decls within IF stmts?
       parent=<TODO>
         name: d
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: c
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: b
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: a
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>
@@ -39,31 +39,31 @@ TODO: How to account for decls within IF stmts?
       [0]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [1]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [2]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [3]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [4]
         --- Stmt ---
         mode: STMT_IF
-TODO: line 197
+TODO: stmt_dump() marker 9
     decls: len=4
       [0]
-TODO: line 127
+TODO: part_dump() marker 5
       [1]
-TODO: line 127
+TODO: part_dump() marker 5
       [2]
-TODO: line 127
+TODO: part_dump() marker 5
       [3]
-TODO: line 127
+TODO: part_dump() marker 5
 
 rc=0

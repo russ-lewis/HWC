@@ -11,6 +11,8 @@
 	#include <string.h>
 	#include <assert.h>
 
+	#include "wiring/fileRange.h"
+
 	int yylex(void);
 	void yyerror(char const *);
 
@@ -20,6 +22,12 @@
  * lol  -Jackson
  */
 #define YYPRINT(fp, yychar, yylval)   do {} while(0)
+
+
+	/* helper functions to copy yylloc into various types */
+	static inline void _fr_build(FileRange*);
+
+#define fr_build(dst) _fr_build(&(dst)->fr);
 %}
 
 /* the block above is code which is *ONLY* dropped into the parser's .c
@@ -168,6 +176,7 @@ file_decl:
 part_decl:
 		"part" IDENT '{' opt_stmts '}'
 		                 { $$ = malloc(sizeof(PT_part_decl));
+		                   fr_build($$);
 		                   $$->name  = $2;
 		                   $$->stmts = $4; }
 ;
@@ -189,27 +198,33 @@ stmt:
 		                              * (b) because it creates a name scope.
 		                              */
 		                             $$ = malloc(sizeof(PT_stmt));
+		                             fr_build($$);
 		                             $$->mode  = STMT_BLOCK;
 		                             $$->stmts = $2; }
 	|	"subpart" decl_stmt
 		                           { $$ = $2;
+		                             fr_build($$);
 		                             $$->isPublic  = 0;
 		                             $$->isSubpart = 1; }
 	|	"public"  decl_stmt
 		                           { $$ = $2;
+		                             fr_build($$);
 		                             $$->isPublic  = 1;
 		                             $$->isSubpart = 0; }
 	|	"private" decl_stmt
 		                           { $$ = $2;
+		                             fr_build($$);
 		                             $$->isPublic  = 0;
 		                             $$->isSubpart = 0; }
 	|	expr '=' expr ';'
 		                           { $$ = malloc(sizeof(PT_stmt));
+		                             fr_build($$);
 		                             $$->mode  = STMT_CONN;
 		                             $$->lHand = $1;
 		                             $$->rHand = $3; }
 	|	"for" '(' IDENT ';' expr ".." expr ')' stmt
 		                           { $$ = malloc(sizeof(PT_stmt));
+		                             fr_build($$);
 		                             $$->mode     = STMT_FOR;
 		                             $$->forVar   = $3;
 		                             $$->forBegin = $5;
@@ -229,12 +244,14 @@ stmt:
 	|	%prec "if"
 		"if" '(' expr ')' stmt
 		                       { $$ = malloc(sizeof(PT_stmt));
+		                         fr_build($$);
 		                         $$->mode    = STMT_IF;
 		                         $$->ifExpr  = $3;
 		                         $$->ifStmts = $5;
 		                         $$->ifElse  = NULL; }
 	|	"if" '(' expr ')' stmt "else" stmt
 		                       { $$ = malloc(sizeof(PT_stmt));
+		                         fr_build($$);
 		                         $$->mode    = STMT_IF;
 		                         $$->ifExpr  = $3;
 		                         $$->ifStmts = $5;
@@ -242,6 +259,7 @@ stmt:
 
 	|	"assert" '(' expr ')' ';'
 		                       { $$ = malloc(sizeof(PT_stmt));
+		                         fr_build($$);
 		                         $$->mode      = STMT_ASRT;
 		                         $$->assertion = $3; }
 
@@ -264,6 +282,7 @@ unittest_varlist:
 plugtype_decl:
 		"plugtype" IDENT '{' opt_plugtype_stmts '}'
 		                  { $$ = malloc(sizeof(PT_plugtype_decl));
+		                    fr_build($$);
 		                    $$->name  = $2;
 		                    $$->stmts = $4; }
 ;
@@ -275,12 +294,14 @@ opt_plugtype_stmts:
 
 plugtype_stmts:
 		               decl_stmt { $$ = $1;
-		                          $$->isPublic  = 1;
-		                          $$->isSubpart = 0; }
+		                           fr_build($$);
+		                           $$->isPublic  = 1;
+		                           $$->isSubpart = 0; }
 	|	plugtype_stmts decl_stmt { $$ = $2;
-		                          $$->prev = $1;
-		                          $$->isPublic  = 1;
-		                          $$->isSubpart = 0; }
+		                           fr_build($$);
+		                           $$->prev = $1;
+		                           $$->isPublic  = 1;
+		                           $$->isSubpart = 0; }
 ;
 
 /* Added support for "bit a, b[1], c[4], d;" with idea from: */
@@ -292,6 +313,7 @@ plugtype_stmts:
 decl_stmt:
 		decl_fields ';'
 		      { $$ = malloc(sizeof(PT_stmt));
+		        fr_build($$);
 		        $$->prev      = NULL;   /* user may override this */
 		        $$->mode      = STMT_DECL;
 		           /* NOTE: the user *MUST* set public and subPart */
@@ -302,16 +324,19 @@ decl_fields:
 		/* NOTE: We've removed support for suffix array declarations! */
 		type IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
+		                   fr_build($$);
 		                   $$->type = $1;
 		                   $$->isMem = 0;
 		                   $$->name = $2; }
 	|	"memory" '(' type ')' IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
+		                   fr_build($$);
 		                   $$->type = $3;
 		                   $$->isMem = 1;
 		                   $$->name = $5; }
 	|	decl_fields ',' IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
+		                   fr_build($$);
 		                   $$->prev = $1;
 		                   $$->type = $1->type;
 		                   $$->isMem = $1->isMem;
@@ -321,12 +346,17 @@ decl_fields:
 
 type:
 		"bit"              { $$ = malloc(sizeof(PT_type));
+		                     fr_build($$);
 		                     $$->mode = TYPE_BIT; }
+
 	|	IDENT              { $$ = malloc(sizeof(PT_type));
+		                     fr_build($$);
 		                     $$->mode  = TYPE_IDENT;
 		                     $$->ident = $1; }
+
 	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
 	|	type '[' expr2 ']'   { $$ = malloc(sizeof(PT_type));
+		                       fr_build($$);
 		                       $$->mode = TYPE_ARRAY;
 		                       $$->base = $1;
 		                       $$->len  = $3; }
@@ -339,31 +369,37 @@ type:
 expr:
 		expr2
 	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_EQUALS;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 "!=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_NEQUAL;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '<' expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_LESS;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '>' expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_GREATER;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 "<=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_LESSEQ;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 ">=" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_GREATEREQ;
 		                     $$->lHand  = $1;
@@ -374,51 +410,61 @@ expr:
 expr2:
 		expr3
 	|	expr2 '&'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_BITAND;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 "&&" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_AND;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '|'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_BITOR;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 "||" expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_OR;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '^'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_XOR;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '+'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_PLUS;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '-'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_MINUS;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '*'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_TIMES;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '/'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_DIVIDE;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 	|	expr2 '%'  expr2   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_MODULO;
 		                     $$->lHand  = $1;
@@ -429,9 +475,11 @@ expr2:
 expr3:
 		expr4
 	|	'!' expr3          { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode    = EXPR_NOT;
 		                     $$->notExpr = $2; }
 	|	'~' expr3          { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
 		                     $$->mode    = EXPR_BITNOT;
 		                     $$->notExpr = $2; }
 ;
@@ -440,20 +488,24 @@ expr4:
 		expr5
 	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
 	|	expr4 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                        fr_build($$);
 		                        $$->mode      = EXPR_ARR;
 		                        $$->arrayExpr = $1;
 		                        $$->indexExpr = $3; }
 	|	expr4 '[' expr2 ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                                   fr_build($$);
 		                                   $$->mode       = EXPR_ARR_SLICE;
 		                                   $$->arrayExpr  = $1;
 		                                   $$->indexExpr1 = $3;
 		                                   $$->indexExpr2 = $5; }
 	|	expr4 '['       ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                                   fr_build($$);
 		                                   $$->mode       = EXPR_ARR_SLICE;
 		                                   $$->arrayExpr  = $1;
 		                                   $$->indexExpr1 = NULL;
 		                                   $$->indexExpr2 = $4; }
 	|	expr4 '[' expr2 ".."       ']'   { $$ = malloc(sizeof(PT_expr));
+		                                   fr_build($$);
 		                                   $$->mode       = EXPR_ARR_SLICE;
 		                                   $$->arrayExpr  = $1;
 		                                   $$->indexExpr1 = $3;
@@ -466,29 +518,35 @@ expr5:
 		                      /* Do we allow expr5.expr4[expr3]? This code doesn't allow for that, and shift/reduce conflicts are created when I try. */
 		                      /*    Fixing the above shift/reduce conflict idea: Swap expr4 and expr5's components. */
                             { $$ = malloc(sizeof(PT_expr));
-		                        $$->mode    = EXPR_DOT;
-		                        $$->dotExpr = $1;
-		                        $$->field   = $3; }
+		              fr_build($$);
+		              $$->mode    = EXPR_DOT;
+		              $$->dotExpr = $1;
+		              $$->field   = $3; }
 ;
 
 expr6:
 		expr7
 	|	'(' expr ')'         { $$ = malloc(sizeof(PT_expr));
+		                       fr_build($$);
 		                       $$->mode  = EXPR_PAREN;
 		                       $$->paren = $2; }
 ;
 
 expr7:
 		IDENT   { $$ = malloc(sizeof(PT_expr));
+		          fr_build($$);
 		          $$->mode  = EXPR_IDENT;
 		          $$->name  = $1; }
 	|	NUM     { $$ = malloc(sizeof(PT_expr));
+		          fr_build($$);
 		          $$->mode  = EXPR_NUM;
 		          $$->num   = $1; }
 	|	"true"  { $$ = malloc(sizeof(PT_expr));
+		          fr_build($$);
 		          $$->mode  = EXPR_BOOL;
 		          $$->value = 1;  }
 	|	"false" { $$ = malloc(sizeof(PT_expr));
+		          fr_build($$);
 		          $$->mode  = EXPR_BOOL;
 		          $$->value = 0;  }
 ;
@@ -564,5 +622,18 @@ int tokenLookup(char *str, int assertFound)
 	/* otherwise, save the string in the yylval, and we can return */
 	yylval.str = strdup(str);
 	return IDENT;
+}
+
+
+static inline void _fr_build(FileRange *fr)
+{
+	fr->filename = bisonParse_filename;
+
+	fr->s.l = yylloc.first_line;
+	fr->s.c = yylloc.first_column;
+	fr->e.l = yylloc.last_line;
+	fr->e.c = yylloc.last_column;
+
+//	printf("%s(): %d:%d - %d:%d\n", __func__, fr->s.l, fr->s.c, fr->e.l, fr->e.c);
 }
 

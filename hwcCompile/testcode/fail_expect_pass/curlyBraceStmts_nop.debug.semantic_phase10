@@ -11,12 +11,12 @@
       parent=<TODO>
         name: jkl
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: asdf
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>
@@ -28,23 +28,23 @@
       [0]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [1]
         --- Stmt ---
         mode: STMT_BLOCK
-TODO: line 197
+TODO: stmt_dump() marker 9
       [2]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [3]
         --- Stmt ---
         mode: STMT_CONN
-TODO: line 197
+TODO: stmt_dump() marker 9
     decls: len=2
       [0]
-TODO: line 127
+TODO: part_dump() marker 5
       [1]
-TODO: line 127
+TODO: part_dump() marker 5
 
 rc=0

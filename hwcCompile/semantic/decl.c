@@ -3,7 +3,11 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <assert.h>
+
 #include "part.h"
+
+#include "wiring/fileRange.h"
+
 
 /*
 Converts PT decls into HWC decls. What a good function name.
@@ -15,6 +19,8 @@ Returns nothing, since all meaningful work is done upon *output
 */
 void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 {
+	fr_copy(&output->fr, &input->fr);
+
 	// Extract the "type" of the decl. See pt/type.h for details on what a type can be.
 	PT_type *convert = input->type;
 

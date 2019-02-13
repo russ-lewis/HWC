@@ -40,7 +40,7 @@ void nameScope_dump(HWC_NameScope *names, int prefixLen)
 
 		if (cur->thing->file != NULL)
 		{
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 1\n", __func__);
 		}
 
 		if (cur->thing->part != NULL)
@@ -48,17 +48,17 @@ printf("TODO: line %d\n", __LINE__);
 
 		if (cur->thing->plugtype != NULL)
 		{
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 2\n", __func__);
 		}
 
 		if (cur->thing->type != NULL)
 		{
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 3\n", __func__);
 		}
 
 		if (cur->thing->plug != NULL)
 		{
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 4\n", __func__);
 		}
 
 		if (cur->thing->decl != NULL)
@@ -74,6 +74,9 @@ void part_dump(HWC_Part *part, int prefixLen)
 {
 	print_prefix(prefixLen);
 	printf("--- Part ---\n");
+
+	if (part->fr.s.l == 0)
+		printf("WARNING: This 'part' object does not have line number information!\n");
 
 	print_prefix(prefixLen);
 	printf("phases: begun %d completed %d\n", part->phases_begun, part->phases_completed);
@@ -124,7 +127,7 @@ void part_dump(HWC_Part *part, int prefixLen)
 			continue;
 		}
 
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 5\n", __func__);
 	}
 
 }
@@ -136,17 +139,20 @@ void decl_dump(HWC_Decl *decl, int prefixLen)
 	print_prefix(prefixLen);
 	printf("--- Decl ---\n");
 
+	if (decl->fr.s.l == 0)
+		printf("WARNING: This 'decl' object does not have line number information!\n");
+
 	print_prefix(prefixLen);
 	printf("type: %d typeName: %s isMem: %d\n", decl->type, decl->typeName, decl->isMem);
 
 	if (decl->base_plugType != NULL)
 	{
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 6\n", __func__);
 	}
 
 	if (decl->base_part != NULL)
 	{
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 7\n", __func__);
 	}
 
 	print_prefix(prefixLen);
@@ -154,7 +160,7 @@ printf("TODO: line %d\n", __LINE__);
 
 	if (decl->expr != NULL)
 	{
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 8\n", __func__);
 	}
 
 	print_prefix(prefixLen);
@@ -191,10 +197,13 @@ void stmt_dump(HWC_Stmt *stmt, int prefixLen)
 	print_prefix(prefixLen);
 	printf("--- Stmt ---\n");
 
+	if (stmt->fr.s.l == 0)
+		printf("WARNING: This 'stmt' object does not have line number information!\n");
+
 	print_prefix(prefixLen);
 	printf("mode: %s\n", stmt_mode2str(stmt->mode));
 
-printf("TODO: line %d\n", __LINE__);
+printf("TODO: %s() marker 9\n", __func__);
 }
 
 
