@@ -7,7 +7,7 @@ typedef struct PT_type PT_type;
 typedef struct PT_expr PT_expr;
 
 enum {
-	TYPE_BIT = 1,
+	TYPE_BIT = 401,    // changed the enum definitions, to force non-overlapping values
 	TYPE_ARRAY,
 	TYPE_IDENT,
 };

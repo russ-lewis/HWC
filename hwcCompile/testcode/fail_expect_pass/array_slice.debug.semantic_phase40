@@ -12,19 +12,19 @@ TODO: How to account for decls within FOR stmts?
       parent=<TODO>
         name: shiftLeft4
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
 TODO: line 157
           index: -1
         name: out
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
 TODO: line 157
           index: -1
         name: in
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
 TODO: line 157
           index: -1

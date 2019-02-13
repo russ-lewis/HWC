@@ -13,13 +13,13 @@ TODO: How to account for decls within FOR stmts?
       parent=<TODO>
         name: points
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
 TODO: line 157
           index: -1
         name: breakAt
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
 TODO: line 157
           index: -1

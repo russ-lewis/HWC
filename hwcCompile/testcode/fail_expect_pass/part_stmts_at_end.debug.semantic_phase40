@@ -11,17 +11,17 @@
       parent=<TODO>
         name: c
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: b
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: a
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>

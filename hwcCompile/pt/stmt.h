@@ -10,7 +10,7 @@ typedef struct PT_type PT_type;
 
 
 enum {
-	STMT_DECL = 1,
+	STMT_DECL = 301,    // changed the enum definitions, to force non-overlapping values
 	STMT_BLOCK,
 	STMT_CONN,
 	STMT_FOR,

@@ -16,7 +16,7 @@
       parent=<TODO>
         name: dummy
           --- Decl ---
-          type: 3 typeName: tick_tock isMem: 0
+          type: 403 typeName: tick_tock isMem: 0
           expr: <TODO>
           index: -1
     stmts: len=1
@@ -36,7 +36,7 @@ TODO: line 127
       parent=<TODO>
         name: out
           --- Decl ---
-          type: 1 typeName: (null) isMem: 0
+          type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>
@@ -45,7 +45,7 @@ TODO: line 127
       parent=<TODO>
         name: state
           --- Decl ---
-          type: 1 typeName: (null) isMem: 1
+          type: 401 typeName: (null) isMem: 1
           expr: <TODO>
           index: -1
     stmts: len=4
