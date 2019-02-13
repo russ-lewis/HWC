@@ -20,6 +20,12 @@ extern int yylineno;
 
 
 
+// declared and initialized by main(), so that we can fill in the FileRange
+// structs.
+extern char *bisonParse_filename;
+
+
+
 // implemented by the code in the parser, called by the lexer.
 int tokenLookup(char *str, int assertFound);
 

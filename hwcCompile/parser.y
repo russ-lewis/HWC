@@ -627,6 +627,8 @@ int tokenLookup(char *str, int assertFound)
 
 static inline void _fr_build(FileRange *fr)
 {
+	fr->filename = bisonParse_filename;
+
 	fr->s.l = yylloc.first_line;
 	fr->s.c = yylloc.first_column;
 	fr->e.l = yylloc.last_line;

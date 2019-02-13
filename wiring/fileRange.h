@@ -9,6 +9,8 @@
 typedef struct FileRange FileRange;
 struct FileRange
 {
+	char *filename;
+
 	struct {
 		int l,c;   // line,col
 	} s,e;             // start,end   (both inclusive)
@@ -16,11 +18,14 @@ struct FileRange
 
 
 
+static inline int fr_valid(FileRange *fr)
+{
+	return fr->filename != NULL;
+}
+
 static inline void fr_copy(FileRange *dst, FileRange *src)
 {
-	// must be a valid FR!
-	assert(src->s.l != 0);
-
+	assert(fr_valid(src));
 	memcpy(dst,src, sizeof(*dst));
 }
 
