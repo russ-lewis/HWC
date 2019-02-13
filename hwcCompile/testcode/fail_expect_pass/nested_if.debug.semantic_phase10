@@ -15,7 +15,7 @@ TODO: How to account for decls within IF stmts?
           --- Decl ---
           type: 401 typeName: (null) isMem: 0
           expr: <TODO>
-TODO: line 157
+TODO: decl_dump() marker 8
           index: -1
         name: d
           --- Decl ---
@@ -46,25 +46,25 @@ TODO: line 157
       [0]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [1]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [2]
         --- Stmt ---
         mode: STMT_IF
-TODO: line 197
+TODO: stmt_dump() marker 9
     decls: len=5
       [0]
-TODO: line 127
+TODO: part_dump() marker 5
       [1]
-TODO: line 127
+TODO: part_dump() marker 5
       [2]
-TODO: line 127
+TODO: part_dump() marker 5
       [3]
-TODO: line 127
+TODO: part_dump() marker 5
       [4]
-TODO: line 127
+TODO: part_dump() marker 5
 
 rc=0
