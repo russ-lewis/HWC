@@ -28,19 +28,19 @@
       [0]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [1]
         --- Stmt ---
         mode: STMT_DECL
-TODO: line 197
+TODO: stmt_dump() marker 9
       [2]
         --- Stmt ---
         mode: STMT_CONN
-TODO: line 197
+TODO: stmt_dump() marker 9
     decls: len=2
       [0]
-TODO: line 127
+TODO: part_dump() marker 5
       [1]
-TODO: line 127
+TODO: part_dump() marker 5
 
 rc=0
