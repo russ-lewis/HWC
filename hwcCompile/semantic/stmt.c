@@ -57,7 +57,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 				break;
 			case STMT_BLOCK:
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, &currStmt->stmtA);
-				printf("TODO: How to account for decls within BLOCK stmts?\n");
+				fprintf(stderr, "TODO: Decls within BLOCK stmts are not accounted for yet.\n");
 				break;
 			case STMT_CONN:
 				convertPTexprIntoHWCexpr(currPTstmt->lHand, &currStmt->exprA);
@@ -69,13 +69,13 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 				convertPTexprIntoHWCexpr(currPTstmt->forBegin, &currStmt->exprA);
 				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , &currStmt->exprB);
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, &currStmt->stmtA);
-				printf("TODO: How to account for decls within FOR stmts?\n");
+				fprintf(stderr, "TODO: Decls within FOR stmts are not accounted for yet.\n");
 				break;
 			case STMT_IF:
 				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, &currStmt->exprA);
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, &currStmt->stmtA);
 				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , &currStmt->stmtB);
-				printf("TODO: How to account for decls within IF stmts?\n");
+				fprintf(stderr, "TODO: Decls within IF stmts are not accounted for yet.\n");
 				break;
 			case STMT_ELSE:
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, &currStmt->stmtA);
