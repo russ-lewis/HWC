@@ -51,7 +51,7 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	if(convert->mode == TYPE_ARRAY)
 	{
 		fprintf(stderr, "Multi-level arrays are currently not supported in HWC.\n");
-		assert(0);
+		return;
 	}
 
 
@@ -94,7 +94,7 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 		default:
 			fprintf(stderr, "currDecl->type == %d\n", currDecl->type);
 			fprintf(stderr, "currDecl->typeName == %s\n", currDecl->typeName);
-			// TODO: Add error message
+			fprintf(stderr, "currDecl was not of type bit, array, or ident.\n");
 			assert(0);
 			break;
 
@@ -103,8 +103,9 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			break;
 
 		case TYPE_ARRAY:
-			// TODO: I think this is impossible. Remove assert if it isn't.
-			assert(0);
+			// TODO: I think this is impossible, since we previously recurse through TYPE_ARRAY until its base type is found.
+			//   Change return value if it isn't.
+			return 1;
 			break;
 
 		case TYPE_IDENT:
