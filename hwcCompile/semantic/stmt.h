@@ -30,7 +30,9 @@ struct HWC_Stmt
 
 	char     *name;
 	HWC_Expr *exprA, *exprB;
+	// Used by BLOCK, FOR, IF, and ELSE to point to a list of more stmts within them
 	HWC_Stmt *stmtA, *stmtB;
+	// Contains the length of the above list of stmts
 	int       sizeA,  sizeB; // Could we compress sizeA and sizeB with isPub and isSub?
 	int       isPub,  isSub; // Aligned, but poor naming. And I assume memory isn't at a premium.
 };

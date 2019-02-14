@@ -180,6 +180,7 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 {
 	int retval = 0;
 	HWC_Nameable *currName;
+	int i;
 
 	switch(currStmt->mode)
 	{
@@ -190,7 +191,8 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			// NOP, but keeping case here for symmetry
 			break;
 		case STMT_BLOCK:
-			retval += checkStmtName(currStmt->stmtA, currScope);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += checkStmtName(currStmt->stmtA +i, currScope);
 			break;
 		case STMT_CONN:
 			retval += checkExprName(currStmt->exprA, currScope);
@@ -208,16 +210,20 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			retval += checkExprName(currStmt->exprA, currScope);
 			retval += checkExprName(currStmt->exprB, currScope);
 
-			retval += checkStmtName(currStmt->stmtA, currScope);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += checkStmtName(currStmt->stmtA +i, currScope);
 			break;
 		case STMT_IF:
 			retval += checkExprName(currStmt->exprA, currScope);
 
-			retval += checkStmtName(currStmt->stmtA, currScope);
-			retval += checkStmtName(currStmt->stmtB, currScope);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += checkStmtName(currStmt->stmtA +i, currScope);
+			for(i = 0; i < currStmt->sizeB; i++)
+				retval += checkStmtName(currStmt->stmtB +i, currScope);
 			break;
 		case STMT_ELSE:
-			retval += checkStmtName(currStmt->stmtA, currScope);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += checkStmtName(currStmt->stmtA +i, currScope);
 			break;
 		case STMT_ASRT:
 			retval += checkExprName(currStmt->exprA, currScope);
@@ -234,6 +240,7 @@ TODO: Add header comment
 int findStmtSize(HWC_Stmt *currStmt)
 {
 	int retval = 0;
+	int i;
 
 	switch(currStmt->mode)
 	{
@@ -244,7 +251,9 @@ int findStmtSize(HWC_Stmt *currStmt)
 			// NOP, but keeping case here for symmetry
 			break;
 		case STMT_BLOCK:
-			retval += findStmtSize(currStmt->stmtA);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += findStmtSize(currStmt->stmtA +i);
+			//retval += findStmtSize(currStmt->stmtA);
 			break;
 		case STMT_CONN:
 			retval += findExprSize(currStmt->exprA);
@@ -255,16 +264,24 @@ int findStmtSize(HWC_Stmt *currStmt)
 			retval += findExprSize(currStmt->exprA);
 			retval += findExprSize(currStmt->exprB);
 
-			retval += findStmtSize(currStmt->stmtA);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += findStmtSize(currStmt->stmtA +i);
+			//retval += findStmtSize(currStmt->stmtA);
 			break;
 		case STMT_IF:
 			retval += findExprSize(currStmt->exprA);
 
-			retval += findStmtSize(currStmt->stmtA);
-			retval += findStmtSize(currStmt->stmtB);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += findStmtSize(currStmt->stmtA +i);
+			for(i = 0; i < currStmt->sizeB; i++)
+				retval += findStmtSize(currStmt->stmtB +i);
+			//retval += findStmtSize(currStmt->stmtA);
+			//retval += findStmtSize(currStmt->stmtB);
 			break;
 		case STMT_ELSE:
-			retval += findStmtSize(currStmt->stmtA);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += findStmtSize(currStmt->stmtA +i);
+			//retval += findStmtSize(currStmt->stmtA);
 			break;
 		case STMT_ASRT:
 			retval += findExprSize(currStmt->exprA);
