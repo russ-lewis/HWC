@@ -53,7 +53,7 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 		if(numError != 0)
 		{
 			// TODO: Better error message for when not found in namescope?
-			fprintf(stderr, "%d errors found with decl of %s!\n", numError, currDecl.typeName);
+			fprintf(stderr, "Phase 20, plugtype: %d errors found with decl of %s!\n", numError, currDecl.typeName);
 		}
 		retval += numError;
 	}

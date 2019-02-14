@@ -23,7 +23,7 @@ struct HWC_Part
 	int phases_completed;
 	int phases_begun;
 
-
+	// TODO: Add comment here
 	HWC_NameScope * publicNames;
 	HWC_NameScope *privateNames;
 

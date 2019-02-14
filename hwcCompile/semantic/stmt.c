@@ -57,6 +57,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 				break;
 			case STMT_BLOCK:
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, &currStmt->stmtA);
+				printf("TODO: How to account for decls within BLOCK stmts?\n");
 				break;
 			case STMT_CONN:
 				convertPTexprIntoHWCexpr(currPTstmt->lHand, &currStmt->exprA);
@@ -119,7 +120,9 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			break;
 		case STMT_CONN:
 			retval += checkExprName(currStmt->exprA, currScope);
+			printf("retval = %d, for %s.\n", retval, currStmt->exprA->name);
 			retval += checkExprName(currStmt->exprB, currScope);
+			printf("retval = %d, for %s.\n", retval, currStmt->exprB->name);
 			break;
 	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
 		case STMT_FOR:

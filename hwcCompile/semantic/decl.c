@@ -187,6 +187,7 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			break;
 
 		case TYPE_IDENT:
+			// Search for our relevant name within currScope
 			currName = nameScope_search(currScope, currDecl->typeName);
 			if(currName == NULL)
 				return 1;

@@ -29,12 +29,12 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 			break;
 		case(EXPR_PLUG):
 			// TODO
-			printf("Still have not implemented conversion of PTexpr into EXPR_PLUG\n");
+			fprintf(stderr, "Still have not implemented conversion of PTexpr into EXPR_PLUG\n");
 			// HWC_Plug *plug;
 			break;
 		case(EXPR_SUBCOMPONENT):
 			// TODO
-			printf("Still have not implemented conversion of PTexpr into EXPR_SUBCOMPONENT\n");
+			fprintf(stderr, "Still have not implemented conversion of PTexpr into EXPR_SUBCOMPONENT\n");
 			// HWC_PartInstance *subcomponent;
 			break;
 		case(EXPR_IDENT):
@@ -90,11 +90,11 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 			break;
 		case(EXPR_PLUG):
 			// TODO: Need conversion from PT to HWC before doing this.
-			printf("Checking name of plug has not be implemented yet.\n");
+			fprintf(stderr, "Checking name of plug has not be implemented yet.\n");
 			break;
 		case(EXPR_SUBCOMPONENT):
 			// TODO: Need conversion from PT to HWC before doing this.
-			printf("Checking name of subcomponent has not be implemented yet.\n");
+			fprintf(stderr, "Checking name of subcomponent has not be implemented yet.\n");
 			break;
 		// Not a mistake, IDENT and NUM use the same code.
 		case(EXPR_IDENT):
@@ -155,11 +155,11 @@ int findExprSize(HWC_Expr *currExpr)
 			break;
 		case(EXPR_PLUG):
 			// TODO: Need conversion from PT to HWC before doing this.
-			printf("Checking name of plug has not be implemented yet.\n");
+			fprintf(stderr, "Checking size of plug has not be implemented yet.\n");
 			break;
 		case(EXPR_SUBCOMPONENT):
 			// TODO: Need conversion from PT to HWC before doing this.
-			printf("Checking name of subcomponent has not be implemented yet.\n");
+			fprintf(stderr, "Checking size of subcomponent has not be implemented yet.\n");
 			break;
 		case(EXPR_IDENT):
 			retval = 0;

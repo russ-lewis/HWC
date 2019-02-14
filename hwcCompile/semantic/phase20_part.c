@@ -51,7 +51,7 @@ int semPhase20_part(HWC_Part *part)
 		if(numError != 0)
 		{
 			// TODO: Better error message for when not found in namescope?
-			fprintf(stderr, "%d errors found with decl of %s!\n", numError, currDecl.typeName);
+			fprintf(stderr, "Phase 20, part: %d errors found with decl of %s!\n", numError, currDecl.typeName);
 		}
 		retval += numError;
 	}
@@ -66,7 +66,7 @@ int semPhase20_part(HWC_Part *part)
 		if(numError != 0)
 		{
 			// TODO: Better error message for when not found in namescope?
-			fprintf(stderr, "%d errors found with stmt of %s!\n", numError, currStmt.name);
+			fprintf(stderr, "Phase 20, part: %d errors found with stmt of %s!\n", numError, currStmt.name);
 		}
 		retval += numError;
 	}

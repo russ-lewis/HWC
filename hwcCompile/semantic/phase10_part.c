@@ -31,6 +31,7 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 	retval->phases_completed = retval->phases_begun = 10;
 
 	// Create publicNames, and make "NULL" its parent
+	// ie, 
 	retval->publicNames = nameScope_malloc(NULL);
 	if (retval->publicNames == NULL)
 	{
@@ -38,6 +39,7 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 		free(retval);
 		return NULL;
 	}
+
 	// Create privateNames, and make "fileScope" its parent
 	retval->privateNames = nameScope_malloc(fileScope);
 	if (retval->privateNames == NULL)
@@ -47,9 +49,6 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 		free(retval);
 		return NULL;
 	}
-
-	// TODO: Why did I have this variable?
-	//HWC_Decl *decl_list_head = NULL;
 
 	// Implementation can be found in stmts.c
 	// Creates an list of decls within this part.

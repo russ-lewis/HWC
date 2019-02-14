@@ -28,13 +28,20 @@ struct HWC_Stmt
 	/* STMT_ASRT  - uses       exprA                    */
 	// Any STMT type that uses stmtA or stmtB uses sizeA and sizeB as well
 
+	// Used mostly with for-loops, as the iteration variable name.
 	char     *name;
+	// Relevant exprs for this statement.
 	HWC_Expr *exprA, *exprB;
 	// Used by BLOCK, FOR, IF, and ELSE to point to a list of more stmts within them
 	HWC_Stmt *stmtA, *stmtB;
 	// Contains the length of the above list of stmts
-	int       sizeA,  sizeB; // Could we compress sizeA and sizeB with isPub and isSub?
-	int       isPub,  isSub; // Aligned, but poor naming. And I assume memory isn't at a premium.
+	int       sizeA,  sizeB;
+	// The name scope for the above list of stmts.
+	// Allows disjoint curly-bracket stmts to declare the same variable without conflicting.
+	HWC_NameScope *namesA, *namesB;
+	// Is the declaration public? Is the declaration a subpart?
+	int isPublic,  isSubpart;
+
 };
 
 
