@@ -52,8 +52,8 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 		int numError = checkDeclName(&currDecl, plugtype->publicNames, 1);
 		if(numError != 0)
 		{
-			// TODO: Error message for when not found in namescope
-
+			// TODO: Better error message for when not found in namescope?
+			fprintf(stderr, "%d errors found with decl of %s!\n", numError, currDecl.typeName);
 		}
 		retval += numError;
 	}

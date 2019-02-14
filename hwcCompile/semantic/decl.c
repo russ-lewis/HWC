@@ -115,8 +115,7 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 
 			// Make sure the name we get back is either a plugtype or a part
 			if(currName->plugtype == NULL && currName->part == NULL)
-				assert(0);
-			// TODO: Report user error instead?
+				return 1;
 
 			// Check to make sure a Part declaration isn't inside a plugtype
 			if(isWithinPlug == 1 && currName->part != NULL)

@@ -50,8 +50,8 @@ int semPhase20_part(HWC_Part *part)
 		int numError = checkDeclName(&currDecl, part->publicNames, 0);
 		if(numError != 0)
 		{
-			// TODO: Error message for when not found in namescope
-
+			// TODO: Better error message for when not found in namescope?
+			fprintf(stderr, "%d errors found with decl of %s!\n", numError, currDecl.typeName);
 		}
 		retval += numError;
 	}
@@ -65,8 +65,8 @@ int semPhase20_part(HWC_Part *part)
 		int numError = checkStmtName(&currStmt, part->publicNames);
 		if(numError != 0)
 		{
-			// TODO: Error message for when not found in namescope
-
+			// TODO: Better error message for when not found in namescope?
+			fprintf(stderr, "%d errors found with stmt of %s!\n", numError, currStmt.name);
 		}
 		retval += numError;
 	}
