@@ -253,20 +253,21 @@ int findStmtSize(HWC_Stmt *currStmt)
 		case STMT_BLOCK:
 			for(i = 0; i < currStmt->sizeA; i++)
 				retval += findStmtSize(currStmt->stmtA +i);
-			//retval += findStmtSize(currStmt->stmtA);
 			break;
 		case STMT_CONN:
 			retval += findExprSize(currStmt->exprA);
 			retval += findExprSize(currStmt->exprB);
 			break;
 		case STMT_FOR:
-		// TODO: Since FOR initializes a variable, should we add that to size?
+			// Since FOR initializes a variable, we add that to size.
+			// TODO: Is this the correct amount to add? The spec specifies for-loops use integers.
+			retval += 8;
+
 			retval += findExprSize(currStmt->exprA);
 			retval += findExprSize(currStmt->exprB);
 
 			for(i = 0; i < currStmt->sizeA; i++)
 				retval += findStmtSize(currStmt->stmtA +i);
-			//retval += findStmtSize(currStmt->stmtA);
 			break;
 		case STMT_IF:
 			retval += findExprSize(currStmt->exprA);
@@ -275,13 +276,10 @@ int findStmtSize(HWC_Stmt *currStmt)
 				retval += findStmtSize(currStmt->stmtA +i);
 			for(i = 0; i < currStmt->sizeB; i++)
 				retval += findStmtSize(currStmt->stmtB +i);
-			//retval += findStmtSize(currStmt->stmtA);
-			//retval += findStmtSize(currStmt->stmtB);
 			break;
 		case STMT_ELSE:
 			for(i = 0; i < currStmt->sizeA; i++)
 				retval += findStmtSize(currStmt->stmtA +i);
-			//retval += findStmtSize(currStmt->stmtA);
 			break;
 		case STMT_ASRT:
 			retval += findExprSize(currStmt->exprA);
