@@ -9,6 +9,84 @@
 #include "wiring/fileRange.h"
 
 
+
+/*
+Given a list of PT_stmts, extracts all PT_decls and converts them into HWC_Decls.
+This is done in a separate step from all other HWC_Stmts because decls are added to the namescope of the part/plugtype.
+Returns an int corresponding to the length of the HWC_Decl array malloc'd in "output".
+*/
+int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope *publ, HWC_NameScope *priv)
+{
+	PT_stmt *currPTstmt = input;
+	int len = 0;
+
+	while(currPTstmt != NULL)
+	{
+		if(currPTstmt->mode == STMT_DECL)
+		{
+			// Nested while() because PT_decls have their own list of decls.
+			PT_decl *currPTdecl = currPTstmt->stmtDecl;
+			while(currPTdecl != NULL)
+			{
+				len++;
+				currPTdecl = currPTdecl->prev;
+			}
+		}
+		// TODO: Can remove this check if the program runs too slow, since the grammar ensures that the only stmts in plugtypes are decls.
+		// Use the fact that PlugTypes have no private statements to check if the caller is a PlugType
+		else if(priv == NULL)
+		{
+			// The grammar should prevent non-decl statements from being found in plugtypes, but check just in case.
+			fprintf(stderr, "Statement that isn't a declaration found in a plugtype. Should be impossible, but obviously isn't. Crashing.\n");
+			assert(0);
+		}
+		currPTstmt = currPTstmt->prev;
+	}
+
+	*output = malloc(sizeof(HWC_Decl)*len);
+	if(*output == NULL)
+	{
+		assert(0); // TODO: Better error message?
+	}
+
+	// Reset to beginning of list
+	currPTstmt = input;
+	// Iterate through the backwards list again, but use "count" to write the output in forward order.
+	int count = len-1;
+	while(currPTstmt != NULL)
+	{
+		HWC_Decl *currHWCdecl = (*output)+count;
+		if(currPTstmt->mode == STMT_DECL)
+		{
+			// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
+			PT_decl *currPTdecl = currPTstmt->stmtDecl;
+			while(currPTdecl != NULL)
+			{
+				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
+				thing->decl = currHWCdecl;
+				// 1st check is for Parts    , makes sure the stmt is public
+				// 2nd check if for PlugTypes, makes all decls public
+				if(currPTstmt->isPublic == 1 || priv == NULL)
+					nameScope_add(publ, currPTdecl->name, thing);
+				else
+					nameScope_add(priv, currPTdecl->name, thing);
+
+				count--;
+				currPTdecl = currPTdecl->prev;
+			}
+		}
+		currPTstmt = currPTstmt->prev;
+	}
+
+	// Make sure that, by the end of this, the last index count wrote to was 0
+	// +1 to offset the subtraction done after writing to 0
+	assert(count+1 == 0);
+
+	return len;
+}
+
+
 /*
 Converts PT decls into HWC decls. What a good function name.
 
