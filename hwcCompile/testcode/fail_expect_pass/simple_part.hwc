@@ -1,18 +1,6 @@
-part testPart {
+part main {
 	public bit input;
 	public bit output;
 
 	output = input;
 }
-
-
-part main {
-	subpart testPart a;
-	  a.input = 0;
-	  assert(a.output == 0);
-
-	subpart testPart b;
-	  b.input = 1;
-	  assert(b.output == 1);
-}
-
