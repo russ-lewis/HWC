@@ -118,12 +118,12 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			for(i = 0; i < currStmt->sizeA; i++)
 				retval += checkStmtName(currStmt->stmtA +i, currScope);
 			break;
+
 		case STMT_CONN:
 			retval += checkExprName(currStmt->exprA, currScope);
-			printf("retval = %d, for %s.\n", retval, currStmt->exprA->name);
 			retval += checkExprName(currStmt->exprB, currScope);
-			printf("retval = %d, for %s.\n", retval, currStmt->exprB->name);
 			break;
+
 	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
 		case STMT_FOR:
 			currName = nameScope_search(currScope, currStmt->name);
@@ -131,7 +131,18 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			// TODO: Error message
 			// TODO: Modify this check later, once we decide if for-loop vars should be added to the namescope or not.
 			if(currName != NULL)
+			{
+				fprintf(stderr, "%s:%d:%d: Symbol '%s' is the same as a prior declaration at %s:%d:%d.  This 'shadowing' of names is illegal in HWC.\n",
+				        currStmt->fr.filename,
+				        currStmt->fr.s.l, currStmt->fr.s.c,
+				        currStmt->name,
+				        currName->fr.filename,
+				        currName->fr.s.l, currName->fr.s.c);
 				retval++;
+			}
+
+			fprintf(stderr, "TODO: Remove this syntax-error mark when we implement support for for() loops.\n");
+			retval++;
 
 			retval += checkExprName(currStmt->exprA, currScope);
 			retval += checkExprName(currStmt->exprB, currScope);
@@ -139,6 +150,7 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			for(i = 0; i < currStmt->sizeA; i++)
 				retval += checkStmtName(currStmt->stmtA +i, currScope);
 			break;
+
 		case STMT_IF:
 			retval += checkExprName(currStmt->exprA, currScope);
 

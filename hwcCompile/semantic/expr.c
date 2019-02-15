@@ -19,8 +19,10 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 	{
 		assert(0); // TODO: Better error message?
 	}
-   *output_out = output;
+	*output_out = output;
 
+	fr_copy(&output->fr, &input->fr);
+ 
 	output->mode = input->mode;
 	switch(input->mode)
 	{
@@ -96,22 +98,37 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 			// TODO: Need conversion from PT to HWC before doing this.
 			fprintf(stderr, "Checking name of subcomponent has not be implemented yet.\n");
 			break;
-		// Not a mistake, IDENT and NUM use the same code.
-		case(EXPR_IDENT):
+
 		case(EXPR_NUM):
+			break;    // nothing to do!
+
+		case(EXPR_IDENT):
 			currName = nameScope_search(currScope, currExpr->name);
 			// TODO: Error messages
 			// If the name could not be found.
 			if(currName == NULL)
+			{
+				fprintf(stderr, "%s:%d:%d: Symbol '%s' does not exist.\n",
+				        currExpr->fr.filename,
+				        currExpr->fr.s.l, currExpr->fr.s.c,
+				        currExpr->name);
 				retval++;
+			}
 			// If the name doesn't correspond to a declaration.
 			else if(currName->decl == NULL)
+			{
+				fprintf(stderr, "%s:%d:%d: Symbol '%s' has a NULL 'decl' pointer.  TODO: what does this mean?\n",
+				        currExpr->fr.filename,
+				        currExpr->fr.s.l, currExpr->fr.s.c,
+				        currExpr->name);
 				retval++;
+			}
 			else
 				currExpr->decl = currName->decl;
 			break;
 		case(EXPR_BOOL):
 			// TODO: NOP?
+			assert(0);
 			break;
 		case(EXPR_TWOOP):
 			// TODO: Anything to do with "currExpr->value" here?

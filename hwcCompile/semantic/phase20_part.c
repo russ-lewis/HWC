@@ -64,10 +64,7 @@ int semPhase20_part(HWC_Part *part)
 		currStmt = part->stmts[i];
 		int numError = checkStmtName(&currStmt, part->publicNames);
 		if(numError != 0)
-		{
-			// TODO: Better error message for when not found in namescope?
 			fprintf(stderr, "Phase 20, part: %d errors found with stmt of %s!\n", numError, currStmt.name);
-		}
 		retval += numError;
 	}
 

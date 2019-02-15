@@ -116,6 +116,8 @@ void nameScope_add(HWC_NameScope *obj, char *name, HWC_Nameable *thing)
 	assert(strlen(name) != 0);   // TODO: add name-sanity-checking
 	assert(thing != NULL);
 
+	assert(thing->fr.filename != NULL);
+
 	/* find the pointer-to-tail */
 	HWC_NameScope_elem **pPtr = &obj->list;
 	HWC_NameScope_elem  *cur  = *pPtr;

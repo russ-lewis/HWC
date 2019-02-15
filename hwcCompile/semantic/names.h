@@ -60,6 +60,9 @@
  */
 
 
+#include "wiring/fileRange.h"
+
+
 typedef struct HWC_NameScope HWC_NameScope;
 typedef struct HWC_Nameable  HWC_Nameable;
 
@@ -83,6 +86,8 @@ typedef struct HWC_Decl     HWC_Decl;
 
 struct HWC_Nameable
 {
+	FileRange fr;
+
 	HWC_File     *file;
 	HWC_Part     *part;
 	HWC_PlugType *plugtype;

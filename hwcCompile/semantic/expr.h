@@ -7,6 +7,8 @@
 #include "decl.h"
 #include "names.h"
 
+#include "wiring/fileRange.h"
+
 #include <pt/expr.h>    // we'll re-use the modes from the parser, but then
                         // add some more
 
@@ -20,6 +22,8 @@ typedef struct HWC_Decl HWC_Decl;
 typedef struct HWC_Expr HWC_Expr;
 struct HWC_Expr
 {
+	FileRange fr;
+
 	int mode;
 
 	/* EXPR_PLUG */

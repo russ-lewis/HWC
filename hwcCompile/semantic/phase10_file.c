@@ -32,6 +32,8 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 		// Get the name of the part/plug and run semPhase10 on it
 		if (cur->partDecl != NULL)
 		{
+			fr_copy(&thing->fr, &cur->partDecl->fr);
+
 			name = cur->partDecl->name;
 
 			thing->part = semPhase10_part(cur->partDecl, names);
@@ -40,6 +42,8 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 		}
 		else if (cur->plugtypeDecl != NULL)
 		{
+			fr_copy(&thing->fr, &cur->plugtypeDecl->fr);
+
 			name = cur->plugtypeDecl->name;
 
 			thing->part = NULL;

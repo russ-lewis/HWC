@@ -64,6 +64,7 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope 
 			{
 				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
 				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
+				fr_copy(&thing->fr, &currHWCdecl->fr);
 				thing->decl = currHWCdecl;
 				// 1st check is for Parts    , makes sure the stmt is public
 				// 2nd check if for PlugTypes, makes all decls public
@@ -129,7 +130,7 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	if(convert->mode == TYPE_ARRAY)
 	{
 		fprintf(stderr, "Multi-level arrays are currently not supported in HWC.\n");
-		return;
+		assert(0);
 	}
 
 
@@ -181,20 +182,30 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			break;
 
 		case TYPE_ARRAY:
-			// TODO: I think this is impossible, since we previously recurse through TYPE_ARRAY until its base type is found.
-			//   Change return value if it isn't.
+			fprintf(stderr, "-- TODO: %s(): is TYPE_ARRAY possible?\n", __func__);
 			return 1;
-			break;
 
 		case TYPE_IDENT:
 			// Search for our relevant name within currScope
 			currName = nameScope_search(currScope, currDecl->typeName);
 			if(currName == NULL)
+			{
+				fprintf(stderr, "%s:%d:%d: Symbol '%s' not found\n",
+				        currDecl->fr.filename,
+				        currDecl->fr.s.l, currDecl->fr.s.c,
+				        currDecl->typeName);
 				return 1;
+			}
 
 			// Make sure the name we get back is either a plugtype or a part
 			if(currName->plugtype == NULL && currName->part == NULL)
+			{
+				fprintf(stderr, "%s:%d:%d: Symbol '%s' is neither a part nor a plugtype.\n",
+				        currDecl->fr.filename,
+				        currDecl->fr.s.l, currDecl->fr.s.c,
+				        currDecl->typeName);
 				return 1;
+			}
 
 			// Check to make sure a Part declaration isn't inside a plugtype
 			if(isWithinPlug == 1 && currName->part != NULL)

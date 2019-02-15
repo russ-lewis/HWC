@@ -1,4 +1,4 @@
-TODO: How to account for decls within IF stmts?
+TODO: Decls within IF stmts are not accounted for yet.
 ---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
  --- NameScope ---
  refcount=1

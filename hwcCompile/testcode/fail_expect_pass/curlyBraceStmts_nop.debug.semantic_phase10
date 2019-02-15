@@ -1,3 +1,4 @@
+TODO: Decls within BLOCK stmts are not accounted for yet.
 ---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
  --- NameScope ---
  refcount=1
