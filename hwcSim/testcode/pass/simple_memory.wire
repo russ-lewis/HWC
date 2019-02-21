@@ -14,11 +14,11 @@ bits 5
 #       inputs, and which writes to others, then we can mark *all* of the
 #       instances of the same 
 
-debug mappings
-  debug memory read 0 write 1 size 1 "simple_memory.hwc(3:17-3:19) in simple_memory.hwc(13:10-13:2)"   # memory(bit) state
-  debug        start 2        size 1 "simple_memory.hwc(5:13-5:15) in simple_memory.hwc(13:10-13:2)"   # public bit  out
-  debug        start 3        size 1 "simple_memory.hwc(8:11-8:15) in simple_memory.hwc(13:10-13:2)"   #  state inside the NOT operation
-  debug        start 4        size 1 "simple_memory.hwc(8:10-8:15) in simple_memory.hwc(13:10-13:2)"   # !state
+#debug mappings
+#  debug memory read 0 write 1 size 1 "simple_memory.hwc(3:17-3:19) in simple_memory.hwc(13:10-13:2)"   # memory(bit) state
+#  debug        start 2        size 1 "simple_memory.hwc(5:13-5:15) in simple_memory.hwc(13:10-13:2)"   # public bit  out
+#  debug        start 3        size 1 "simple_memory.hwc(8:11-8:15) in simple_memory.hwc(13:10-13:2)"   #  state inside the NOT operation
+#  debug        start 4        size 1 "simple_memory.hwc(8:10-8:15) in simple_memory.hwc(13:10-13:2)"   # !state
 
 memory count 1
   memory size 1 read 0 write 1	debug="simple_memory.hwc:3:17-3:19"
