@@ -77,7 +77,7 @@ struct PT_decl
 	/* linked list, in reverse order of declaration */
 	PT_decl *prev;
 
-	PT_type *type;
+	PT_expr *type;
 	int      isMem;
 
 	char *name;

@@ -20,6 +20,5 @@
 #include "part.h"
 #include "plugtype.h"
 #include "stmt.h"
-#include "type.h"
 #include "expr.h"
 

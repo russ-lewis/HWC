@@ -20,7 +20,6 @@
  */
 #include <pt/stmt.h>
 #include <pt/part.h> // Need for PT_array_decl
-#include <pt/type.h>
 
 #include "wiring/fileRange.h"
 

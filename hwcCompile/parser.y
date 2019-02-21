@@ -24,10 +24,9 @@
 #define YYPRINT(fp, yychar, yylval)   do {} while(0)
 
 
-	/* helper functions to copy yylloc into various types */
-	static inline void _fr_build(FileRange*);
-
-#define fr_build(dst) _fr_build(&(dst)->fr);
+/* helper functions to copy yylloc into various types */
+static inline void _fr_build(FileRange*);
+  #define fr_build(dst) _fr_build(&(dst)->fr);
 %}
 
 /* the block above is code which is *ONLY* dropped into the parser's .c
@@ -75,8 +74,6 @@
 	PT_stmt *stmt;
 	PT_decl *decl;
 
-	PT_type *type;
-
 	PT_expr *expr;
 }
 
@@ -96,8 +93,6 @@
 
 %type<stmt> decl_stmt
 %type<decl> decl_fields
-
-%type<type> type
 
 %type<expr> expr
 %type<expr> expr2
@@ -322,13 +317,13 @@ decl_stmt:
 
 decl_fields:
 		/* NOTE: We've removed support for suffix array declarations! */
-		type IDENT
+		expr IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   fr_build($$);
 		                   $$->type = $1;
 		                   $$->isMem = 0;
 		                   $$->name = $2; }
-	|	"memory" '(' type ')' IDENT
+	|	"memory" '(' expr ')' IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   fr_build($$);
 		                   $$->type = $3;
@@ -344,28 +339,6 @@ decl_fields:
 ;
 
 
-type:
-		"bit"              { $$ = malloc(sizeof(PT_type));
-		                     fr_build($$);
-		                     $$->mode = TYPE_BIT; }
-
-	|	IDENT              { $$ = malloc(sizeof(PT_type));
-		                     fr_build($$);
-		                     $$->mode  = TYPE_IDENT;
-		                     $$->ident = $1; }
-
-	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
-	|	type '[' expr2 ']'   { $$ = malloc(sizeof(PT_type));
-		                       fr_build($$);
-		                       $$->mode = TYPE_ARRAY;
-		                       $$->base = $1;
-		                       $$->len  = $3; }
-;
-
-
-/* Note to self(Jackson): It is better to call this "expr" instead of "expr1" */
-/* This is because nonterminals trying to use "expr" shouldn't care about if "expr" is one of several. */
-/* ie, it's good implementation hiding. */
 expr:
 		expr2
 	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
@@ -514,9 +487,7 @@ expr4:
 
 expr5:
 		expr6
-	|	expr5 '.' expr6       /* Do we allow expr.expr.expr.expr endlessly, or only expr.expr? I think it's the later, but I made it the former just in case */
-		                      /* Do we allow expr5.expr4[expr3]? This code doesn't allow for that, and shift/reduce conflicts are created when I try. */
-		                      /*    Fixing the above shift/reduce conflict idea: Swap expr4 and expr5's components. */
+	|	expr5 '.' IDENT
                             { $$ = malloc(sizeof(PT_expr));
 		              fr_build($$);
 		              $$->mode    = EXPR_DOT;
@@ -533,10 +504,13 @@ expr6:
 ;
 
 expr7:
+	  /* this might resolve to either a type or value expression */
 		IDENT   { $$ = malloc(sizeof(PT_expr));
 		          fr_build($$);
 		          $$->mode  = EXPR_IDENT;
 		          $$->name  = $1; }
+
+	  /* these are unambiguous value expressions */
 	|	NUM     { $$ = malloc(sizeof(PT_expr));
 		          fr_build($$);
 		          $$->mode  = EXPR_NUM;
@@ -549,6 +523,15 @@ expr7:
 		          fr_build($$);
 		          $$->mode  = EXPR_BOOL;
 		          $$->value = 0;  }
+
+	  /* this is, unambiguously, a type expression. */
+	|	"bit"              { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
+		                     $$->mode = EXPR_BIT_TYPE; }
+;
+
+
+
 ;
 
 

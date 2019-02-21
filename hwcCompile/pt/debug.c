@@ -157,48 +157,9 @@ void dump_pt_decl(PT_decl *obj, int spaces)
 	dump_pt_decl(obj->prev, spaces);
 
 	dump_helper(spaces);
+	printf("Declaration: named '%s', with type (isMem=%d)\n", obj->name, obj->isMem);
 
-   printf("Declaration: named '%s', with type (isMem=%d)\n", obj->name, obj->isMem);
-	dump_pt_type(obj->type, spaces+2);
-}
-
-
-// ---- DECLARED IN pt/type.h ----
-
-void dump_pt_type(PT_type *obj, int spaces)
-{
-	if(obj == NULL)
-		return;
-
-	if (obj->fr.s.l == 0)
-		printf("WARNING: This 'type' object does not have line number information!\n");
-
-	dump_helper(spaces);
-
-	switch (obj->mode)
-	{
-		default:
-			printf("-- debug: UNRECOGNIZED TYPE ---\n");
-			break;
-
-		case TYPE_BIT:
-			printf("type: BIT\n");
-			break;
-
-		case TYPE_ARRAY:
-			printf("type: ARRAY\n");          // line 1
-
-			dump_pt_type(obj->base, spaces+2);   // line 2
-
-			dump_helper(spaces);
-			printf("len = ");     // line 3
-			dump_pt_expr(obj->len, 0);
-			break;
-
-		case TYPE_IDENT:
-			printf("type: IDENT, %s\n", obj->ident);
-			break;
-	}
+	dump_pt_expr(obj->type, spaces+2);
 }
 
 
@@ -312,8 +273,7 @@ void dump_pt_expr(PT_expr *obj, int spaces)
 			printf("Expr: DOT, using expr\n");
 			dump_pt_expr(obj->dotExpr, spaces+2);
 			dump_helper(spaces);
-			printf(" accessing field:\n");
-			dump_pt_expr(obj->field, spaces+2);
+			printf(" accessing field '%s'\n", obj->field);
 			break;
 
 		case EXPR_ARR:
@@ -354,6 +314,10 @@ void dump_pt_expr(PT_expr *obj, int spaces)
 		case EXPR_PAREN:
 			printf("EXPR: PAREN, with expr of\n");
 			dump_pt_expr(obj->paren, spaces+2);
+			break;
+
+		case EXPR_BIT_TYPE:
+			printf("TODO: implement EXPR_BIT_TYPE in %s()\n", __func__);
 			break;
 	}
 }
