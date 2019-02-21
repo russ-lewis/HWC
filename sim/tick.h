@@ -10,7 +10,7 @@
  */
 void HWC_Sim_doTick(HWC_Sim_State*,
                     int (*write_callback)(HWC_Sim_State*,int,int),
-                    int (*mem_update_callback)(HWC_Sim_State*,HWC_Wiring_Memory*));
+                    int (*mem_update_callback)(HWC_Sim_State*,HWC_Wiring_Memory*,int));
 
 
 
@@ -62,7 +62,7 @@ int HWC_Sim_tick_dispatchDeferred(HWC_Sim_State*,
  * called for each memory cell that is updated.
  */
 int HWC_Sim_tick_finish(HWC_Sim_State*,
-                        int (*callback)(HWC_Sim_State*, HWC_Wiring_Memory*));
+                        int (*callback)(HWC_Sim_State*, HWC_Wiring_Memory*,int));
 
 
 

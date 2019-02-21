@@ -1,0 +1,40 @@
+FIXME: we do not currently populate the 'notifyStart' fields for input ranges.  HWC_Graph_build() : ../graph/core.c
+bit space changed: start=0 len=1: val=0x0
+bit space changed: start=3 len=1: val=0x0
+bit space changed: start=4 len=1: val=0x1
+bit space changed: start=1 len=1: val=0x1
+bit space changed: start=2 len=1: val=0x0
+mem changed: start=1 size=1: val=0x1
+
+...end of tick...
+
+bit space changed: start=0 len=1: val=0x1
+bit space changed: start=3 len=1: val=0x1
+bit space changed: start=4 len=1: val=0x0
+bit space changed: start=1 len=1: val=0x0
+bit space changed: start=2 len=1: val=0x1
+mem changed: start=1 size=1: val=0x0
+
+...end of tick...
+
+bit space changed: start=0 len=1: val=0x0
+bit space changed: start=3 len=1: val=0x0
+bit space changed: start=4 len=1: val=0x1
+bit space changed: start=1 len=1: val=0x1
+bit space changed: start=2 len=1: val=0x0
+mem changed: start=1 size=1: val=0x1
+
+...end of tick...
+
+bit space changed: start=0 len=1: val=0x1
+bit space changed: start=3 len=1: val=0x1
+bit space changed: start=4 len=1: val=0x0
+bit space changed: start=1 len=1: val=0x0
+bit space changed: start=2 len=1: val=0x1
+mem changed: start=1 size=1: val=0x0
+
+...end of tick...
+
+SIMULATION TERMINATED.  sim ran for 4 ticks.
+
+rc=0

@@ -24,7 +24,7 @@ static int dispatch_assert(HWC_Sim_State*, HWC_Graph_Component*,
 
 void HWC_Sim_doTick(HWC_Sim_State *sim,
                     int (*write_callback)(HWC_Sim_State*,int,int),
-                    int (*mem_update_callback)(HWC_Sim_State*,HWC_Wiring_Memory*))
+                    int (*mem_update_callback)(HWC_Sim_State*,HWC_Wiring_Memory*,int))
 {
 	HWC_Sim_tick_init(sim, write_callback);
 
@@ -129,7 +129,7 @@ int HWC_Sim_tick_dispatchDeferred(HWC_Sim_State *sim,
 
 
 int HWC_Sim_tick_finish(HWC_Sim_State *sim,
-                        int (*callback)(HWC_Sim_State*, HWC_Wiring_Memory*))
+                        int (*callback)(HWC_Sim_State*, HWC_Wiring_Memory*,int))
 {
 	int i,j;
 
@@ -149,7 +149,7 @@ int HWC_Sim_tick_finish(HWC_Sim_State *sim,
 
 			if (HWC_Sim_bit_isValid(sim->bits, write_base+j))
 			{
-				int val = HWC_Sim_readBit(sim->bits, write_base+j);
+				unsigned long val = HWC_Sim_readBit(sim->bits, write_base+j);
 				HWC_Sim_writeRawBit(sim->memBits,
 				                    save_pos+j,
 				                    val);
@@ -161,7 +161,9 @@ int HWC_Sim_tick_finish(HWC_Sim_State *sim,
 
 			if (changed)
 			{
-				int retval = callback(sim, &sim->graph->wiring->mem[i]);
+				int retval = callback( sim,
+				                      &sim->graph->wiring->mem[i],
+				                       save_pos);
 				assert(retval == 0);
 			}
 		}
