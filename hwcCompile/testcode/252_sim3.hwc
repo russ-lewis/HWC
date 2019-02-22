@@ -58,7 +58,7 @@ part Sim3_ALU
 
 	for (i; 0..32)
 	{
-		elems[i].op 
+		elems[i].op      = op;
 		elems[i].bInvert = bNegate;
 
 		if (i == 0)
