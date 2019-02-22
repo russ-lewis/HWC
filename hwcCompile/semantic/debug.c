@@ -164,7 +164,7 @@ printf("TODO: %s() marker 8\n", __func__);
 	}
 
 	print_prefix(prefixLen);
-	printf("index: %d\n", decl->index);
+	printf("index: %d\n", decl->indexSize);
 }
 
 

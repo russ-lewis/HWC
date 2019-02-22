@@ -44,17 +44,22 @@ struct HWC_Expr
 
 	char     *name; // Rewritten in Phase 20 to create decl
 	HWC_Decl *decl; // Points to decl that declared this expr
-	int       value;
+	int       value; // TWOOP uses value to store what type of TWOOP it is. See ../pt/expr.h
 	HWC_Expr *exprA, *exprB;
 
 	// Offset into current Part
 	// For EXPR_NOT, BITNOT, and TWOOP we add 1 bit for output of condition
-	int index;
+	// TODO: I think these are unneeded. Remove?
+	//int indexSize;
+	//int indexConn;
+	int indexLogic;
+	//int indexMemory;
+	//int indexAssert;
 };
 
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output);
 int checkExprName(HWC_Expr *, HWC_NameScope *);
-int findExprSize(HWC_Expr *);
+int findExprSize(HWC_Expr *, int *logic);
 
 #endif
 

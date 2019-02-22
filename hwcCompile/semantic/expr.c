@@ -161,7 +161,7 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 /*
 TODO: Header comment
 */
-int findExprSize(HWC_Expr *currExpr)
+int findExprSize(HWC_Expr *currExpr, int *numLogic)
 {
 	int retval = 0;
 
@@ -189,28 +189,34 @@ int findExprSize(HWC_Expr *currExpr)
 			break;
 		case(EXPR_TWOOP):
 			// TODO: Anything to do with "currExpr->value" here?
+			// TODO: numLogic might not want to be incremented for every value
+			currExpr->indexLogic = *numLogic;
+			*numLogic += 1;
 			retval += 1;
-			retval += findExprSize(currExpr->exprA);
-			retval += findExprSize(currExpr->exprB);
+			retval += findExprSize(currExpr->exprA, numLogic);
+			retval += findExprSize(currExpr->exprB, numLogic);
 			break;
 		case(EXPR_BITNOT):
+			// TODO: Increment indexLogic here as well?
 			retval += 1;
-			retval += findExprSize(currExpr->exprA);
+			retval += findExprSize(currExpr->exprA, numLogic);
 			break;
 		case(EXPR_NOT):
+			currExpr->indexLogic = *numLogic;
+			*numLogic += 1;
 			retval += 1;
-			retval += findExprSize(currExpr->exprA);
+			retval += findExprSize(currExpr->exprA, numLogic);
 			break;
 		case(EXPR_DOT):
-			retval += findExprSize(currExpr->exprA);
-			retval += findExprSize(currExpr->exprB);
+			retval += findExprSize(currExpr->exprA, numLogic);
+			retval += findExprSize(currExpr->exprB, numLogic);
 			break;
 		case(EXPR_ARR):
-			retval += findExprSize(currExpr->exprA);
-			retval += findExprSize(currExpr->exprB);
+			retval += findExprSize(currExpr->exprA, numLogic);
+			retval += findExprSize(currExpr->exprB, numLogic);
 			break;
 		case(EXPR_PAREN):
-			retval += findExprSize(currExpr->exprA);
+			retval += findExprSize(currExpr->exprA, numLogic);
 			break;
 	}
 

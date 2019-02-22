@@ -54,6 +54,10 @@ struct HWC_Decl
 	int type;
 	char *typeName;
 
+
+	/*
+	 * TODO: Add comment
+	 */
 	int isMem;
 
 
@@ -84,12 +88,17 @@ struct HWC_Decl
 
 
 	/* bit index of this Decl inside its enclosing PlugType or Part */
-	int index;
+	// TODO: If these turn out to be redundant
+	int indexSize;
+	// int indexConn;
+	// int indexLogic;
+	int indexMemory;
+	// int indexAssert;
 };
 
 void convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
 int checkDeclName(HWC_Decl *, HWC_NameScope *, int);
-int findDeclSize(HWC_Decl *, int);
+int findDeclSize(HWC_Decl *, int, int *memory);
 
 
 void decl_dump(HWC_Decl*, int prefixLen);

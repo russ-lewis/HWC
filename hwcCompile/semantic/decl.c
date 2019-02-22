@@ -146,7 +146,8 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	output->base_part     = NULL;
 
 	// Temp dummy value that might be useful later
-	output->index = -1;
+	output->indexSize = -1;
+	output->indexMemory = -1;
 }
 
 
@@ -232,8 +233,14 @@ TODO: Add header comment
 Include that, by this point, we know either base_part or base_plugType should be filled in
    - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
 */
-int findDeclSize(HWC_Decl *input, int isWithinPlug)
+int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 {
+	if(input->isMem == 1)
+	{
+		input->indexMemory = *numMemory;
+		*numMemory += 1;
+	}
+
 	if(input->base_plugType != NULL)
 	{
 		// TODO: Fix inconsistent capitalization
