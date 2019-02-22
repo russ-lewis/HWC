@@ -61,7 +61,7 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 			break;
 		case(EXPR_DOT):
 			convertPTexprIntoHWCexpr(input->dotExpr, &output->exprA);
-			convertPTexprIntoHWCexpr(input->field  , &output->exprB);
+			output->field = input->field;
 			break;
 		case(EXPR_ARR):
 			convertPTexprIntoHWCexpr(input->arrayExpr, &output->exprA);

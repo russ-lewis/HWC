@@ -32,20 +32,23 @@ struct HWC_Expr
 	/* EXPR_SUBCOMPONENT */
 	HWC_PartInstance *subcomponent;
 
-	/* EXPR_IDENT  - uses name                     */
-	/* EXPR_NUM    - uses name                     */
-	/* EXPR_BOOL   - uses       value              */
-	/* EXPR_TWOOP  - uses       value, exprA,exprB */
-	/* EXPR_NOT    - uses              exprA       */
-   /* EXPR_BITNOT - uses              exprA       */
-	/* EXPR_DOT    - uses              exprA,exprB */
-	/* EXPR_ARR    - uses              exprA,exprB */
-	/* EXPR_PAREN  - uses              exprA       */
+	/* EXPR_IDENT     - uses name                     */
+	/* EXPR_NUM       - uses name                     */
+	/* EXPR_BOOL      - uses       value              */
+	/* EXPR_TWOOP     - uses       value, exprA,exprB */
+	/* EXPR_NOT       - uses              exprA       */
+	/* EXPR_BITNOT    - uses              exprA       */
+	/* EXPR_DOT       - uses              exprA,field */
+	/* EXPR_ARR       - uses              exprA,exprB */
+	/* EXPR_ARR_SLICE - uses              exprA,exprB */
+	/* EXPR_PAREN     - uses              exprA       */
 
 	char     *name; // Rewritten in Phase 20 to create decl
 	HWC_Decl *decl; // Points to decl that declared this expr
 	int       value; // TWOOP uses value to store what type of TWOOP it is. See ../pt/expr.h
 	HWC_Expr *exprA, *exprB;
+
+	char *field;
 
 	// Offset into current Part
 	// For EXPR_NOT, BITNOT, and TWOOP we add 1 bit for output of condition

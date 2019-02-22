@@ -4,14 +4,16 @@ File with the following decls:
     Part_decl: named 'simple_for', with stmts: 
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'in', with type (isMem=0)
-          type: ARRAY
-            type: BIT
-          len = Expr: NUM, value of 32
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'out', with type (isMem=0)
-          type: ARRAY
-            type: BIT
-          len = Expr: NUM, value of 32
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
       stmt: FOR LOOP
         var: i
         Bgn:

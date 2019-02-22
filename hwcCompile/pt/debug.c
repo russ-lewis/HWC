@@ -317,7 +317,7 @@ void dump_pt_expr(PT_expr *obj, int spaces)
 			break;
 
 		case EXPR_BIT_TYPE:
-			printf("TODO: implement EXPR_BIT_TYPE in %s()\n", __func__);
+			printf("\"bit\"\n");
 			break;
 	}
 }

@@ -13,30 +13,30 @@ TODO: Decls within IF stmts are not accounted for yet.
       parent=<TODO>
         name: data
           --- Decl ---
-          type: 401 typeName: (null) isMem: 1
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 1
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
         name: setVal
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
         name: set
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: getVal
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
         name: get
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>

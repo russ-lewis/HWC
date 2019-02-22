@@ -459,7 +459,7 @@ expr3:
 
 expr4:
 		expr5
-	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
+
 	|	expr4 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
 		                        fr_build($$);
 		                        $$->mode      = EXPR_ARR;

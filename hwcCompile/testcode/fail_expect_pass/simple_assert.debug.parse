@@ -4,9 +4,9 @@ File with the following decls:
     Part_decl: named 'simple_assert', with stmts: 
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'a', with type (isMem=0)
-          type: BIT
+          "bit"
         Declaration: named 'b', with type (isMem=0)
-          type: BIT
+          "bit"
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:

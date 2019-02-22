@@ -15,6 +15,60 @@ static void print_prefix(int cnt)
 
 
 
+char *enum2str(int mode)
+{
+	switch (mode)
+	{
+	case STMT_DECL:	       return "STMT_DECL";
+	case STMT_BLOCK:       return "STMT_BLOCK";
+	case STMT_CONN:        return "STMT_CONN";
+	case STMT_FOR:         return "STMT_FOR";
+	case STMT_IF:          return "STMT_IF";
+	case STMT_ELSE:        return "STMT_ELSE";
+	case STMT_ASRT:        return "STMT_ASRT";
+
+	case EXPR_IDENT:       return "EXPR_IDENT";
+	case EXPR_NUM:         return "EXPR_NUM";
+	case EXPR_BOOL:        return "EXPR_BOOL";
+	case EXPR_TWOOP:       return "EXPR_TWOOP";
+	case EXPR_BITNOT:      return "EXPR_BITNOT";
+	case EXPR_NOT:         return "EXPR_NOT";
+	case EXPR_DOT:         return "EXPR_DOT";
+	case EXPR_ARR:         return "EXPR_ARR_SLICE";
+	case EXPR_ARR_SLICE:   return "EXPR_ARR_SLICE";
+	case EXPR_PAREN:       return "EXPR_PAREN";
+	case EXPR_BIT_TYPE:    return "EXPR_BIT_TYPE";
+
+	case OP_EQUALS:        return "OP_EQUALS";
+	case OP_NEQUAL:        return "OP_NEQUAL";
+	case OP_BITAND:        return "OP_BITAND";
+	case OP_AND:           return "OP_AND";
+	case OP_BITOR:         return "OP_BITOR";
+	case OP_OR:            return "OP_OR";
+	case OP_XOR:           return "OP_XOR";
+	case OP_LESS:          return "OP_LESS";
+	case OP_GREATER:       return "OP_GREATER";
+	case OP_LESSEQ:        return "OP_LESSEQ";
+	case OP_GREATEREQ:     return "OP_GREATEREQ";
+	case OP_PLUS:          return "OP_PLUS";
+	case OP_MINUS:         return "OP_MINUS";
+	case OP_TIMES:         return "OP_TIMES";
+	case OP_DIVIDE:        return "OP_DIVIDE";
+	case OP_MODULO:        return "OP_MODULO";
+	}
+
+
+	// this is a terrible design, in computer-science-purist perspective,
+	// because it returns a static buffer.  But it's workable as a hackish
+	// debug-only, never-used-in-parallel sort of situation.
+
+	static char buf[256];
+	sprintf(buf, "<Unrecognized enum %d>", mode);
+	return buf;
+}
+
+
+
 void nameScope_dump(HWC_NameScope *names, int prefixLen)
 {
 	print_prefix(prefixLen);
@@ -143,7 +197,8 @@ void decl_dump(HWC_Decl *decl, int prefixLen)
 		printf("WARNING: This 'decl' object does not have line number information!\n");
 
 	print_prefix(prefixLen);
-	printf("type: %d typeName: %s isMem: %d\n", decl->type, decl->typeName, decl->isMem);
+	printf("type: %s typeName: %s isMem: %d\n", 
+	       enum2str(decl->type), decl->typeName, decl->isMem);
 
 	if (decl->base_plugType != NULL)
 	{
@@ -169,29 +224,6 @@ printf("TODO: %s() marker 8\n", __func__);
 
 
 
-char *stmt_mode2str(int mode)
-{
-	switch (mode)
-	{
-	case STMT_DECL:		return "STMT_DECL";
-	case STMT_BLOCK:	return "STMT_BLOCK";
-	case STMT_CONN:		return "STMT_CONN";
-	case STMT_FOR:		return "STMT_FOR";
-	case STMT_IF:		return "STMT_IF";
-	case STMT_ELSE:		return "STMT_ELSE";
-	case STMT_ASRT:		return "STMT_ASRT";
-	}
-
-
-	// this is a terrible design, in computer-science-purist perspective,
-	// because it returns a static buffer.  But it's workable as a hackish
-	// debug-only, never-used-in-parallel sort of situation.
-
-	static char buf[256];
-	sprintf(buf, "ERROR: Unrecognized stmt->mode %d\n", mode);
-	return buf;
-}
-
 void stmt_dump(HWC_Stmt *stmt, int prefixLen)
 {
 	print_prefix(prefixLen);
@@ -201,7 +233,7 @@ void stmt_dump(HWC_Stmt *stmt, int prefixLen)
 		printf("WARNING: This 'stmt' object does not have line number information!\n");
 
 	print_prefix(prefixLen);
-	printf("mode: %s\n", stmt_mode2str(stmt->mode));
+	printf("mode: %s\n", enum2str(stmt->mode));
 
 printf("TODO: %s() marker 9\n", __func__);
 }

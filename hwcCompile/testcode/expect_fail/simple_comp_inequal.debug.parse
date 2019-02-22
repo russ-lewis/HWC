@@ -4,9 +4,9 @@ File with the following decls:
     Part_decl: named 'simple_comp_inequal', with stmts: 
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'a', with type (isMem=0)
-          type: BIT
+          "bit"
         Declaration: named 'b', with type (isMem=0)
-          type: BIT
+          "bit"
       stmt: IF CHECK
         Expr: TWOOP of mode LESS THAN with exprs
           LHand:

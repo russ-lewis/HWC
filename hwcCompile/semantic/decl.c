@@ -101,7 +101,7 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	fr_copy(&output->fr, &input->fr);
 
 	// Extract the "type" of the decl. See pt/type.h for details on what a type can be.
-	PT_type *convert = input->type;
+	PT_expr *convert = input->type;
 
 	// Make sure convert has a proper mode.
 	switch (convert->mode)
@@ -110,24 +110,29 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 			fprintf(stderr, "Bad mode! Value of [%d].\n", convert->mode);
 			assert(0);
 			break;
-		case TYPE_BIT:
-		case TYPE_ARRAY:
-		case TYPE_IDENT:
+
+		case EXPR_BIT_TYPE:
+		case EXPR_ARR:
+		case EXPR_IDENT:
 			break;
 	}
 
-	// If this is an array declaration, extract the length of the array
-	if(convert->mode == TYPE_ARRAY)
+
+	// If this is an array declaration, extract the length of the array.
+	// Then, we'll update the 'convert' pointer, so that we can focus on
+	// the base type and do the conversion
+	if(convert->mode == EXPR_ARR)
 	{
-		convertPTexprIntoHWCexpr(convert->len, &output->expr);
-		convert = convert->base;
+		convertPTexprIntoHWCexpr(convert->indexExpr, &output->expr);
+		convert = convert->arrayExpr;
 	}
 	else
 		output->expr = NULL;
 
+
 	// TODO: Allow multi-level arrays
 	// ie, this breaks when the "type" of an array is another array.
-	if(convert->mode == TYPE_ARRAY)
+	if(convert->mode == EXPR_ARR)
 	{
 		fprintf(stderr, "Multi-level arrays are currently not supported in HWC.\n");
 		assert(0);
@@ -138,7 +143,7 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	//   We could check for and set decls of type "bit" here, but we'll need to check the part/plug name
 	//   later anyhow, so pass on it for now.
 	output->type     = convert->mode;
-	output->typeName = convert->ident;
+	output->typeName = convert->name;   // used for IDENT, ignored for BIT_TYPE
 
 	output->isMem    = input->isMem;
 
@@ -178,15 +183,15 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			assert(0);
 			break;
 
-		case TYPE_BIT:
+		case EXPR_BIT_TYPE:
 			currDecl->base_plugType = &BitType;
 			break;
 
-		case TYPE_ARRAY:
+		case EXPR_ARR:
 			fprintf(stderr, "-- TODO: %s(): is TYPE_ARRAY possible?\n", __func__);
 			return 1;
 
-		case TYPE_IDENT:
+		case EXPR_IDENT:
 			// Search for our relevant name within currScope
 			currName = nameScope_search(currScope, currDecl->typeName);
 			if(currName == NULL)

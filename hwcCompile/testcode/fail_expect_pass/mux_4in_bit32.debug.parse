@@ -4,21 +4,25 @@ File with the following decls:
     Part_decl: named 'MUX_4in_bit32', with stmts: 
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'in', with type (isMem=0)
-          type: ARRAY
-            type: ARRAY
-              type: BIT
-            len = Expr: NUM, value of 32
-          len = Expr: NUM, value of 4
+          Expr: ARR, into array expr
+            Expr: ARR, into array expr
+              "bit"
+             index of
+              Expr: NUM, value of 32
+           index of
+            Expr: NUM, value of 4
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'out', with type (isMem=0)
-          type: ARRAY
-            type: BIT
-          len = Expr: NUM, value of 32
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'control', with type (isMem=0)
-          type: ARRAY
-            type: BIT
-          len = Expr: NUM, value of 2
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 2
       stmt: FOR LOOP
         var: i
         Bgn:

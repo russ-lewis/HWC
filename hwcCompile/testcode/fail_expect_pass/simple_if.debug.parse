@@ -4,15 +4,16 @@ File with the following decls:
     Part_decl: named 'simple_if', with stmts: 
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'control', with type (isMem=0)
-          type: BIT
+          "bit"
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'in', with type (isMem=0)
-          type: ARRAY
-            type: BIT
-          len = Expr: NUM, value of 2
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 2
       stmt: DECL, that is public, is not a subpart, and has the decl vars:
         Declaration: named 'out', with type (isMem=0)
-          type: BIT
+          "bit"
       stmt: IF CHECK
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
@@ -29,13 +30,12 @@ File with the following decls:
     Part_decl: named 'main', with stmts: 
       stmt: DECL, that is private, is a subpart, and has the decl vars:
         Declaration: named 'a', with type (isMem=0)
-          type: IDENT, simple_if
+          Expr: IDENT, name = simple_if
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = a
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 0
         Expr: NUM, value of 0
@@ -43,35 +43,31 @@ File with the following decls:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = a
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 1
         Expr: NUM, value of 0
       stmt: CONNECTION, with left and right exprs:
         Expr: DOT, using expr
           Expr: IDENT, name = a
-         accessing field:
-          Expr: IDENT, name = control
+         accessing field 'control'
         Expr: NUM, value of 0
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
             Expr: DOT, using expr
               Expr: IDENT, name = a
-             accessing field:
-              Expr: IDENT, name = out
+             accessing field 'out'
           RHand:
             Expr: NUM, value of 0
       stmt: DECL, that is private, is a subpart, and has the decl vars:
         Declaration: named 'b', with type (isMem=0)
-          type: IDENT, simple_if
+          Expr: IDENT, name = simple_if
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = b
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 0
         Expr: NUM, value of 0
@@ -79,35 +75,31 @@ File with the following decls:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = b
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 1
         Expr: NUM, value of 0
       stmt: CONNECTION, with left and right exprs:
         Expr: DOT, using expr
           Expr: IDENT, name = b
-         accessing field:
-          Expr: IDENT, name = control
+         accessing field 'control'
         Expr: NUM, value of 1
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
             Expr: DOT, using expr
               Expr: IDENT, name = b
-             accessing field:
-              Expr: IDENT, name = out
+             accessing field 'out'
           RHand:
             Expr: NUM, value of 0
       stmt: DECL, that is private, is a subpart, and has the decl vars:
         Declaration: named 'c', with type (isMem=0)
-          type: IDENT, simple_if
+          Expr: IDENT, name = simple_if
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = c
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 0
         Expr: NUM, value of 0
@@ -115,35 +107,31 @@ File with the following decls:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = c
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 1
         Expr: NUM, value of 1
       stmt: CONNECTION, with left and right exprs:
         Expr: DOT, using expr
           Expr: IDENT, name = c
-         accessing field:
-          Expr: IDENT, name = control
+         accessing field 'control'
         Expr: NUM, value of 0
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
             Expr: DOT, using expr
               Expr: IDENT, name = c
-             accessing field:
-              Expr: IDENT, name = out
+             accessing field 'out'
           RHand:
             Expr: NUM, value of 0
       stmt: DECL, that is private, is a subpart, and has the decl vars:
         Declaration: named 'd', with type (isMem=0)
-          type: IDENT, simple_if
+          Expr: IDENT, name = simple_if
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = d
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 0
         Expr: NUM, value of 0
@@ -151,35 +139,31 @@ File with the following decls:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = d
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 1
         Expr: NUM, value of 1
       stmt: CONNECTION, with left and right exprs:
         Expr: DOT, using expr
           Expr: IDENT, name = d
-         accessing field:
-          Expr: IDENT, name = control
+         accessing field 'control'
         Expr: NUM, value of 1
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
             Expr: DOT, using expr
               Expr: IDENT, name = b
-             accessing field:
-              Expr: IDENT, name = out
+             accessing field 'out'
           RHand:
             Expr: NUM, value of 1
       stmt: DECL, that is private, is a subpart, and has the decl vars:
         Declaration: named 'e', with type (isMem=0)
-          type: IDENT, simple_if
+          Expr: IDENT, name = simple_if
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = e
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 0
         Expr: NUM, value of 1
@@ -187,35 +171,31 @@ File with the following decls:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = e
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 1
         Expr: NUM, value of 0
       stmt: CONNECTION, with left and right exprs:
         Expr: DOT, using expr
           Expr: IDENT, name = e
-         accessing field:
-          Expr: IDENT, name = control
+         accessing field 'control'
         Expr: NUM, value of 0
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
             Expr: DOT, using expr
               Expr: IDENT, name = e
-             accessing field:
-              Expr: IDENT, name = out
+             accessing field 'out'
           RHand:
             Expr: NUM, value of 1
       stmt: DECL, that is private, is a subpart, and has the decl vars:
         Declaration: named 'f', with type (isMem=0)
-          type: IDENT, simple_if
+          Expr: IDENT, name = simple_if
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = f
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 0
         Expr: NUM, value of 1
@@ -223,35 +203,31 @@ File with the following decls:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = f
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 1
         Expr: NUM, value of 0
       stmt: CONNECTION, with left and right exprs:
         Expr: DOT, using expr
           Expr: IDENT, name = f
-         accessing field:
-          Expr: IDENT, name = control
+         accessing field 'control'
         Expr: NUM, value of 1
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
             Expr: DOT, using expr
               Expr: IDENT, name = f
-             accessing field:
-              Expr: IDENT, name = out
+             accessing field 'out'
           RHand:
             Expr: NUM, value of 0
       stmt: DECL, that is private, is a subpart, and has the decl vars:
         Declaration: named 'g', with type (isMem=0)
-          type: IDENT, simple_if
+          Expr: IDENT, name = simple_if
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = g
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 0
         Expr: NUM, value of 1
@@ -259,35 +235,31 @@ File with the following decls:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = g
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 1
         Expr: NUM, value of 1
       stmt: CONNECTION, with left and right exprs:
         Expr: DOT, using expr
           Expr: IDENT, name = g
-         accessing field:
-          Expr: IDENT, name = control
+         accessing field 'control'
         Expr: NUM, value of 0
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
             Expr: DOT, using expr
               Expr: IDENT, name = g
-             accessing field:
-              Expr: IDENT, name = out
+             accessing field 'out'
           RHand:
             Expr: NUM, value of 1
       stmt: DECL, that is private, is a subpart, and has the decl vars:
         Declaration: named 'h', with type (isMem=0)
-          type: IDENT, simple_if
+          Expr: IDENT, name = simple_if
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = h
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 0
         Expr: NUM, value of 1
@@ -295,24 +267,21 @@ File with the following decls:
         Expr: ARR, into array expr
           Expr: DOT, using expr
             Expr: IDENT, name = h
-           accessing field:
-            Expr: IDENT, name = in
+           accessing field 'in'
          index of
           Expr: NUM, value of 1
         Expr: NUM, value of 1
       stmt: CONNECTION, with left and right exprs:
         Expr: DOT, using expr
           Expr: IDENT, name = h
-         accessing field:
-          Expr: IDENT, name = control
+         accessing field 'control'
         Expr: NUM, value of 1
       stmt: ASSERTION
         Expr: TWOOP of mode EQUALS with exprs
           LHand:
             Expr: DOT, using expr
               Expr: IDENT, name = h
-             accessing field:
-              Expr: IDENT, name = out
+             accessing field 'out'
           RHand:
             Expr: NUM, value of 1
 
