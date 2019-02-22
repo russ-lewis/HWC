@@ -46,6 +46,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 		fr_copy(&currStmt->fr, &currPTstmt->fr);
 
 		currStmt->mode = currPTstmt->mode;
+		// TODO: Initialize other variables of currStmt?
 
 		switch(currPTstmt->mode)
 		{
@@ -175,7 +176,7 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 /*
 TODO: Add header comment
 */
-int findStmtSize(HWC_Stmt *currStmt)
+int findStmtSize(HWC_Stmt *currStmt, int *numConn, int *numLogic, int *numAssert)
 {
 	int retval = 0;
 	int i;
@@ -190,37 +191,41 @@ int findStmtSize(HWC_Stmt *currStmt)
 			break;
 		case STMT_BLOCK:
 			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i);
+				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_CONN:
-			retval += findExprSize(currStmt->exprA);
-			retval += findExprSize(currStmt->exprB);
+			currStmt->indexConn = *numConn;
+			*numConn += 1;
+			retval += findExprSize(currStmt->exprA, numLogic);
+			retval += findExprSize(currStmt->exprB, numLogic);
 			break;
 		case STMT_FOR:
 			// Since FOR initializes a variable, we add that to size.
 			// TODO: Is this the correct amount to add? The spec specifies for-loops use integers.
 			retval += 8;
 
-			retval += findExprSize(currStmt->exprA);
-			retval += findExprSize(currStmt->exprB);
+			retval += findExprSize(currStmt->exprA, numLogic);
+			retval += findExprSize(currStmt->exprB, numLogic);
 
 			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i);
+				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_IF:
-			retval += findExprSize(currStmt->exprA);
+			retval += findExprSize(currStmt->exprA, numLogic);
 
 			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i);
+				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			for(i = 0; i < currStmt->sizeB; i++)
-				retval += findStmtSize(currStmt->stmtB +i);
+				retval += findStmtSize(currStmt->stmtB +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_ELSE:
 			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i);
+				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_ASRT:
-			retval += findExprSize(currStmt->exprA);
+			currStmt->indexConn = *numAssert;
+			*numAssert += 1;
+			retval += findExprSize(currStmt->exprA, numLogic);
 			break;
 	}
 

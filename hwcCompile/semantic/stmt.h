@@ -42,13 +42,19 @@ struct HWC_Stmt
 	// Is the declaration public? Is the declaration a subpart?
 	int isPublic,  isSubpart;
 
+	// TODO: Describe significance
+	int indexSize;
+	int indexConn;
+	// int indexLogic;
+	// int indexMemory;
+	int indexAssert;
 };
 
 
 int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt **);
 int extractHWCdeclsFromPTstmts(PT_stmt *, HWC_Decl **, HWC_NameScope *, HWC_NameScope *);
 int checkStmtName(HWC_Stmt *, HWC_NameScope *);
-int findStmtSize(HWC_Stmt *);
+int findStmtSize(HWC_Stmt *, int *conn, int *logic, int *assert);
 
 
 void stmt_dump(HWC_Stmt*, int prefixLen);

@@ -33,8 +33,12 @@ struct HWC_Part
 	HWC_Decl *decls;
 	int       decls_len;
 
-
+	// Used to store information for the wiring phase.
 	int size;
+	int numConn;
+	int numLogic;
+	int numMemory;
+	int numAssert;
 };
 
 

@@ -60,6 +60,13 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 
 	// TODO: Perhaps check if either of these functions result in NULL, since that might be invalid
 
+	// Set some size values
+	retval->size = 0;
+	retval->numConn = 0;
+	retval->numLogic = 0;
+	retval->numMemory = 0;
+	retval->numAssert = 0;
+
 	return retval;
 }
 
