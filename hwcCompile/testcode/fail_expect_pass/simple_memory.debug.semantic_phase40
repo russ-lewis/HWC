@@ -16,7 +16,7 @@
       parent=<TODO>
         name: dummy
           --- Decl ---
-          type: 403 typeName: tick_tock isMem: 0
+          type: EXPR_IDENT typeName: tick_tock isMem: 0
           expr: <TODO>
           index: -1
     stmts: len=1
@@ -36,7 +36,7 @@ TODO: part_dump() marker 5
       parent=<TODO>
         name: out
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>
@@ -45,7 +45,7 @@ TODO: part_dump() marker 5
       parent=<TODO>
         name: state
           --- Decl ---
-          type: 401 typeName: (null) isMem: 1
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 1
           expr: <TODO>
           index: -1
     stmts: len=4

@@ -1,22 +1,26 @@
+TODO: Decls within BLOCK stmts are not accounted for yet.
+<stdin>:8:10: Symbol 'tmp' does not exist.
+<stdin>:9:3: Symbol 'tmp' does not exist.
+Phase 20, part: 2 errors found with stmt of (null)!
 ---- DEBUG: DUMPING SEMANTIC (after phase 40) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
   name: Test
     --- Part ---
-    phases: begun 10 completed 30
+    phases: begun 10 completed 20
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
       parent=<TODO>
         name: jkl
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: asdf
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>

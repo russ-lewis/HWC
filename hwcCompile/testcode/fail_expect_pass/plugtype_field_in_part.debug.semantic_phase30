@@ -11,12 +11,12 @@
       parent=<TODO>
         name: output
           --- Decl ---
-          type: 403 typeName: Foo isMem: 0
+          type: EXPR_IDENT typeName: Foo isMem: 0
           expr: <TODO>
           index: -1
         name: input
           --- Decl ---
-          type: 403 typeName: Foo isMem: 0
+          type: EXPR_IDENT typeName: Foo isMem: 0
           expr: <TODO>
           index: -1
     privateNames: <TODO>

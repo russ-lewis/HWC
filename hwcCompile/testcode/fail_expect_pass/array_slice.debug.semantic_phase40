@@ -1,4 +1,7 @@
-TODO: How to account for decls within FOR stmts?
+TODO: Decls within FOR stmts are not accounted for yet.
+TODO: Remove this syntax-error mark when we implement support for for() loops.
+<stdin>:9:7: Symbol 'i' does not exist.
+Phase 20, part: 2 errors found with stmt of i!
 ---- DEBUG: DUMPING SEMANTIC (after phase 40) ----
  --- NameScope ---
  refcount=1
@@ -12,19 +15,19 @@ TODO: How to account for decls within FOR stmts?
       parent=<TODO>
         name: shiftLeft4
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
         name: out
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
         name: in
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
