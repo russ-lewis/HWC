@@ -6,15 +6,21 @@
 #include "wiring/core.h"
 #include "../hwcCompile/semantic/part.h"
 #include "../hwcCompile/semantic/decl.h"
-
+#include "../hwcCompile/semantic/stmt.h"
+#include "../hwcCompile/semantic/expr.h"
+#include <pt/expr.h>
 
 // Prototypes, used later
-int findMemory (HWC_Wiring *, HWC_Part *, int);
-int findLogic  (HWC_Wiring *, HWC_Part *, int);
-int findConnect(HWC_Wiring *, HWC_Part *, int);
-int findAssert (HWC_Wiring *, HWC_Part *, int);
+int findPart     (HWC_Wiring *, HWC_Part *, int *, int *, int *, int *);
+int findMemory   (HWC_Wiring *, HWC_Part *, int);
+int findLogicStmt(HWC_Wiring *, HWC_Part *, int);
+int findLogicExpr(HWC_Wiring *, HWC_Expr *, int);
+int findConnect  (HWC_Wiring *, HWC_Part *, int);
+int findAssert   (HWC_Wiring *, HWC_Part *, int);
 
 
+// ASSUMPTION: The given part is the "main" part, and the numConn, numLogic etc. in the "main" part is equal to
+//   the max number of conns, logics, etc. that the wiring diagram will need.
 HWC_Wiring *buildWiringDiagram(HWC_Part *part)
 {
 	HWC_Wiring *retval = malloc(sizeof(HWC_Wiring));
@@ -25,17 +31,52 @@ HWC_Wiring *buildWiringDiagram(HWC_Part *part)
 	// Memory
 	retval->numMemRanges = part->numMemory;
 	retval->mem = malloc(sizeof(HWC_Wiring_Memory) * part->numMemory);
-	int memFound = findMemory(retval, part, 0);
-	if(memFound != part->numMemory)
-		assert(0);
+	int memoryFound;
 
 	// Logic
+	retval->numLogicalOperators = part->numLogic;
+	retval->logic = malloc(sizeof(HWC_Wiring_Logic) * part->numLogic);
+	int logicFound;
 
 	// Connections
+	int connectFound;
 
 	// Asserts
+	int assertFound;
 
-	assert(0);
+	findPart(retval, part, &memoryFound, &logicFound, &connectFound, &assertFound);
+
+	if(memoryFound  != part->numMemory)
+		assert(0);
+	if(logicFound   != part->numLogic)
+		assert(0);
+	if(connectFound != part->numConn)
+		assert(0);
+	if(assertFound  != part->numAssert)
+		assert(0);
+
+	return retval;
+}
+
+// Other parts are found through decls, so we need to do this to find stmts and exprs in parts.
+int findPart(HWC_Wiring *retval, HWC_Part *part, int *indexMemory, int *indexLogic, int *indexConn, int *indexAssert)
+{
+	int i;
+	HWC_Decl currDecl;
+	for(i = 0; i < part->decls_len; i++)
+	{
+		currDecl = part->decls[i];
+
+		if(currDecl.base_part != NULL)
+			findPart(retval, currDecl.base_part, indexMemory, indexLogic, indexConn, indexAssert);
+	}
+
+	*indexMemory = findMemory (retval, part, *indexMemory);
+	*indexLogic  = findLogicStmt(retval, part, *indexLogic);
+	*indexConn   = findConnect(retval, part, *indexConn);
+	*indexAssert = findAssert (retval, part, *indexAssert);
+
+	return 0;
 }
 
 int findMemory(HWC_Wiring *retval, HWC_Part *part, int index)
@@ -46,9 +87,6 @@ int findMemory(HWC_Wiring *retval, HWC_Part *part, int index)
 	{
 		currDecl = part->decls[i];
 
-		if(currDecl.base_part != NULL)
-			index = findMemory(retval, currDecl.base_part, index);
-
 		if(currDecl.isMem == 1)
 		{
 			HWC_Wiring_Memory currMem = retval->mem[index];
@@ -56,15 +94,115 @@ int findMemory(HWC_Wiring *retval, HWC_Part *part, int index)
 			// TODO: What to put for these?
 			currMem.read = -1;
 			currMem.write = -1;
+			index++;
 		}
 	}
 	return index;
 }
 
-int findLogic(HWC_Wiring *retval, HWC_Part *part, int index)
+int findLogicStmt(HWC_Wiring *retval, HWC_Part *part, int index)
 {
+	int i;
+	HWC_Stmt currStmt;
+	for(i = 0; i < part->stmts_len; i++)
+	{
+		currStmt = part->stmts[i];
+
+		// TODO: Add code to do IF, FOR, and other BLOCK stmts.
+
+		switch(currStmt.mode)
+		{
+			default:
+				// NOP
+				break;
+
+			case STMT_CONN:
+			case STMT_IF:
+				index = findLogicExpr(retval, currStmt.exprA, index);
+				index = findLogicExpr(retval, currStmt.exprB, index);
+				break;
+
+			case STMT_FOR:
+			case STMT_ASRT:
+				index = findLogicExpr(retval, currStmt.exprA, index);
+				break;
+		}
+	}
+
 	return index;
 }
+
+
+int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
+{
+	int temp;
+	HWC_Wiring_Logic currLogic;
+
+	switch(expr->mode)
+	{
+		default:
+			break;
+
+		case EXPR_NOT:
+			currLogic = retval->logic[index];
+			currLogic.type = WIRING_NOT;
+			// TODO: These don't work for recursive EXPRs
+			currLogic.size = 1;
+			currLogic.a = expr->exprA->value;
+			// TODO: Should this be a stmt or an expr?
+			currLogic.out = -1;
+			break;
+
+		case EXPR_TWOOP:
+			switch(expr->value)
+			{
+				default:
+					break;
+
+				case OP_EQUALS:
+				case OP_NEQUAL:
+				case OP_AND:
+				case OP_OR:
+				case OP_XOR:
+					// TODO: Is there a better way to do this?
+					if(expr->value == OP_EQUALS)
+						temp = WIRING_EQ;
+					if(expr->value == OP_NEQUAL)
+						temp = WIRING_NEQ;
+					if(expr->value == OP_AND)
+						temp = WIRING_AND;
+					if(expr->value == OP_OR)
+						temp = WIRING_OR;
+					if(expr->value == OP_XOR)
+						temp = WIRING_XOR;
+					currLogic = retval->logic[index];
+					currLogic.type = temp;
+					// TODO: These don't work for recursive EXPRs
+					currLogic.size = 1;
+					currLogic.a = expr->exprA->value;
+					currLogic.b = expr->exprB->value;
+					// TODO: Should this be a stmt or an expr?
+					currLogic.out = -1;
+					break;
+			}
+
+		case EXPR_BITNOT:
+		case EXPR_DOT:
+		case EXPR_PAREN:
+			index = findLogicExpr(retval, expr->exprA, index);
+			break;
+
+		case EXPR_ARR:
+		case EXPR_ARR_SLICE:
+			index = findLogicExpr(retval, expr->exprA, index);
+			index = findLogicExpr(retval, expr->exprB, index);
+			break;
+	}
+
+	return index;
+}
+
+// TODO: Merge Connect and Assert into one function eventually? They both iterate over exprs after all.
 int findConnect(HWC_Wiring *retval, HWC_Part *part, int index)
 {
 	return index;
@@ -89,7 +227,7 @@ struct HWC_Wiring
 	// single contiguous range of memory cells; there are bit-indices for
 	// both the read and write sides.
 	int numMemRanges;
-	HWC_Wiring_Memory *mem;
+7	HWC_Wiring_Memory *mem;
 
 	// an array of HWC_Wiring_Logic objects.  Each object represents a
 	// single logical operator, which can be over a single bit or over
