@@ -23,7 +23,16 @@
       --- NameScope ---
       refcount=1
       parent=<TODO>
-      <no names>
+        name: output
+          --- Decl ---
+          type: EXPR_IDENT typeName: Foo isMem: 0
+          expr: <TODO>
+          index: -1
+        name: input
+          --- Decl ---
+          type: EXPR_IDENT typeName: Foo isMem: 0
+          expr: <TODO>
+          index: -1
     stmts: len=2
       [0]
         --- Stmt ---

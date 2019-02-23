@@ -28,7 +28,21 @@
       --- NameScope ---
       refcount=1
       parent=<TODO>
-      <no names>
+        name: c
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: b
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: a
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
     stmts: len=4
       [0]
         --- Stmt ---

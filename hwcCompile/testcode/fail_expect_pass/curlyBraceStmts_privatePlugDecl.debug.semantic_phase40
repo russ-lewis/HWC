@@ -2,6 +2,7 @@ TODO: Decls within BLOCK stmts are not accounted for yet.
 <stdin>:8:10: Symbol 'tmp' does not exist.
 <stdin>:9:3: Symbol 'tmp' does not exist.
 Phase 20, part: 2 errors found with stmt of (null)!
+TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 ---- DEBUG: DUMPING SEMANTIC (after phase 40) ----
  --- NameScope ---
  refcount=1
@@ -27,7 +28,16 @@ Phase 20, part: 2 errors found with stmt of (null)!
       --- NameScope ---
       refcount=1
       parent=<TODO>
-      <no names>
+        name: jkl
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: asdf
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
     stmts: len=3
       [0]
         --- Stmt ---

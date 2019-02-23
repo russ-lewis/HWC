@@ -46,7 +46,16 @@ TODO: stmt_dump() marker 9
       --- NameScope ---
       refcount=1
       parent=<TODO>
-      <no names>
+        name: output
+          --- Decl ---
+          type: 401 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: input
+          --- Decl ---
+          type: 401 typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
     stmts: len=3
       [0]
         --- Stmt ---

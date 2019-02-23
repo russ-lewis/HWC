@@ -3,6 +3,7 @@ TODO: Decls within IF stmts are not accounted for yet.
 TODO: Decls within IF stmts are not accounted for yet.
 TODO: Decls within IF stmts are not accounted for yet.
 TODO: Decls within IF stmts are not accounted for yet.
+TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 ---- DEBUG: DUMPING SEMANTIC (after phase 40) ----
  --- NameScope ---
  refcount=1
@@ -35,7 +36,23 @@ TODO: decl_dump() marker 8
       --- NameScope ---
       refcount=1
       parent=<TODO>
-      <no names>
+        name: out
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: in
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          index: -1
+        name: control
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          index: -1
     stmts: len=4
       [0]
         --- Stmt ---

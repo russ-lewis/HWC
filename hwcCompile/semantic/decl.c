@@ -11,35 +11,58 @@
 
 
 /*
-Given a list of PT_stmts, extracts all PT_decls and converts them into HWC_Decls.
-This is done in a separate step from all other HWC_Stmts because decls are added to the namescope of the part/plugtype.
-Returns an int corresponding to the length of the HWC_Decl array malloc'd in "output".
-*/
-int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope *publ, HWC_NameScope *priv)
+ * Given a list of PT_stmts, extracts all PT_decls and converts them into
+ * HWC_Decls.
+ *
+ * This is done in a separate step from all other HWC_Stmts because decls are
+ * added to the namescope of the part/plugtype.
+ *
+ * Returns an int corresponding to the length of the HWC_Decl array malloc'd
+ * in "output".
+ */
+int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
+                               HWC_NameScope *publ, HWC_NameScope *priv)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
 
+	PT_decl *currPTdecl = currPTstmt->stmtDecl;
 	while(currPTstmt != NULL)
 	{
-		if(currPTstmt->mode == STMT_DECL)
+		/* If the caller didn't pass us a private nameScope, then we
+		 * know implicitly that this is a declaration inside a
+		 * plugtype.  In that case, non-declaration statements should
+		 * be illegal (for now, until we add support for static if).
+		 */
+		if (priv == NULL)
+			assert(currPTstmt->mode == STMT_DECL);
+
+		switch (currPTstmt->mode)
 		{
+		default:
+			assert(0);
+
+		case STMT_CONN:
+		case STMT_ASRT:
+			break;    // no declarations possible
+
+		case STMT_DECL:
 			// Nested while() because PT_decls have their own list of decls.
-			PT_decl *currPTdecl = currPTstmt->stmtDecl;
+			currPTdecl = currPTstmt->stmtDecl;
 			while(currPTdecl != NULL)
 			{
 				len++;
 				currPTdecl = currPTdecl->prev;
 			}
+			break;
+
+		case STMT_IF:
+		case STMT_FOR:
+		case STMT_BLOCK:
+			printf("TODO: %s(): Implement declarations inside of IF/FOR/BLOCK statements.\n", __func__);
+			break;
 		}
-		// TODO: Can remove this check if the program runs too slow, since the grammar ensures that the only stmts in plugtypes are decls.
-		// Use the fact that PlugTypes have no private statements to check if the caller is a PlugType
-		else if(priv == NULL)
-		{
-			// The grammar should prevent non-decl statements from being found in plugtypes, but check just in case.
-			fprintf(stderr, "Statement that isn't a declaration found in a plugtype. Should be impossible, but obviously isn't. Crashing.\n");
-			assert(0);
-		}
+
 		currPTstmt = currPTstmt->prev;
 	}
 
@@ -49,8 +72,10 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope 
 		assert(0); // TODO: Better error message?
 	}
 
+
 	// Reset to beginning of list
 	currPTstmt = input;
+
 	// Iterate through the backwards list again, but use "count" to write the output in forward order.
 	int count = len-1;
 	while(currPTstmt != NULL)
@@ -66,11 +91,23 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope 
 				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
 				fr_copy(&thing->fr, &currHWCdecl->fr);
 				thing->decl = currHWCdecl;
-				// 1st check is for Parts    , makes sure the stmt is public
-				// 2nd check if for PlugTypes, makes all decls public
-				if(currPTstmt->isPublic == 1 || priv == NULL)
+
+				/* if isPublic, then we definitely want to post
+				 * this name to the public namescope.  This
+				 * applies to *any* declaration within a
+				 * plugtype, and also public declarations
+				 * within a part.
+				 */
+				if (currPTstmt->isPublic)
 					nameScope_add(publ, currPTdecl->name, thing);
-				else
+
+				/* if the private nameScope is defined, then we
+				 * *also* post this name to the private scope.
+				 * Note that it is perfectly normal to post the
+				 * same Thing to the both scopes; this happens
+				 * for public plugs on parts.
+				 */
+				if (priv != NULL)
 					nameScope_add(priv, currPTdecl->name, thing);
 
 				count--;
