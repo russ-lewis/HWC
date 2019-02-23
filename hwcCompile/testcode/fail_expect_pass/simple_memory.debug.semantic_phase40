@@ -4,7 +4,7 @@
  parent=<TODO>
   name: main
     --- Part ---
-    phases: begun 10 completed 20
+    phases: begun 10 completed 30
     publicNames: <TODO>
       --- NameScope ---
       refcount=1

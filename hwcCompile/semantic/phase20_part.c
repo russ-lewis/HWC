@@ -62,7 +62,7 @@ int semPhase20_part(HWC_Part *part)
 	for(i = 0; i < part->stmts_len; i++)
 	{
 		currStmt = part->stmts[i];
-		int numError = checkStmtName(&currStmt, part->publicNames);
+		int numError = checkStmtName(&currStmt, part->privateNames);
 		if(numError != 0)
 			fprintf(stderr, "Phase 20, part: %d errors found with stmt of %s!\n", numError, currStmt.name);
 		retval += numError;
