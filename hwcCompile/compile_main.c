@@ -202,9 +202,15 @@ int main(int argc, char **argv)
 	HWC_Nameable *thing = nameScope_search(fileScope, "main");
 
 	if (thing == NULL)
-		assert(0);   // report erorr to user
+	{
+		fprintf(stderr, "%s: File does not include a type 'main', cannot compile.\n", bisonParse_filename);
+		return 1;
+	}
 	if (thing->part == NULL)
-		assert(0);   // report erorr to user
+	{
+		fprintf(stderr, "%s: 'main' is not a part declaration, cannot compile.\n", bisonParse_filename);
+		return 1;
+	}
 
 
 	/* build the wiring diagram! */

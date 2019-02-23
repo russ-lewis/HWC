@@ -157,22 +157,22 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 
 
 /*
-Ensures that the given decl's name hasn't already been used within its namescope.
-
- - *currDecl is the decl whose name will be checked
- - *currScope is the relevant namescope for this decl
- - isWithinPlug is used for a special check: Whether a part has been declared within a plugtype.
-   - Parts can be declared within parts (as subparts) and plugtypes can be declared within parts,
-      and plugtypes can be declared within plugtypes, so part within plugtype is the only case to check.
-   - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
-
-Returns 0 if no errors, 1 if errors.
-*/
+ * Ensures that the given decl's name hasn't already been used within its namescope.
+ * 
+ *  - *currDecl is the decl whose name will be checked
+ *  - *currScope is the relevant namescope for this decl
+ *  - isWithinPlug is used for a special check: Whether a part has been declared within a plugtype.
+ *    - A decl within a part might refer to either a part or a plugtype
+ *    - A decl within a plugtype must only refer to other plugtypes
+ *    - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
+ * 
+ * Returns 0 if no errors, 1 if errors.
+ *     (This will print out an appropriate error message, so the caller should
+ *      not print anything out, but it *should* terminate with an error to its
+ *      own caller.)
+ */
 int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug)
 {
-	// Declared currName up here instead of below TYPE_IDENT because of
-	// https://stackoverflow.com/a/18496414
-	// Neat!
 	HWC_Nameable *currName;
 	switch (currDecl->type)
 	{
@@ -188,11 +188,11 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			break;
 
 		case EXPR_ARR:
-			fprintf(stderr, "-- TODO: %s(): is TYPE_ARRAY possible?\n", __func__);
+			fprintf(stderr, "-- TODO: %s(): Implement array types.\n", __func__);
 			return 1;
 
 		case EXPR_IDENT:
-			// Search for our relevant name within currScope
+			// Does the type name exist in our current NameScope?
 			currName = nameScope_search(currScope, currDecl->typeName);
 			if(currName == NULL)
 			{
@@ -216,9 +216,10 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			// Check to make sure a Part declaration isn't inside a plugtype
 			if(isWithinPlug == 1 && currName->part != NULL)
 			{
-				// TODO: Exit this function elegantly instead of through an assert.
-				fprintf(stderr, "Part declaration inside a plugtype!\n");
-				assert(0);
+				fprintf(stderr, "%s:%d:%d: Parts may not be fields inside plugtypes.\n",
+				        currDecl->fr.filename,
+				        currDecl->fr.s.l, currDecl->fr.s.c);
+				return 1;
 			}
 
 			// What currDecl field to fill in?

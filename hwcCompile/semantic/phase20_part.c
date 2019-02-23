@@ -47,7 +47,7 @@ int semPhase20_part(HWC_Part *part)
 	for(i = 0; i < part->decls_len; i++)
 	{
 		currDecl = part->decls[i];
-		int numError = checkDeclName(&currDecl, part->publicNames, 0);
+		int numError = checkDeclName(&currDecl, part->privateNames, 0);
 		if(numError != 0)
 		{
 			// TODO: Better error message for when not found in namescope?
