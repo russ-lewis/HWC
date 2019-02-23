@@ -4,7 +4,7 @@
  parent=<TODO>
   name: main
     --- Part ---
-    phases: begun 10 completed 30
+    phases: begun 10 completed 40
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -12,18 +12,31 @@
         name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 1
         name: input
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 0
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
       parent=<TODO>
-      <no names>
+        name: output
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 1
+        name: input
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 0
     stmts: len=3
       [0]
         --- Stmt ---

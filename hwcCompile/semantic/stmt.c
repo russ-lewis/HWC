@@ -94,13 +94,13 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 }
 
 /*
-Ensures that the names used within the given statement are valid within the statement's namescope.
-
- - *currStmt is the statement to check
- - *currScope is the relevant namescope for the stmt
-
-Returns 0 if no error, >= 1 if errors to indicate how many errors.
-*/
+ * Ensures that the names used within the given statement are valid within the statement's namescope.
+ * 
+ *  - *currStmt is the statement to check
+ *  - *currScope is the relevant namescope for the stmt
+ * 
+ * Returns 0 if no error, >= 1 if errors to indicate how many errors.
+ */
 int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 {
 	int retval = 0;

@@ -1,1 +1,3 @@
-FIXME: This testcase currently crashes due to a segfault.  I can't build a reliable 'expect' file until this is fixed, since the error messages produce by a segfault are not predictable.
+<stdin>:10:15: Symbol 'input' is neither a part nor a plugtype.
+
+rc=1

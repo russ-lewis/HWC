@@ -1,37 +1,22 @@
 TODO: Decls within BLOCK stmts are not accounted for yet.
-TODO: Decls within IF stmts are not accounted for yet.
-TODO: Decls within BLOCK stmts are not accounted for yet.
-TODO: Decls within BLOCK stmts are not accounted for yet.
-TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
-TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 ---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
-  name: several_stmt_bracket
+  name: Test
     --- Part ---
     phases: begun 10 completed 10
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: d
+        name: jkl
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: c
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-        name: b
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-        name: a
+        name: asdf
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -40,51 +25,33 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: d
+        name: jkl
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: c
+        name: asdf
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: b
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-        name: a
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-    stmts: len=4
+    stmts: len=3
       [0]
         --- Stmt ---
         mode: STMT_DECL
 TODO: stmt_dump() marker 9
       [1]
         --- Stmt ---
-        mode: STMT_BLOCK
+        mode: STMT_DECL
 TODO: stmt_dump() marker 9
       [2]
         --- Stmt ---
         mode: STMT_BLOCK
 TODO: stmt_dump() marker 9
-      [3]
-        --- Stmt ---
-        mode: STMT_IF
-TODO: stmt_dump() marker 9
-    decls: len=4
+    decls: len=2
       [0]
 TODO: part_dump() marker 5
       [1]
-TODO: part_dump() marker 5
-      [2]
-TODO: part_dump() marker 5
-      [3]
 TODO: part_dump() marker 5
 
 rc=0

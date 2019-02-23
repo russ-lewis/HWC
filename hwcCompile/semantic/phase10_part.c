@@ -8,14 +8,14 @@
 
 
 /*
-Converts the given PT_part into the semantic's (HWC) version of Parts.
-As part of this, converts all decls and stmts within the Part into their HWC versions.
-
- - parsedPart is the current PT part that will be converted into HWC form
- - fileScope is the name scope for the entire file
-
-Returns a pointer to the created HWC_Part.
-*/
+ * Converts the given PT_part into the semantic's (HWC) version of Parts.
+ * As part of this, converts all decls and stmts within the Part into their HWC versions.
+ * 
+ *  - parsedPart is the current PT part that will be converted into HWC form
+ *  - fileScope is the name scope for the entire file
+ * 
+ * Returns a pointer to the created HWC_Part.
+ */
 HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 {
 	HWC_Part *retval = malloc(sizeof(HWC_Part));
@@ -45,7 +45,7 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 	if (retval->privateNames == NULL)
 	{
 		assert(0);   // TODO: debug message
-		free(retval->publicNames); // TODO: Is this right?
+		// TODO: use namescope-specifc free-ing code:    free(retval->publicNames); // TODO: Is this right?
 		free(retval);
 		return NULL;
 	}

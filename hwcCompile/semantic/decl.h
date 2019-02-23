@@ -95,7 +95,7 @@ struct HWC_Decl
 	// int indexAssert;
 };
 
-void convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
+int convertPTdeclIntoHWCdecl(PT_decl *, HWC_Decl *);
 int checkDeclName(HWC_Decl *, HWC_NameScope *, int);
 int findDeclSize(HWC_Decl *, int, int *memory);
 

@@ -1,30 +1,31 @@
-TODO: How to account for decls within FOR stmts?
----- DEBUG: DUMPING SEMANTIC (after phase 40) ----
+TODO: Decls within FOR stmts are not accounted for yet.
+TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
+---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
   name: array_slice
     --- Part ---
-    phases: begun 10 completed 20
+    phases: begun 10 completed 10
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
       parent=<TODO>
         name: shiftLeft4
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
         name: out
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
         name: in
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: -1
@@ -32,7 +33,24 @@ TODO: decl_dump() marker 8
       --- NameScope ---
       refcount=1
       parent=<TODO>
-      <no names>
+        name: shiftLeft4
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          index: -1
+        name: out
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          index: -1
+        name: in
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          index: -1
     stmts: len=7
       [0]
         --- Stmt ---

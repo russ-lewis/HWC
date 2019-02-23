@@ -4,7 +4,7 @@
  parent=<TODO>
   name: main
     --- Part ---
-    phases: begun 10 completed 20
+    phases: begun 10 completed 40
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -16,9 +16,10 @@
       parent=<TODO>
         name: dummy
           --- Decl ---
-          type: 403 typeName: tick_tock isMem: 0
+          type: EXPR_IDENT typeName: tick_tock isMem: 0
+TODO: decl_dump() marker 7
           expr: <TODO>
-          index: -1
+          index: 0
     stmts: len=1
       [0]
         --- Stmt ---
@@ -29,25 +30,33 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
   name: tick_tock
     --- Part ---
-    phases: begun 10 completed 20
+    phases: begun 10 completed 40
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
       parent=<TODO>
         name: out
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 2
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
       parent=<TODO>
+        name: out
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 2
         name: state
           --- Decl ---
-          type: 401 typeName: (null) isMem: 1
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 1
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 0
     stmts: len=4
       [0]
         --- Stmt ---

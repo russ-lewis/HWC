@@ -1,4 +1,5 @@
 
+#include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 
@@ -88,17 +89,27 @@ void nameScope_decRef(HWC_NameScope *obj)
 
 
 
+#define SEARCH_DEBUG 0
 HWC_Nameable *nameScope_search(HWC_NameScope *obj, char *name)
 {
 	assert(obj != NULL);
 
+	if (SEARCH_DEBUG)
+		printf("--- BEGIN %s(%p, '%s')\n", __func__, obj,name);
+
 	HWC_NameScope_elem *cur = obj->list;
 	while (cur != NULL)
 	{
+		if (SEARCH_DEBUG)
+			printf("cur->name='%s' name='%s'\n", cur->name,name);
+
 		if (strcmp(cur->name, name) == 0)
 			return cur->thing;
 		cur = cur->next;
 	}
+
+	if (SEARCH_DEBUG)
+		printf("obj->parent=%p\n", obj->parent);
 
 	if (obj->parent == NULL)
 		return NULL;

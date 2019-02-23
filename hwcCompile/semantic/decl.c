@@ -1,45 +1,69 @@
-#include "decl.h"
-
 #include <stdio.h>
 #include <malloc.h>
 #include <assert.h>
 
-#include "part.h"
+#include "decl.h"
+
+#include "semantic/part.h"
+#include "semantic/phase20.h"
 
 #include "wiring/fileRange.h"
 
 
 
 /*
-Given a list of PT_stmts, extracts all PT_decls and converts them into HWC_Decls.
-This is done in a separate step from all other HWC_Stmts because decls are added to the namescope of the part/plugtype.
-Returns an int corresponding to the length of the HWC_Decl array malloc'd in "output".
-*/
-int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope *publ, HWC_NameScope *priv)
+ * Given a list of PT_stmts, extracts all PT_decls and converts them into
+ * HWC_Decls.
+ *
+ * This is done in a separate step from all other HWC_Stmts because decls are
+ * added to the namescope of the part/plugtype.
+ *
+ * Returns an int corresponding to the length of the HWC_Decl array malloc'd
+ * in "output".
+ */
+int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
+                               HWC_NameScope *publ, HWC_NameScope *priv)
 {
 	PT_stmt *currPTstmt = input;
 	int len = 0;
 
+	PT_decl *currPTdecl = currPTstmt->stmtDecl;
 	while(currPTstmt != NULL)
 	{
-		if(currPTstmt->mode == STMT_DECL)
+		/* If the caller didn't pass us a private nameScope, then we
+		 * know implicitly that this is a declaration inside a
+		 * plugtype.  In that case, non-declaration statements should
+		 * be illegal (for now, until we add support for static if).
+		 */
+		if (priv == NULL)
+			assert(currPTstmt->mode == STMT_DECL);
+
+		switch (currPTstmt->mode)
 		{
+		default:
+			assert(0);
+
+		case STMT_CONN:
+		case STMT_ASRT:
+			break;    // no declarations possible
+
+		case STMT_DECL:
 			// Nested while() because PT_decls have their own list of decls.
-			PT_decl *currPTdecl = currPTstmt->stmtDecl;
+			currPTdecl = currPTstmt->stmtDecl;
 			while(currPTdecl != NULL)
 			{
 				len++;
 				currPTdecl = currPTdecl->prev;
 			}
+			break;
+
+		case STMT_IF:
+		case STMT_FOR:
+		case STMT_BLOCK:
+			printf("TODO: %s(): Implement declarations inside of IF/FOR/BLOCK statements.\n", __func__);
+			break;
 		}
-		// TODO: Can remove this check if the program runs too slow, since the grammar ensures that the only stmts in plugtypes are decls.
-		// Use the fact that PlugTypes have no private statements to check if the caller is a PlugType
-		else if(priv == NULL)
-		{
-			// The grammar should prevent non-decl statements from being found in plugtypes, but check just in case.
-			fprintf(stderr, "Statement that isn't a declaration found in a plugtype. Should be impossible, but obviously isn't. Crashing.\n");
-			assert(0);
-		}
+
 		currPTstmt = currPTstmt->prev;
 	}
 
@@ -49,8 +73,10 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope 
 		assert(0); // TODO: Better error message?
 	}
 
+
 	// Reset to beginning of list
 	currPTstmt = input;
+
 	// Iterate through the backwards list again, but use "count" to write the output in forward order.
 	int count = len-1;
 	while(currPTstmt != NULL)
@@ -62,15 +88,29 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope 
 			PT_decl *currPTdecl = currPTstmt->stmtDecl;
 			while(currPTdecl != NULL)
 			{
-				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+				int retval = convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+					assert(retval == 0);    // TODO: convert this function to report errors when necessary.
+
 				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
 				fr_copy(&thing->fr, &currHWCdecl->fr);
 				thing->decl = currHWCdecl;
-				// 1st check is for Parts    , makes sure the stmt is public
-				// 2nd check if for PlugTypes, makes all decls public
-				if(currPTstmt->isPublic == 1 || priv == NULL)
+
+				/* if isPublic, then we definitely want to post
+				 * this name to the public namescope.  This
+				 * applies to *any* declaration within a
+				 * plugtype, and also public declarations
+				 * within a part.
+				 */
+				if (currPTstmt->isPublic)
 					nameScope_add(publ, currPTdecl->name, thing);
-				else
+
+				/* if the private nameScope is defined, then we
+				 * *also* post this name to the private scope.
+				 * Note that it is perfectly normal to post the
+				 * same Thing to the both scopes; this happens
+				 * for public plugs on parts.
+				 */
+				if (priv != NULL)
 					nameScope_add(priv, currPTdecl->name, thing);
 
 				count--;
@@ -89,14 +129,14 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope 
 
 
 /*
-Converts PT decls into HWC decls. What a good function name.
-
- - *input is a pointer to the PT_decl to convert
- - **output_out is a non-initialized HWC_Decl that this function will fill in
-
-Returns nothing, since all meaningful work is done upon *output
-*/
-void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
+ * Converts PT decls into HWC decls. What a good function name.
+ * 
+ *  - *input is a pointer to the PT_decl to convert
+ *  - **output_out is a non-initialized HWC_Decl that this function will fill in
+ * 
+ * Returns nothing, since all meaningful work is done upon *output
+ */
+int convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 {
 	fr_copy(&output->fr, &input->fr);
 
@@ -134,8 +174,10 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	// ie, this breaks when the "type" of an array is another array.
 	if(convert->mode == EXPR_ARR)
 	{
-		fprintf(stderr, "Multi-level arrays are currently not supported in HWC.\n");
-		assert(0);
+		fprintf(stderr, "%s:%d:%d: Multi-level arrays are currently not supported in HWC.\n",
+		        convert->fr.filename,
+		        convert->fr.s.l, convert->fr.s.c);
+		return 1;
 	}
 
 
@@ -153,26 +195,28 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	// Temp dummy value that might be useful later
 	output->indexSize = -1;
 	output->indexMemory = -1;
+
+	return 0;
 }
 
 
 /*
-Ensures that the given decl's name hasn't already been used within its namescope.
-
- - *currDecl is the decl whose name will be checked
- - *currScope is the relevant namescope for this decl
- - isWithinPlug is used for a special check: Whether a part has been declared within a plugtype.
-   - Parts can be declared within parts (as subparts) and plugtypes can be declared within parts,
-      and plugtypes can be declared within plugtypes, so part within plugtype is the only case to check.
-   - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
-
-Returns 0 if no errors, 1 if errors.
-*/
+ * Ensures that the given decl's name hasn't already been used within its namescope.
+ * 
+ *  - *currDecl is the decl whose name will be checked
+ *  - *currScope is the relevant namescope for this decl
+ *  - isWithinPlug is used for a special check: Whether a part has been declared within a plugtype.
+ *    - A decl within a part might refer to either a part or a plugtype
+ *    - A decl within a plugtype must only refer to other plugtypes
+ *    - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
+ * 
+ * Returns 0 if no errors, 1 if errors.
+ *     (This will print out an appropriate error message, so the caller should
+ *      not print anything out, but it *should* terminate with an error to its
+ *      own caller.)
+ */
 int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug)
 {
-	// Declared currName up here instead of below TYPE_IDENT because of
-	// https://stackoverflow.com/a/18496414
-	// Neat!
 	HWC_Nameable *currName;
 	switch (currDecl->type)
 	{
@@ -188,11 +232,11 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			break;
 
 		case EXPR_ARR:
-			fprintf(stderr, "-- TODO: %s(): is TYPE_ARRAY possible?\n", __func__);
+			fprintf(stderr, "-- TODO: %s(): Implement array types.\n", __func__);
 			return 1;
 
 		case EXPR_IDENT:
-			// Search for our relevant name within currScope
+			// Does the type name exist in our current NameScope?
 			currName = nameScope_search(currScope, currDecl->typeName);
 			if(currName == NULL)
 			{
@@ -216,9 +260,10 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			// Check to make sure a Part declaration isn't inside a plugtype
 			if(isWithinPlug == 1 && currName->part != NULL)
 			{
-				// TODO: Exit this function elegantly instead of through an assert.
-				fprintf(stderr, "Part declaration inside a plugtype!\n");
-				assert(0);
+				fprintf(stderr, "%s:%d:%d: Parts may not be fields inside plugtypes.\n",
+				        currDecl->fr.filename,
+				        currDecl->fr.s.l, currDecl->fr.s.c);
+				return 1;
 			}
 
 			// What currDecl field to fill in?
@@ -234,42 +279,81 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 
 
 /*
-TODO: Add header comment
-Include that, by this point, we know either base_part or base_plugType should be filled in
-   - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
-*/
+ * TODO: Add header comment
+ * Include that, by this point, we know either base_part or base_plugType should be filled in
+ *    - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
+ */
 int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 {
+	int multiplier = 1;
+
 	if(input->isMem == 1)
 	{
 		input->indexMemory = *numMemory;
 		*numMemory += 1;
+
+		multiplier *= 2;
+	}
+
+	if (input->expr != NULL)
+	{
+		// this is an array declaration
+		int retval = semPhase20_expr(input->expr);
+			assert(retval == 0);  // TODO: refactor the retval from this function as an error report
+
+		if (input->expr->val.type != EXPR_VALTYPE_INT)
+			assert(0);  // TODO: turn this into a user error message
+
+		if (input->expr->val.intVal < 0)
+			assert(0);  // TODO: add syntax error message
+
+		if (input->expr->val.intVal == 0)
+			assert(0);  // TODO: how do we want to handle this?  Is it legal or not?
+
+		multiplier *= input->expr->val.intVal;
 	}
 
 	if(input->base_plugType != NULL)
 	{
 		// TODO: Fix inconsistent capitalization
-		semPhase30_plugtype(input->base_plugType);
-		return input->base_plugType->size;
+
+		int retval = semPhase30_plugtype(input->base_plugType);
+		if (retval != 0)
+			assert(0);  // TODO: refactor the retval from this function as an error report
+
+		// TODO: copy the size into our declaration, instead of
+		//       returning the size, so that we can refactor the
+		//       retval as an error state.
+		return input->base_plugType->size * multiplier;
 	}
 	else if(input->base_part != NULL)
 	{
 		if(isWithinPlug == 1)
 		{
-			// TODO: Error message
-			// Plugtypes cannot contain parts
+			// Plugtypes cannot contain declarations which
+			// reference part types.
+
+			// TODO: is this a syntax error, or a parser logical error?  I think it's a logical error, because the syntax error is reported earlier, but I need to confirm that.
+			assert(0);
 		}
 		else
 		{
-			semPhase30_part(input->base_part);
-			return input->base_part->size;
+			int retval = semPhase30_part(input->base_part);
+			if (retval != 0)
+				assert(0);  // TODO: see comments in the plugType block
+
+			return input->base_part->size * multiplier;
 		}
 	}
 	else
 	{
-		// TODO: Error message
+		assert(0); // TODO: Error message
 		// Likely a compiler error than a user error, since these fields should have been filled in phase20
 	}
 
+
+	// TODO: when we refactor this function to return error state
+	//       instead of size, this will change
+	assert(0);
 	return -1;
 }

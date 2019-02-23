@@ -40,12 +40,14 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 	int currIndex = 0;
 	int currMemory = 0;
 
-	HWC_Decl currDecl;
+	HWC_Decl *currDecl;
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
-		currDecl = plugtype->decls[i];
+		currDecl = &plugtype->decls[i];
+
 		// 1 as an argument because we are within a plugtype
-		int size = findDeclSize(&currDecl, 1, &currMemory);
+		int size = findDeclSize(currDecl, 1, &currMemory);
+
 		// TODO: Is a size of zero valid? No, I would think. Make it a special error value?
 		if(size <= 0)
 		{
@@ -54,7 +56,7 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 		}
 		else
 		{
-			currDecl.indexSize = currIndex;
+			currDecl->indexSize = currIndex;
 			currIndex += size;
 		}
 	}
