@@ -18,6 +18,7 @@ int findLogicExpr(HWC_Wiring *, HWC_Expr *, int);
 int findConnect  (HWC_Wiring *, HWC_Part *, int);
 int findAssert   (HWC_Wiring *, HWC_Part *, int);
 
+// TODO: Header comments for, like, all of these.
 
 // ASSUMPTION: The given part is the "main" part, and the numConn, numLogic etc. in the "main" part is equal to
 //   the max number of conns, logics, etc. that the wiring diagram will need.
@@ -148,7 +149,7 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 			currLogic.type = WIRING_NOT;
 			// TODO: Are these the correct values?
 			currLogic.size = 1;
-			currLogic.a = findLogicExpr(retval, expr->exprA, index);
+			currLogic.a = expr->exprA->decl->indexSize;
 			currLogic.out = expr->indexLogic;
 			index++;
 			break;
@@ -164,6 +165,8 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 				case OP_AND:
 				case OP_OR:
 				case OP_XOR:
+					currLogic = retval->logic[index];
+
 					// TODO: Is there a better way to do this?
 					if(expr->value == OP_EQUALS)
 						temp = WIRING_EQ;
@@ -175,12 +178,12 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 						temp = WIRING_OR;
 					if(expr->value == OP_XOR)
 						temp = WIRING_XOR;
-					currLogic = retval->logic[index];
 					currLogic.type = temp;
-				// TODO: Are these the correct values?
-					currLogic.size = 1;
-					currLogic.a = findLogicExpr(retval, expr->exprA, index);
-					currLogic.b = findLogicExpr(retval, expr->exprB, index);
+
+					// TODO: Are these the correct values?
+					currLogic.size = 2;
+					currLogic.a = expr->exprA->decl->indexSize;
+					currLogic.b = expr->exprB->decl->indexSize;
 					currLogic.out = expr->indexLogic;
 					index++;
 					break;
@@ -202,13 +205,54 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 	return index;
 }
 
-// TODO: Merge Connect and Assert into one function eventually? They both iterate over exprs after all.
+// TODO: Merge Connect and Assert into one function eventually? They both iterate over stmts after all.
 int findConnect(HWC_Wiring *retval, HWC_Part *part, int index)
 {
+	int i;
+	HWC_Stmt currStmt;
+	for(i = 0; i < part->stmts_len; i++)
+	{
+		currStmt = part->stmts[i];
+
+		// TODO: Add code to do IF, FOR, and other BLOCK stmts.
+		// TODO: Remember, for conditionals, do WIRING_BIT_INVALID +1 or something
+
+		if(currStmt.mode == STMT_CONN)
+		{
+			HWC_Wiring_Connection currConn = retval->conns[index];
+			// TODO: Correct value?
+			currConn.size = 1;
+			// TODO: Fair assumption that WE only need to check this? Since we're not doing arrays right now, I think it's alright?
+			currConn.to   = currStmt.exprA->decl->indexSize;
+			currConn.from = currStmt.exprB->decl->indexSize;
+			currConn.condition = WIRING_BIT_INVALID;
+			currConn.isUndir = 1;
+			index++;
+		}
+	}
+
 	return index;
 }
+
+
 int findAssert(HWC_Wiring *retval, HWC_Part *part, int index)
 {
+	int i;
+	HWC_Stmt currStmt;
+	for(i = 0; i < part->stmts_len; i++)
+	{
+		currStmt = part->stmts[i];
+
+		// TODO: Add code to do IF, FOR, and other BLOCK stmts.
+
+		if(currStmt.mode == STMT_ASRT)
+		{
+			HWC_Wiring_Assert currAssert = retval->asserts[index];
+			// TODO: Correct value?
+			currAssert.bit = currStmt.exprA->value;
+		}
+	}
+
 	return index;
 }
 
@@ -227,7 +271,7 @@ struct HWC_Wiring
 	// single contiguous range of memory cells; there are bit-indices for
 	// both the read and write sides.
 	int numMemRanges;
-7	HWC_Wiring_Memory *mem;
+	HWC_Wiring_Memory *mem;
 
 	// an array of HWC_Wiring_Logic objects.  Each object represents a
 	// single logical operator, which can be over a single bit or over
