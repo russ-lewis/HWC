@@ -40,7 +40,7 @@ TODO: part_dump() marker 5
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 0
+          index: 2
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -48,11 +48,13 @@ TODO: decl_dump() marker 6
         name: out
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 1
+          index: 2
         name: state
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 1
+TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
     stmts: len=4

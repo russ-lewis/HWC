@@ -1,10 +1,11 @@
-#include "decl.h"
-
 #include <stdio.h>
 #include <malloc.h>
 #include <assert.h>
 
-#include "part.h"
+#include "decl.h"
+
+#include "semantic/part.h"
+#include "semantic/phase20.h"
 
 #include "wiring/fileRange.h"
 
@@ -278,10 +279,32 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
  */
 int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 {
+	int multiplier = 1;
+
 	if(input->isMem == 1)
 	{
 		input->indexMemory = *numMemory;
 		*numMemory += 1;
+
+		multiplier *= 2;
+	}
+
+	if (input->expr != NULL)
+	{
+		// this is an array declaration
+		int retval = semPhase20_expr(input->expr);
+			assert(retval == 0);  // TODO: refactor the retval from this function as an error report
+
+		if (input->expr->val.type != EXPR_VALTYPE_INT)
+			assert(0);  // TODO: turn this into a user error message
+
+		if (input->expr->val.intVal < 0)
+			assert(0);  // TODO: add syntax error message
+
+		if (input->expr->val.intVal == 0)
+			assert(0);  // TODO: how do we want to handle this?  Is it legal or not?
+
+		multiplier *= input->expr->val.intVal;
 	}
 
 	if(input->base_plugType != NULL)
@@ -295,7 +318,7 @@ int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 		// TODO: copy the size into our declaration, instead of
 		//       returning the size, so that we can refactor the
 		//       retval as an error state.
-		return input->base_plugType->size;
+		return input->base_plugType->size * multiplier;
 	}
 	else if(input->base_part != NULL)
 	{
@@ -313,7 +336,7 @@ int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 			if (retval != 0)
 				assert(0);  // TODO: see comments in the plugType block
 
-			return input->base_part->size;
+			return input->base_part->size * multiplier;
 		}
 	}
 	else

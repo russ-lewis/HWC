@@ -1,0 +1,6 @@
+TODO: Decls within BLOCK stmts are not accounted for yet.
+<stdin>:8:10: Symbol 'tmp' does not exist.
+<stdin>:9:3: Symbol 'tmp' does not exist.
+TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
+
+rc=2

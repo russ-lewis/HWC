@@ -1,15 +1,12 @@
 TODO: Decls within FOR stmts are not accounted for yet.
-TODO: Remove this syntax-error mark when we implement support for for() loops.
-<stdin>:9:7: Symbol 'i' does not exist.
-Phase 20, part: 2 errors found with stmt of i!
 TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
----- DEBUG: DUMPING SEMANTIC (after phase 40) ----
+---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
   name: array_slice
     --- Part ---
-    phases: begun 10 completed 20
+    phases: begun 10 completed 10
     publicNames: <TODO>
       --- NameScope ---
       refcount=1

@@ -20,14 +20,14 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 2
+          index: 9
         name: in
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: 1
+          index: 4
         name: control
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
@@ -44,14 +44,14 @@ TODO: decl_dump() marker 8
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 2
+          index: 9
         name: in
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: 1
+          index: 4
         name: control
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0

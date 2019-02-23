@@ -14,7 +14,7 @@
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 32
+          index: 64
         name: input
           --- Decl ---
           type: EXPR_IDENT typeName: Foo isMem: 0
@@ -30,7 +30,7 @@ TODO: decl_dump() marker 6
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 32
+          index: 64
         name: input
           --- Decl ---
           type: EXPR_IDENT typeName: Foo isMem: 0

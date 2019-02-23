@@ -17,6 +17,12 @@ enum {
 	EXPR_SUBCOMPONENT,
 };
 
+enum {
+	EXPR_VALTYPE_INT = 401,
+	EXPR_VALTYPE_BOOL,
+};
+
+
 typedef struct HWC_Decl HWC_Decl;
 
 typedef struct HWC_Expr HWC_Expr;
@@ -58,6 +64,19 @@ struct HWC_Expr
 	int indexLogic;
 	//int indexMemory;
 	//int indexAssert;
+
+	/* this stores information about the evaluated type and value of the
+	 * expression.  It is filled in by semPhase20_expr().
+	 */
+	struct {
+		/* use EXPR_VALTYPE_* (see above) */
+		int type;
+
+		union {
+			int  intVal;
+			int boolVal;
+		};
+	} val;
 };
 
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output);
