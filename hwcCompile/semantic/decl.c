@@ -88,7 +88,9 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 			PT_decl *currPTdecl = currPTstmt->stmtDecl;
 			while(currPTdecl != NULL)
 			{
-				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+				int retval = convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+					assert(retval == 0);    // TODO: convert this function to report errors when necessary.
+
 				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
 				fr_copy(&thing->fr, &currHWCdecl->fr);
 				thing->decl = currHWCdecl;
@@ -127,14 +129,14 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 
 
 /*
-Converts PT decls into HWC decls. What a good function name.
-
- - *input is a pointer to the PT_decl to convert
- - **output_out is a non-initialized HWC_Decl that this function will fill in
-
-Returns nothing, since all meaningful work is done upon *output
-*/
-void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
+ * Converts PT decls into HWC decls. What a good function name.
+ * 
+ *  - *input is a pointer to the PT_decl to convert
+ *  - **output_out is a non-initialized HWC_Decl that this function will fill in
+ * 
+ * Returns nothing, since all meaningful work is done upon *output
+ */
+int convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 {
 	fr_copy(&output->fr, &input->fr);
 
@@ -172,8 +174,10 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	// ie, this breaks when the "type" of an array is another array.
 	if(convert->mode == EXPR_ARR)
 	{
-		fprintf(stderr, "Multi-level arrays are currently not supported in HWC.\n");
-		assert(0);
+		fprintf(stderr, "%s:%d:%d: Multi-level arrays are currently not supported in HWC.\n",
+		        convert->fr.filename,
+		        convert->fr.s.l, convert->fr.s.c);
+		return 1;
 	}
 
 
@@ -191,6 +195,8 @@ void convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	// Temp dummy value that might be useful later
 	output->indexSize = -1;
 	output->indexMemory = -1;
+
+	return 0;
 }
 
 
