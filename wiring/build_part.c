@@ -146,11 +146,11 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 		case EXPR_NOT:
 			currLogic = retval->logic[index];
 			currLogic.type = WIRING_NOT;
-			// TODO: These don't work for recursive EXPRs
+			// TODO: Are these the correct values?
 			currLogic.size = 1;
-			currLogic.a = expr->exprA->value;
-			// TODO: Should this be a stmt or an expr?
-			currLogic.out = -1;
+			currLogic.a = findLogicExpr(retval, expr->exprA, index);
+			currLogic.out = expr->indexLogic;
+			index++;
 			break;
 
 		case EXPR_TWOOP:
@@ -177,12 +177,12 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 						temp = WIRING_XOR;
 					currLogic = retval->logic[index];
 					currLogic.type = temp;
-					// TODO: These don't work for recursive EXPRs
+				// TODO: Are these the correct values?
 					currLogic.size = 1;
-					currLogic.a = expr->exprA->value;
-					currLogic.b = expr->exprB->value;
-					// TODO: Should this be a stmt or an expr?
-					currLogic.out = -1;
+					currLogic.a = findLogicExpr(retval, expr->exprA, index);
+					currLogic.b = findLogicExpr(retval, expr->exprB, index);
+					currLogic.out = expr->indexLogic;
+					index++;
 					break;
 			}
 
