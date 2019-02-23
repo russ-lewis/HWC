@@ -10,7 +10,7 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
  parent=<TODO>
   name: ifelse_chain
     --- Part ---
-    phases: begun 10 completed 30
+    phases: begun 10 completed 40
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -18,20 +18,23 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
         name: out
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 2
         name: in
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: -1
+          index: 1
         name: control
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: -1
+          index: 0
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -39,20 +42,23 @@ TODO: decl_dump() marker 8
         name: out
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 2
         name: in
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: -1
+          index: 1
         name: control
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: -1
+          index: 0
     stmts: len=4
       [0]
         --- Stmt ---

@@ -272,10 +272,10 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 
 
 /*
-TODO: Add header comment
-Include that, by this point, we know either base_part or base_plugType should be filled in
-   - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
-*/
+ * TODO: Add header comment
+ * Include that, by this point, we know either base_part or base_plugType should be filled in
+ *    - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
+ */
 int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 {
 	if(input->isMem == 1)
@@ -287,27 +287,44 @@ int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 	if(input->base_plugType != NULL)
 	{
 		// TODO: Fix inconsistent capitalization
-		semPhase30_plugtype(input->base_plugType);
+
+		int retval = semPhase30_plugtype(input->base_plugType);
+		if (retval != 0)
+			assert(0);  // TODO: refactor the retval from this function as an error report
+
+		// TODO: copy the size into our declaration, instead of
+		//       returning the size, so that we can refactor the
+		//       retval as an error state.
 		return input->base_plugType->size;
 	}
 	else if(input->base_part != NULL)
 	{
 		if(isWithinPlug == 1)
 		{
-			// TODO: Error message
-			// Plugtypes cannot contain parts
+			// Plugtypes cannot contain declarations which
+			// reference part types.
+
+			// TODO: is this a syntax error, or a parser logical error?  I think it's a logical error, because the syntax error is reported earlier, but I need to confirm that.
+			assert(0);
 		}
 		else
 		{
-			semPhase30_part(input->base_part);
+			int retval = semPhase30_part(input->base_part);
+			if (retval != 0)
+				assert(0);  // TODO: see comments in the plugType block
+
 			return input->base_part->size;
 		}
 	}
 	else
 	{
-		// TODO: Error message
+		assert(0); // TODO: Error message
 		// Likely a compiler error than a user error, since these fields should have been filled in phase20
 	}
 
+
+	// TODO: when we refactor this function to return error state
+	//       instead of size, this will change
+	assert(0);
 	return -1;
 }

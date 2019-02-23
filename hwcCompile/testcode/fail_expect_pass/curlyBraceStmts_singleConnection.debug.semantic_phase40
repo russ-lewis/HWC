@@ -6,7 +6,7 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
  parent=<TODO>
   name: Test
     --- Part ---
-    phases: begun 10 completed 30
+    phases: begun 10 completed 40
     publicNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -14,13 +14,15 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
         name: jkl
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 1
         name: asdf
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 0
     privateNames: <TODO>
       --- NameScope ---
       refcount=1
@@ -28,13 +30,15 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
         name: jkl
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 1
         name: asdf
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
+          index: 0
     stmts: len=3
       [0]
         --- Stmt ---

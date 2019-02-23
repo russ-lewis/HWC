@@ -41,21 +41,24 @@ int semPhase30_part(HWC_Part *part)
 
 	// TODO: For now, I place all decls at the start of the part, and all stmts later. Is this wise?
 
-	HWC_Decl currDecl;
+	HWC_Decl *currDecl;
 	for(i = 0; i < part->decls_len; i++)
 	{
-		currDecl = part->decls[i];
+		currDecl = &part->decls[i];
+
 		// 0 as an argument because we are within a part
-		int size = findDeclSize(&currDecl, 0, &currMemory);
+		int size = findDeclSize(currDecl, 0, &currMemory);
+		  assert(size >= 0);     // -1 is a compiler logical error!
+
 		// TODO: Is a size of zero valid? No, I would think. Make it a special error value?
-		if(size <= 0)
+		if(size < 0)
 		{
-			// TODO: Error message for I dunno. Recursive definitions?
+			printf("TODO: %s(): Add an error message (marker 1)\n", __func__);
 			retval++;
 		}
 		else
 		{
-			currDecl.indexSize = currIndex;
+			currDecl->indexSize = currIndex;
 			currIndex += size;
 		}
 	}
@@ -70,7 +73,7 @@ int semPhase30_part(HWC_Part *part)
 		// TODO: Is a size of zero valid? Yes, I would think, for statements. Think about this more.
 		if(size < 0)
 		{
-			// TODO: Error message for I dunno. Recursive definitions?
+			printf("TODO: %s(): Add an error message (marker 2)\n", __func__);
 			retval++;
 		}
 		else

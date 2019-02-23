@@ -5,7 +5,18 @@
 
 
 // Initialization of BitType, an extern var from plugtype.h , which is used for all "Bit" declarations
-HWC_PlugType BitType = { .publicNames = NULL, .phases_completed = -1, .phases_begun = -1, .decls = NULL, .decls_len = -1, .size = 1};
+HWC_PlugType BitType = {
+	.publicNames = NULL,
+
+	.phases_completed = 40,
+	.phases_begun     = 40,
+
+	.decls     = NULL,
+	.decls_len = 0,
+
+	.size = 1
+};
+
 
 /*
 Performs phase 20 on the given part.
@@ -42,25 +53,18 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 	if (plugtype->phases_completed >= 20)
 		return 0;
 
-	int retval = 0;
-
-	HWC_Decl currDecl;
+	HWC_Decl *currDecl;
 	int i;
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
-		currDecl = plugtype->decls[i];
-		int numError = checkDeclName(&currDecl, plugtype->publicNames, 1);
+		currDecl = &plugtype->decls[i];
+		int numError = checkDeclName(currDecl, plugtype->publicNames, 1);
 		if(numError != 0)
-		{
-			// TODO: Better error message for when not found in namescope?
-			fprintf(stderr, "Phase 20, plugtype: %d errors found with decl of %s!\n", numError, currDecl.typeName);
-		}
-		retval += numError;
+			return numError;
 	}
 
 	plugtype->phases_completed = 20;
 
-	// TODO: Returns number of errors found. Good idea?
-	return retval;
+	return 0;
 }
 

@@ -156,27 +156,31 @@ int main(int argc, char **argv)
 		assert((cur->thing->part     != NULL) !=
 		       (cur->thing->plugtype != NULL));
 
+		int retval;
 		if (debug == 3)
 		{
 			if (cur->thing->part != NULL)
-				semPhase20_part(cur->thing->part);
+				retval = semPhase20_part(cur->thing->part);
 			else
-				semPhase20_plugtype(cur->thing->plugtype);
+				retval = semPhase20_plugtype(cur->thing->plugtype);
 		}
 		else if (debug == 4)
 		{
 			if (cur->thing->part != NULL)
-				semPhase30_part(cur->thing->part);
+				retval = semPhase30_part(cur->thing->part);
 			else
-				semPhase30_plugtype(cur->thing->plugtype);
+				retval = semPhase30_plugtype(cur->thing->plugtype);
 		}
 		else
 		{
 			if (cur->thing->part != NULL)
-				semPhase40_part(cur->thing->part);
+				retval = semPhase40_part(cur->thing->part);
 			else
-				semPhase40_plugtype(cur->thing->plugtype);
+				retval = semPhase40_plugtype(cur->thing->plugtype);
 		}
+
+		if (retval != 0)
+			return retval;
 
 		cur = cur->next;
 	}

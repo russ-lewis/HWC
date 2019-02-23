@@ -83,7 +83,7 @@ do
     rc=$?
 
     echo
-    echo rc=$?
+    echo rc=$rc
   } > $base.expect_fail.test_out 2>&1
 
   if [[ $HWC_OUTPUT_SUFFIX != "" && -f $base.$HWC_OUTPUT_SUFFIX ]]
@@ -123,7 +123,7 @@ do
     rc=$?
 
     echo
-    echo rc=$?
+    echo rc=$rc
   } > $base.stdout.test_out 2>&1
 
   if [[ $HWC_OUTPUT_SUFFIX != "" && -f $base.$HWC_OUTPUT_SUFFIX ]]
