@@ -164,6 +164,8 @@ TODO: Header comment
 */
 int findExprSize(HWC_Expr *currExpr, int *numLogic)
 {
+	assert(currExpr != NULL);
+
 	int retval = 0;
 
 	// For EXPR_NOT, BITNOT, and TWOOP we add 1 bit for output of condition
@@ -210,7 +212,6 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 			break;
 		case(EXPR_DOT):
 			retval += findExprSize(currExpr->exprA, numLogic);
-			retval += findExprSize(currExpr->exprB, numLogic);
 			break;
 		case(EXPR_ARR):
 			retval += findExprSize(currExpr->exprA, numLogic);
