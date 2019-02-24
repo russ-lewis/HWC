@@ -5,12 +5,12 @@
   name: main
     --- Part ---
     phases: begun 10 completed 30
-    publicNames: <TODO>
+    publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
       <no names>
-    privateNames: <TODO>
+    privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -28,7 +28,7 @@ TODO: stmt_dump() marker 9
   name: testPart
     --- Part ---
     phases: begun 10 completed 30
-    publicNames: <TODO>
+    publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -42,7 +42,7 @@ TODO: stmt_dump() marker 9
           type: 401 typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-    privateNames: <TODO>
+    privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -74,5 +74,10 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
+    size: -1
+    numConn: -1
+    numLogic: -1
+    numMemory: -1
+    numAssert: -1
 
 rc=0

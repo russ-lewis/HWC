@@ -8,7 +8,7 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
   name: nested_if
     --- Part ---
     phases: begun 10 completed 10
-    publicNames: <TODO>
+    publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -38,7 +38,7 @@ TODO: decl_dump() marker 8
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-    privateNames: <TODO>
+    privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -92,5 +92,10 @@ TODO: part_dump() marker 5
 TODO: part_dump() marker 5
       [4]
 TODO: part_dump() marker 5
+    size: -1
+    numConn: -1
+    numLogic: -1
+    numMemory: -1
+    numAssert: -1
 
 rc=0

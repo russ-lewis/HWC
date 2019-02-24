@@ -5,7 +5,7 @@
   name: Bar
     --- Part ---
     phases: begun 10 completed 40
-    publicNames: <TODO>
+    publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -21,7 +21,7 @@ TODO: decl_dump() marker 6
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
-    privateNames: <TODO>
+    privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -51,7 +51,35 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
+    size: 128
+    numConn: 0
+    numLogic: 0
+    numMemory: 0
+    numAssert: 0
   name: Foo
-TODO: nameScope_dump() marker 2
+    --- PlugType ---
+    phases: begun 10 completed 40
+    publicNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: y
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          index: 32
+        name: x
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          index: 0
+    decls: len=2
+      [0]
+      [1]
+    size: 64
 
 rc=0

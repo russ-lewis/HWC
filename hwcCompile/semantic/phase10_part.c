@@ -30,6 +30,12 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 
 	retval->phases_completed = retval->phases_begun = 10;
 
+	retval->size      = -1;
+	retval->numConn   = -1;
+	retval->numLogic  = -1;
+	retval->numMemory = -1;
+	retval->numAssert = -1;
+
 	// Create publicNames, and make "NULL" its parent
 	// ie, 
 	retval->publicNames = nameScope_malloc(NULL);
@@ -59,13 +65,6 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 	retval->stmts_len = convertPTstmtIntoHWCstmt(parsedPart->stmts, &retval->stmts);
 
 	// TODO: Perhaps check if either of these functions result in NULL, since that might be invalid
-
-	// Set some size values
-	retval->size = 0;
-	retval->numConn = 0;
-	retval->numLogic = 0;
-	retval->numMemory = 0;
-	retval->numAssert = 0;
 
 	return retval;
 }
