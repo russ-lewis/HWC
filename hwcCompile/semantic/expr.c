@@ -14,6 +14,8 @@ Returns nothing, since all meaningful work is done upon **output_out
 */
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 {
+	assert(input != NULL);
+
 	HWC_Expr *output = malloc(sizeof(HWC_Expr));
 	if(output == NULL)
 	{
@@ -143,7 +145,6 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 			break;
 		case(EXPR_DOT):
 			retval += checkExprName(currExpr->exprA, currScope);
-			retval += checkExprName(currExpr->exprB, currScope);
 			break;
 		case(EXPR_ARR):
 			retval += checkExprName(currExpr->exprA, currScope);
