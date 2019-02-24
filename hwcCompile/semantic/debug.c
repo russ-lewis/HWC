@@ -101,9 +101,7 @@ printf("TODO: %s() marker 1\n", __func__);
 			part_dump(cur->thing->part, prefixLen+4);
 
 		if (cur->thing->plugtype != NULL)
-		{
-printf("TODO: %s() marker 2\n", __func__);
-		}
+			plugtype_dump(cur->thing->plugtype, prefixLen+4);
 
 		if (cur->thing->type != NULL)
 		{
@@ -135,17 +133,15 @@ void part_dump(HWC_Part *part, int prefixLen)
 	print_prefix(prefixLen);
 	printf("phases: begun %d completed %d\n", part->phases_begun, part->phases_completed);
 
+	assert(part->publicNames != NULL);
 	print_prefix(prefixLen);
-	printf("publicNames: <TODO>\n");
+	printf("publicNames:\n");
+	nameScope_dump(part->publicNames, prefixLen+2);
 
-	if (part->publicNames != NULL)
-		nameScope_dump(part->publicNames, prefixLen+2);
-
+	assert(part->privateNames != NULL);
 	print_prefix(prefixLen);
-	printf("privateNames: <TODO>\n");
-
-	if (part->privateNames != NULL)
-		nameScope_dump(part->privateNames, prefixLen+2);
+	printf("privateNames:\n");
+	nameScope_dump(part->privateNames, prefixLen+2);
 
 	print_prefix(prefixLen);
 	printf("stmts: len=%d\n", part->stmts_len);
@@ -184,6 +180,59 @@ void part_dump(HWC_Part *part, int prefixLen)
 printf("TODO: %s() marker 5\n", __func__);
 	}
 
+	print_prefix(prefixLen);
+	printf("size: %d\n", part->size);
+
+	print_prefix(prefixLen);
+	printf("numConn: %d\n", part->numConn);
+
+	print_prefix(prefixLen);
+	printf("numLogic: %d\n", part->numLogic);
+
+	print_prefix(prefixLen);
+	printf("numMemory: %d\n", part->numMemory);
+
+	print_prefix(prefixLen);
+	printf("numAssert: %d\n", part->numAssert);
+}
+
+
+
+void plugtype_dump(HWC_PlugType *plugtype, int prefixLen)
+{
+	print_prefix(prefixLen);
+	printf("--- PlugType ---\n");
+
+	if (plugtype->fr.s.l == 0)
+		printf("WARNING: This 'plugtype' object does not have line number information!\n");
+
+	print_prefix(prefixLen);
+	printf("phases: begun %d completed %d\n", plugtype->phases_begun, plugtype->phases_completed);
+
+	assert(plugtype->publicNames != NULL);
+	print_prefix(prefixLen);
+	printf("publicNames:\n");
+	nameScope_dump(plugtype->publicNames, prefixLen+2);
+
+	print_prefix(prefixLen);
+	printf("decls: len=%d\n", plugtype->decls_len);
+
+	int i;
+	for (i=0; i<plugtype->decls_len; i++)
+	{
+		print_prefix(prefixLen+2);
+		printf("[%d]\n", i);
+
+		if (plugtype->decls == NULL)
+		{
+			print_prefix(prefixLen+4);
+			printf("<plugtype->decls is NULL>\n");
+			continue;
+		}
+	}
+
+	print_prefix(prefixLen);
+	printf("size: %d\n", plugtype->size);
 }
 
 

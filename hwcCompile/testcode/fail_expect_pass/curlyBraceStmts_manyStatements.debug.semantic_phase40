@@ -7,7 +7,7 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
   name: Test
     --- Part ---
     phases: begun 10 completed 40
-    publicNames: <TODO>
+    publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -41,7 +41,7 @@ TODO: decl_dump() marker 6
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
-    privateNames: <TODO>
+    privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -111,5 +111,10 @@ TODO: part_dump() marker 5
 TODO: part_dump() marker 5
       [4]
 TODO: part_dump() marker 5
+    size: 5
+    numConn: 4
+    numLogic: 0
+    numMemory: 0
+    numAssert: 0
 
 rc=0
