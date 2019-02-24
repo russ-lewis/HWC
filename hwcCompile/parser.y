@@ -152,8 +152,8 @@ file:
 ;
 
 file_decls:
-		           file_decl   { $$ = $1; $$->prev = NULL; }
-	|	file_decls file_decl   { $$ = $2; $$->prev = $1;   }
+		file_decl              { $$ = $1; $$->next = NULL; }
+	|	file_decl file_decls   { $$ = $1; $$->next = $2;   }
 ;
 
 file_decl:

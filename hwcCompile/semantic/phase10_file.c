@@ -63,7 +63,7 @@ HWC_NameScope *semPhase10_file(PT_file *parsedFile)
 		// Add the part/plug (including its name) to the nameScope
 		nameScope_add(names, name, thing);
 
-		cur = cur->prev;
+		cur = cur->next;
 	}
 
 	return names;

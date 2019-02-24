@@ -2,6 +2,8 @@
  --- NameScope ---
  refcount=1
  parent=<TODO>
+  name: Foo
+TODO: nameScope_dump() marker 2
   name: Bar
     --- Part ---
     phases: begun 10 completed 10
@@ -47,7 +49,5 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
-  name: Foo
-TODO: nameScope_dump() marker 2
 
 rc=0

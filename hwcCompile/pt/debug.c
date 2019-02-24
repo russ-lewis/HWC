@@ -36,14 +36,17 @@ void dump_pt_file_decl(PT_file_decl *obj, int spaces)
 	if(obj == NULL)
 		return;
 
-	// Call first since linked list is backwards
-	dump_pt_file_decl(obj->prev, spaces);
+	PT_file_decl *cur = obj;
+	while (cur != NULL)
+	{
+		dump_helper(spaces);
 
-	dump_helper(spaces);
+		printf("File_decl with these decls: \n");
+		dump_pt_part_decl(cur->partDecl, spaces+2);
+		dump_pt_plugtype_decl(cur->plugtypeDecl, spaces+2);
 
-   printf("File_decl with these decls: \n");
-	dump_pt_part_decl(obj->partDecl, spaces+2);
-	dump_pt_plugtype_decl(obj->plugtypeDecl, spaces+2);
+		cur = cur->next;
+	}
 }
 
 
