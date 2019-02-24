@@ -11,70 +11,70 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: baz
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 4
-        name: bar
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 3
-        name: foo
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 2
-        name: jkl
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 1
         name: asdf
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
+        name: jkl
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 1
+        name: foo
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 2
+        name: bar
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 3
+        name: baz
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 4
     privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: baz
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 4
-        name: bar
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 3
-        name: foo
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 2
-        name: jkl
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 1
         name: asdf
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
+        name: jkl
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 1
+        name: foo
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 2
+        name: bar
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 3
+        name: baz
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 4
     stmts: len=6
       [0]
         --- Stmt ---

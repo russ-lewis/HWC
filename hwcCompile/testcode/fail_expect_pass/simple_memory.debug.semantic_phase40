@@ -19,18 +19,18 @@ TODO: decl_dump() marker 6
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: out
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 2
         name: state
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 1
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
+        name: out
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 2
     stmts: len=4
       [0]
         --- Stmt ---
@@ -53,6 +53,11 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
+    size: 5
+    numConn: 2
+    numLogic: 1
+    numMemory: 1
+    numAssert: 0
   name: main
     --- Part ---
     phases: begun 10 completed 40

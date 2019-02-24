@@ -27,8 +27,9 @@ struct PT_stmt
 	FileRange fr;
 
 	int mode;
-	/* linked list, in reverse order of declaration */
-	PT_stmt *prev;
+
+	/* linked list, in the order of declaration (used to be reversed, but not anymore!) */
+	PT_stmt *next;
 
 	/* STMT_DECL */
 	int isPublic;       // 1 for true, 0 for false

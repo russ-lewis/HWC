@@ -26,7 +26,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 	while(currPTstmt != NULL)
 	{
 		len++;
-		currPTstmt = currPTstmt->prev;
+		currPTstmt = currPTstmt->next;
 	}
 
 	*output = malloc(sizeof(HWC_Stmt)*len);
@@ -38,8 +38,8 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 	// Reset head of list, now that we know the length
 	currPTstmt = input;
 	int i;
-	// Iterate backwards, since all stmt lists from the parser are in reverse order
-	for(i = len-1; i >= 0; i--)
+
+	for(i=0; i < len; i++)
 	{
 		HWC_Stmt *currStmt = *output+i; // TODO: Make sure this indexes by the correct amount
 
@@ -86,7 +86,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 				break;
 		}
 
-		currPTstmt = currPTstmt->prev;
+		currPTstmt = currPTstmt->next;
 	}
 
 

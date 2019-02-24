@@ -1,7 +1,7 @@
 TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
 TODO: Decls within IF stmts are not accounted for yet.
-TODO: Decls within BLOCK stmts are not accounted for yet.
-TODO: Decls within BLOCK stmts are not accounted for yet.
 TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.

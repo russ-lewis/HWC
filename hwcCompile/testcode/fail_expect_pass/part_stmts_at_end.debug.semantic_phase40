@@ -9,46 +9,46 @@
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: c
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 2
-        name: b
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 1
         name: a
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
+        name: b
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 1
+        name: c
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 2
     privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: c
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 2
-        name: b
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 1
         name: a
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
+        name: b
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 1
+        name: c
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 2
     stmts: len=4
       [0]
         --- Stmt ---

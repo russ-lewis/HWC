@@ -9,13 +9,6 @@
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: y
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-TODO: decl_dump() marker 8
-          index: 32
         name: x
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
@@ -23,6 +16,13 @@ TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
           index: 0
+        name: y
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          index: 32
     decls: len=2
       [0]
       [1]
@@ -34,34 +34,34 @@ TODO: decl_dump() marker 8
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: output
-          --- Decl ---
-          type: EXPR_IDENT typeName: Foo isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 64
         name: input
           --- Decl ---
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
+        name: output
+          --- Decl ---
+          type: EXPR_IDENT typeName: Foo isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 64
     privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: output
-          --- Decl ---
-          type: EXPR_IDENT typeName: Foo isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 64
         name: input
           --- Decl ---
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
+        name: output
+          --- Decl ---
+          type: EXPR_IDENT typeName: Foo isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 64
     stmts: len=2
       [0]
         --- Stmt ---

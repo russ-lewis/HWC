@@ -27,9 +27,11 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 	PT_stmt *currPTstmt = input;
 	int len = 0;
 
-	PT_decl *currPTdecl = currPTstmt->stmtDecl;
 	while(currPTstmt != NULL)
 	{
+		// used inside one case of the switch
+		PT_decl *currPTdecl;
+
 		/* If the caller didn't pass us a private nameScope, then we
 		 * know implicitly that this is a declaration inside a
 		 * plugtype.  In that case, non-declaration statements should
@@ -64,7 +66,7 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 			break;
 		}
 
-		currPTstmt = currPTstmt->prev;
+		currPTstmt = currPTstmt->next;
 	}
 
 	*output = malloc(sizeof(HWC_Decl)*len);
@@ -74,55 +76,55 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 	}
 
 
-	// Reset to beginning of list
-	currPTstmt = input;
-
-	// Iterate through the backwards list again, but use "count" to write the output in forward order.
-	int count = len-1;
-	while(currPTstmt != NULL)
+	// Iterate through the list again, but use "count" to keep track of
+	// where we are as we convert the decls.
+	int count = 0;
+	for (currPTstmt  = input;
+	     currPTstmt != NULL;
+	     currPTstmt  = currPTstmt->next)
 	{
-		HWC_Decl *currHWCdecl = (*output)+count;
-		if(currPTstmt->mode == STMT_DECL)
+		if (currPTstmt->mode != STMT_DECL)
+			continue;   // nothing to do in this loop
+
+		// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
+		PT_decl *currPTdecl = currPTstmt->stmtDecl;
+		while(currPTdecl != NULL)
 		{
-			// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
-			PT_decl *currPTdecl = currPTstmt->stmtDecl;
-			while(currPTdecl != NULL)
-			{
-				int retval = convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
-					assert(retval == 0);    // TODO: convert this function to report errors when necessary.
+			HWC_Decl *currHWCdecl = (*output)+count;
 
-				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
-				fr_copy(&thing->fr, &currHWCdecl->fr);
-				thing->decl = currHWCdecl;
+			int retval = convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+				assert(retval == 0);    // TODO: convert this function to report errors when necessary.
 
-				/* if isPublic, then we definitely want to post
-				 * this name to the public namescope.  This
-				 * applies to *any* declaration within a
-				 * plugtype, and also public declarations
-				 * within a part.
-				 */
-				if (currPTstmt->isPublic)
-					nameScope_add(publ, currPTdecl->name, thing);
+			HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
+			fr_copy(&thing->fr, &currHWCdecl->fr);
+			thing->decl = currHWCdecl;
 
-				/* if the private nameScope is defined, then we
-				 * *also* post this name to the private scope.
-				 * Note that it is perfectly normal to post the
-				 * same Thing to the both scopes; this happens
-				 * for public plugs on parts.
-				 */
-				if (priv != NULL)
-					nameScope_add(priv, currPTdecl->name, thing);
+			/* if isPublic, then we definitely want to post
+			 * this name to the public namescope.  This
+			 * applies to *any* declaration within a
+			 * plugtype, and also public declarations
+			 * within a part.
+			 */
+			if (currPTstmt->isPublic)
+				nameScope_add(publ, currPTdecl->name, thing);
 
-				count--;
-				currPTdecl = currPTdecl->prev;
-			}
+			/* if the private nameScope is defined, then we
+			 * *also* post this name to the private scope.
+			 * Note that it is perfectly normal to post the
+			 * same Thing to the both scopes; this happens
+			 * for public plugs on parts.
+			 */
+			if (priv != NULL)
+				nameScope_add(priv, currPTdecl->name, thing);
+
+			count++;
+			currPTdecl = currPTdecl->prev;
 		}
-		currPTstmt = currPTstmt->prev;
 	}
 
-	// Make sure that, by the end of this, the last index count wrote to was 0
-	// +1 to offset the subtraction done after writing to 0
-	assert(count+1 == 0);
+	// Sanity check that we filled out exactly the number of decls we
+	// expected.
+	assert(count == len);
 
 	return len;
 }

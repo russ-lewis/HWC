@@ -88,63 +88,66 @@ void dump_pt_stmt(PT_stmt *obj, int spaces)
 	if (obj->fr.s.l == 0)
 		printf("WARNING: This 'stmt' object does not have line number information!\n");
 
-	dump_pt_stmt(obj->prev, spaces);
-
-	dump_helper(spaces);
-
-	switch (obj->mode)
+	PT_stmt *cur = obj;
+	while (cur != NULL)
 	{
+		dump_helper(spaces);
+
+		switch (cur->mode)
+		{
 		default:
 			printf("-- debug: UNRECOGNIZED STMT ---\n");
 			break;
 
 		case STMT_DECL:
-			printf("stmt: DECL, that is %s, is%s a subpart, and has the decl vars:\n", obj->isPublic?"public":"private", obj->isSubpart?"":" not");
-			dump_pt_decl(obj->stmtDecl, spaces+2);
+			printf("stmt: DECL, that is %s, is%s a subpart, and has the decl vars:\n", cur->isPublic?"public":"private", cur->isSubpart?"":" not");
+			dump_pt_decl(cur->stmtDecl, spaces+2);
 			break;
 
 		case STMT_BLOCK:
 			printf("stmt: BLOCK, that has stmts...\n");
-			dump_pt_stmt(obj->stmts, spaces+2);
+			dump_pt_stmt(cur->stmts, spaces+2);
 			break;
 
 		case STMT_CONN:
 			printf("stmt: CONNECTION, with left and right exprs:\n");
-			dump_pt_expr(obj->lHand, spaces+2);
-			dump_pt_expr(obj->rHand, spaces+2);
+			dump_pt_expr(cur->lHand, spaces+2);
+			dump_pt_expr(cur->rHand, spaces+2);
 			break;
 
 		case STMT_FOR:
 			printf("stmt: FOR LOOP\n");
 			dump_helper(spaces+2);
-			printf("var: %s\n", obj->forVar);
+			printf("var: %s\n", cur->forVar);
 			dump_helper(spaces+2);
 			printf("Bgn:\n");
-			dump_pt_expr(obj->forBegin, spaces+4);
+			dump_pt_expr(cur->forBegin, spaces+4);
 			dump_helper(spaces+2);
 			printf("End=:\n");
-			dump_pt_expr(obj->forEnd, spaces+4);
+			dump_pt_expr(cur->forEnd, spaces+4);
 			dump_helper(spaces+2);
 			printf("Stmts:\n");
-			dump_pt_stmt(obj->forStmts, spaces+4);
+			dump_pt_stmt(cur->forStmts, spaces+4);
 			break;
 
 		case STMT_IF:
 			printf("stmt: IF CHECK\n");
-			dump_pt_expr(obj->ifExpr, spaces+2);
-			dump_pt_stmt(obj->ifStmts, spaces+2);
+			dump_pt_expr(cur->ifExpr, spaces+2);
+			dump_pt_stmt(cur->ifStmts, spaces+2);
 			break;
 
 		case STMT_ELSE:
 			printf("stmt: ELSE STMT\n");
-			dump_pt_stmt(obj->elseStmts, spaces+2);
+			dump_pt_stmt(cur->elseStmts, spaces+2);
 			break;
 
 		case STMT_ASRT:
 			printf("stmt: ASSERTION\n");
-			dump_pt_expr(obj->assertion, spaces+2);
+			dump_pt_expr(cur->assertion, spaces+2);
 			break;
+		}
 
+		cur = cur->next;
 	}
 }
 

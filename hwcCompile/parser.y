@@ -182,8 +182,8 @@ opt_stmts:
 ;
 
 stmts:
-		      stmt   { $$ = $1; $$->prev = NULL; }
-	|	stmts stmt   { $$ = $2; $$->prev = $1;   }
+		stmt         { $$ = $1; $$->next = NULL; }
+	|	stmt stmts   { $$ = $1; $$->next = $2;   }
 ;
 
 stmt:
@@ -288,13 +288,14 @@ opt_plugtype_stmts:
 ;
 
 plugtype_stmts:
-		               decl_stmt { $$ = $1;
+		decl_stmt                { $$ = $1;
 		                           fr_build($$);
+		                           $$->next = NULL;
 		                           $$->isPublic  = 1;
 		                           $$->isSubpart = 0; }
-	|	plugtype_stmts decl_stmt { $$ = $2;
+	|	decl_stmt plugtype_stmts { $$ = $1;
 		                           fr_build($$);
-		                           $$->prev = $1;
+		                           $$->next = $2;
 		                           $$->isPublic  = 1;
 		                           $$->isSubpart = 0; }
 ;
@@ -309,7 +310,7 @@ decl_stmt:
 		decl_fields ';'
 		      { $$ = malloc(sizeof(PT_stmt));
 		        fr_build($$);
-		        $$->prev      = NULL;   /* user may override this */
+		        $$->next      = NULL;   /* user may override this */
 		        $$->mode      = STMT_DECL;
 		           /* NOTE: the user *MUST* set public and subPart */
 		        $$->stmtDecl  = $1; }
