@@ -27,7 +27,9 @@ struct HWC_PlugType
 	HWC_Decl *decls;
 	int       decls_len;
 
+	// TODO: Comment
 	int size;
+	int numMemory;
 };
 
 /*
