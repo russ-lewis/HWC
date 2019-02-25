@@ -12,11 +12,11 @@
 
 // Prototypes, used later
 int findPart     (HWC_Wiring *, HWC_Part *, int *, int *, int *, int *);
-int findMemory   (HWC_Wiring *, HWC_Part *, int);
-int findLogicStmt(HWC_Wiring *, HWC_Part *, int);
-int findLogicExpr(HWC_Wiring *, HWC_Expr *, int);
-int findConnect  (HWC_Wiring *, HWC_Part *, int);
-int findAssert   (HWC_Wiring *, HWC_Part *, int);
+int findMemory   (HWC_Wiring_Memory     *, HWC_Part *, int);
+int findLogicStmt(HWC_Wiring_Logic      *, HWC_Part *, int);
+int findLogicExpr(HWC_Wiring_Logic      *, HWC_Expr *, int);
+int findConnect  (HWC_Wiring_Connection *, HWC_Part *, int);
+int findAssert   (HWC_Wiring_Assert     *, HWC_Part *, int);
 
 // TODO: Header comments for, like, all of these.
 
@@ -60,7 +60,7 @@ HWC_Wiring *buildWiringDiagram(HWC_Part *part)
 }
 
 // Other parts are found through decls, so we need to do this to find stmts and exprs in parts.
-int findPart(HWC_Wiring *retval, HWC_Part *part, int *indexMemory, int *indexLogic, int *indexConn, int *indexAssert)
+int findPart(HWC_Wiring *wiring, HWC_Part *part, int *indexMemory, int *indexLogic, int *indexConn, int *indexAssert)
 {
 	int i;
 	HWC_Decl currDecl;
@@ -69,18 +69,18 @@ int findPart(HWC_Wiring *retval, HWC_Part *part, int *indexMemory, int *indexLog
 		currDecl = part->decls[i];
 
 		if(currDecl.base_part != NULL)
-			findPart(retval, currDecl.base_part, indexMemory, indexLogic, indexConn, indexAssert);
+			findPart(wiring, currDecl.base_part, indexMemory, indexLogic, indexConn, indexAssert);
 	}
 
-	*indexMemory = findMemory (retval, part, *indexMemory);
-	*indexLogic  = findLogicStmt(retval, part, *indexLogic);
-	*indexConn   = findConnect(retval, part, *indexConn);
-	*indexAssert = findAssert (retval, part, *indexAssert);
+	*indexMemory = findMemory   (wiring->mem    , part, *indexMemory);
+	*indexLogic  = findLogicStmt(wiring->logic  , part, *indexLogic);
+	*indexConn   = findConnect  (wiring->conns  , part, *indexConn);
+	*indexAssert = findAssert   (wiring->asserts, part, *indexAssert);
 
 	return 0;
 }
 
-int findMemory(HWC_Wiring *retval, HWC_Part *part, int index)
+int findMemory(HWC_Wiring_Memory *memory, HWC_Part *part, int index)
 {
 	int i;
 	HWC_Decl currDecl;
@@ -90,18 +90,17 @@ int findMemory(HWC_Wiring *retval, HWC_Part *part, int index)
 
 		if(currDecl.isMem == 1)
 		{
-			HWC_Wiring_Memory currMem = retval->mem[index];
-			currMem.size = currDecl.indexSize;
+			memory[index].size = currDecl.indexSize;
 			// TODO: What to put for these?
-			currMem.read = -1;
-			currMem.write = -1;
+			memory[index].read = -1;
+			memory[index].write = -1;
 			index++;
 		}
 	}
 	return index;
 }
 
-int findLogicStmt(HWC_Wiring *retval, HWC_Part *part, int index)
+int findLogicStmt(HWC_Wiring_Logic *logic, HWC_Part *part, int index)
 {
 	int i;
 	HWC_Stmt currStmt;
@@ -119,13 +118,13 @@ int findLogicStmt(HWC_Wiring *retval, HWC_Part *part, int index)
 
 			case STMT_CONN:
 			case STMT_IF:
-				index = findLogicExpr(retval, currStmt.exprA, index);
-				index = findLogicExpr(retval, currStmt.exprB, index);
+				index = findLogicExpr(logic, currStmt.exprA, index);
+				index = findLogicExpr(logic, currStmt.exprB, index);
 				break;
 
 			case STMT_FOR:
 			case STMT_ASRT:
-				index = findLogicExpr(retval, currStmt.exprA, index);
+				index = findLogicExpr(logic, currStmt.exprA, index);
 				break;
 		}
 	}
@@ -134,10 +133,9 @@ int findLogicStmt(HWC_Wiring *retval, HWC_Part *part, int index)
 }
 
 
-int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
+int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 {
 	int temp;
-	HWC_Wiring_Logic currLogic;
 
 	switch(expr->mode)
 	{
@@ -145,12 +143,11 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 			break;
 
 		case EXPR_NOT:
-			currLogic = retval->logic[index];
-			currLogic.type = WIRING_NOT;
+			logic[index].type = WIRING_NOT;
 			// TODO: Are these the correct values?
-			currLogic.size = 1;
-			currLogic.a = expr->exprA->decl->indexSize;
-			currLogic.out = expr->indexLogic;
+			logic[index].size = 1;
+			logic[index].a = expr->exprA->decl->indexSize;
+			logic[index].out = expr->indexLogic;
 			index++;
 			break;
 
@@ -165,8 +162,6 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 				case OP_AND:
 				case OP_OR:
 				case OP_XOR:
-					currLogic = retval->logic[index];
-
 					// TODO: Is there a better way to do this?
 					if(expr->value == OP_EQUALS)
 						temp = WIRING_EQ;
@@ -178,13 +173,13 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 						temp = WIRING_OR;
 					if(expr->value == OP_XOR)
 						temp = WIRING_XOR;
-					currLogic.type = temp;
+					logic[index].type = temp;
 
 					// TODO: Are these the correct values?
-					currLogic.size = 2;
-					currLogic.a = expr->exprA->decl->indexSize;
-					currLogic.b = expr->exprB->decl->indexSize;
-					currLogic.out = expr->indexLogic;
+					logic[index].size = 2;
+					logic[index].a = expr->exprA->decl->indexSize;
+					logic[index].b = expr->exprB->decl->indexSize;
+					logic[index].out = expr->indexLogic;
 					index++;
 					break;
 			}
@@ -192,13 +187,13 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 		case EXPR_BITNOT:
 		case EXPR_DOT:
 		case EXPR_PAREN:
-			index = findLogicExpr(retval, expr->exprA, index);
+			index = findLogicExpr(logic, expr->exprA, index);
 			break;
 
 		case EXPR_ARR:
 		case EXPR_ARR_SLICE:
-			index = findLogicExpr(retval, expr->exprA, index);
-			index = findLogicExpr(retval, expr->exprB, index);
+			index = findLogicExpr(logic, expr->exprA, index);
+			index = findLogicExpr(logic, expr->exprB, index);
 			break;
 	}
 
@@ -206,7 +201,7 @@ int findLogicExpr(HWC_Wiring *retval, HWC_Expr *expr, int index)
 }
 
 // TODO: Merge Connect and Assert into one function eventually? They both iterate over stmts after all.
-int findConnect(HWC_Wiring *retval, HWC_Part *part, int index)
+int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 {
 	int i;
 	HWC_Stmt currStmt;
@@ -219,14 +214,13 @@ int findConnect(HWC_Wiring *retval, HWC_Part *part, int index)
 
 		if(currStmt.mode == STMT_CONN)
 		{
-			HWC_Wiring_Connection currConn = retval->conns[index];
 			// TODO: Correct value?
-			currConn.size = 1;
+			connect[index].size = 1;
 			// TODO: Fair assumption that WE only need to check this? Since we're not doing arrays right now, I think it's alright?
-			currConn.to   = currStmt.exprA->decl->indexSize;
-			currConn.from = currStmt.exprB->decl->indexSize;
-			currConn.condition = WIRING_BIT_INVALID;
-			currConn.isUndir = 1;
+			connect[index].to   = currStmt.exprA->decl->indexSize;
+			connect[index].from = currStmt.exprB->decl->indexSize;
+			connect[index].condition = WIRING_BIT_INVALID;
+			connect[index].isUndir = 1;
 			index++;
 		}
 	}
@@ -235,7 +229,7 @@ int findConnect(HWC_Wiring *retval, HWC_Part *part, int index)
 }
 
 
-int findAssert(HWC_Wiring *retval, HWC_Part *part, int index)
+int findAssert(HWC_Wiring_Assert *assert, HWC_Part *part, int index)
 {
 	int i;
 	HWC_Stmt currStmt;
@@ -247,9 +241,8 @@ int findAssert(HWC_Wiring *retval, HWC_Part *part, int index)
 
 		if(currStmt.mode == STMT_ASRT)
 		{
-			HWC_Wiring_Assert currAssert = retval->asserts[index];
 			// TODO: Correct value?
-			currAssert.bit = currStmt.exprA->value;
+			assert[index].bit = currStmt.exprA->value;
 		}
 	}
 
