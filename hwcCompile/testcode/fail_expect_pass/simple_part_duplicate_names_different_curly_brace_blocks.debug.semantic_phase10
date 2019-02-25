@@ -1,10 +1,14 @@
----- DEBUG: DUMPING SEMANTIC (after phase 30) ----
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
+TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
+---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
   name: main
     --- Part ---
-    phases: begun 10 completed 30
+    phases: begun 10 completed 10
     publicNames:
       --- NameScope ---
       refcount=1
@@ -25,21 +29,26 @@ TODO: stmt_dump() marker 9
         mode: STMT_BLOCK
 TODO: stmt_dump() marker 9
     decls: len=0
+    size: -1
+    numConn: -1
+    numLogic: -1
+    numMemory: -1
+    numAssert: -1
   name: testPart
     --- Part ---
-    phases: begun 10 completed 30
+    phases: begun 10 completed 10
     publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
         name: output
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: input
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     privateNames:
@@ -48,12 +57,12 @@ TODO: stmt_dump() marker 9
       parent=<TODO>
         name: output
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
         name: input
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
     stmts: len=3

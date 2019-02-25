@@ -7,6 +7,7 @@ part testPart {
 
 
 part main {
+	/* TODO: FIXME:  NOTE: the 'subpart' keyword is optional */
 	subpart testPart a;
 	  a.input = 0;
 	  assert(a.output == 0);
