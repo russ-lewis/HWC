@@ -2,18 +2,27 @@
 File with the following decls: 
   File_decl with these decls: 
     Part_decl: named 'simple_if', with stmts: 
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'control', with type (isMem=0)
+      stmt: DECL:
+        type:
           "bit"
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'in', with type (isMem=0)
-          Expr: ARR, into array expr
-            "bit"
-           index of
-            Expr: NUM, value of 2
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'out', with type (isMem=0)
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: control
+      stmt: DECL:
+        type:
           "bit"
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: in
+      stmt: DECL:
+        type:
+          "bit"
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: out
       stmt: IF CHECK
         Expr: TWOOP of mode EQUALS with exprs
           LHand:

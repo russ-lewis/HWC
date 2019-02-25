@@ -92,7 +92,7 @@ static inline void _fr_build(FileRange*);
 %type<stmt> plugtype_stmts
 
 %type<stmt> decl_stmt
-%type<decl> decl_fields
+%type<decl> decl_list
 
 %type<expr> expr
 %type<expr> expr2
@@ -300,43 +300,41 @@ plugtype_stmts:
 		                           $$->isSubpart = 0; }
 ;
 
-/* Added support for "bit a, b[1], c[4], d;" with idea from: */
-/* https://stackoverflow.com/a/33066472 */
-/* HOWEVER, THIS SOLUTION BREAKS THE ASSUMPTION THAT WHEN A pt_decl IS DISCLARED IN A PART AS A STATEMENT, THE prev FIELD IN pt_decl IS NULL */
-/* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? */
-/* Maybe not, since we could trust the Semantic phase to make sense of it */
 
+/* NOTE: the user *MUST* set public and subPart */
 decl_stmt:
-		decl_fields ';'
-		      { $$ = malloc(sizeof(PT_stmt));
-		        fr_build($$);
-		        $$->next      = NULL;   /* user may override this */
-		        $$->mode      = STMT_DECL;
-		           /* NOTE: the user *MUST* set public and subPart */
-		        $$->stmtDecl  = $1; }
+		             expr     decl_list ';'
+		                           { $$ = malloc(sizeof(PT_stmt));
+		                             fr_build($$);
+		                             $$->next     = NULL;   /* stmt list */
+		                             $$->mode     = STMT_DECL;
+		                             $$->declType = $1;
+		                             $$->declList = $2;
+		                             $$->isMemory = 0; }
+
+	|	"memory" '(' expr ')' decl_list ';'
+		                           { $$ = malloc(sizeof(PT_stmt));
+		                             fr_build($$);
+		                             $$->next     = NULL;
+		                             $$->mode     = STMT_DECL;
+		                             $$->declType = $3;
+		                             $$->declList = $5;
+		                             $$->isMemory = 1; }
 ;
 
-decl_fields:
+decl_list:
 		/* NOTE: We've removed support for suffix array declarations! */
-		expr IDENT
+		IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   fr_build($$);
-		                   $$->type = $1;
-		                   $$->isMem = 0;
-		                   $$->name = $2; }
-	|	"memory" '(' expr ')' IDENT
+		                   $$->next = NULL;
+		                   $$->name = $1; }
+
+	|	IDENT ',' decl_list
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   fr_build($$);
-		                   $$->type = $3;
-		                   $$->isMem = 1;
-		                   $$->name = $5; }
-	|	decl_fields ',' IDENT
-		                 { $$ = malloc(sizeof(PT_decl));
-		                   fr_build($$);
-		                   $$->prev = $1;
-		                   $$->type = $1->type;
-		                   $$->isMem = $1->isMem;
-		                   $$->name = $3; }
+		                   $$->name = $1;
+		                   $$->next = $3; }
 ;
 
 

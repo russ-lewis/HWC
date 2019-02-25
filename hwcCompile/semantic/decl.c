@@ -51,11 +51,11 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 
 		case STMT_DECL:
 			// Nested while() because PT_decls have their own list of decls.
-			currPTdecl = currPTstmt->stmtDecl;
+			currPTdecl = currPTstmt->declList;
 			while(currPTdecl != NULL)
 			{
 				len++;
-				currPTdecl = currPTdecl->prev;
+				currPTdecl = currPTdecl->next;
 			}
 			break;
 
@@ -87,12 +87,15 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 			continue;   // nothing to do in this loop
 
 		// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
-		PT_decl *currPTdecl = currPTstmt->stmtDecl;
+		PT_decl *currPTdecl = currPTstmt->declList;
 		while(currPTdecl != NULL)
 		{
 			HWC_Decl *currHWCdecl = (*output)+count;
 
-			int retval = convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
+			int retval = convertPTdeclIntoHWCdecl(currPTdecl,
+			                                      currPTstmt->declType,
+			                                      currPTstmt->isMemory,
+			                                      currHWCdecl);
 				assert(retval == 0);    // TODO: convert this function to report errors when necessary.
 
 			HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
@@ -118,7 +121,7 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 				nameScope_add(priv, currPTdecl->name, thing);
 
 			count++;
-			currPTdecl = currPTdecl->prev;
+			currPTdecl = currPTdecl->next;
 		}
 	}
 
@@ -138,12 +141,15 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
  * 
  * Returns nothing, since all meaningful work is done upon *output
  */
-int convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
+int convertPTdeclIntoHWCdecl(PT_decl *input,
+                             PT_expr *type,
+                             int      isMemory,
+	                     HWC_Decl *output)
 {
 	fr_copy(&output->fr, &input->fr);
 
 	// Extract the "type" of the decl. See pt/type.h for details on what a type can be.
-	PT_expr *convert = input->type;
+	PT_expr *convert = type;
 
 	// Make sure convert has a proper mode.
 	switch (convert->mode)
@@ -189,7 +195,7 @@ int convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
 	output->type     = convert->mode;
 	output->typeName = convert->name;   // used for IDENT, ignored for BIT_TYPE
 
-	output->isMem    = input->isMem;
+	output->isMem    = isMemory;
 
 	output->base_plugType = NULL;
 	output->base_part     = NULL;
@@ -219,6 +225,9 @@ int convertPTdeclIntoHWCdecl(PT_decl *input, HWC_Decl *output)
  */
 int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug)
 {
+
+// TODO: look up the type *earlier, before this call, so that the debug information reports the correct location of the error
+
 	HWC_Nameable *currName;
 	switch (currDecl->type)
 	{

@@ -2,15 +2,27 @@
 File with the following decls: 
   File_decl with these decls: 
     Part_decl: named 'simple_math', with stmts: 
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'a', with type (isMem=0)
+      stmt: DECL:
+        type:
           "bit"
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'b', with type (isMem=0)
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: a
+      stmt: DECL:
+        type:
           "bit"
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'c', with type (isMem=0)
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: b
+      stmt: DECL:
+        type:
           "bit"
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: c
       stmt: CONNECTION, with left and right exprs:
         Expr: IDENT, name = c
         Expr: TWOOP of mode PLUS with exprs

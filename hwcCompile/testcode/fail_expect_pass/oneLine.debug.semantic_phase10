@@ -11,12 +11,12 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: b
+        name: a
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: a
+        name: b
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -25,12 +25,12 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: b
+        name: a
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: a
+        name: b
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -73,7 +73,7 @@ TODO: part_dump() marker 5
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: z
+        name: x
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -83,7 +83,7 @@ TODO: part_dump() marker 5
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: x
+        name: z
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>

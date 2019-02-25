@@ -100,8 +100,23 @@ void dump_pt_stmt(PT_stmt *obj, int spaces)
 			break;
 
 		case STMT_DECL:
-			printf("stmt: DECL, that is %s, is%s a subpart, and has the decl vars:\n", cur->isPublic?"public":"private", cur->isSubpart?"":" not");
-			dump_pt_decl(cur->stmtDecl, spaces+2);
+			printf("stmt: DECL:\n");
+
+			dump_helper(spaces+2);
+			printf("type:\n");
+
+			dump_pt_expr(obj->declType, spaces+4);
+
+			dump_helper(spaces+2);
+			printf("isPublic=%d\n", cur->isPublic);
+
+			dump_helper(spaces+2);
+			printf("isSubpart=%d\n", cur->isSubpart);
+
+			dump_helper(spaces+2);
+			printf("isMemory=%d\n", cur->isMemory);
+
+			dump_pt_decl(cur->declList, spaces+2);
 			break;
 
 		case STMT_BLOCK:
@@ -159,13 +174,14 @@ void dump_pt_decl(PT_decl *obj, int spaces)
 	if (obj->fr.s.l == 0)
 		printf("WARNING: This 'decl' object does not have line number information!\n");
 
-	// Call first since linked list is backwards
-	dump_pt_decl(obj->prev, spaces);
+	PT_decl *cur = obj;
+	while (cur != NULL)
+	{
+		dump_helper(spaces);
+		printf("name: %s\n", cur->name);
 
-	dump_helper(spaces);
-	printf("Declaration: named '%s', with type (isMem=%d)\n", obj->name, obj->isMem);
-
-	dump_pt_expr(obj->type, spaces+2);
+		cur = cur->next;
+	}
 }
 
 
