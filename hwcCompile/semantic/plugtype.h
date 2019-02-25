@@ -4,13 +4,17 @@
 
 #include <malloc.h>
 
+#include "wiring/fileRange.h"
 #include "names.h"
 #include "decl.h"
+
 
 // Maybe just want to reference "plug" struct instead?
 typedef struct HWC_PlugType HWC_PlugType;
 struct HWC_PlugType
 {
+	FileRange fr;
+
 	/* these track the progress of the semantic phase.  The 'completed'
 	 * field tells us which semantic phase is done for this type; calling
 	 * a generator function on this type, for one of these phases, is a
@@ -33,10 +37,14 @@ struct HWC_PlugType
 };
 
 /*
-BitType represents the "Bit" primitive in HWC
- Its size is 1
- It does not have a namescope
-*/
+ * BitType represents the "Bit" primitive in HWC
+ *   Its size is 1
+ *   It does not have a namescope
+ */
 extern HWC_PlugType BitType;
+
+
+void plugtype_dump(HWC_PlugType*, int prefixLen);
+
 
 #endif // __SEMANTIC_PLUGTYPE_H__INCLUDED__

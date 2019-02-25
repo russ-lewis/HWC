@@ -36,14 +36,17 @@ void dump_pt_file_decl(PT_file_decl *obj, int spaces)
 	if(obj == NULL)
 		return;
 
-	// Call first since linked list is backwards
-	dump_pt_file_decl(obj->prev, spaces);
+	PT_file_decl *cur = obj;
+	while (cur != NULL)
+	{
+		dump_helper(spaces);
 
-	dump_helper(spaces);
+		printf("File_decl with these decls: \n");
+		dump_pt_part_decl(cur->partDecl, spaces+2);
+		dump_pt_plugtype_decl(cur->plugtypeDecl, spaces+2);
 
-   printf("File_decl with these decls: \n");
-	dump_pt_part_decl(obj->partDecl, spaces+2);
-	dump_pt_plugtype_decl(obj->plugtypeDecl, spaces+2);
+		cur = cur->next;
+	}
 }
 
 
@@ -85,63 +88,81 @@ void dump_pt_stmt(PT_stmt *obj, int spaces)
 	if (obj->fr.s.l == 0)
 		printf("WARNING: This 'stmt' object does not have line number information!\n");
 
-	dump_pt_stmt(obj->prev, spaces);
-
-	dump_helper(spaces);
-
-	switch (obj->mode)
+	PT_stmt *cur = obj;
+	while (cur != NULL)
 	{
+		dump_helper(spaces);
+
+		switch (cur->mode)
+		{
 		default:
 			printf("-- debug: UNRECOGNIZED STMT ---\n");
 			break;
 
 		case STMT_DECL:
-			printf("stmt: DECL, that is %s, is%s a subpart, and has the decl vars:\n", obj->isPublic?"public":"private", obj->isSubpart?"":" not");
-			dump_pt_decl(obj->stmtDecl, spaces+2);
+			printf("stmt: DECL:\n");
+
+			dump_helper(spaces+2);
+			printf("type:\n");
+
+			dump_pt_expr(obj->declType, spaces+4);
+
+			dump_helper(spaces+2);
+			printf("isPublic=%d\n", cur->isPublic);
+
+			dump_helper(spaces+2);
+			printf("isSubpart=%d\n", cur->isSubpart);
+
+			dump_helper(spaces+2);
+			printf("isMemory=%d\n", cur->isMemory);
+
+			dump_pt_decl(cur->declList, spaces+2);
 			break;
 
 		case STMT_BLOCK:
 			printf("stmt: BLOCK, that has stmts...\n");
-			dump_pt_stmt(obj->stmts, spaces+2);
+			dump_pt_stmt(cur->stmts, spaces+2);
 			break;
 
 		case STMT_CONN:
 			printf("stmt: CONNECTION, with left and right exprs:\n");
-			dump_pt_expr(obj->lHand, spaces+2);
-			dump_pt_expr(obj->rHand, spaces+2);
+			dump_pt_expr(cur->lHand, spaces+2);
+			dump_pt_expr(cur->rHand, spaces+2);
 			break;
 
 		case STMT_FOR:
 			printf("stmt: FOR LOOP\n");
 			dump_helper(spaces+2);
-			printf("var: %s\n", obj->forVar);
+			printf("var: %s\n", cur->forVar);
 			dump_helper(spaces+2);
 			printf("Bgn:\n");
-			dump_pt_expr(obj->forBegin, spaces+4);
+			dump_pt_expr(cur->forBegin, spaces+4);
 			dump_helper(spaces+2);
 			printf("End=:\n");
-			dump_pt_expr(obj->forEnd, spaces+4);
+			dump_pt_expr(cur->forEnd, spaces+4);
 			dump_helper(spaces+2);
 			printf("Stmts:\n");
-			dump_pt_stmt(obj->forStmts, spaces+4);
+			dump_pt_stmt(cur->forStmts, spaces+4);
 			break;
 
 		case STMT_IF:
 			printf("stmt: IF CHECK\n");
-			dump_pt_expr(obj->ifExpr, spaces+2);
-			dump_pt_stmt(obj->ifStmts, spaces+2);
+			dump_pt_expr(cur->ifExpr, spaces+2);
+			dump_pt_stmt(cur->ifStmts, spaces+2);
 			break;
 
 		case STMT_ELSE:
 			printf("stmt: ELSE STMT\n");
-			dump_pt_stmt(obj->elseStmts, spaces+2);
+			dump_pt_stmt(cur->elseStmts, spaces+2);
 			break;
 
 		case STMT_ASRT:
 			printf("stmt: ASSERTION\n");
-			dump_pt_expr(obj->assertion, spaces+2);
+			dump_pt_expr(cur->assertion, spaces+2);
 			break;
+		}
 
+		cur = cur->next;
 	}
 }
 
@@ -153,13 +174,14 @@ void dump_pt_decl(PT_decl *obj, int spaces)
 	if (obj->fr.s.l == 0)
 		printf("WARNING: This 'decl' object does not have line number information!\n");
 
-	// Call first since linked list is backwards
-	dump_pt_decl(obj->prev, spaces);
+	PT_decl *cur = obj;
+	while (cur != NULL)
+	{
+		dump_helper(spaces);
+		printf("name: %s\n", cur->name);
 
-	dump_helper(spaces);
-	printf("Declaration: named '%s', with type (isMem=%d)\n", obj->name, obj->isMem);
-
-	dump_pt_expr(obj->type, spaces+2);
+		cur = cur->next;
+	}
 }
 
 

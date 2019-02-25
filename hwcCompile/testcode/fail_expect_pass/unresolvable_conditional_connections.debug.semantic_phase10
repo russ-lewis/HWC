@@ -9,16 +9,11 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
   name: unresolvable
     --- Part ---
     phases: begun 10 completed 10
-    publicNames: <TODO>
+    publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: b
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-        name: a
+        name: foo
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -28,21 +23,21 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: foo
+        name: a
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-    privateNames: <TODO>
-      --- NameScope ---
-      refcount=1
-      parent=<TODO>
         name: b
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: a
+    privateNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: foo
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -52,7 +47,12 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           index: -1
-        name: foo
+        name: a
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: b
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -83,5 +83,10 @@ TODO: part_dump() marker 5
 TODO: part_dump() marker 5
       [3]
 TODO: part_dump() marker 5
+    size: -1
+    numConn: -1
+    numLogic: -1
+    numMemory: -1
+    numAssert: -1
 
 rc=0

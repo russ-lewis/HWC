@@ -22,8 +22,8 @@ struct PT_file_decl
 {
 	FileRange fr;
 
-	/* linked list of declarations, in reverse order */
-	PT_file_decl *prev;
+	/* linked list of declarations */
+	PT_file_decl *next;
 
 	PT_part_decl     *partDecl;
 	PT_plugtype_decl *plugtypeDecl;

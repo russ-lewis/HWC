@@ -57,7 +57,7 @@ HWC_NameScope *nameScope_malloc(HWC_NameScope *parent)
 {
 	HWC_NameScope *retval = malloc(sizeof(HWC_NameScope));
 	  assert(retval != NULL);
-		// TODO: better error checking
+		// TODO: better error reporting
 
 	retval->refCount = 1;
 	retval->parent   = parent;

@@ -14,6 +14,8 @@ Returns nothing, since all meaningful work is done upon **output_out
 */
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 {
+	assert(input != NULL);
+
 	HWC_Expr *output = malloc(sizeof(HWC_Expr));
 	if(output == NULL)
 	{
@@ -143,7 +145,6 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 			break;
 		case(EXPR_DOT):
 			retval += checkExprName(currExpr->exprA, currScope);
-			retval += checkExprName(currExpr->exprB, currScope);
 			break;
 		case(EXPR_ARR):
 			retval += checkExprName(currExpr->exprA, currScope);
@@ -163,6 +164,8 @@ TODO: Header comment
 */
 int findExprSize(HWC_Expr *currExpr, int *numLogic)
 {
+	assert(currExpr != NULL);
+
 	int retval = 0;
 
 	// For EXPR_NOT, BITNOT, and TWOOP we add 1 bit for output of condition
@@ -209,7 +212,6 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 			break;
 		case(EXPR_DOT):
 			retval += findExprSize(currExpr->exprA, numLogic);
-			retval += findExprSize(currExpr->exprB, numLogic);
 			break;
 		case(EXPR_ARR):
 			retval += findExprSize(currExpr->exprA, numLogic);

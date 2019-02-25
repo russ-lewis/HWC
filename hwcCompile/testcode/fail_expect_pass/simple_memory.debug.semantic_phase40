@@ -2,36 +2,10 @@
  --- NameScope ---
  refcount=1
  parent=<TODO>
-  name: main
-    --- Part ---
-    phases: begun 10 completed 40
-    publicNames: <TODO>
-      --- NameScope ---
-      refcount=1
-      parent=<TODO>
-      <no names>
-    privateNames: <TODO>
-      --- NameScope ---
-      refcount=1
-      parent=<TODO>
-        name: dummy
-          --- Decl ---
-          type: EXPR_IDENT typeName: tick_tock isMem: 0
-TODO: decl_dump() marker 7
-          expr: <TODO>
-          index: 0
-    stmts: len=1
-      [0]
-        --- Stmt ---
-        mode: STMT_DECL
-TODO: stmt_dump() marker 9
-    decls: len=1
-      [0]
-TODO: part_dump() marker 5
   name: tick_tock
     --- Part ---
     phases: begun 10 completed 40
-    publicNames: <TODO>
+    publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
@@ -41,22 +15,22 @@ TODO: part_dump() marker 5
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 2
-    privateNames: <TODO>
+    privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: out
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          index: 2
         name: state
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 1
 TODO: decl_dump() marker 6
           expr: <TODO>
           index: 0
+        name: out
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          index: 2
     stmts: len=4
       [0]
         --- Stmt ---
@@ -79,5 +53,41 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
+    size: 5
+    numConn: 2
+    numLogic: 1
+    numMemory: 1
+    numAssert: 0
+  name: main
+    --- Part ---
+    phases: begun 10 completed 40
+    publicNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+      <no names>
+    privateNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: dummy
+          --- Decl ---
+          type: EXPR_IDENT typeName: tick_tock isMem: 0
+TODO: decl_dump() marker 7
+          expr: <TODO>
+          index: 0
+    stmts: len=1
+      [0]
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: stmt_dump() marker 9
+    decls: len=1
+      [0]
+TODO: part_dump() marker 5
+    size: 5
+    numConn: 2
+    numLogic: 1
+    numMemory: 1
+    numAssert: 0
 
 rc=0

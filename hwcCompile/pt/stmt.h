@@ -27,13 +27,17 @@ struct PT_stmt
 	FileRange fr;
 
 	int mode;
-	/* linked list, in reverse order of declaration */
-	PT_stmt *prev;
+
+	/* linked list, in the order of declaration (used to be reversed, but not anymore!) */
+	PT_stmt *next;
 
 	/* STMT_DECL */
 	int isPublic;       // 1 for true, 0 for false
 	int isSubpart;      // 1 for true, 0 for false
-	PT_decl *stmtDecl;
+	int isMemory;       // 1 for true, 0 for false
+	PT_expr *declType;
+	PT_decl *declList;
+
 
 	/* STMT_BLOCK */
 	PT_stmt *stmts;     // is a linked list
@@ -74,11 +78,8 @@ struct PT_decl
 {
 	FileRange fr;
 
-	/* linked list, in reverse order of declaration */
-	PT_decl *prev;
-
-	PT_expr *type;
-	int      isMem;
+	/* linked list of decls */
+	PT_decl *next;
 
 	char *name;
 };
