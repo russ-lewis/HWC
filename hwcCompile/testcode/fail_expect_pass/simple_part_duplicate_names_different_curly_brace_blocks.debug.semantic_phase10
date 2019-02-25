@@ -6,6 +6,60 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
  --- NameScope ---
  refcount=1
  parent=<TODO>
+  name: testPart
+    --- Part ---
+    phases: begun 10 completed 10
+    publicNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: input
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: output
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+    privateNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: input
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+        name: output
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          index: -1
+    stmts: len=3
+      [0]
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: stmt_dump() marker 9
+      [1]
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: stmt_dump() marker 9
+      [2]
+        --- Stmt ---
+        mode: STMT_CONN
+TODO: stmt_dump() marker 9
+    decls: len=2
+      [0]
+TODO: part_dump() marker 5
+      [1]
+TODO: part_dump() marker 5
+    size: -1
+    numConn: -1
+    numLogic: -1
+    numMemory: -1
+    numAssert: -1
   name: main
     --- Part ---
     phases: begun 10 completed 10
@@ -29,60 +83,6 @@ TODO: stmt_dump() marker 9
         mode: STMT_BLOCK
 TODO: stmt_dump() marker 9
     decls: len=0
-    size: -1
-    numConn: -1
-    numLogic: -1
-    numMemory: -1
-    numAssert: -1
-  name: testPart
-    --- Part ---
-    phases: begun 10 completed 10
-    publicNames:
-      --- NameScope ---
-      refcount=1
-      parent=<TODO>
-        name: output
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-        name: input
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-    privateNames:
-      --- NameScope ---
-      refcount=1
-      parent=<TODO>
-        name: output
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-        name: input
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-    stmts: len=3
-      [0]
-        --- Stmt ---
-        mode: STMT_DECL
-TODO: stmt_dump() marker 9
-      [1]
-        --- Stmt ---
-        mode: STMT_DECL
-TODO: stmt_dump() marker 9
-      [2]
-        --- Stmt ---
-        mode: STMT_CONN
-TODO: stmt_dump() marker 9
-    decls: len=2
-      [0]
-TODO: part_dump() marker 5
-      [1]
-TODO: part_dump() marker 5
     size: -1
     numConn: -1
     numLogic: -1

@@ -53,6 +53,13 @@ struct HWC_Decl
 	int type;
 	char *typeName;
 
+	// TODO: support more flexible types.  This will require that we
+	//       replace typeName with an HWC_Expr.  But until we do that,
+	//       we have to carry the file-range information for the type
+	//       as a separate field.  (Note that this is used for
+	//       reporting invalid-type syntax errors.)
+		FileRange typeName_fr;
+
 
 	/*
 	 * TODO: Add comment

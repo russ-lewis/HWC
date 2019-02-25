@@ -37,9 +37,13 @@ File with the following decls:
             Expr: NUM, value of 0
   File_decl with these decls: 
     Part_decl: named 'main', with stmts: 
-      stmt: DECL, that is private, is a subpart, and has the decl vars:
-        Declaration: named 'a', with type (isMem=0)
+      stmt: DECL:
+        type:
           Expr: IDENT, name = simple_if
+        isPublic=0
+        isSubpart=1
+        isMemory=0
+        name: a
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
@@ -69,9 +73,13 @@ File with the following decls:
              accessing field 'out'
           RHand:
             Expr: NUM, value of 0
-      stmt: DECL, that is private, is a subpart, and has the decl vars:
-        Declaration: named 'b', with type (isMem=0)
+      stmt: DECL:
+        type:
           Expr: IDENT, name = simple_if
+        isPublic=0
+        isSubpart=1
+        isMemory=0
+        name: b
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
@@ -101,9 +109,13 @@ File with the following decls:
              accessing field 'out'
           RHand:
             Expr: NUM, value of 0
-      stmt: DECL, that is private, is a subpart, and has the decl vars:
-        Declaration: named 'c', with type (isMem=0)
+      stmt: DECL:
+        type:
           Expr: IDENT, name = simple_if
+        isPublic=0
+        isSubpart=1
+        isMemory=0
+        name: c
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
@@ -133,9 +145,13 @@ File with the following decls:
              accessing field 'out'
           RHand:
             Expr: NUM, value of 0
-      stmt: DECL, that is private, is a subpart, and has the decl vars:
-        Declaration: named 'd', with type (isMem=0)
+      stmt: DECL:
+        type:
           Expr: IDENT, name = simple_if
+        isPublic=0
+        isSubpart=1
+        isMemory=0
+        name: d
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
@@ -165,9 +181,13 @@ File with the following decls:
              accessing field 'out'
           RHand:
             Expr: NUM, value of 1
-      stmt: DECL, that is private, is a subpart, and has the decl vars:
-        Declaration: named 'e', with type (isMem=0)
+      stmt: DECL:
+        type:
           Expr: IDENT, name = simple_if
+        isPublic=0
+        isSubpart=1
+        isMemory=0
+        name: e
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
@@ -197,9 +217,13 @@ File with the following decls:
              accessing field 'out'
           RHand:
             Expr: NUM, value of 1
-      stmt: DECL, that is private, is a subpart, and has the decl vars:
-        Declaration: named 'f', with type (isMem=0)
+      stmt: DECL:
+        type:
           Expr: IDENT, name = simple_if
+        isPublic=0
+        isSubpart=1
+        isMemory=0
+        name: f
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
@@ -229,9 +253,13 @@ File with the following decls:
              accessing field 'out'
           RHand:
             Expr: NUM, value of 0
-      stmt: DECL, that is private, is a subpart, and has the decl vars:
-        Declaration: named 'g', with type (isMem=0)
+      stmt: DECL:
+        type:
           Expr: IDENT, name = simple_if
+        isPublic=0
+        isSubpart=1
+        isMemory=0
+        name: g
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr
@@ -261,9 +289,13 @@ File with the following decls:
              accessing field 'out'
           RHand:
             Expr: NUM, value of 1
-      stmt: DECL, that is private, is a subpart, and has the decl vars:
-        Declaration: named 'h', with type (isMem=0)
+      stmt: DECL:
+        type:
           Expr: IDENT, name = simple_if
+        isPublic=0
+        isSubpart=1
+        isMemory=0
+        name: h
       stmt: CONNECTION, with left and right exprs:
         Expr: ARR, into array expr
           Expr: DOT, using expr

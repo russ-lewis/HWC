@@ -194,6 +194,7 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
 	//   later anyhow, so pass on it for now.
 	output->type     = convert->mode;
 	output->typeName = convert->name;   // used for IDENT, ignored for BIT_TYPE
+	  fr_copy(&output->typeName_fr, &type->fr);
 
 	output->isMem    = isMemory;
 
@@ -225,9 +226,6 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
  */
 int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug)
 {
-
-// TODO: look up the type *earlier, before this call, so that the debug information reports the correct location of the error
-
 	HWC_Nameable *currName;
 	switch (currDecl->type)
 	{
@@ -252,18 +250,20 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 			if(currName == NULL)
 			{
 				fprintf(stderr, "%s:%d:%d: Symbol '%s' not found\n",
-				        currDecl->fr.filename,
-				        currDecl->fr.s.l, currDecl->fr.s.c,
+				        currDecl->typeName_fr.filename,
+				        currDecl->typeName_fr.s.l, currDecl->typeName_fr.s.c,
 				        currDecl->typeName);
 				return 1;
 			}
+
+			// TODO: make this common code.  Right now, we check the declaring-type several times (if we have multiple names declared in the same statement).  This is harmless but wasteful.
 
 			// Make sure the name we get back is either a plugtype or a part
 			if(currName->plugtype == NULL && currName->part == NULL)
 			{
 				fprintf(stderr, "%s:%d:%d: Symbol '%s' is neither a part nor a plugtype.\n",
-				        currDecl->fr.filename,
-				        currDecl->fr.s.l, currDecl->fr.s.c,
+				        currDecl->typeName_fr.filename,
+				        currDecl->typeName_fr.s.l, currDecl->typeName_fr.s.c,
 				        currDecl->typeName);
 				return 1;
 			}
