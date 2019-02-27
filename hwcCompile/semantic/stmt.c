@@ -43,7 +43,9 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 	{
 		HWC_Stmt *currStmt = *output+i; // TODO: Make sure this indexes by the correct amount
 
-		fr_copy(&currStmt->fr, &currPTstmt->fr);
+		fr_copy   (&currStmt->fr, &currPTstmt->fr);
+		sizes_init(&currStmt->sizes);
+		sizes_init(&currStmt->offsets);
 
 		currStmt->mode = currPTstmt->mode;
 		// TODO: Initialize other variables of currStmt?
@@ -194,7 +196,7 @@ int findStmtSize(HWC_Stmt *currStmt, int *numConn, int *numLogic, int *numAssert
 				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_CONN:
-			currStmt->indexConn = *numConn;
+			currStmt->offsets.bits = *numConn;
 			*numConn += 1;
 			retval += findExprSize(currStmt->exprA, numLogic);
 			retval += findExprSize(currStmt->exprB, numLogic);
@@ -223,7 +225,7 @@ int findStmtSize(HWC_Stmt *currStmt, int *numConn, int *numLogic, int *numAssert
 				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_ASRT:
-			currStmt->indexConn = *numAssert;
+			currStmt->offsets.bits = *numAssert;
 			*numAssert += 1;
 			retval += findExprSize(currStmt->exprA, numLogic);
 			break;

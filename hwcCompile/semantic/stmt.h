@@ -6,6 +6,7 @@
 
 #include "wiring/fileRange.h"
 
+#include "sizes.h"
 #include "names.h"
 #include "expr.h"
 #include "decl.h"
@@ -16,6 +17,7 @@ typedef struct HWC_Stmt HWC_Stmt;
 struct HWC_Stmt
 {
 	FileRange fr;
+	HWC_Sizes sizes,offsets;    // see long description in semantic/sizes.h
 
 	int mode;
 
@@ -41,13 +43,6 @@ struct HWC_Stmt
 	HWC_NameScope *namesA, *namesB;
 	// Is the declaration public? Is the declaration a subpart?
 	int isPublic,  isSubpart;
-
-	// TODO: Describe significance
-	int indexSize;
-	int indexConn;
-	// int indexLogic;
-	// int indexMemory;
-	int indexAssert;
 };
 
 
