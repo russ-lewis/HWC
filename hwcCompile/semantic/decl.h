@@ -23,10 +23,12 @@
 
 #include "wiring/fileRange.h"
 
+#include "sizes.h"
 #include "expr.h"
 #include "names.h"
 #include "plugtype.h"
 #include "phase30.h" // Allow decls to initiate phase30 on parts/plugtypes if needed.
+
 
 
 typedef struct HWC_Expr HWC_Expr;
@@ -37,6 +39,7 @@ typedef struct HWC_Decl HWC_Decl;
 struct HWC_Decl
 {
 	FileRange fr;
+	HWC_Sizes sizes,offsets;    // see long description in semantic/sizes.h
 
 	/*
 	"type" is useful in phase10 because we are populating the namescope with the names of decls,
@@ -91,15 +94,6 @@ struct HWC_Decl
 	 * TODO: support multidimensional arrays in the future.
 	 */
 	HWC_Expr *expr;
-
-
-	/* bit index of this Decl inside its enclosing PlugType or Part */
-	// TODO: If these turn out to be redundant
-	int indexSize;
-	// int indexConn;
-	// int indexLogic;
-	int indexMemory;
-	// int indexAssert;
 };
 
 int convertPTdeclIntoHWCdecl(PT_decl *input,

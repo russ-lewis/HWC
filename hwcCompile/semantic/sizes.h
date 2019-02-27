@@ -137,7 +137,6 @@
  * to check, later, to see if a HWC_Sizes struct has had all of its fields
  * set to reasonable values.)
  */
-TODO
 
 
 
@@ -166,7 +165,7 @@ struct HWC_Sizes
 	 * *COMPONENTS*, never in terms of the number of bits used by those
 	 * components.
 	 */
-	int numConn, numMemory, numLogic, numAssert;
+	int conns, memoryObjs, logicOps, asserts;
 };
 
 
@@ -186,47 +185,49 @@ static inline int sizes_are_ready(HWC_Sizes *obj)
 	if (obj == NULL)
 		return 0;
 
-	return obj->bits      >= 0 &&
-	       obj->memBits   >= 0 &&
-	       obj->numAssert >= 0 &&
-	       obj->numAssert >= 0 &&
-	       obj->numAssert >= 0 &&
-	       obj->numAssert >= 0;
+	return obj->bits       >= 0 &&
+	       obj->memBits    >= 0 &&
+	       obj->conns      >= 0 &&
+	       obj->memoryObjs >= 0 &&
+	       obj->logicOps   >= 0 &&
+	       obj->asserts    >= 0;
 }
 
 static inline void sizes_add(HWC_Sizes *dst,
                              HWC_Sizes *src1, HWC_Sizes *src2)
 {
 	assert(dst != NULL);
-	assert(sizes_are_ready(src1,mode));
-	assert(sizes_are_ready(src2,mode));
+	assert(sizes_are_ready(src1));
+	assert(sizes_are_ready(src2));
 
-	dst->bits      = src1->bits      + src2->bits;
-	dst->memBits   = src1->memBits   + src2->memBits;
-	dst->numConn   = src1->numConn   + src2->numConn;
-	dst->numMemory = src1->numMemory + src2->numMemory;
-	dst->numLogic  = src1->numLogic  + src2->numLogic;
-	dst->numAssert = src1->numAssert + src2->numAssert;
+	dst->bits       = src1->bits       + src2->bits;
+	dst->memBits    = src1->memBits    + src2->memBits;
+	dst->conns      = src1->conns      + src2->conns;
+	dst->memoryObjs = src1->memoryObjs + src2->memoryObjs;
+	dst->logicOps   = src1->logicOps   + src2->logicOps;
+	dst->asserts    = src1->asserts    + src2->asserts;
 }
 
 static inline void sizes_multiply(HWC_Sizes *dst,
                                   HWC_Sizes *src, int factor)
 {
 	assert(dst != NULL);
-	assert(sizes_are_read(src));
+	assert(sizes_are_ready(src));
 	assert(factor > 0);           // TODO: will we allow 0 length arrays???
 
-	dst->bits      = src->bits      * factor;
-	dst->memBits   = src->memBits   * factor;
-	dst->numConn   = src->numConn   * factor;
-	dst->numMemory = src->numMemory * factor;
-	dst->numLogic  = src->numLogic  * factor;
-	dst->numAssert = src->numAssert * factor;
+	dst->bits       = src->bits       * factor;
+	dst->memBits    = src->memBits    * factor;
+	dst->conns      = src->conns      * factor;
+	dst->memoryObjs = src->memoryObjs * factor;
+	dst->logicOps   = src->logicOps   * factor;
+	dst->asserts    = src->asserts    * factor;
 }
 
 static inline void sizes_print(HWC_Sizes *obj)
 {
-	printf("%s(): TODO\n", __func__);
+	printf("bits=%d memBits=%d   conns=%d memoryObjs=%d logicOps=%d asserts=%d\n",
+	       obj->bits, obj->memBits,
+	       obj->conns, obj->memoryObjs, obj->logicOps, obj->asserts);
 }
 
 

@@ -14,7 +14,8 @@
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 2
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=2 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     privateNames:
       --- NameScope ---
       refcount=1
@@ -24,13 +25,15 @@ TODO: decl_dump() marker 6
           type: EXPR_BIT_TYPE typeName: (null) isMem: 1
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 0
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=0 logicOps=-1 asserts=-1
         name: out
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 2
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=2 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=4
       [0]
         --- Stmt ---
@@ -75,7 +78,8 @@ TODO: part_dump() marker 5
           type: EXPR_IDENT typeName: tick_tock isMem: 0
 TODO: decl_dump() marker 7
           expr: <TODO>
-          index: 0
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=1
       [0]
         --- Stmt ---

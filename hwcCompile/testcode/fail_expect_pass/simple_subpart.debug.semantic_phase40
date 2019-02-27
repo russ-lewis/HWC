@@ -14,13 +14,15 @@
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 0
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     privateNames:
       --- NameScope ---
       refcount=1
@@ -30,13 +32,15 @@ TODO: decl_dump() marker 6
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 0
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=3
       [0]
         --- Stmt ---
@@ -77,13 +81,15 @@ TODO: part_dump() marker 5
           type: EXPR_IDENT typeName: testPart isMem: 0
 TODO: decl_dump() marker 7
           expr: <TODO>
-          index: 0
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: b
           --- Decl ---
           type: EXPR_IDENT typeName: testPart isMem: 0
 TODO: decl_dump() marker 7
           expr: <TODO>
-          index: 2
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=2 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=6
       [0]
         --- Stmt ---

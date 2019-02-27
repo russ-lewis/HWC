@@ -15,12 +15,14 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
-          index: -1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: b
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
-          index: -1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     privateNames:
       --- NameScope ---
       refcount=1
@@ -29,18 +31,21 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
-          index: -1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: b
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
-          index: -1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: c
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: -1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=3
       [0]
         --- Stmt ---
@@ -77,17 +82,20 @@ TODO: part_dump() marker 5
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
-          index: -1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: y
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
-          index: -1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: z
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
-          index: -1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     decls: len=3
       [0]
       [1]

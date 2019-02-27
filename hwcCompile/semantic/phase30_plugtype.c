@@ -56,7 +56,7 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 		}
 		else
 		{
-			currDecl->indexSize = currIndex;
+			currDecl->offsets.bits = currIndex;
 			currIndex += size;
 		}
 	}

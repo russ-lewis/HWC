@@ -147,6 +147,8 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
 	                     HWC_Decl *output)
 {
 	fr_copy(&output->fr, &input->fr);
+	sizes_init(&output->sizes);
+	sizes_init(&output->offsets);
 
 	// Extract the "type" of the decl. See pt/type.h for details on what a type can be.
 	PT_expr *convert = type;
@@ -200,10 +202,6 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
 
 	output->base_plugType = NULL;
 	output->base_part     = NULL;
-
-	// Temp dummy value that might be useful later
-	output->indexSize = -1;
-	output->indexMemory = -1;
 
 	return 0;
 }
@@ -300,7 +298,7 @@ int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 
 	if(input->isMem == 1)
 	{
-		input->indexMemory = *numMemory;
+		input->offsets.memoryObjs = *numMemory;
 		*numMemory += 1;
 
 		multiplier *= 2;

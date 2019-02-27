@@ -90,7 +90,7 @@ int findMemory(HWC_Wiring_Memory *memory, HWC_Part *part, int index)
 
 		if(currDecl.isMem == 1)
 		{
-			memory[index].size = currDecl.indexSize;
+			memory[index].size = currDecl.offsets.bits;
 			// TODO: What to put for these?
 			memory[index].read = -1;
 			memory[index].write = -1;
@@ -146,7 +146,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 			logic[index].type = WIRING_NOT;
 			// TODO: Are these the correct values?
 			logic[index].size = 1;
-			logic[index].a = expr->exprA->decl->indexSize;
+			logic[index].a = expr->exprA->decl->offsets.bits;
 			logic[index].out = expr->indexLogic;
 			index++;
 			break;
@@ -177,8 +177,8 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 
 					// TODO: Are these the correct values?
 					logic[index].size = 2;
-					logic[index].a = expr->exprA->decl->indexSize;
-					logic[index].b = expr->exprB->decl->indexSize;
+					logic[index].a = expr->exprA->decl->offsets.bits;
+					logic[index].b = expr->exprB->decl->offsets.bits;
 					logic[index].out = expr->indexLogic;
 					index++;
 					break;
@@ -217,8 +217,8 @@ int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 			// TODO: Correct value?
 			connect[index].size = 1;
 			// TODO: Fair assumption that WE only need to check this? Since we're not doing arrays right now, I think it's alright?
-			connect[index].to   = currStmt.exprA->decl->indexSize;
-			connect[index].from = currStmt.exprB->decl->indexSize;
+			connect[index].to   = currStmt.exprA->decl->offsets.bits;
+			connect[index].from = currStmt.exprB->decl->offsets.bits;
 			connect[index].condition = WIRING_BIT_INVALID;
 			connect[index].isUndir = 1;
 			index++;

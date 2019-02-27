@@ -15,14 +15,16 @@
 TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: 0
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: y
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          index: 32
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=32 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     decls: len=2
       [0]
       [1]
@@ -39,13 +41,15 @@ TODO: decl_dump() marker 8
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 0
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: output
           --- Decl ---
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 64
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=64 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     privateNames:
       --- NameScope ---
       refcount=1
@@ -55,13 +59,15 @@ TODO: decl_dump() marker 6
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 0
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: output
           --- Decl ---
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          index: 64
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=64 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=2
       [0]
         --- Stmt ---

@@ -268,7 +268,12 @@ printf("TODO: %s() marker 8\n", __func__);
 	}
 
 	print_prefix(prefixLen);
-	printf("index: %d\n", decl->indexSize);
+	printf("sizes:   ");
+	sizes_print(&decl->sizes);
+
+	print_prefix(prefixLen);
+	printf("offsets: ");
+	sizes_print(&decl->offsets);
 }
 
 

@@ -58,7 +58,7 @@ int semPhase30_part(HWC_Part *part)
 		}
 		else
 		{
-			currDecl->indexSize = currIndex;
+			currDecl->offsets.bits = currIndex;
 			currIndex += size;
 		}
 	}
