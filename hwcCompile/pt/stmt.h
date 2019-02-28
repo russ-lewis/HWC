@@ -18,7 +18,6 @@ enum {
 	STMT_CONN,
 	STMT_FOR,
 	STMT_IF,
-	STMT_ELSE,
 	STMT_ASRT,
 };
 
@@ -56,9 +55,6 @@ struct PT_stmt
 	PT_expr *ifExpr;
 	PT_stmt *ifStmts;
 	PT_stmt *ifElse;
-
-	/* STMT_ELSE */
-	PT_stmt *elseStmts;
 
 	/* STMT_ASRT */
 	PT_expr *assertion;

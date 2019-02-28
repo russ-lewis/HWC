@@ -151,11 +151,6 @@ void dump_pt_stmt(PT_stmt *obj, int spaces)
 			dump_pt_stmt(cur->ifStmts, spaces+2);
 			break;
 
-		case STMT_ELSE:
-			printf("stmt: ELSE STMT\n");
-			dump_pt_stmt(cur->elseStmts, spaces+2);
-			break;
-
 		case STMT_ASRT:
 			printf("stmt: ASSERTION\n");
 			dump_pt_expr(cur->assertion, spaces+2);

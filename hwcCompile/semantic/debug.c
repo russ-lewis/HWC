@@ -24,7 +24,6 @@ char *enum2str(int mode)
 	case STMT_CONN:        return "STMT_CONN";
 	case STMT_FOR:         return "STMT_FOR";
 	case STMT_IF:          return "STMT_IF";
-	case STMT_ELSE:        return "STMT_ELSE";
 	case STMT_ASRT:        return "STMT_ASRT";
 
 	case EXPR_IDENT:       return "EXPR_IDENT";

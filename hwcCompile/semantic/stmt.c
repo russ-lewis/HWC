@@ -80,9 +80,6 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , &currStmt->stmtB);
 				fprintf(stderr, "TODO: Decls within IF stmts are not accounted for yet.\n");
 				break;
-			case STMT_ELSE:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, &currStmt->stmtA);
-				break;
 			case STMT_ASRT:
 				convertPTexprIntoHWCexpr(currPTstmt->assertion, &currStmt->exprA);
 				break;
@@ -162,10 +159,6 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			for(i = 0; i < currStmt->sizeB; i++)
 				retval += checkStmtName(currStmt->stmtB +i, currScope);
 			break;
-		case STMT_ELSE:
-			for(i = 0; i < currStmt->sizeA; i++)
-				retval += checkStmtName(currStmt->stmtA +i, currScope);
-			break;
 		case STMT_ASRT:
 			retval += checkExprName(currStmt->exprA, currScope);
 			break;
@@ -219,10 +212,6 @@ int findStmtSize(HWC_Stmt *currStmt, int *numConn, int *numLogic, int *numAssert
 				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			for(i = 0; i < currStmt->sizeB; i++)
 				retval += findStmtSize(currStmt->stmtB +i, numConn, numLogic, numAssert);
-			break;
-		case STMT_ELSE:
-			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_ASRT:
 			currStmt->offsets.bits = *numAssert;

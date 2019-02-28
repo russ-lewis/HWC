@@ -26,7 +26,6 @@ struct HWC_Stmt
 	/* STMT_CONN  - uses       exprA,exprB              */
 	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
 	/* STMT_IF    - uses       exprA,       stmtA,stmtB */
-	/* STMT_ELSE  - uses                    stmtA       */
 	/* STMT_ASRT  - uses       exprA                    */
 	// Any STMT type that uses stmtA or stmtB uses sizeA and sizeB as well
 
@@ -34,7 +33,7 @@ struct HWC_Stmt
 	char     *name;
 	// Relevant exprs for this statement.
 	HWC_Expr *exprA, *exprB;
-	// Used by BLOCK, FOR, IF, and ELSE to point to a list of more stmts within them
+	// Used by BLOCK, FOR, and IF to point to a list of more stmts within them
 	HWC_Stmt *stmtA, *stmtB;
 	// Contains the length of the above list of stmts
 	int       sizeA,  sizeB;
