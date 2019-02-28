@@ -147,7 +147,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 			// TODO: Are these the correct values?
 			logic[index].size = 1;
 			logic[index].a = expr->exprA->decl->offsets.bits;
-			logic[index].out = expr->indexLogic;
+			logic[index].out = expr->offsets.bits;
 			index++;
 			break;
 
@@ -179,7 +179,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 					logic[index].size = 2;
 					logic[index].a = expr->exprA->decl->offsets.bits;
 					logic[index].b = expr->exprB->decl->offsets.bits;
-					logic[index].out = expr->indexLogic;
+					logic[index].out = expr->offsets.bits;
 					index++;
 					break;
 			}

@@ -8,6 +8,7 @@
 #include "names.h"
 
 #include "wiring/fileRange.h"
+#include "semantic/sizes.h"
 
 #include <pt/expr.h>    // we'll re-use the modes from the parser, but then
                         // add some more
@@ -29,6 +30,7 @@ typedef struct HWC_Expr HWC_Expr;
 struct HWC_Expr
 {
 	FileRange fr;
+	HWC_Sizes sizes,offsets;    // see long description in semantic/sizes.h
 
 	int mode;
 
@@ -55,15 +57,6 @@ struct HWC_Expr
 	HWC_Expr *exprA, *exprB;
 
 	char *field;
-
-	// Offset into current Part
-	// For EXPR_NOT, BITNOT, and TWOOP we add 1 bit for output of condition
-	// TODO: I think these are unneeded. Remove?
-	//int indexSize;
-	//int indexConn;
-	int indexLogic;
-	//int indexMemory;
-	//int indexAssert;
 
 	/* this stores information about the evaluated type and value of the
 	 * expression.  It is filled in by semPhase20_expr().

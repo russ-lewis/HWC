@@ -23,7 +23,9 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 	}
 	*output_out = output;
 
-	fr_copy(&output->fr, &input->fr);
+	fr_copy   (&output->fr, &input->fr);
+	sizes_init(&output->sizes);
+	sizes_init(&output->offsets);
  
 	output->mode = input->mode;
 	switch(input->mode)
@@ -193,7 +195,7 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 		case(EXPR_TWOOP):
 			// TODO: Anything to do with "currExpr->value" here?
 			// TODO: numLogic might not want to be incremented for every value
-			currExpr->indexLogic = *numLogic;
+			currExpr->offsets.bits = *numLogic;
 			*numLogic += 1;
 			retval += 1;
 			retval += findExprSize(currExpr->exprA, numLogic);
@@ -205,7 +207,7 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 			retval += findExprSize(currExpr->exprA, numLogic);
 			break;
 		case(EXPR_NOT):
-			currExpr->indexLogic = *numLogic;
+			currExpr->offsets.bits = *numLogic;
 			*numLogic += 1;
 			retval += 1;
 			retval += findExprSize(currExpr->exprA, numLogic);
