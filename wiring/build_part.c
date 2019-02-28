@@ -32,18 +32,22 @@ HWC_Wiring *buildWiringDiagram(HWC_Part *part)
 	// Memory
 	retval->numMemRanges = part->sizes.memoryObjs;
 	retval->mem = malloc(sizeof(HWC_Wiring_Memory) * part->sizes.memoryObjs);
-	int memoryFound;
+	int memoryFound = 0;
 
 	// Logic
 	retval->numLogicalOperators = part->sizes.logicOps;
 	retval->logic = malloc(sizeof(HWC_Wiring_Logic) * part->sizes.logicOps);
-	int logicFound;
+	int logicFound = 0;
 
 	// Connections
-	int connectFound;
+	retval->numConnections = part->sizes.conns;
+	retval->conns = malloc(sizeof(HWC_Wiring_Memory) * part->sizes.conns);
+	int connectFound = 0;
 
 	// Asserts
-	int assertFound;
+	retval->numAsserts = part->sizes.asserts;
+	retval->asserts = malloc(sizeof(HWC_Wiring_Memory) * part->sizes.asserts);
+	int assertFound = 0;
 
 	findPart(retval, part, &memoryFound, &logicFound, &connectFound, &assertFound);
 
@@ -216,7 +220,7 @@ int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 		{
 			// TODO: Correct value?
 			connect[index].size = 1;
-			// TODO: Fair assumption that WE only need to check this? Since we're not doing arrays right now, I think it's alright?
+			// TODO: Fair assumption that we only need to check this? Since we're not doing arrays right now, I think it's alright?
 			connect[index].to   = currStmt.exprA->decl->offsets.bits;
 			connect[index].from = currStmt.exprB->decl->offsets.bits;
 			connect[index].condition = WIRING_BIT_INVALID;
