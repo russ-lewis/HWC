@@ -27,16 +27,16 @@ HWC_Wiring *buildWiringDiagram(HWC_Part *part)
 	HWC_Wiring *retval = malloc(sizeof(HWC_Wiring));
 
 	// Size
-	retval->numBits = part->size;
+	retval->numBits = part->sizes.bits;
 
 	// Memory
-	retval->numMemRanges = part->numMemory;
-	retval->mem = malloc(sizeof(HWC_Wiring_Memory) * part->numMemory);
+	retval->numMemRanges = part->sizes.memoryObjs;
+	retval->mem = malloc(sizeof(HWC_Wiring_Memory) * part->sizes.memoryObjs);
 	int memoryFound;
 
 	// Logic
-	retval->numLogicalOperators = part->numLogic;
-	retval->logic = malloc(sizeof(HWC_Wiring_Logic) * part->numLogic);
+	retval->numLogicalOperators = part->sizes.logicOps;
+	retval->logic = malloc(sizeof(HWC_Wiring_Logic) * part->sizes.logicOps);
 	int logicFound;
 
 	// Connections
@@ -47,13 +47,13 @@ HWC_Wiring *buildWiringDiagram(HWC_Part *part)
 
 	findPart(retval, part, &memoryFound, &logicFound, &connectFound, &assertFound);
 
-	if(memoryFound  != part->numMemory)
+	if(memoryFound  != part->sizes.memoryObjs)
 		assert(0);
-	if(logicFound   != part->numLogic)
+	if(logicFound   != part->sizes.logicOps)
 		assert(0);
-	if(connectFound != part->numConn)
+	if(connectFound != part->sizes.conns)
 		assert(0);
-	if(assertFound  != part->numAssert)
+	if(assertFound  != part->sizes.asserts)
 		assert(0);
 
 	return retval;

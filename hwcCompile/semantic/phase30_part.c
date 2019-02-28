@@ -84,13 +84,12 @@ int semPhase30_part(HWC_Part *part)
 	}
 
 
-	// TODO: Is this clever, or stupid?
-	// ie, the size of something is the index at which we've stopped inserting things
-	part->size = currIndex;
-	part->numConn = currConn;
-	part->numLogic = currLogic;
-	part->numMemory = currMemory;
-	part->numAssert = currAssert;
+	part->sizes.bits       = currIndex;
+	part->sizes.memBits    = 0;
+	part->sizes.conns      = currConn;
+	part->sizes.logicOps   = currLogic;
+	part->sizes.memoryObjs = currMemory;
+	part->sizes.asserts    = currAssert;
 
 	part->phases_completed = 30;
 	return retval;

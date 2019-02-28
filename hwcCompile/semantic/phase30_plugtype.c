@@ -63,7 +63,7 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 
 	// TODO: Is this clever, or stupid?
 	// ie, the size of something is the index at which we've stopped inserting things
-	plugtype->size = currIndex;
+	plugtype->sizeBits = currIndex;
 
 
 	plugtype->phases_completed = 30;

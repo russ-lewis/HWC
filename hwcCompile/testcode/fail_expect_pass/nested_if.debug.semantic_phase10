@@ -102,10 +102,6 @@ TODO: part_dump() marker 5
 TODO: part_dump() marker 5
       [4]
 TODO: part_dump() marker 5
-    size: -1
-    numConn: -1
-    numLogic: -1
-    numMemory: -1
-    numAssert: -1
+    sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
 
 rc=0

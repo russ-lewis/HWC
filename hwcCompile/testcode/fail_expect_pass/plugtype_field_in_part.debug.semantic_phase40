@@ -28,7 +28,7 @@ TODO: decl_dump() marker 8
     decls: len=2
       [0]
       [1]
-    size: 64
+    sizeBits: 64
   name: Bar
     --- Part ---
     phases: begun 10 completed 40
@@ -82,10 +82,6 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
-    size: 128
-    numConn: 0
-    numLogic: 0
-    numMemory: 0
-    numAssert: 0
+    sizes:   bits=128 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
 
 rc=0

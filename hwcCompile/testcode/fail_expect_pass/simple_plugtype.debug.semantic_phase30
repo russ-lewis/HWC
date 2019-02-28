@@ -35,6 +35,6 @@ TODO: decl_dump() marker 8
       [0]
       [1]
       [2]
-    size: 5
+    sizeBits: 5
 
 rc=0

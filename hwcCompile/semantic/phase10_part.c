@@ -26,15 +26,10 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 	}
 	memset(retval, 0, sizeof(*retval));
 
-	fr_copy(&retval->fr, &parsedPart->fr);
+	fr_copy   (&retval->fr, &parsedPart->fr);
+	sizes_init(&retval->sizes);
 
 	retval->phases_completed = retval->phases_begun = 10;
-
-	retval->size      = -1;
-	retval->numConn   = -1;
-	retval->numLogic  = -1;
-	retval->numMemory = -1;
-	retval->numAssert = -1;
 
 	// Create publicNames, and make "NULL" its parent
 	// ie, 

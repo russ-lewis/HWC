@@ -181,19 +181,8 @@ printf("TODO: %s() marker 5\n", __func__);
 	}
 
 	print_prefix(prefixLen);
-	printf("size: %d\n", part->size);
-
-	print_prefix(prefixLen);
-	printf("numConn: %d\n", part->numConn);
-
-	print_prefix(prefixLen);
-	printf("numLogic: %d\n", part->numLogic);
-
-	print_prefix(prefixLen);
-	printf("numMemory: %d\n", part->numMemory);
-
-	print_prefix(prefixLen);
-	printf("numAssert: %d\n", part->numAssert);
+	printf("sizes:   ");
+	sizes_print(&part->sizes);
 }
 
 
@@ -232,7 +221,7 @@ void plugtype_dump(HWC_PlugType *plugtype, int prefixLen)
 	}
 
 	print_prefix(prefixLen);
-	printf("size: %d\n", plugtype->size);
+	printf("sizeBits: %d\n", plugtype->sizeBits);
 }
 
 

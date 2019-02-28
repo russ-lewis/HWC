@@ -14,7 +14,7 @@ HWC_PlugType BitType = {
 	.decls     = NULL,
 	.decls_len = 0,
 
-	.size = 1
+	.sizeBits = 1,
 };
 
 

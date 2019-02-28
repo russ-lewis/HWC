@@ -333,7 +333,7 @@ int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 		// TODO: copy the size into our declaration, instead of
 		//       returning the size, so that we can refactor the
 		//       retval as an error state.
-		return input->base_plugType->size * multiplier;
+		return input->base_plugType->sizeBits * multiplier;
 	}
 	else if(input->base_part != NULL)
 	{
@@ -351,7 +351,7 @@ int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 			if (retval != 0)
 				assert(0);  // TODO: see comments in the plugType block
 
-			return input->base_part->size * multiplier;
+			return input->base_part->sizes.bits * multiplier;
 		}
 	}
 	else

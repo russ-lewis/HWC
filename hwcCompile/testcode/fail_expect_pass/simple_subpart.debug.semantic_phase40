@@ -59,11 +59,7 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
-    size: 2
-    numConn: 1
-    numLogic: 0
-    numMemory: 0
-    numAssert: 0
+    sizes:   bits=2 memBits=0   conns=1 memoryObjs=0 logicOps=0 asserts=0
   name: main
     --- Part ---
     phases: begun 10 completed 40
@@ -120,10 +116,6 @@ TODO: stmt_dump() marker 9
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
-    size: 10
-    numConn: 2
-    numLogic: 2
-    numMemory: 0
-    numAssert: 2
+    sizes:   bits=10 memBits=0   conns=2 memoryObjs=0 logicOps=2 asserts=2
 
 rc=0
