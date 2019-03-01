@@ -18,6 +18,8 @@ int findLogicExpr(HWC_Wiring_Logic      *, HWC_Expr *, int);
 int findConnect  (HWC_Wiring_Connection *, HWC_Part *, int);
 int findAssert   (HWC_Wiring_Assert     *, HWC_Part *, int);
 
+// TODO: What should I put for debug in all of these?
+
 // TODO: Header comments for, like, all of these.
 
 // ASSUMPTION: The given part is the "main" part, and the numConn, numLogic etc. in the "main" part is equal to
@@ -98,6 +100,7 @@ int findMemory(HWC_Wiring_Memory *memory, HWC_Part *part, int index)
 			// TODO: What to put for these?
 			memory[index].read = -1;
 			memory[index].write = -1;
+			memory[index].debug = NULL;
 			index++;
 		}
 	}
@@ -152,6 +155,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 			logic[index].size = 1;
 			logic[index].a = expr->exprA->decl->offsets.bits;
 			logic[index].out = expr->offsets.bits;
+			logic[index].debug = NULL;
 			index++;
 			break;
 
@@ -184,6 +188,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 					logic[index].a = expr->exprA->decl->offsets.bits;
 					logic[index].b = expr->exprB->decl->offsets.bits;
 					logic[index].out = expr->offsets.bits;
+					logic[index].debug = NULL;
 					index++;
 					break;
 			}
@@ -225,6 +230,7 @@ int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 			connect[index].from = currStmt.exprB->decl->offsets.bits;
 			connect[index].condition = WIRING_BIT_INVALID;
 			connect[index].isUndir = 1;
+			connect[index].debug = NULL;
 			index++;
 		}
 	}
@@ -247,6 +253,7 @@ int findAssert(HWC_Wiring_Assert *assert, HWC_Part *part, int index)
 		{
 			// TODO: Correct value?
 			assert[index].bit = currStmt.exprA->value;
+			assert[index].debug = NULL;
 		}
 	}
 
