@@ -71,9 +71,6 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 			convertPTexprIntoHWCexpr(input->arrayExpr, &output->exprA);
 			convertPTexprIntoHWCexpr(input->indexExpr, &output->exprB);
 			break;
-		case(EXPR_PAREN):
-			convertPTexprIntoHWCexpr(input->paren, &output->exprA);
-			break;
 	}
 }
 
@@ -152,9 +149,6 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 			retval += checkExprName(currExpr->exprA, currScope);
 			retval += checkExprName(currExpr->exprB, currScope);
 			break;
-		case(EXPR_PAREN):
-			retval += checkExprName(currExpr->exprA, currScope);
-			break;
 	}
 
 	return retval;
@@ -218,9 +212,6 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 		case(EXPR_ARR):
 			retval += findExprSize(currExpr->exprA, numLogic);
 			retval += findExprSize(currExpr->exprB, numLogic);
-			break;
-		case(EXPR_PAREN):
-			retval += findExprSize(currExpr->exprA, numLogic);
 			break;
 	}
 

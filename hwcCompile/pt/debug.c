@@ -328,11 +328,6 @@ void dump_pt_expr(PT_expr *obj, int spaces)
 
 			break;
 
-		case EXPR_PAREN:
-			printf("EXPR: PAREN, with expr of\n");
-			dump_pt_expr(obj->paren, spaces+2);
-			break;
-
 		case EXPR_BIT_TYPE:
 			printf("\"bit\"\n");
 			break;

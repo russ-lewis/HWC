@@ -195,7 +195,6 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 
 		case EXPR_BITNOT:
 		case EXPR_DOT:
-		case EXPR_PAREN:
 			index = findLogicExpr(logic, expr->exprA, index);
 			break;
 

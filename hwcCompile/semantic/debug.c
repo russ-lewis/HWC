@@ -35,7 +35,6 @@ char *enum2str(int mode)
 	case EXPR_DOT:         return "EXPR_DOT";
 	case EXPR_ARR:         return "EXPR_ARR_SLICE";
 	case EXPR_ARR_SLICE:   return "EXPR_ARR_SLICE";
-	case EXPR_PAREN:       return "EXPR_PAREN";
 	case EXPR_BIT_TYPE:    return "EXPR_BIT_TYPE";
 
 	case OP_EQUALS:        return "OP_EQUALS";

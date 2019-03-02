@@ -496,10 +496,7 @@ expr5:
 
 expr6:
 		expr7
-	|	'(' expr ')'         { $$ = malloc(sizeof(PT_expr));
-		                       fr_build($$);
-		                       $$->mode  = EXPR_PAREN;
-		                       $$->paren = $2; }
+	|	'(' expr ')'         { $$ = $2; }
 ;
 
 expr7:
