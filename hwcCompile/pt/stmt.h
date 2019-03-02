@@ -19,6 +19,9 @@ enum {
 	STMT_FOR,
 	STMT_BLOCK,
 	STMT_ASRT,
+
+	// used only by the semantic phase
+	STMT_NOP,
 };
 
 struct PT_stmt
