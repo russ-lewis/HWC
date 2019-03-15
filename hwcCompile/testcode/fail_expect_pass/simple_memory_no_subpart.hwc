@@ -1,0 +1,10 @@
+part main
+{
+	private memory(bit) state;
+
+	public bit out;
+
+	out = state;
+	state = !state;
+}
+

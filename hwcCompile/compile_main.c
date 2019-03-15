@@ -223,6 +223,14 @@ int main(int argc, char **argv)
 		return 1;   // the wiring generator must have already printed an error message
 
 
+	if (outfile == NULL)
+	{
+		fprintf(stderr, "ERROR: No outfile specified.  Please use -o <file>.\n");
+		fprintf(stderr, "TODO: make this automatic, based on the infile name.\n");
+		return 1;
+	}
+
+
 	FILE *out = fopen(outfile, "w");
 	int rc = wiring_write(wiring, out);
 	fclose(out);
