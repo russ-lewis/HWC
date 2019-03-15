@@ -225,8 +225,8 @@ int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 			// TODO: Correct value?
 			connect[index].size = 1;
 			// TODO: Fair assumption that we only need to check this? Since we're not doing arrays right now, I think it's alright?
-			connect[index].to   = currStmt.exprA->decl->offsets.bits;
-			connect[index].from = currStmt.exprB->decl->offsets.bits;
+			connect[index].to   = currStmt.exprA->offsets.bits;
+			connect[index].from = currStmt.exprB->offsets.bits;
 			connect[index].condition = WIRING_BIT_INVALID;
 			connect[index].isUndir = 1;
 			connect[index].debug = NULL;

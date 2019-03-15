@@ -178,6 +178,7 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 			fprintf(stderr, "Checking size of subcomponent has not be implemented yet.\n");
 			break;
 		case(EXPR_IDENT):
+			currExpr->offsets.bits = currExpr->decl->offsets.bits;
 			retval = 0;
 			break;
 		case(EXPR_NUM):
