@@ -212,6 +212,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 {
 	int i;
+	// TODO: MAKE THESE AND OTHER DECLARATIONS LIKE THIS INTO POINTERS
 	HWC_Stmt currStmt;
 	for(i = 0; i < part->stmts_len; i++)
 	{
