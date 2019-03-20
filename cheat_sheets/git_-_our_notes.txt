@@ -3,11 +3,13 @@ git clone
 
 
 # setting up password saving (permanent, dangerous on a shared filesystem!)
+    # will record the password next time you need it
+
+    # GLOBAL VERSION (preferred!)
+    git config --global credential.helper store
+
     # REPO-LOCAL VERSION
     git config credential.helper store
-        # will record the password next time you need it
-    # GLOBAL VERSION
-    git config --global credential.helper store
 
 
 # status
