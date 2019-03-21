@@ -1,23 +1,25 @@
-TODO: Decls within IF stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 ---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
-  name: conditional_assert
+  name: testPart
     --- Part ---
     phases: begun 10 completed 10
     publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: valid
+        name: input
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: a
+        name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -27,13 +29,13 @@ TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOC
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: valid
+        name: input
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: a
+        name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
@@ -50,13 +52,37 @@ TODO: stmt_dump() marker 9
 TODO: stmt_dump() marker 9
       [2]
         --- Stmt ---
-        mode: STMT_IF
+        mode: STMT_CONN
 TODO: stmt_dump() marker 9
     decls: len=2
       [0]
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
+    sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+  name: main
+    --- Part ---
+    phases: begun 10 completed 10
+    publicNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+      <no names>
+    privateNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+      <no names>
+    stmts: len=2
+      [0]
+        --- Stmt ---
+        mode: STMT_BLOCK
+TODO: stmt_dump() marker 9
+      [1]
+        --- Stmt ---
+        mode: STMT_BLOCK
+TODO: stmt_dump() marker 9
+    decls: len=0
     sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
 
 rc=0

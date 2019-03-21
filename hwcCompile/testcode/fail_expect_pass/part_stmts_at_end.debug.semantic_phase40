@@ -4,31 +4,57 @@
  parent=<TODO>
   name: testPart
     --- Part ---
-    phases: begun 10 completed 30
-    publicNames: <TODO>
+    phases: begun 10 completed 40
+    publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: c
-          --- Decl ---
-          type: 401 typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
-        name: b
-          --- Decl ---
-          type: 401 typeName: (null) isMem: 0
-          expr: <TODO>
-          index: -1
         name: a
           --- Decl ---
-          type: 401 typeName: (null) isMem: 0
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
           expr: <TODO>
-          index: -1
-    privateNames: <TODO>
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: b
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: c
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=2 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+    privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-      <no names>
+        name: a
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: b
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: c
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+TODO: decl_dump() marker 6
+          expr: <TODO>
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=2 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=4
       [0]
         --- Stmt ---
@@ -53,5 +79,6 @@ TODO: part_dump() marker 5
 TODO: part_dump() marker 5
       [2]
 TODO: part_dump() marker 5
+    sizes:   bits=3 memBits=0   conns=1 memoryObjs=0 logicOps=0 asserts=0
 
 rc=0

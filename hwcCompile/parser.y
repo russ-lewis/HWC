@@ -24,10 +24,9 @@
 #define YYPRINT(fp, yychar, yylval)   do {} while(0)
 
 
-	/* helper functions to copy yylloc into various types */
-	static inline void _fr_build(FileRange*);
-
-#define fr_build(dst) _fr_build(&(dst)->fr);
+/* helper functions to copy yylloc into various types */
+static inline void _fr_build(FileRange*);
+  #define fr_build(dst) _fr_build(&(dst)->fr);
 %}
 
 /* the block above is code which is *ONLY* dropped into the parser's .c
@@ -75,8 +74,6 @@
 	PT_stmt *stmt;
 	PT_decl *decl;
 
-	PT_type *type;
-
 	PT_expr *expr;
 }
 
@@ -95,9 +92,7 @@
 %type<stmt> plugtype_stmts
 
 %type<stmt> decl_stmt
-%type<decl> decl_fields
-
-%type<type> type
+%type<decl> decl_list
 
 %type<expr> expr
 %type<expr> expr2
@@ -157,8 +152,8 @@ file:
 ;
 
 file_decls:
-		           file_decl   { $$ = $1; $$->prev = NULL; }
-	|	file_decls file_decl   { $$ = $2; $$->prev = $1;   }
+		file_decl              { $$ = $1; $$->next = NULL; }
+	|	file_decl file_decls   { $$ = $1; $$->next = $2;   }
 ;
 
 file_decl:
@@ -187,8 +182,8 @@ opt_stmts:
 ;
 
 stmts:
-		      stmt   { $$ = $1; $$->prev = NULL; }
-	|	stmts stmt   { $$ = $2; $$->prev = $1;   }
+		stmt         { $$ = $1; $$->next = NULL; }
+	|	stmt stmts   { $$ = $1; $$->next = $2;   }
 ;
 
 stmt:
@@ -293,79 +288,56 @@ opt_plugtype_stmts:
 ;
 
 plugtype_stmts:
-		               decl_stmt { $$ = $1;
+		decl_stmt                { $$ = $1;
 		                           fr_build($$);
+		                           $$->next = NULL;
 		                           $$->isPublic  = 1;
 		                           $$->isSubpart = 0; }
-	|	plugtype_stmts decl_stmt { $$ = $2;
+	|	decl_stmt plugtype_stmts { $$ = $1;
 		                           fr_build($$);
-		                           $$->prev = $1;
+		                           $$->next = $2;
 		                           $$->isPublic  = 1;
 		                           $$->isSubpart = 0; }
 ;
 
-/* Added support for "bit a, b[1], c[4], d;" with idea from: */
-/* https://stackoverflow.com/a/33066472 */
-/* HOWEVER, THIS SOLUTION BREAKS THE ASSUMPTION THAT WHEN A pt_decl IS DISCLARED IN A PART AS A STATEMENT, THE prev FIELD IN pt_decl IS NULL */
-/* IS THAT AN ASSUMPTION WE WANT TO MAINTAIN? */
-/* Maybe not, since we could trust the Semantic phase to make sense of it */
 
+/* NOTE: the user *MUST* set public and subPart */
 decl_stmt:
-		decl_fields ';'
-		      { $$ = malloc(sizeof(PT_stmt));
-		        fr_build($$);
-		        $$->prev      = NULL;   /* user may override this */
-		        $$->mode      = STMT_DECL;
-		           /* NOTE: the user *MUST* set public and subPart */
-		        $$->stmtDecl  = $1; }
+		             expr     decl_list ';'
+		                           { $$ = malloc(sizeof(PT_stmt));
+		                             fr_build($$);
+		                             $$->next     = NULL;   /* stmt list */
+		                             $$->mode     = STMT_DECL;
+		                             $$->declType = $1;
+		                             $$->declList = $2;
+		                             $$->isMemory = 0; }
+
+	|	"memory" '(' expr ')' decl_list ';'
+		                           { $$ = malloc(sizeof(PT_stmt));
+		                             fr_build($$);
+		                             $$->next     = NULL;
+		                             $$->mode     = STMT_DECL;
+		                             $$->declType = $3;
+		                             $$->declList = $5;
+		                             $$->isMemory = 1; }
 ;
 
-decl_fields:
+decl_list:
 		/* NOTE: We've removed support for suffix array declarations! */
-		type IDENT
+		IDENT
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   fr_build($$);
-		                   $$->type = $1;
-		                   $$->isMem = 0;
-		                   $$->name = $2; }
-	|	"memory" '(' type ')' IDENT
+		                   $$->next = NULL;
+		                   $$->name = $1; }
+
+	|	IDENT ',' decl_list
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   fr_build($$);
-		                   $$->type = $3;
-		                   $$->isMem = 1;
-		                   $$->name = $5; }
-	|	decl_fields ',' IDENT
-		                 { $$ = malloc(sizeof(PT_decl));
-		                   fr_build($$);
-		                   $$->prev = $1;
-		                   $$->type = $1->type;
-		                   $$->isMem = $1->isMem;
-		                   $$->name = $3; }
+		                   $$->name = $1;
+		                   $$->next = $3; }
 ;
 
 
-type:
-		"bit"              { $$ = malloc(sizeof(PT_type));
-		                     fr_build($$);
-		                     $$->mode = TYPE_BIT; }
-
-	|	IDENT              { $$ = malloc(sizeof(PT_type));
-		                     fr_build($$);
-		                     $$->mode  = TYPE_IDENT;
-		                     $$->ident = $1; }
-
-	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
-	|	type '[' expr2 ']'   { $$ = malloc(sizeof(PT_type));
-		                       fr_build($$);
-		                       $$->mode = TYPE_ARRAY;
-		                       $$->base = $1;
-		                       $$->len  = $3; }
-;
-
-
-/* Note to self(Jackson): It is better to call this "expr" instead of "expr1" */
-/* This is because nonterminals trying to use "expr" shouldn't care about if "expr" is one of several. */
-/* ie, it's good implementation hiding. */
 expr:
 		expr2
 	|	expr2 "==" expr2   { $$ = malloc(sizeof(PT_expr));
@@ -486,7 +458,7 @@ expr3:
 
 expr4:
 		expr5
-	/* I've tried to be clever here and use 'expr2' to exclude 'expr == expr' within brackets. This may have to change eventually. */
+
 	|	expr4 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
 		                        fr_build($$);
 		                        $$->mode      = EXPR_ARR;
@@ -514,9 +486,7 @@ expr4:
 
 expr5:
 		expr6
-	|	expr5 '.' expr6       /* Do we allow expr.expr.expr.expr endlessly, or only expr.expr? I think it's the later, but I made it the former just in case */
-		                      /* Do we allow expr5.expr4[expr3]? This code doesn't allow for that, and shift/reduce conflicts are created when I try. */
-		                      /*    Fixing the above shift/reduce conflict idea: Swap expr4 and expr5's components. */
+	|	expr5 '.' IDENT
                             { $$ = malloc(sizeof(PT_expr));
 		              fr_build($$);
 		              $$->mode    = EXPR_DOT;
@@ -526,17 +496,17 @@ expr5:
 
 expr6:
 		expr7
-	|	'(' expr ')'         { $$ = malloc(sizeof(PT_expr));
-		                       fr_build($$);
-		                       $$->mode  = EXPR_PAREN;
-		                       $$->paren = $2; }
+	|	'(' expr ')'         { $$ = $2; }
 ;
 
 expr7:
+	  /* this might resolve to either a type or value expression */
 		IDENT   { $$ = malloc(sizeof(PT_expr));
 		          fr_build($$);
 		          $$->mode  = EXPR_IDENT;
 		          $$->name  = $1; }
+
+	  /* these are unambiguous value expressions */
 	|	NUM     { $$ = malloc(sizeof(PT_expr));
 		          fr_build($$);
 		          $$->mode  = EXPR_NUM;
@@ -549,6 +519,15 @@ expr7:
 		          fr_build($$);
 		          $$->mode  = EXPR_BOOL;
 		          $$->value = 0;  }
+
+	  /* this is, unambiguously, a type expression. */
+	|	"bit"              { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
+		                     $$->mode = EXPR_BIT_TYPE; }
+;
+
+
+
 ;
 
 

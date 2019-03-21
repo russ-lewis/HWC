@@ -8,14 +8,14 @@
 
 
 /*
-Converts the given PT_part into the semantic's (HWC) version of Parts.
-As part of this, converts all decls and stmts within the Part into their HWC versions.
-
- - parsedPart is the current PT part that will be converted into HWC form
- - fileScope is the name scope for the entire file
-
-Returns a pointer to the created HWC_Part.
-*/
+ * Converts the given PT_part into the semantic's (HWC) version of Parts.
+ * As part of this, converts all decls and stmts within the Part into their HWC versions.
+ * 
+ *  - parsedPart is the current PT part that will be converted into HWC form
+ *  - fileScope is the name scope for the entire file
+ * 
+ * Returns a pointer to the created HWC_Part.
+ */
 HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 {
 	HWC_Part *retval = malloc(sizeof(HWC_Part));
@@ -26,11 +26,13 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 	}
 	memset(retval, 0, sizeof(*retval));
 
-	fr_copy(&retval->fr, &parsedPart->fr);
+	fr_copy   (&retval->fr, &parsedPart->fr);
+	sizes_init(&retval->sizes);
 
 	retval->phases_completed = retval->phases_begun = 10;
 
 	// Create publicNames, and make "NULL" its parent
+	// ie, 
 	retval->publicNames = nameScope_malloc(NULL);
 	if (retval->publicNames == NULL)
 	{
@@ -38,18 +40,16 @@ HWC_Part *semPhase10_part(PT_part_decl *parsedPart, HWC_NameScope *fileScope)
 		free(retval);
 		return NULL;
 	}
+
 	// Create privateNames, and make "fileScope" its parent
 	retval->privateNames = nameScope_malloc(fileScope);
 	if (retval->privateNames == NULL)
 	{
 		assert(0);   // TODO: debug message
-		free(retval->publicNames); // TODO: Is this right?
+		// TODO: use namescope-specifc free-ing code:    free(retval->publicNames); // TODO: Is this right?
 		free(retval);
 		return NULL;
 	}
-
-	// TODO: Why did I have this variable?
-	//HWC_Decl *decl_list_head = NULL;
 
 	// Implementation can be found in stmts.c
 	// Creates an list of decls within this part.

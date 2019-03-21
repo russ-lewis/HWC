@@ -38,7 +38,6 @@ int wiring_write(HWC_Wiring *core, FILE *fp)
 	fprintf(fp, "bits %d\n", core->numBits);
 	fprintf(fp, "\n");
 
-
 	fprintf(fp, "memory count %d\n", core->numMemRanges);
 	for (i=0; i<core->numMemRanges; i++)
 	{
@@ -89,7 +88,7 @@ int wiring_write(HWC_Wiring *core, FILE *fp)
 	}
 	fprintf(fp, "\n");
 
-	
+
 	fprintf(fp, "connection count %d\n", core->numConnections);
 	for (i=0; i<core->numConnections; i++)
 	{
@@ -124,6 +123,7 @@ int wiring_write(HWC_Wiring *core, FILE *fp)
 		print_debug(fp, core->asserts[i].debug);
 	}
 	fprintf(fp, "\n");
+
 
 	return 0;
 }

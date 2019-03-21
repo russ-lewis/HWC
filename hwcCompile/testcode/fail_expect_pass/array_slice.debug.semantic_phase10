@@ -1,45 +1,63 @@
-TODO: Decls within IF stmts are not accounted for yet.
+TODO: Decls within FOR stmts are not accounted for yet.
 TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 ---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
-  name: conditional_assert
+  name: array_slice
     --- Part ---
     phases: begun 10 completed 10
     publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: valid
+        name: in
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
+TODO: decl_dump() marker 8
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: a
+        name: out
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
+TODO: decl_dump() marker 8
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: shiftLeft4
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+TODO: decl_dump() marker 8
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: valid
+        name: in
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
+TODO: decl_dump() marker 8
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: a
+        name: out
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
           expr: <TODO>
+TODO: decl_dump() marker 8
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-    stmts: len=3
+        name: shiftLeft4
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+    stmts: len=7
       [0]
         --- Stmt ---
         mode: STMT_DECL
@@ -50,12 +68,30 @@ TODO: stmt_dump() marker 9
 TODO: stmt_dump() marker 9
       [2]
         --- Stmt ---
-        mode: STMT_IF
+        mode: STMT_DECL
 TODO: stmt_dump() marker 9
-    decls: len=2
+      [3]
+        --- Stmt ---
+        mode: STMT_CONN
+TODO: stmt_dump() marker 9
+      [4]
+        --- Stmt ---
+        mode: STMT_FOR
+TODO: stmt_dump() marker 9
+      [5]
+        --- Stmt ---
+        mode: STMT_CONN
+TODO: stmt_dump() marker 9
+      [6]
+        --- Stmt ---
+        mode: STMT_CONN
+TODO: stmt_dump() marker 9
+    decls: len=3
       [0]
 TODO: part_dump() marker 5
       [1]
+TODO: part_dump() marker 5
+      [2]
 TODO: part_dump() marker 5
     sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
 

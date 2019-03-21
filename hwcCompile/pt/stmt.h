@@ -14,11 +14,10 @@ typedef struct PT_type PT_type;
 
 enum {
 	STMT_DECL = 301,    // changed the enum definitions, to force non-overlapping values
-	STMT_BLOCK,
 	STMT_CONN,
-	STMT_FOR,
 	STMT_IF,
-	STMT_ELSE,
+	STMT_FOR,
+	STMT_BLOCK,
 	STMT_ASRT,
 };
 
@@ -27,13 +26,17 @@ struct PT_stmt
 	FileRange fr;
 
 	int mode;
-	/* linked list, in reverse order of declaration */
-	PT_stmt *prev;
+
+	/* linked list, in the order of declaration (used to be reversed, but not anymore!) */
+	PT_stmt *next;
 
 	/* STMT_DECL */
 	int isPublic;       // 1 for true, 0 for false
 	int isSubpart;      // 1 for true, 0 for false
-	PT_decl *stmtDecl;
+	int isMemory;       // 1 for true, 0 for false
+	PT_expr *declType;
+	PT_decl *declList;
+
 
 	/* STMT_BLOCK */
 	PT_stmt *stmts;     // is a linked list
@@ -53,9 +56,6 @@ struct PT_stmt
 	PT_stmt *ifStmts;
 	PT_stmt *ifElse;
 
-	/* STMT_ELSE */
-	PT_stmt *elseStmts;
-
 	/* STMT_ASRT */
 	PT_expr *assertion;
 };
@@ -74,11 +74,8 @@ struct PT_decl
 {
 	FileRange fr;
 
-	/* linked list, in reverse order of declaration */
-	PT_decl *prev;
-
-	PT_type *type;
-	int      isMem;
+	/* linked list of decls */
+	PT_decl *next;
 
 	char *name;
 };

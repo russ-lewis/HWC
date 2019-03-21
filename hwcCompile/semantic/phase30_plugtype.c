@@ -38,13 +38,16 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 
 	int i;
 	int currIndex = 0;
+	int currMemory = 0;
 
-	HWC_Decl currDecl;
+	HWC_Decl *currDecl;
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
-		currDecl = plugtype->decls[i];
+		currDecl = &plugtype->decls[i];
+
 		// 1 as an argument because we are within a plugtype
-		int size = findDeclSize(&currDecl, 1);
+		int size = findDeclSize(currDecl, 1, &currMemory);
+
 		// TODO: Is a size of zero valid? No, I would think. Make it a special error value?
 		if(size <= 0)
 		{
@@ -53,18 +56,17 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 		}
 		else
 		{
-			currDecl.index = currIndex;
+			currDecl->offsets.bits = currIndex;
 			currIndex += size;
 		}
 	}
 
 	// TODO: Is this clever, or stupid?
 	// ie, the size of something is the index at which we've stopped inserting things
-	plugtype->size = currIndex;
+	plugtype->sizeBits = currIndex;
+
 
 	plugtype->phases_completed = 30;
-
-	// TODO: Returns number of errors found. Good idea?
 	return retval;
 }
 

@@ -18,7 +18,7 @@ enum {
 	EXPR_DOT,
 	EXPR_ARR,
 	EXPR_ARR_SLICE,
-	EXPR_PAREN,
+	EXPR_BIT_TYPE,
 
 	EXPR__LAST_PARSER_MODE,
 };
@@ -69,7 +69,7 @@ struct PT_expr
 
 	/* EXPR_DOT */
 	PT_expr *dotExpr;
-	PT_expr *field;
+	char    *field;
 
 	/* EXPR_ARR, EXPR_ARR_SLICE */
 	PT_expr *arrayExpr;

@@ -34,24 +34,31 @@ int semPhase30_part(HWC_Part *part)
 
 	int i;
 	int currIndex = 0;
+	int currConn = 0;
+	int currLogic = 0;
+	int currMemory = 0;
+	int currAssert = 0;
 
 	// TODO: For now, I place all decls at the start of the part, and all stmts later. Is this wise?
 
-	HWC_Decl currDecl;
+	HWC_Decl *currDecl;
 	for(i = 0; i < part->decls_len; i++)
 	{
-		currDecl = part->decls[i];
+		currDecl = &part->decls[i];
+
 		// 0 as an argument because we are within a part
-		int size = findDeclSize(&currDecl, 0);
+		int size = findDeclSize(currDecl, 0, &currMemory);
+		  assert(size >= 0);     // -1 is a compiler logical error!
+
 		// TODO: Is a size of zero valid? No, I would think. Make it a special error value?
-		if(size <= 0)
+		if(size < 0)
 		{
-			// TODO: Error message for I dunno. Recursive definitions?
+			printf("TODO: %s(): Add an error message (marker 1)\n", __func__);
 			retval++;
 		}
 		else
 		{
-			currDecl.index = currIndex;
+			currDecl->offsets.bits = currIndex;
 			currIndex += size;
 		}
 	}
@@ -62,27 +69,29 @@ int semPhase30_part(HWC_Part *part)
 	{
 		currStmt = part->stmts[i];
 		// 0 as an argument because we are within a part
-		int size = findStmtSize(&currStmt);
+		int size = findStmtSize(&currStmt, &currConn, &currMemory, &currAssert);
 		// TODO: Is a size of zero valid? Yes, I would think, for statements. Think about this more.
 		if(size < 0)
 		{
-			// TODO: Error message for I dunno. Recursive definitions?
+			printf("TODO: %s(): Add an error message (marker 2)\n", __func__);
 			retval++;
 		}
 		else
 		{
-			//currStmt.index = currIndex;
+			currStmt.offsets.bits = currIndex;
 			currIndex += size;
 		}
 	}
 
 
-	// TODO: Is this clever, or stupid?
-	// ie, the size of something is the index at which we've stopped inserting things
-	part->size = currIndex;
+	part->sizes.bits       = currIndex;
+	part->sizes.memBits    = 0;
+	part->sizes.conns      = currConn;
+	part->sizes.logicOps   = currLogic;
+	part->sizes.memoryObjs = currMemory;
+	part->sizes.asserts    = currAssert;
 
 	part->phases_completed = 30;
-
 	return retval;
 }
 

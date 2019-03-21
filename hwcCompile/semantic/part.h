@@ -3,6 +3,7 @@
 
 
 #include "wiring/fileRange.h"
+#include "semantic/sizes.h"
 #include "names.h"
 
 
@@ -13,6 +14,7 @@ typedef struct HWC_Part HWC_Part;
 struct HWC_Part
 {
 	FileRange fr;
+	HWC_Sizes sizes;    // see long description in semantic/sizes.h
 
 	/* these track the progress of the semantic phase.  The 'completed'
 	 * field tells us which semantic phase is done for this type; calling
@@ -23,7 +25,7 @@ struct HWC_Part
 	int phases_completed;
 	int phases_begun;
 
-
+	// TODO: Add comment here
 	HWC_NameScope * publicNames;
 	HWC_NameScope *privateNames;
 
@@ -32,9 +34,6 @@ struct HWC_Part
 
 	HWC_Decl *decls;
 	int       decls_len;
-
-
-	int size;
 };
 
 

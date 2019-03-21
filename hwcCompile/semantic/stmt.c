@@ -26,7 +26,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 	while(currPTstmt != NULL)
 	{
 		len++;
-		currPTstmt = currPTstmt->prev;
+		currPTstmt = currPTstmt->next;
 	}
 
 	*output = malloc(sizeof(HWC_Stmt)*len);
@@ -38,14 +38,17 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 	// Reset head of list, now that we know the length
 	currPTstmt = input;
 	int i;
-	// Iterate backwards, since all stmt lists from the parser are in reverse order
-	for(i = len-1; i >= 0; i--)
+
+	for(i=0; i < len; i++)
 	{
 		HWC_Stmt *currStmt = *output+i; // TODO: Make sure this indexes by the correct amount
 
-		fr_copy(&currStmt->fr, &currPTstmt->fr);
+		fr_copy   (&currStmt->fr, &currPTstmt->fr);
+		sizes_init(&currStmt->sizes);
+		sizes_init(&currStmt->offsets);
 
 		currStmt->mode = currPTstmt->mode;
+		// TODO: Initialize other variables of currStmt?
 
 		switch(currPTstmt->mode)
 		{
@@ -57,6 +60,7 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 				break;
 			case STMT_BLOCK:
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, &currStmt->stmtA);
+				fprintf(stderr, "TODO: Decls within BLOCK stmts are not accounted for yet.\n");
 				break;
 			case STMT_CONN:
 				convertPTexprIntoHWCexpr(currPTstmt->lHand, &currStmt->exprA);
@@ -68,118 +72,39 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 				convertPTexprIntoHWCexpr(currPTstmt->forBegin, &currStmt->exprA);
 				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , &currStmt->exprB);
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, &currStmt->stmtA);
-				printf("TODO: How to account for decls within FOR stmts?\n");
+				fprintf(stderr, "TODO: Decls within FOR stmts are not accounted for yet.\n");
 				break;
 			case STMT_IF:
 				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, &currStmt->exprA);
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, &currStmt->stmtA);
 				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , &currStmt->stmtB);
-				printf("TODO: How to account for decls within IF stmts?\n");
-				break;
-			case STMT_ELSE:
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->elseStmts, &currStmt->stmtA);
+				fprintf(stderr, "TODO: Decls within IF stmts are not accounted for yet.\n");
 				break;
 			case STMT_ASRT:
 				convertPTexprIntoHWCexpr(currPTstmt->assertion, &currStmt->exprA);
 				break;
 		}
 
-		currPTstmt = currPTstmt->prev;
+		currPTstmt = currPTstmt->next;
 	}
 
 
 	return len;
 }
 
-// TODO: Maybe move to decl.c instead?
 /*
-Given a list of PT_stmts, extracts all PT_decls and converts them into HWC_Decls.
-This is done in a separate step from all other HWC_Stmts because decls are added to the namescope of the part/plugtype.
-Returns an int corresponding to the length of the HWC_Decl array malloc'd in "output".
-*/
-int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output, HWC_NameScope *publ, HWC_NameScope *priv)
-{
-	PT_stmt *currPTstmt = input;
-	int len = 0;
-
-	while(currPTstmt != NULL)
-	{
-		if(currPTstmt->mode == STMT_DECL)
-		{
-			// Nested while() because PT_decls have their own list of decls.
-			PT_decl *currPTdecl = currPTstmt->stmtDecl;
-			while(currPTdecl != NULL)
-			{
-				len++;
-				currPTdecl = currPTdecl->prev;
-			}
-		}
-		// TODO: Can remove this check if the program runs too slow, since the grammar ensures that the only stmts in plugtypes are decls.
-		// Use the fact that PlugTypes have no private statements to check if the caller is a PlugType
-		else if(priv == NULL)
-		{
-			// The grammar should prevent non-decl statements from being found in plugtypes, but check just in case.
-			fprintf(stderr, "Statement that isn't a declaration found in a plugtype. Should be impossible, but obviously isn't. Crashing.\n");
-			assert(0);
-		}
-		currPTstmt = currPTstmt->prev;
-	}
-
-	*output = malloc(sizeof(HWC_Decl)*len);
-	if(*output == NULL)
-	{
-		assert(0); // TODO: Better error message?
-	}
-
-	// Reset to beginning of list
-	currPTstmt = input;
-	// Iterate through the backwards list again, but use "count" to write the output in forward order.
-	int count = len-1;
-	while(currPTstmt != NULL)
-	{
-		HWC_Decl *currHWCdecl = (*output)+count;
-		if(currPTstmt->mode == STMT_DECL)
-		{
-			// TODO: Check if this code writes: [bit a, b, c] backwards or forwards
-			PT_decl *currPTdecl = currPTstmt->stmtDecl;
-			while(currPTdecl != NULL)
-			{
-				convertPTdeclIntoHWCdecl(currPTdecl, currHWCdecl);
-				HWC_Nameable *thing = malloc(sizeof(HWC_Nameable));
-				thing->decl = currHWCdecl;
-				// 1st check is for Parts    , makes sure the stmt is public
-				// 2nd check if for PlugTypes, makes all decls public
-				if(currPTstmt->isPublic == 1 || priv == NULL)
-					nameScope_add(publ, currPTdecl->name, thing);
-				else
-					nameScope_add(priv, currPTdecl->name, thing);
-
-				count--;
-				currPTdecl = currPTdecl->prev;
-			}
-		}
-		currPTstmt = currPTstmt->prev;
-	}
-
-	// Make sure that, by the end of this, the last index count wrote to was 0
-	// +1 to offset the subtraction done after writing to 0
-	assert(count+1 == 0);
-
-	return len;
-}
-
-/*
-Ensures that the names used within the given statement are valid within the statement's namescope.
-
- - *currStmt is the statement to check
- - *currScope is the relevant namescope for the stmt
-
-Returns 0 if no error, >= 1 if errors to indicate how many errors.
-*/
+ * Ensures that the names used within the given statement are valid within the statement's namescope.
+ * 
+ *  - *currStmt is the statement to check
+ *  - *currScope is the relevant namescope for the stmt
+ * 
+ * Returns 0 if no error, >= 1 if errors to indicate how many errors.
+ */
 int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 {
 	int retval = 0;
 	HWC_Nameable *currName;
+	int i;
 
 	switch(currStmt->mode)
 	{
@@ -190,12 +115,15 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			// NOP, but keeping case here for symmetry
 			break;
 		case STMT_BLOCK:
-			retval += checkStmtName(currStmt->stmtA, currScope);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += checkStmtName(currStmt->stmtA +i, currScope);
 			break;
+
 		case STMT_CONN:
 			retval += checkExprName(currStmt->exprA, currScope);
 			retval += checkExprName(currStmt->exprB, currScope);
 			break;
+
 	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
 		case STMT_FOR:
 			currName = nameScope_search(currScope, currStmt->name);
@@ -203,21 +131,33 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			// TODO: Error message
 			// TODO: Modify this check later, once we decide if for-loop vars should be added to the namescope or not.
 			if(currName != NULL)
+			{
+				fprintf(stderr, "%s:%d:%d: Symbol '%s' is the same as a prior declaration at %s:%d:%d.  This 'shadowing' of names is illegal in HWC.\n",
+				        currStmt->fr.filename,
+				        currStmt->fr.s.l, currStmt->fr.s.c,
+				        currStmt->name,
+				        currName->fr.filename,
+				        currName->fr.s.l, currName->fr.s.c);
 				retval++;
+			}
+
+			fprintf(stderr, "TODO: Remove this syntax-error mark when we implement support for for() loops.\n");
+			retval++;
 
 			retval += checkExprName(currStmt->exprA, currScope);
 			retval += checkExprName(currStmt->exprB, currScope);
 
-			retval += checkStmtName(currStmt->stmtA, currScope);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += checkStmtName(currStmt->stmtA +i, currScope);
 			break;
+
 		case STMT_IF:
 			retval += checkExprName(currStmt->exprA, currScope);
 
-			retval += checkStmtName(currStmt->stmtA, currScope);
-			retval += checkStmtName(currStmt->stmtB, currScope);
-			break;
-		case STMT_ELSE:
-			retval += checkStmtName(currStmt->stmtA, currScope);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += checkStmtName(currStmt->stmtA +i, currScope);
+			for(i = 0; i < currStmt->sizeB; i++)
+				retval += checkStmtName(currStmt->stmtB +i, currScope);
 			break;
 		case STMT_ASRT:
 			retval += checkExprName(currStmt->exprA, currScope);
@@ -231,9 +171,10 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 /*
 TODO: Add header comment
 */
-int findStmtSize(HWC_Stmt *currStmt)
+int findStmtSize(HWC_Stmt *currStmt, int *numConn, int *numLogic, int *numAssert)
 {
 	int retval = 0;
+	int i;
 
 	switch(currStmt->mode)
 	{
@@ -244,30 +185,38 @@ int findStmtSize(HWC_Stmt *currStmt)
 			// NOP, but keeping case here for symmetry
 			break;
 		case STMT_BLOCK:
-			retval += findStmtSize(currStmt->stmtA);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_CONN:
-			retval += findExprSize(currStmt->exprA);
-			retval += findExprSize(currStmt->exprB);
+			currStmt->offsets.bits = *numConn;
+			*numConn += 1;
+			retval += findExprSize(currStmt->exprA, numLogic);
+			retval += findExprSize(currStmt->exprB, numLogic);
 			break;
 		case STMT_FOR:
-		// TODO: Since FOR initializes a variable, should we add that to size?
-			retval += findExprSize(currStmt->exprA);
-			retval += findExprSize(currStmt->exprB);
+			// Since FOR initializes a variable, we add that to size.
+			// TODO: Is this the correct amount to add? The spec specifies for-loops use integers.
+			retval += 8;
 
-			retval += findStmtSize(currStmt->stmtA);
+			retval += findExprSize(currStmt->exprA, numLogic);
+			retval += findExprSize(currStmt->exprB, numLogic);
+
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_IF:
-			retval += findExprSize(currStmt->exprA);
+			retval += findExprSize(currStmt->exprA, numLogic);
 
-			retval += findStmtSize(currStmt->stmtA);
-			retval += findStmtSize(currStmt->stmtB);
-			break;
-		case STMT_ELSE:
-			retval += findStmtSize(currStmt->stmtA);
+			for(i = 0; i < currStmt->sizeA; i++)
+				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
+			for(i = 0; i < currStmt->sizeB; i++)
+				retval += findStmtSize(currStmt->stmtB +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_ASRT:
-			retval += findExprSize(currStmt->exprA);
+			currStmt->offsets.bits = *numAssert;
+			*numAssert += 1;
+			retval += findExprSize(currStmt->exprA, numLogic);
 			break;
 	}
 

@@ -1,0 +1,6 @@
+part main {
+	public bit input;
+	public bit output;
+
+	output = input;
+}

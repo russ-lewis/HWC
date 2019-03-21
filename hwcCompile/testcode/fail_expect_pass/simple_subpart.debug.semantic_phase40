@@ -1,90 +1,91 @@
-TODO: Decls within BLOCK stmts are not accounted for yet.
-TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
 ---- DEBUG: DUMPING SEMANTIC (after phase 40) ----
  --- NameScope ---
  refcount=1
  parent=<TODO>
-  name: Test
+  name: testPart
     --- Part ---
     phases: begun 10 completed 40
     publicNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: asdf
+        name: input
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: jkl
+        name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: foo
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=2 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: bar
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=3 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: baz
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=4 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     privateNames:
       --- NameScope ---
       refcount=1
       parent=<TODO>
-        name: asdf
+        name: input
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: jkl
+        name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: foo
+    stmts: len=3
+      [0]
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: stmt_dump() marker 9
+      [1]
+        --- Stmt ---
+        mode: STMT_DECL
+TODO: stmt_dump() marker 9
+      [2]
+        --- Stmt ---
+        mode: STMT_CONN
+TODO: stmt_dump() marker 9
+    decls: len=2
+      [0]
+TODO: part_dump() marker 5
+      [1]
+TODO: part_dump() marker 5
+    sizes:   bits=2 memBits=0   conns=1 memoryObjs=0 logicOps=0 asserts=0
+  name: main
+    --- Part ---
+    phases: begun 10 completed 40
+    publicNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+      <no names>
+    privateNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: a
           --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
+          type: EXPR_IDENT typeName: testPart isMem: 0
+TODO: decl_dump() marker 7
+          expr: <TODO>
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: b
+          --- Decl ---
+          type: EXPR_IDENT typeName: testPart isMem: 0
+TODO: decl_dump() marker 7
           expr: <TODO>
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=2 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: bar
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=3 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-        name: baz
-          --- Decl ---
-          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
-TODO: decl_dump() marker 6
-          expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=4 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=6
       [0]
         --- Stmt ---
@@ -92,11 +93,11 @@ TODO: decl_dump() marker 6
 TODO: stmt_dump() marker 9
       [1]
         --- Stmt ---
-        mode: STMT_DECL
+        mode: STMT_CONN
 TODO: stmt_dump() marker 9
       [2]
         --- Stmt ---
-        mode: STMT_DECL
+        mode: STMT_ASRT
 TODO: stmt_dump() marker 9
       [3]
         --- Stmt ---
@@ -104,23 +105,17 @@ TODO: stmt_dump() marker 9
 TODO: stmt_dump() marker 9
       [4]
         --- Stmt ---
-        mode: STMT_DECL
+        mode: STMT_CONN
 TODO: stmt_dump() marker 9
       [5]
         --- Stmt ---
-        mode: STMT_BLOCK
+        mode: STMT_ASRT
 TODO: stmt_dump() marker 9
-    decls: len=5
+    decls: len=2
       [0]
 TODO: part_dump() marker 5
       [1]
 TODO: part_dump() marker 5
-      [2]
-TODO: part_dump() marker 5
-      [3]
-TODO: part_dump() marker 5
-      [4]
-TODO: part_dump() marker 5
-    sizes:   bits=5 memBits=0   conns=4 memoryObjs=0 logicOps=0 asserts=0
+    sizes:   bits=10 memBits=0   conns=2 memoryObjs=0 logicOps=2 asserts=2
 
 rc=0

@@ -2,23 +2,45 @@
 File with the following decls: 
   File_decl with these decls: 
     Part_decl: named 'MUX_4in_bit32', with stmts: 
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'in', with type (isMem=0)
-          type: ARRAY
-            type: ARRAY
-              type: BIT
-            len = Expr: NUM, value of 32
-          len = Expr: NUM, value of 4
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'out', with type (isMem=0)
-          type: ARRAY
-            type: BIT
-          len = Expr: NUM, value of 32
-      stmt: DECL, that is public, is not a subpart, and has the decl vars:
-        Declaration: named 'control', with type (isMem=0)
-          type: ARRAY
-            type: BIT
-          len = Expr: NUM, value of 2
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            Expr: ARR, into array expr
+              "bit"
+             index of
+              Expr: NUM, value of 32
+           index of
+            Expr: NUM, value of 4
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: in
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            Expr: ARR, into array expr
+              "bit"
+             index of
+              Expr: NUM, value of 32
+           index of
+            Expr: NUM, value of 4
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: out
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            Expr: ARR, into array expr
+              "bit"
+             index of
+              Expr: NUM, value of 32
+           index of
+            Expr: NUM, value of 4
+        isPublic=1
+        isSubpart=0
+        isMemory=0
+        name: control
       stmt: FOR LOOP
         var: i
         Bgn:

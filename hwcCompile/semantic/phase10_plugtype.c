@@ -27,6 +27,9 @@ HWC_PlugType *semPhase10_plugtype(PT_plugtype_decl *parsedPlugtype,
 	}
 	memset(retval, 0, sizeof(*retval));
 
+	fr_copy(&retval->fr, &parsedPlugtype->fr);
+	retval->sizeBits = -1;
+
 	retval->phases_completed = retval->phases_begun = 10;
 
 	// Create publicNames, and make "NULL" its parent
