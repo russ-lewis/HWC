@@ -1,15 +1,12 @@
+# initial config of a user:
+    # setting up password saving (permanent, dangerous on a shared filesystem!)
+    git config --global credential.helper store
+    git config --global user.name "Your Name"
+    git config --global user.email "you@example.com"
+
+
 # getting started
 git clone
-
-
-# setting up password saving (permanent, dangerous on a shared filesystem!)
-    # will record the password next time you need it
-
-    # GLOBAL VERSION (preferred!)
-    git config --global credential.helper store
-
-    # REPO-LOCAL VERSION
-    git config credential.helper store
 
 
 # status
