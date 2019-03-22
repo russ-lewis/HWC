@@ -203,10 +203,10 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 			break;
 		case(EXPR_NOT):
 			// TODO: REWORK THIS
-			currExpr->offsets.bits = *numLogic;
 			*numLogic += 1;
 			retval += 1;
 			retval += findExprSize(currExpr->exprA, numLogic);
+			currExpr->offsets.bits = currExpr->exprA->offsets.bits;
 			break;
 		case(EXPR_DOT):
 			retval += findExprSize(currExpr->exprA, numLogic);

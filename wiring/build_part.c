@@ -98,8 +98,8 @@ int findMemory(HWC_Wiring_Memory *memory, HWC_Part *part, int index)
 		{
 			memory[index].size = currDecl.offsets.bits;
 			// TODO: What to put for these?
-			memory[index].read = -1;
-			memory[index].write = -1;
+			memory[index].read = currDecl.offsets.bits;
+			memory[index].write = currDecl.offsets.bits;
 			memory[index].debug = NULL;
 			index++;
 		}

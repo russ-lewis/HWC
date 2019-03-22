@@ -189,6 +189,9 @@ int findStmtSize(HWC_Stmt *currStmt, int *numConn, int *numLogic, int *numAssert
 				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
 			break;
 		case STMT_CONN:
+			// TODO:
+			// left  hand side of connection stmt should use mem write of memory cell
+			// right hand side of connection stmt should use mem read  of memory cell
 			currStmt->offsets.bits = *numConn;
 			*numConn += 1;
 			retval += findExprSize(currStmt->exprA, numLogic);
