@@ -96,10 +96,10 @@ int findMemory(HWC_Wiring_Memory *memory, HWC_Part *part, int index)
 
 		if(currDecl.isMem == 1)
 		{
-			memory[index].size = currDecl.offsets.bits;
+			memory[index].size  = currDecl.sizes.bits;
 			// TODO: What to put for these?
-			memory[index].read = currDecl.offsets.bits;
-			memory[index].write = currDecl.offsets.bits;
+			memory[index].read  = currDecl.offsets.bits;
+			memory[index].write = currDecl.offsets.bits + currDecl.sizes.bits/2;
 			memory[index].debug = NULL;
 			index++;
 		}
@@ -151,8 +151,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 
 		case EXPR_NOT:
 			logic[index].type = WIRING_NOT;
-			// TODO: Are these the correct values?
-			logic[index].size = 1;
+			logic[index].size = expr->sizes.bits;
 			logic[index].a = expr->exprA->decl->offsets.bits;
 			logic[index].out = expr->offsets.bits;
 			logic[index].debug = NULL;

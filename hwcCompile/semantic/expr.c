@@ -158,7 +158,7 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 /*
 TODO: Header comment
 */
-int findExprSize(HWC_Expr *currExpr, int *numLogic)
+int findExprSize(HWC_Expr *currExpr, int *currOffset, int *numLogic, int isLeft)
 {
 	assert(currExpr != NULL);
 
@@ -178,7 +178,11 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 			fprintf(stderr, "Checking size of subcomponent has not be implemented yet.\n");
 			break;
 		case(EXPR_IDENT):
-			currExpr->offsets.bits = currExpr->decl->offsets.bits;
+			currExpr->sizes.bits = currExpr->decl->sizes.bits/2;
+			if(currExpr->decl->isMem == 1 && isLeft == 1)
+				currExpr->offsets.bits = currExpr->decl->offsets.bits + currExpr->decl->sizes.bits/2;
+			else
+				currExpr->offsets.bits = currExpr->decl->offsets.bits;
 			retval = 0;
 			break;
 		case(EXPR_NUM):
@@ -188,32 +192,38 @@ int findExprSize(HWC_Expr *currExpr, int *numLogic)
 			retval = 0;
 			break;
 		case(EXPR_TWOOP):
+			assert(isLeft == 0);
 			// TODO: Anything to do with "currExpr->value" here?
 			// TODO: numLogic might not want to be incremented for every value
 			currExpr->offsets.bits = *numLogic;
 			*numLogic += 1;
 			retval += 1;
-			retval += findExprSize(currExpr->exprA, numLogic);
-			retval += findExprSize(currExpr->exprB, numLogic);
+			retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
+			retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
 			break;
 		case(EXPR_BITNOT):
+			assert(isLeft == 0);
 			// TODO: Increment indexLogic here as well?
 			retval += 1;
-			retval += findExprSize(currExpr->exprA, numLogic);
+			retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
 			break;
 		case(EXPR_NOT):
+			assert(isLeft == 0);
 			// TODO: REWORK THIS
+			currExpr->offsets.bits = *currOffset;
 			*numLogic += 1;
-			retval += 1;
-			retval += findExprSize(currExpr->exprA, numLogic);
-			currExpr->offsets.bits = currExpr->exprA->offsets.bits;
+			retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
+
+			currExpr->sizes.bits = currExpr->exprA->sizes.bits;
+			(*currOffset) += currExpr->exprA->sizes.bits;
+			retval += currExpr->exprA->sizes.bits;
 			break;
 		case(EXPR_DOT):
-			retval += findExprSize(currExpr->exprA, numLogic);
+			retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
 			break;
 		case(EXPR_ARR):
-			retval += findExprSize(currExpr->exprA, numLogic);
-			retval += findExprSize(currExpr->exprB, numLogic);
+			retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
+			retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
 			break;
 	}
 

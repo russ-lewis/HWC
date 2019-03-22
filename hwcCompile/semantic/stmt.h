@@ -48,7 +48,7 @@ struct HWC_Stmt
 int convertPTstmtIntoHWCstmt(PT_stmt *, HWC_Stmt **);
 int extractHWCdeclsFromPTstmts(PT_stmt *, HWC_Decl **, HWC_NameScope *, HWC_NameScope *);
 int checkStmtName(HWC_Stmt *, HWC_NameScope *);
-int findStmtSize(HWC_Stmt *, int *conn, int *logic, int *assert);
+int findStmtSize(HWC_Stmt *, int *offset, int *conn, int *logic, int *assert);
 
 
 void stmt_dump(HWC_Stmt*, int prefixLen);

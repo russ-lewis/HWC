@@ -74,7 +74,7 @@ struct HWC_Expr
 
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output);
 int checkExprName(HWC_Expr *, HWC_NameScope *);
-int findExprSize(HWC_Expr *, int *logic);
+int findExprSize(HWC_Expr *, int *offset, int *logic, int isLeft);
 
 #endif
 
