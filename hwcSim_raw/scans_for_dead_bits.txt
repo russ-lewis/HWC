@@ -1,0 +1,31 @@
+Use the following algorithm to scan for dead bits (this works equally well
+over an overlap list of inputs - looking for unread bits - or an overlap list
+of outputs - looking for never-written bits).
+
+- Allocate a pointer, and an integer.  The pointer represents a search through
+  the list; the integer represents an "active up through" value - meaning that
+  you know that there is definitely at least one active range for every bit
+  up through that bit (exclusive).  Initailize the integer to 0, and the
+  pointer to the head of the list.
+
+- (If there is no range on bit 0, that is obviously an empty space.  But we'll
+  discover later that this can be detected, and reported, using the general
+  algorithm discussed below.  No special case code is required.)
+
+- Advance the pointer, so long as the *start* of the next range is <= the
+  current integer value.
+  - As you advance the pointer, inspect the ranges covered by each node; if
+    any node has an end which is greater than the current integer, then update
+    the integer.
+  - When you stop, the *next* element in the list must have a start which is
+    > the current integer (or, you are at the end of the list)
+
+- When you stop, if the integer equals the total # of bits, then stop; no
+  additional dead bits exist.
+
+- Otherwise, the space from the current integer (inclusive) to the start of
+  the next range (exclusive) is DEAD SPACE.  Report it, and then advance the
+  pointer (and update the integer).
+  - If you are at the end of the list (but the integer didn't get to it, then
+    terminate after reporting the dead space)
+

@@ -220,6 +220,25 @@ static inline void HWC_Sim_writeRawBitRange(char *buf, int indx,int len, unsigne
 		HWC_Sim_writeRawBit(buf, indx+i, (val >> i) & 0x1);
 }
 
+static inline int HWC_Sim_readRawBit(char *buf, int indx)
+{
+	int rawByte = indx/8;
+	int rawBit  = indx%8;
+	return (buf[rawByte] >> rawBit) & 0x1;
+}
+
+static inline unsigned long HWC_Sim_readRawBitRange(char *buf, int indx,int len)
+{
+	unsigned long retval = 0;
+	assert(len <= 8*sizeof(retval));
+
+	int i;
+	for (i=0; i<len; i++)
+		retval |= (HWC_Sim_readRawBit(buf,indx+i) << i);
+
+	return retval;
+}
+
 
 
 static inline int *HWC_Sim_buildMemOffsets(HWC_Wiring *wiring)
@@ -271,10 +290,7 @@ static inline void HWC_Sim_copyRawToBitSpace(char *bitSpaceBuf,
 	int i;
 	for (i=0; i<size; i++)
 	{
-		int rawByte = (rawPos+i)/8;
-		int rawBit  = (rawPos+i)%8;
-
-		int val = (rawBuf[rawByte] >> rawBit) & 0x1;
+		int val = HWC_Sim_readRawBit(rawBuf, rawPos+i);
 		HWC_Sim_writeBit(bitSpaceBuf, bitSpacePos+i, val, NULL);
 	}
 
