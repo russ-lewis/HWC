@@ -69,7 +69,7 @@ int semPhase30_part(HWC_Part *part)
 	{
 		currStmt = part->stmts[i];
 		// 0 as an argument because we are within a part
-		int size = findStmtSize(&currStmt, &currConn, &currMemory, &currAssert);
+		int size = findStmtSize(&currStmt, &currConn, &currLogic, &currAssert);
 		// TODO: Is a size of zero valid? Yes, I would think, for statements. Think about this more.
 		if(size < 0)
 		{
