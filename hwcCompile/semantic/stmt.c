@@ -171,11 +171,12 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 /*
 TODO: Add header comment
 */
-int findStmtSize(HWC_Stmt *currStmt, int *numConn, int *numLogic, int *numAssert)
+int findStmtSize(HWC_Stmt *currStmt, int *currOffset, int *numConn, int *numLogic, int *numAssert)
 {
 	int retval = 0;
 	int i;
 
+	// TODO: Fix all of this, offsets should not be dependent on numConns
 	switch(currStmt->mode)
 	{
 		default:
@@ -186,37 +187,40 @@ int findStmtSize(HWC_Stmt *currStmt, int *numConn, int *numLogic, int *numAssert
 			break;
 		case STMT_BLOCK:
 			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
+				retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
 			break;
 		case STMT_CONN:
-			currStmt->offsets.bits = *numConn;
+			// TODO:
+			// left  hand side of connection stmt should use mem write of memory cell
+			// right hand side of connection stmt should use mem read  of memory cell
+			currStmt->offsets.conns = *numConn;
 			*numConn += 1;
-			retval += findExprSize(currStmt->exprA, numLogic);
-			retval += findExprSize(currStmt->exprB, numLogic);
+			retval += findExprSize(currStmt->exprA, currOffset, numLogic, 1);
+			retval += findExprSize(currStmt->exprB, currOffset, numLogic, 0);
 			break;
 		case STMT_FOR:
 			// Since FOR initializes a variable, we add that to size.
 			// TODO: Is this the correct amount to add? The spec specifies for-loops use integers.
 			retval += 8;
 
-			retval += findExprSize(currStmt->exprA, numLogic);
-			retval += findExprSize(currStmt->exprB, numLogic);
+			retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+			retval += findExprSize(currStmt->exprB, currOffset, numLogic, 0);
 
 			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
+				retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
 			break;
 		case STMT_IF:
-			retval += findExprSize(currStmt->exprA, numLogic);
+			retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
 
 			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i, numConn, numLogic, numAssert);
+				retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
 			for(i = 0; i < currStmt->sizeB; i++)
-				retval += findStmtSize(currStmt->stmtB +i, numConn, numLogic, numAssert);
+				retval += findStmtSize(currStmt->stmtB +i, currOffset, numConn, numLogic, numAssert);
 			break;
 		case STMT_ASRT:
 			currStmt->offsets.bits = *numAssert;
 			*numAssert += 1;
-			retval += findExprSize(currStmt->exprA, numLogic);
+			retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
 			break;
 	}
 

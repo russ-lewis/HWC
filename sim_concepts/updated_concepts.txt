@@ -1,0 +1,20 @@
+Text GUI:
+
+Space to do next jiffy, anywhere (based on TODO list).  Return to do targeted evaluation of an expression.  Feedback if expression defers.  Shift-return forces partial evaluation of an expression that would normally defer.
+
+v - toggle (v)alue display
+           expr
+           expr: value (with parens if necessary)
+            value
+
+x - e(x)pand code block
+            curly braces
+            for() loop unrolling
+            subpart / plug contents
+
+Gray out false branch of if(), but not the condition that tests it.  But gray out conditions in disabled else/if chains
+
+Background highlighting to show code blocks
+
+Help text along bottom edge
+

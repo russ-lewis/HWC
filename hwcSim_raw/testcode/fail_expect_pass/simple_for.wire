@@ -1,0 +1,47 @@
+# HWC Wiring Diagram
+version: 1.0
+
+debug=""
+
+bits 64
+
+memory count 0
+
+logic count 0
+
+connection count 32
+  connection               size 1 to 32 from 0	debug="7:3-7:17 where i=0"
+  connection               size 1 to 33 from 1	debug="7:3-7:17 where i=1"
+  connection               size 1 to 34 from 2	debug="7:3-7:17 where i=2"
+  connection               size 1 to 35 from 3	debug="7:3-7:17 where i=3"
+  connection               size 1 to 36 from 4	debug="7:3-7:17 where i=4"
+  connection               size 1 to 37 from 5	debug="7:3-7:17 where i=5"
+  connection               size 1 to 38 from 6	debug="7:3-7:17 where i=6"
+  connection               size 1 to 39 from 7	debug="7:3-7:17 where i=7"
+  connection               size 1 to 40 from 8	debug="7:3-7:17 where i=8"
+  connection               size 1 to 41 from 9	debug="7:3-7:17 where i=9"
+  connection               size 1 to 42 from 10	debug="7:3-7:17 where i=10"
+  connection               size 1 to 43 from 11	debug="7:3-7:17 where i=11"
+  connection               size 1 to 44 from 12	debug="7:3-7:17 where i=12"
+  connection               size 1 to 45 from 13	debug="7:3-7:17 where i=13"
+  connection               size 1 to 46 from 14	debug="7:3-7:17 where i=14"
+  connection               size 1 to 47 from 15	debug="7:3-7:17 where i=15"
+  connection               size 1 to 48 from 16	debug="7:3-7:17 where i=16"
+  connection               size 1 to 49 from 17	debug="7:3-7:17 where i=17"
+  connection               size 1 to 50 from 18	debug="7:3-7:17 where i=18"
+  connection               size 1 to 51 from 19	debug="7:3-7:17 where i=19"
+  connection               size 1 to 52 from 20	debug="7:3-7:17 where i=20"
+  connection               size 1 to 53 from 20	debug="7:3-7:17 where i=21"
+  connection               size 1 to 54 from 22	debug="7:3-7:17 where i=22"
+  connection               size 1 to 55 from 23	debug="7:3-7:17 where i=23"
+  connection               size 1 to 56 from 24	debug="7:3-7:17 where i=24"
+  connection               size 1 to 57 from 25	debug="7:3-7:17 where i=25"
+  connection               size 1 to 58 from 26	debug="7:3-7:17 where i=26"
+  connection               size 1 to 59 from 27	debug="7:3-7:17 where i=27"
+  connection               size 1 to 60 from 28	debug="7:3-7:17 where i=28"
+  connection               size 1 to 61 from 29	debug="7:3-7:17 where i=29"
+  connection               size 1 to 62 from 30	debug="7:3-7:17 where i=30"
+  connection               size 1 to 63 from 31	debug="7:3-7:17 where i=31"
+
+assert count 0
+

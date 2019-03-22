@@ -96,10 +96,10 @@ int findMemory(HWC_Wiring_Memory *memory, HWC_Part *part, int index)
 
 		if(currDecl.isMem == 1)
 		{
-			memory[index].size = currDecl.offsets.bits;
+			memory[index].size  = currDecl.sizes.bits;
 			// TODO: What to put for these?
-			memory[index].read = -1;
-			memory[index].write = -1;
+			memory[index].read  = currDecl.offsets.bits;
+			memory[index].write = currDecl.offsets.bits + currDecl.sizes.bits/2;
 			memory[index].debug = NULL;
 			index++;
 		}
@@ -151,8 +151,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 
 		case EXPR_NOT:
 			logic[index].type = WIRING_NOT;
-			// TODO: Are these the correct values?
-			logic[index].size = 1;
+			logic[index].size = expr->sizes.bits;
 			logic[index].a = expr->exprA->decl->offsets.bits;
 			logic[index].out = expr->offsets.bits;
 			logic[index].debug = NULL;
@@ -212,6 +211,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 {
 	int i;
+	// TODO: MAKE THESE AND OTHER DECLARATIONS LIKE THIS INTO POINTERS
 	HWC_Stmt currStmt;
 	for(i = 0; i < part->stmts_len; i++)
 	{
@@ -225,8 +225,8 @@ int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 			// TODO: Correct value?
 			connect[index].size = 1;
 			// TODO: Fair assumption that we only need to check this? Since we're not doing arrays right now, I think it's alright?
-			connect[index].to   = currStmt.exprA->decl->offsets.bits;
-			connect[index].from = currStmt.exprB->decl->offsets.bits;
+			connect[index].to   = currStmt.exprA->offsets.bits;
+			connect[index].from = currStmt.exprB->offsets.bits;
 			connect[index].condition = WIRING_BIT_INVALID;
 			connect[index].isUndir = 1;
 			connect[index].debug = NULL;

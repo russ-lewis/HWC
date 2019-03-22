@@ -19,11 +19,6 @@ HWC_Graph *HWC_Graph_build(HWC_Wiring *wiring)
 	retval->wiring = wiring;
 
 
-	printf("FIXME: Build the overlap table(s)  %s() at %s:%d\n", __func__, __FILE__,__LINE__);
-	retval->   overlapTable = NULL;
-	retval->revOverlapTable = NULL;
-
-
 	int nMem = wiring->numMemRanges;
 	int nLog = wiring->numLogicalOperators;
 	int nCon = wiring->numConnections;
@@ -167,6 +162,9 @@ HWC_Graph *HWC_Graph_build(HWC_Wiring *wiring)
 		return NULL;
 	}
 
+	retval->   overlapTable = fwd;
+	retval->revOverlapTable = rev;
+
 	int fwdCount = 0, revCount = 0;
 
 	for (i=0; i<total; i++)
@@ -247,7 +245,7 @@ HWC_Graph *HWC_Graph_build(HWC_Wiring *wiring)
 		comp->out.notifyStart = curFwd;
 	}
 
-printf("FIXME: we do not currently populate the 'notifyStart' fields for input ranges.  %s() : %s:%d\n", __func__, __FILE__,__LINE__);
+printf("FIXME: we do not currently populate the 'notifyStart' fields for input ranges.  %s() : %s\n", __func__, __FILE__);
 
 
 	return retval;

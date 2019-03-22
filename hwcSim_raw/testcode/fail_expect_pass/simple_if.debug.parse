@@ -1,0 +1,23 @@
+# HWC Wiring Diagram
+version: 1.0
+
+debug=""
+
+bits 9
+
+memory count 0
+
+logic count 2
+  logic EQ  size 1 a 4 b 5 out 6	debug="7:2-7:19 control == 0"
+  logic NOT size 1 a 7     out 8	debug="9:2-9:5 else"
+
+connection count 4
+  connection               size 1 to 4 from 0
+  connection               size 1 to 5 from ZERO
+  connection (condition 6) size 1 to 3 from 1	debug="8:3-8:14 out = in[0];"
+  connection (condition 8) size 1 to 3 from 2	debug="10:3-10:14 out = in[1];"
+
+assert count 0
+
+
+rc=0

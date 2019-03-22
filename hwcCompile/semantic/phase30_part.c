@@ -59,27 +59,29 @@ int semPhase30_part(HWC_Part *part)
 		else
 		{
 			currDecl->offsets.bits = currIndex;
+			currDecl->sizes.bits = size;
 			currIndex += size;
 		}
 	}
 
 
-	HWC_Stmt currStmt;
+	HWC_Stmt *currStmt;
 	for(i = 0; i < part->stmts_len; i++)
 	{
-		currStmt = part->stmts[i];
+		currStmt = &part->stmts[i];
 		// 0 as an argument because we are within a part
-		int size = findStmtSize(&currStmt, &currConn, &currMemory, &currAssert);
+		int size = findStmtSize(currStmt, &currIndex, &currConn, &currLogic, &currAssert);
 		// TODO: Is a size of zero valid? Yes, I would think, for statements. Think about this more.
 		if(size < 0)
 		{
-			printf("TODO: %s(): Add an error message (marker 2)\n", __func__);
+			printf("%s:%d:%d: Stmt size was negative [%d].\n", currStmt->fr.filename, currStmt->fr.s.l, currStmt->fr.s.c, size);
 			retval++;
 		}
 		else
 		{
-			currStmt.offsets.bits = currIndex;
-			currIndex += size;
+			currStmt->offsets.bits = currIndex;
+			currStmt->sizes.bits = size;
+			//currIndex += size;
 		}
 	}
 
