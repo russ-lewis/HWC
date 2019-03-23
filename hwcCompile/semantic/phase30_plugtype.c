@@ -4,6 +4,10 @@
 #include "semantic/phase20.h"
 #include "semantic/phase30.h"
 
+#include "semantic/plugtype.h"
+
+
+
 int semPhase30_plugtype(HWC_PlugType *plugtype)
 {
 	if (plugtype->phases_completed >= 30)
@@ -26,44 +30,31 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 	if (plugtype->phases_completed >= 30)
 		return 0;
 
-	// TODO: Will bits necessarily go through the sem phases?
-	// TODO: Is publicNames a good way to check if a plugtype is a bit?
-	//   Note: We do explicitly state this in plugtype.h, so maybe it is.
-	// This checks if our plugtype is a bit (ie, it BitType)
-	if(plugtype->publicNames == NULL)
-		return 0;
+	plugtype->phases_begun = 30;
 
 
 	int retval = 0;
 
 	int i;
-	int currIndex = 0;
-	int currMemory = 0;
 
-	HWC_Decl *currDecl;
+
+	plugtype->sizeBits = 0;
+
+
 	for(i = 0; i < plugtype->decls_len; i++)
 	{
-		currDecl = &plugtype->decls[i];
-
 		// 1 as an argument because we are within a plugtype
-		int size = findDeclSize(currDecl, 1, &currMemory);
+		retval = semPhase30_decl(&plugtype->decls[i], 1);
 
-		// TODO: Is a size of zero valid? No, I would think. Make it a special error value?
-		if(size <= 0)
-		{
-			// TODO: Error message for I dunno. Recursive definitions?
-			retval++;
-		}
-		else
-		{
-			currDecl->offsets.bits = currIndex;
-			currIndex += size;
-		}
+		assert(&plugtype->decls[i].sizes.bits >= 0);
+		plugtype->sizeBits += plugtype->decls[i].sizes.bits;
+
+		assert(&plugtype->decls[i].sizes.memBits    == 0);
+		assert(&plugtype->decls[i].sizes.conns      == 0);
+		assert(&plugtype->decls[i].sizes.memoryObjs == 0);
+		assert(&plugtype->decls[i].sizes.logicOps   == 0);
+		assert(&plugtype->decls[i].sizes.asserts    == 0);
 	}
-
-	// TODO: Is this clever, or stupid?
-	// ie, the size of something is the index at which we've stopped inserting things
-	plugtype->sizeBits = currIndex;
 
 
 	plugtype->phases_completed = 30;

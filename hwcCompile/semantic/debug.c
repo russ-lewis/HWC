@@ -161,22 +161,7 @@ void part_dump(HWC_Part *part, int prefixLen)
 	}
 
 	print_prefix(prefixLen);
-	printf("decls: len=%d\n", part->decls_len);
-
-	for (i=0; i<part->decls_len; i++)
-	{
-		print_prefix(prefixLen+2);
-		printf("[%d]\n", i);
-
-		if (part->decls == NULL)
-		{
-			print_prefix(prefixLen+4);
-			printf("<part->decls is NULL>\n");
-			continue;
-		}
-
-printf("TODO: %s() marker 5\n", __func__);
-	}
+	printf("decls_len=%d\n", part->decls_len);
 
 	print_prefix(prefixLen);
 	printf("sizes:   ");
@@ -255,12 +240,12 @@ printf("TODO: %s() marker 8\n", __func__);
 	}
 
 	print_prefix(prefixLen);
-	printf("sizes:   ");
-	sizes_print(&decl->sizes);
-
-	print_prefix(prefixLen);
 	printf("offsets: ");
 	sizes_print(&decl->offsets);
+
+	print_prefix(prefixLen);
+	printf("sizes:   ");
+	sizes_print(&decl->sizes);
 }
 
 
@@ -276,7 +261,121 @@ void stmt_dump(HWC_Stmt *stmt, int prefixLen)
 	print_prefix(prefixLen);
 	printf("mode: %s\n", enum2str(stmt->mode));
 
-printf("TODO: %s() marker 9\n", __func__);
+	switch (stmt->mode)
+	{
+	default:
+		assert(0);  // invalid mode
+
+	case STMT_DECL:
+		print_prefix(prefixLen);
+		printf("isPublic=%d isSubpart=%d\n", stmt->isPublic, stmt->isSubpart);
+		break;
+
+	case STMT_BLOCK:
+		printf("TODO: STMT_BLOCK\n");
+		break;
+
+	case STMT_CONN:
+		print_prefix(prefixLen);
+		printf("lhs:\n");
+		expr_dump(stmt->exprA, prefixLen+2);
+
+		print_prefix(prefixLen);
+		printf("rhs:\n");
+		expr_dump(stmt->exprB, prefixLen+2);
+		break;
+
+	case STMT_FOR:
+		printf("TODO: STMT_FOR\n");
+		break;
+
+	case STMT_IF:
+		printf("TODO: STMT_IF\n");
+		break;
+
+	case STMT_ASRT:
+		printf("TODO: STMT_ASRT\n");
+		break;
+	}
+
+	print_prefix(prefixLen);
+	printf("offsets: ");
+	sizes_print(&stmt->offsets);
+
+	print_prefix(prefixLen);
+	printf("sizes:   ");
+	sizes_print(&stmt->sizes);
+}
+
+
+
+void expr_dump(HWC_Expr *expr, int prefixLen)
+{
+	print_prefix(prefixLen);
+	printf("--- Expr ---\n");
+
+	if (expr->fr.s.l == 0)
+		printf("WARNING: This 'expr' object does not have line number information!\n");
+
+	print_prefix(prefixLen);
+	printf("mode: %s\n", enum2str(expr->mode));
+
+	switch (expr->mode)
+	{
+	default:
+		assert(0);  // invalid mode
+
+	case EXPR_IDENT:
+	case EXPR_NUM:
+		print_prefix(prefixLen);
+		printf("\"%s\"\n", expr->name);
+		break;
+
+	case EXPR_BOOL:
+		printf("TODO: expr_dump()\n");
+		break;
+
+	case EXPR_TWOOP:
+		printf("TODO: expr_dump()\n");
+		break;
+
+	case EXPR_BITNOT:
+		printf("TODO: expr_dump()\n");
+		break;
+
+	case EXPR_NOT:
+		print_prefix(prefixLen);
+		printf("base:\n");
+		expr_dump(expr->exprA, prefixLen+2);
+		break;
+
+	case EXPR_DOT:
+		printf("TODO: expr_dump()\n");
+		break;
+
+	case EXPR_ARR:
+		printf("TODO: expr_dump()\n");
+		break;
+
+	case EXPR_ARR_SLICE:
+		printf("TODO: expr_dump()\n");
+		break;
+
+	case EXPR_BIT_TYPE:
+		printf("TODO: expr_dump()\n");
+		break;
+	}
+
+	print_prefix(prefixLen);
+	printf("offsets: ");
+	sizes_print(&expr->offsets);
+
+	print_prefix(prefixLen);
+	printf("sizes:   ");
+	sizes_print(&expr->sizes);
+
+	print_prefix(prefixLen);
+	printf("retvalBits: %d\n", expr->retvalBits);
 }
 
 

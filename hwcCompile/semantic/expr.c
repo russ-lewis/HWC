@@ -155,77 +155,181 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 }
 
 
-/*
-TODO: Header comment
-*/
-int findExprSize(HWC_Expr *currExpr, int *currOffset, int *numLogic, int isLeft)
+
+int semPhase30_expr(HWC_Expr *currExpr)
 {
 	assert(currExpr != NULL);
 
 	int retval = 0;
 
-	// For EXPR_NOT, BITNOT, and TWOOP we add 1 bit for output of condition
+	// these defaults are overridden as necessary, below
+	sizes_set_zero(&currExpr->sizes);
+	currExpr->retvalBits = -1;
+
 	switch(currExpr->mode)
 	{
-		default:
-			break;
-		case(EXPR_PLUG):
-			// TODO: Need conversion from PT to HWC before doing this.
-			fprintf(stderr, "Checking size of plug has not be implemented yet.\n");
-			break;
-		case(EXPR_SUBCOMPONENT):
-			// TODO: Need conversion from PT to HWC before doing this.
-			fprintf(stderr, "Checking size of subcomponent has not be implemented yet.\n");
-			break;
-		case(EXPR_IDENT):
-			currExpr->sizes.bits = currExpr->decl->sizes.bits/2;
-			if(currExpr->decl->isMem == 1 && isLeft == 1)
-				currExpr->offsets.bits = currExpr->decl->offsets.bits + currExpr->decl->sizes.bits/2;
-			else
-				currExpr->offsets.bits = currExpr->decl->offsets.bits;
-			retval = 0;
-			break;
-		case(EXPR_NUM):
-			retval = 0;
-			break;
-		case(EXPR_BOOL):
-			retval = 0;
-			break;
-		case(EXPR_TWOOP):
-			assert(isLeft == 0);
-			// TODO: Anything to do with "currExpr->value" here?
-			// TODO: numLogic might not want to be incremented for every value
-			currExpr->offsets.bits = *numLogic;
-			*numLogic += 1;
-			retval += 1;
-			retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
-			retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
-			break;
-		case(EXPR_BITNOT):
-			assert(isLeft == 0);
-			// TODO: Increment indexLogic here as well?
-			retval += 1;
-			retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
-			break;
-		case(EXPR_NOT):
-			assert(isLeft == 0);
-			// TODO: REWORK THIS
-			currExpr->offsets.bits = *currOffset;
-			*numLogic += 1;
-			retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
+	default:
+		break;
 
-			currExpr->sizes.bits = currExpr->exprA->sizes.bits;
-			(*currOffset) += currExpr->exprA->sizes.bits;
-			retval += currExpr->exprA->sizes.bits;
-			break;
-		case(EXPR_DOT):
-			retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
-			break;
-		case(EXPR_ARR):
-			retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
-			retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
-			break;
+	case EXPR_PLUG:
+		// TODO: Need conversion from PT to HWC before doing this.
+		fprintf(stderr, "Checking size of plug has not be implemented yet.\n");
+		retval = 1;
+		break;
+
+	case EXPR_SUBCOMPONENT:
+		// TODO: Need conversion from PT to HWC before doing this.
+		fprintf(stderr, "Checking size of subcomponent has not be implemented yet.\n");
+		retval = 1;
+		break;
+
+	case EXPR_IDENT:
+		sizes_set_zero(&currExpr->sizes);
+
+// TODO: assert that the decl *MUST* have already run phase 30
+		currExpr->retvalBits = currExpr->decl->sizes.bits;
+		if (currExpr->decl->isMem)
+			currExpr->retvalBits /= 2;
+		break;
+
+	case EXPR_NUM:
+	case EXPR_BOOL:
+		break;
+
+	case EXPR_TWOOP:
+assert(0);
+#if 0
+		// TODO: Anything to do with "currExpr->value" here?
+		// TODO: numLogic might not want to be incremented for every value
+		currExpr->offsets.bits = *numLogic;
+		*numLogic += 1;
+		retval += 1;
+		retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
+		retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
+#endif
+		break;
+
+	case EXPR_BITNOT:
+assert(0);
+#if 0
+		// TODO: Increment indexLogic here as well?
+		retval += 1;
+		retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
+#endif
+		break;
+
+	case EXPR_NOT:
+		semPhase30_expr(currExpr->exprA);
+
+		// sanity check that the expression has nonzero size.  Copy
+		// that into our expression.
+		assert(currExpr->exprA->retvalBits > 0);
+		currExpr->retvalBits = currExpr->exprA->retvalBits;
+
+		// first, copy in the sizes from the underlying expression,
+		// since it might include many logical operators and bits used
+		// for the temporaries
+		sizes_copy(&currExpr->sizes, &currExpr->exprA->sizes);
+
+		// then, add one additional logical operator for the NOT, and
+		// space for it to write out its results.
+		currExpr->sizes.logicOps++;
+		currExpr->sizes.bits += currExpr->exprA->retvalBits;
+		break;
+
+	case EXPR_DOT:
+assert(0);
+#if 0
+		retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
+#endif
+		break;
+
+	case EXPR_ARR:
+assert(0);
+#if 0
+		retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
+		retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
+#endif
+		break;
 	}
 
 	return retval;
 }
+
+
+
+int semPhase35_expr(HWC_Expr *currExpr)
+{
+	int retval = 0;
+
+	/* the caller has initialized the offset */
+	assert(sizes_are_ready(&currExpr->offsets));
+
+	switch(currExpr->mode)
+	{
+	default:
+		break;
+
+	case EXPR_PLUG:
+		// TODO: Need conversion from PT to HWC before doing this.
+		fprintf(stderr, "Checking size of plug has not be implemented yet.\n");
+		retval = 1;
+		break;
+
+	case EXPR_SUBCOMPONENT:
+		// TODO: Need conversion from PT to HWC before doing this.
+		fprintf(stderr, "Checking size of subcomponent has not be implemented yet.\n");
+		retval = 1;
+		break;
+
+	case EXPR_IDENT:
+	case EXPR_NUM:
+	case EXPR_BOOL:
+		break;
+
+	case EXPR_TWOOP:
+assert(0);
+#if 0
+		// TODO: Anything to do with "currExpr->value" here?
+		// TODO: numLogic might not want to be incremented for every value
+		currExpr->offsets.bits = *numLogic;
+		*numLogic += 1;
+		retval += 1;
+		retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
+		retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
+#endif
+		break;
+
+	case EXPR_BITNOT:
+assert(0);
+#if 0
+		// TODO: Increment indexLogic here as well?
+		retval += 1;
+		retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
+#endif
+		break;
+
+	case EXPR_NOT:
+		sizes_copy(&currExpr->exprA->offsets, &currExpr->offsets);
+		semPhase35_expr(currExpr->exprA);
+		break;
+
+	case EXPR_DOT:
+assert(0);
+#if 0
+		retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
+#endif
+		break;
+
+	case EXPR_ARR:
+assert(0);
+#if 0
+		retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
+		retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
+#endif
+		break;
+	}
+
+	return retval;
+}
+

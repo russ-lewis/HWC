@@ -102,8 +102,6 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
 	                     HWC_Decl *output);
 
 int checkDeclName(HWC_Decl *, HWC_NameScope *, int);
-int findDeclSize(HWC_Decl *, int, int *memory);
-
 
 void decl_dump(HWC_Decl*, int prefixLen);
 

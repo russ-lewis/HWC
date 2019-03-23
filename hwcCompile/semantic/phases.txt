@@ -36,11 +36,10 @@ a flag to mark types that are already generated.  We will also have a flag to
 indicate that a type is in-process, so that we can detect recursive
 definitions.
 
+PHASE 35 (previously, part of phase 30)
+
 Once we know the sizes of the various sub-types used by a type, we will fill
 in the offsets for each declaration.
-
-Once we have all of the offsets, it is possible to generate all of the
-connection statements in each part.
 
 PHASE 40
 
