@@ -249,12 +249,10 @@ assert(0);   // TODO
 		break;
 
 	case STMT_ASRT:
-assert(0);   // TODO
-#if 0
-		currStmt->offsets.bits = *numAssert;
-		*numAssert += 1;
-		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
-#endif
+		retval += semPhase30_expr(currStmt->exprA);
+
+		sizes_copy(&currStmt->sizes, &currStmt->exprA->sizes);
+		currStmt->sizes.asserts++;
 		break;
 	}
 
@@ -266,6 +264,7 @@ assert(0);   // TODO
 int semPhase35_stmt(HWC_Stmt *currStmt)
 {
 	int retval = 0;
+	int i;
 
 	/* the caller has initialized the offset */
 	assert(sizes_are_ready(&currStmt->offsets));
@@ -326,15 +325,20 @@ assert(0);   // TODO
 		break;
 
 	case STMT_IF:
-assert(0);   // TODO
-#if 0
-		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+		retval += semPhase30_expr(currStmt->exprA);
+		sizes_copy(&currStmt->sizes, &currStmt->exprA->sizes);
 
 		for(i = 0; i < currStmt->sizeA; i++)
-			retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
+		{
+			retval += semPhase30_stmt(&currStmt->stmtA[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtA[i].sizes);
+		}
+
 		for(i = 0; i < currStmt->sizeB; i++)
-			retval += findStmtSize(currStmt->stmtB +i, currOffset, numConn, numLogic, numAssert);
-#endif
+		{
+			retval += semPhase30_stmt(&currStmt->stmtB[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtB[i].sizes);
+		}
 		break;
 
 	case STMT_ASRT:

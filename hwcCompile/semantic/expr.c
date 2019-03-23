@@ -136,9 +136,7 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 			currExpr->decl = currName->decl;
 			break;
 
-		case(EXPR_BOOL):
-			// TODO: NOP?
-			assert(0);
+		case EXPR_BOOL:
 			break;
 
 		case(EXPR_TWOOP):
