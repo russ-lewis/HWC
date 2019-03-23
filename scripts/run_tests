@@ -116,13 +116,7 @@ do
 
   base=$(echo $TESTCASE | rev | cut -f2- -d'.' | rev)
 
-  if [[ $HWC_OUTPUT_SUFFIX = "" ]]
-  then
-    echo "Testcase $TESTCASE failed: the config file did not define HWC_OUPTUT_SUFFIX"
-    continue
-  fi
-
-  if [[ ! -f $base.$HWC_OUTPUT_SUFFIX ]]
+  if [[ $HWC_OUTPUT_SIFFIX != "" && ! -f $base.$HWC_OUTPUT_SUFFIX ]]
   then
     echo "Testcase $TESTCASE failed: the expected .$HWC_OUTPUT_SUFFIX file did not exist."
     continue
@@ -131,8 +125,14 @@ do
   rm $base.stdout.* $base.$HWC_OUTPUT_SUFFIX.* 2>/dev/null
 
   {
-    ./$HWC_BIN < $base.$HWC_SUFFIX -o $base.$HWC_OUTPUT_SUFFIX.test_out
-    rc=$?
+    if [[ $HWC_OUTPUT_SUFFIX != "" ]]
+    then
+      ./$HWC_BIN < $base.$HWC_SUFFIX -o $base.$HWC_OUTPUT_SUFFIX.test_out
+      rc=$?
+    else
+      ./$HWC_BIN < $base.$HWC_SUFFIX
+      rc=$?
+    fi
 
     echo
     echo rc=$rc
@@ -147,13 +147,16 @@ do
     rm $base.stdout.test_out
   fi
 
-  if [[ $(diff $base.$HWC_OUTPUT_SUFFIX $base.$HWC_OUTPUT_SUFFIX.test_out) != "" ]]
+  if [[ $HWC_OUTPUT_SUFFIX != "" ]]
   then
-    echo "Testcase $TESTCASE failed: output file mismatch"
-    mv $base.$HWC_OUTPUT_SUFFIX.test_out $base.$HWC_OUTPUT_SUFFIX.FAIL
-    continue
-  else
-    rm $base.$HWC_OUTPUT_SUFFIX.test_out
+    if [[ $(diff $base.$HWC_OUTPUT_SUFFIX $base.$HWC_OUTPUT_SUFFIX.test_out) != "" ]]
+    then
+      echo "Testcase $TESTCASE failed: output file mismatch"
+      mv $base.$HWC_OUTPUT_SUFFIX.test_out $base.$HWC_OUTPUT_SUFFIX.FAIL
+      continue
+    else
+      rm $base.$HWC_OUTPUT_SUFFIX.test_out
+    fi
   fi
 
   passed=$((passed+1))
