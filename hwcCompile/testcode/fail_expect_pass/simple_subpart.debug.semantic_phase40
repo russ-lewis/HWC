@@ -4,7 +4,7 @@
  parent=<TODO>
   name: testPart
     --- Part ---
-    phases: begun 10 completed 40
+    phases: begun 40 completed 40
     publicNames:
       --- NameScope ---
       refcount=1
@@ -14,15 +14,15 @@
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     privateNames:
       --- NameScope ---
       refcount=1
@@ -32,15 +32,15 @@ TODO: decl_dump() marker 6
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
         name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
     stmts: len=3
       [0]
         --- Stmt ---
@@ -54,11 +54,7 @@ TODO: stmt_dump() marker 9
         --- Stmt ---
         mode: STMT_CONN
 TODO: stmt_dump() marker 9
-    decls: len=2
-      [0]
-TODO: part_dump() marker 5
-      [1]
-TODO: part_dump() marker 5
+    decls_len=2
     sizes:   bits=2 memBits=0   conns=1 memoryObjs=0 logicOps=0 asserts=0
   name: main
     --- Part ---

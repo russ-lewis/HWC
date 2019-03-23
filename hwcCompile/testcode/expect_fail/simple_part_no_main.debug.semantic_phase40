@@ -4,7 +4,7 @@
  parent=<TODO>
   name: testPart
     --- Part ---
-    phases: begun 10 completed 40
+    phases: begun 40 completed 40
     publicNames:
       --- NameScope ---
       refcount=1
@@ -14,15 +14,15 @@
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=1 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
         name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=1 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=1 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
     privateNames:
       --- NameScope ---
       refcount=1
@@ -32,33 +32,50 @@ TODO: decl_dump() marker 6
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=1 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
         name: output
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=1 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=1 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
     stmts: len=3
       [0]
         --- Stmt ---
         mode: STMT_DECL
-TODO: stmt_dump() marker 9
+        isPublic=0 isSubpart=0
+        offsets: bits=2 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+        sizes:   bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
       [1]
         --- Stmt ---
         mode: STMT_DECL
-TODO: stmt_dump() marker 9
+        isPublic=0 isSubpart=0
+        offsets: bits=2 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+        sizes:   bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
       [2]
         --- Stmt ---
         mode: STMT_CONN
-TODO: stmt_dump() marker 9
-    decls: len=2
-      [0]
-TODO: part_dump() marker 5
-      [1]
-TODO: part_dump() marker 5
+        lhs:
+          --- Expr ---
+          mode: EXPR_IDENT
+          "output"
+          offsets: bits=2 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          retvalSize:   1
+          retvalOffset: 1
+        rhs:
+          --- Expr ---
+          mode: EXPR_IDENT
+          "input"
+          offsets: bits=2 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          retvalSize:   1
+          retvalOffset: 0
+        offsets: bits=2 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+        sizes:   bits=0 memBits=0   conns=1 memoryObjs=0 logicOps=0 asserts=0
+    decls_len=2
     sizes:   bits=2 memBits=0   conns=1 memoryObjs=0 logicOps=0 asserts=0
 
 rc=0

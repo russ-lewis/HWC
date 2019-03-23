@@ -4,7 +4,7 @@
  parent=<TODO>
   name: simple
     --- PlugType ---
-    phases: begun 10 completed 30
+    phases: begun 30 completed 30
     publicNames:
       --- NameScope ---
       refcount=1
@@ -14,27 +14,24 @@
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=1 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
         name: b
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=1 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
         name: c
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           offsets: bits=2 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-    decls: len=3
-      [0]
-      [1]
-      [2]
+          sizes:   bits=3 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+    decls_len=3
     sizeBits: 5
 
 rc=0

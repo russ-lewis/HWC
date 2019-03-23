@@ -195,6 +195,9 @@ static inline int sizes_are_ready(HWC_Sizes *obj)
 
 static inline void sizes_copy(HWC_Sizes *dst, HWC_Sizes *src)
 {
+	assert(dst != NULL);
+	assert(sizes_are_ready(src));
+
 	memcpy(dst,src, sizeof(*dst));
 }
 

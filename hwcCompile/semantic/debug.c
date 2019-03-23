@@ -375,7 +375,9 @@ void expr_dump(HWC_Expr *expr, int prefixLen)
 	sizes_print(&expr->sizes);
 
 	print_prefix(prefixLen);
-	printf("retvalBits: %d\n", expr->retvalBits);
+	printf("retvalSize:   %d\n", expr->retvalSize);
+	print_prefix(prefixLen);
+	printf("retvalOffset: %d\n", expr->retvalOffset);
 }
 
 

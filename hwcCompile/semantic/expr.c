@@ -26,6 +26,8 @@ void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
 	fr_copy   (&output->fr, &input->fr);
 	sizes_init(&output->sizes);
 	sizes_init(&output->offsets);
+	output->retvalSize = -1;
+	output->retvalOffset = -1;
  
 	output->mode = input->mode;
 	switch(input->mode)
@@ -164,7 +166,6 @@ int semPhase30_expr(HWC_Expr *currExpr)
 
 	// these defaults are overridden as necessary, below
 	sizes_set_zero(&currExpr->sizes);
-	currExpr->retvalBits = -1;
 
 	switch(currExpr->mode)
 	{
@@ -184,12 +185,16 @@ int semPhase30_expr(HWC_Expr *currExpr)
 		break;
 
 	case EXPR_IDENT:
+		// an IDENT expression doesn't consume any new wiring diagram
+		// components - although it will *return* something of
+		// nonzero size.
 		sizes_set_zero(&currExpr->sizes);
 
 // TODO: assert that the decl *MUST* have already run phase 30
-		currExpr->retvalBits = currExpr->decl->sizes.bits;
+
+		currExpr->retvalSize = currExpr->decl->sizes.bits;
 		if (currExpr->decl->isMem)
-			currExpr->retvalBits /= 2;
+			currExpr->retvalSize /= 2;
 		break;
 
 	case EXPR_NUM:
@@ -223,8 +228,8 @@ assert(0);
 
 		// sanity check that the expression has nonzero size.  Copy
 		// that into our expression.
-		assert(currExpr->exprA->retvalBits > 0);
-		currExpr->retvalBits = currExpr->exprA->retvalBits;
+		assert(currExpr->exprA->retvalSize > 0);
+		currExpr->retvalSize   = currExpr->exprA->retvalSize;
 
 		// first, copy in the sizes from the underlying expression,
 		// since it might include many logical operators and bits used
@@ -234,7 +239,7 @@ assert(0);
 		// then, add one additional logical operator for the NOT, and
 		// space for it to write out its results.
 		currExpr->sizes.logicOps++;
-		currExpr->sizes.bits += currExpr->exprA->retvalBits;
+		currExpr->sizes.bits += currExpr->exprA->retvalSize;
 		break;
 
 	case EXPR_DOT:
@@ -258,7 +263,7 @@ assert(0);
 
 
 
-int semPhase35_expr(HWC_Expr *currExpr)
+int semPhase35_expr(HWC_Expr *currExpr, int isLHS)
 {
 	int retval = 0;
 
@@ -283,6 +288,15 @@ int semPhase35_expr(HWC_Expr *currExpr)
 		break;
 
 	case EXPR_IDENT:
+
+// TODO: assert that the decl *MUST* have already run phase 35
+
+		currExpr->retvalOffset = currExpr->decl->offsets.bits;
+
+		if (currExpr->decl->isMem && isLHS)
+			currExpr->retvalOffset += currExpr->retvalSize;
+		break;
+
 	case EXPR_NUM:
 	case EXPR_BOOL:
 		break;
@@ -310,8 +324,23 @@ assert(0);
 		break;
 
 	case EXPR_NOT:
-		sizes_copy(&currExpr->exprA->offsets, &currExpr->offsets);
-		semPhase35_expr(currExpr->exprA);
+		// At first, it seemed desirable to have the output from this
+		// operator come *AFTER* (in the offsets) any components in the
+		// sub-expression.  But then I realized that the wiring diagram
+		// generator is going to use the offset (of this expression) as
+		// the position of the output from this operator.
+		//
+		// We cannot advance our offest beyond our sub-expressions,
+		// since our convention is that the offset of any object, plus
+		// its size, is equal the offset of the next, and thus we have
+		// to say that the output from this expression comes *before*
+		// the offset of any subexpression.
+
+		currExpr->retvalOffset = currExpr->offsets.bits;
+
+		sizes_add(&currExpr->exprA->offsets,
+		          &currExpr->offsets, &currExpr->sizes);
+		semPhase35_expr(currExpr->exprA, 0);
 		break;
 
 	case EXPR_DOT:

@@ -44,7 +44,15 @@ struct HWC_Expr
 	 *
 	 *       This field stores that information.
 	 */
-	int retvalBits;
+	int retvalSize;
+
+	/* similarly, the retval has a *position* which is distinct from "the
+	 * position in the bit space where the next sub-component will
+	 * allocate its output;" in fact, for some expressions (such as
+	 * IDENT), this may be entirely dependent on a decl in a *totally
+	 * different* part of the virtual space.
+	 */
+	int retvalOffset;
 
 
 	int mode;

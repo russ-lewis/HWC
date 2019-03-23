@@ -23,7 +23,7 @@ typedef struct HWC_Expr     HWC_Expr;
 int semPhase35_part    (HWC_Part     *part);
 int semPhase35_plugtype(HWC_PlugType *plugtype);
 int semPhase35_stmt    (HWC_Stmt     *stmt);
-int semPhase35_expr    (HWC_Expr     *expr);
+int semPhase35_expr    (HWC_Expr     *expr, int isLHS);
 
 
 #endif

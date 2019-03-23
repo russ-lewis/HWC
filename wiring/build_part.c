@@ -53,14 +53,10 @@ HWC_Wiring *buildWiringDiagram(HWC_Part *part)
 
 	findPart(retval, part, &memoryFound, &logicFound, &connectFound, &assertFound);
 
-	if(memoryFound  != part->sizes.memoryObjs)
-		assert(0);
-	if(logicFound   != part->sizes.logicOps)
-		assert(0);
-	if(connectFound != part->sizes.conns)
-		assert(0);
-	if(assertFound  != part->sizes.asserts)
-		assert(0);
+	assert(memoryFound  == part->sizes.memoryObjs);
+	assert(logicFound   == part->sizes.logicOps);
+	assert(connectFound == part->sizes.conns);
+	assert(assertFound  == part->sizes.asserts);
 
 	return retval;
 }
@@ -211,26 +207,47 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 {
 	int i;
-	// TODO: MAKE THESE AND OTHER DECLARATIONS LIKE THIS INTO POINTERS
-	HWC_Stmt currStmt;
+
+	HWC_Stmt *currStmt;
 	for(i = 0; i < part->stmts_len; i++)
 	{
-		currStmt = part->stmts[i];
+		currStmt = &part->stmts[i];
 
 		// TODO: Add code to do IF, FOR, and other BLOCK stmts.
 		// TODO: Remember, for conditionals, do WIRING_BIT_INVALID +1 or something
 
-		if(currStmt.mode == STMT_CONN)
+		switch(currStmt->mode)
 		{
-			// TODO: Correct value?
-			connect[index].size = 1;
-			// TODO: Fair assumption that we only need to check this? Since we're not doing arrays right now, I think it's alright?
-			connect[index].to   = currStmt.exprA->offsets.bits;
-			connect[index].from = currStmt.exprB->offsets.bits;
+		default:
+			assert(0);   // invalid statement type
+
+		case STMT_DECL:
+			break;    // NOP
+
+		case STMT_CONN:
+			connect[index].size = currStmt->exprA->retvalSize;
+			connect[index].to   = currStmt->exprA->retvalOffset;
+			connect[index].from = currStmt->exprB->retvalOffset;
 			connect[index].condition = WIRING_BIT_INVALID;
 			connect[index].isUndir = 1;
 			connect[index].debug = NULL;
 			index++;
+			break;
+
+		case STMT_IF:
+			assert(0);
+			break;
+
+		case STMT_FOR:
+			assert(0);
+			break;
+
+		case STMT_BLOCK:
+			assert(0);
+			break;
+
+		case STMT_ASRT:
+			break;    // NOP
 		}
 	}
 

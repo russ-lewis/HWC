@@ -175,6 +175,7 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 int semPhase30_stmt(HWC_Stmt *currStmt)
 {
 	int retval = 0;
+	int i;
 
 	sizes_set_zero(&currStmt->sizes);
 
@@ -189,11 +190,11 @@ int semPhase30_stmt(HWC_Stmt *currStmt)
 		break;
 
 	case STMT_BLOCK:
-assert(0);  // TODO
-#if 0
-		for(i = 0; i < currStmt->sizeA; i++)
-			retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
-#endif
+		for(i=0; i < currStmt->sizeA; i++)
+		{
+			retval += semPhase30_stmt(&currStmt->stmtA[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtA[i].sizes);
+		}
 		break;
 
 	case STMT_CONN:
@@ -206,10 +207,13 @@ assert(0);  // TODO
 		// this should be enforced earlier, by double-checking that
 		// they are both the same type.
 		if (retval == 0)
-			assert(currStmt->exprA->retvalBits == currStmt->exprB->retvalBits);
+			assert(currStmt->exprA->retvalSize == currStmt->exprB->retvalSize);
 
 		sizes_add(&currStmt->sizes,
 		          &currStmt->exprA->sizes, &currStmt->exprB->sizes);
+
+		// add in a connection component to the total size
+		currStmt->sizes.conns++;
 		break;
 
 	case STMT_FOR:
@@ -228,15 +232,20 @@ assert(0);   // TODO
 		break;
 
 	case STMT_IF:
-assert(0);   // TODO
-#if 0
-		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+		retval += semPhase30_expr(currStmt->exprA);
+		sizes_copy(&currStmt->sizes, &currStmt->exprA->sizes);
 
 		for(i = 0; i < currStmt->sizeA; i++)
-			retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
+		{
+			retval += semPhase30_stmt(&currStmt->stmtA[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtA[i].sizes);
+		}
+
 		for(i = 0; i < currStmt->sizeB; i++)
-			retval += findStmtSize(currStmt->stmtB +i, currOffset, numConn, numLogic, numAssert);
-#endif
+		{
+			retval += semPhase30_stmt(&currStmt->stmtB[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtB[i].sizes);
+		}
 		break;
 
 	case STMT_ASRT:
@@ -284,11 +293,11 @@ assert(0);  // TODO
 		// exprB: rhs
 
 		sizes_copy(&currStmt->exprA->offsets, &currStmt->offsets);
-		retval  = semPhase35_expr(currStmt->exprA);
+		retval  = semPhase35_expr(currStmt->exprA, 1);
 
 		sizes_add(&currStmt->exprB->offsets,
 		          &currStmt->exprA->offsets, &currStmt->exprA->sizes);
-		retval += semPhase35_expr(currStmt->exprB);
+		retval += semPhase35_expr(currStmt->exprB, 0);
 		break;
 
 	case STMT_FOR:

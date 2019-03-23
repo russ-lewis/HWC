@@ -49,11 +49,11 @@ int semPhase30_plugtype(HWC_PlugType *plugtype)
 		assert(&plugtype->decls[i].sizes.bits >= 0);
 		plugtype->sizeBits += plugtype->decls[i].sizes.bits;
 
-		assert(&plugtype->decls[i].sizes.memBits    == 0);
-		assert(&plugtype->decls[i].sizes.conns      == 0);
-		assert(&plugtype->decls[i].sizes.memoryObjs == 0);
-		assert(&plugtype->decls[i].sizes.logicOps   == 0);
-		assert(&plugtype->decls[i].sizes.asserts    == 0);
+		assert(plugtype->decls[i].sizes.memBits    == 0);
+		assert(plugtype->decls[i].sizes.conns      == 0);
+		assert(plugtype->decls[i].sizes.memoryObjs == 0);
+		assert(plugtype->decls[i].sizes.logicOps   == 0);
+		assert(plugtype->decls[i].sizes.asserts    == 0);
 	}
 
 
