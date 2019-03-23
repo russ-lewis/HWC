@@ -25,9 +25,7 @@ TODO: decl_dump() marker 6
 TODO: decl_dump() marker 8
           offsets: bits=32 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
           sizes:   bits=32 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
-    decls: len=2
-      [0]
-      [1]
+    decls_len=2
     sizeBits: 64
   name: Bar
     --- Part ---

@@ -281,11 +281,21 @@ int semPhase35_stmt(HWC_Stmt *currStmt)
 		break;
 
 	case STMT_BLOCK:
-assert(0);  // TODO
-#if 0
-		for(i = 0; i < currStmt->sizeA; i++)
-			retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
-#endif
+		if (currStmt->sizeA > 0)
+		{
+			sizes_copy(&currStmt->stmtA[0].offsets,
+			           &currStmt->offsets);
+			retval += semPhase35_stmt(&currStmt->stmtA[0]);
+
+			int i;
+			for(i=1; i < currStmt->sizeA; i++)
+			{
+				sizes_add(&currStmt->stmtA[i].offsets,
+				          &currStmt->stmtA[i-1].offsets,
+				          &currStmt->stmtA[i-1].sizes);
+				retval += semPhase35_stmt(&currStmt->stmtA[i]);
+			}
+		}
 		break;
 
 	case STMT_CONN:

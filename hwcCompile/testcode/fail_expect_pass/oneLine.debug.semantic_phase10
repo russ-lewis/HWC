@@ -92,10 +92,7 @@ TODO: STMT_IF
           expr: <TODO>
           offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-    decls: len=3
-      [0]
-      [1]
-      [2]
+    decls_len=3
     sizeBits: -1
 
 rc=0

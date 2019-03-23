@@ -187,21 +187,7 @@ void plugtype_dump(HWC_PlugType *plugtype, int prefixLen)
 	nameScope_dump(plugtype->publicNames, prefixLen+2);
 
 	print_prefix(prefixLen);
-	printf("decls: len=%d\n", plugtype->decls_len);
-
-	int i;
-	for (i=0; i<plugtype->decls_len; i++)
-	{
-		print_prefix(prefixLen+2);
-		printf("[%d]\n", i);
-
-		if (plugtype->decls == NULL)
-		{
-			print_prefix(prefixLen+4);
-			printf("<plugtype->decls is NULL>\n");
-			continue;
-		}
-	}
+	printf("decls_len=%d\n", plugtype->decls_len);
 
 	print_prefix(prefixLen);
 	printf("sizeBits: %d\n", plugtype->sizeBits);

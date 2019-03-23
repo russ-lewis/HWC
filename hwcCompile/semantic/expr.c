@@ -2,7 +2,10 @@
 #include <malloc.h>
 #include <assert.h>
 
-#include "expr.h"
+#include "semantic/expr.h"
+
+#include "semantic/part.h"
+#include "semantic/plugtype.h"
 
 /*
 Converts PT exprs into HWC exprs. What a good function name.
@@ -115,7 +118,7 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 				        currExpr->fr.filename,
 				        currExpr->fr.s.l, currExpr->fr.s.c,
 				        currExpr->name);
-				retval++;
+				return 1;
 			}
 			// If the name doesn't correspond to a declaration.
 			else if(currName->decl == NULL)
@@ -124,15 +127,20 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 				        currExpr->fr.filename,
 				        currExpr->fr.s.l, currExpr->fr.s.c,
 				        currExpr->name);
-				retval++;
+				return 1;
 			}
-			else
-				currExpr->decl = currName->decl;
+
+			// save the decl for later.  We'll use this, later, to
+			// figure out the exact size and position of this
+			// expression's retval.
+			currExpr->decl = currName->decl;
 			break;
+
 		case(EXPR_BOOL):
 			// TODO: NOP?
 			assert(0);
 			break;
+
 		case(EXPR_TWOOP):
 			// TODO: Anything to do with "currExpr->value" here?
 			retval += checkExprName(currExpr->exprA, currScope);
@@ -144,9 +152,53 @@ int checkExprName(HWC_Expr *currExpr, HWC_NameScope *currScope)
 		case(EXPR_NOT):
 			retval += checkExprName(currExpr->exprA, currScope);
 			break;
-		case(EXPR_DOT):
+
+		case EXPR_DOT:
 			retval += checkExprName(currExpr->exprA, currScope);
+
+			// look up the .field name in the *public* names of
+			// the base expression.
+
+			// TODO: refactor the expression to be more general;
+			//       we should support part instances and plugs
+			//       as value types, and then use those as the
+			//       base of this lookup.
+
+			assert(currExpr->exprA->decl != NULL);
+
+			if (currExpr->exprA->decl->base_plugType != NULL)
+				currScope = currExpr->exprA->decl->base_plugType->publicNames;
+			else if (currExpr->exprA->decl->base_part != NULL)
+				currScope = currExpr->exprA->decl->base_part->publicNames;
+			else
+				assert(0);   // should be impossible
+
+			// now that we've found the right scope, perform the
+			// lookup
+			currName = nameScope_search(currScope, currExpr->field);
+
+			// was the name not found?  Report that to the user.
+			if(currName == NULL)
+			{
+				fprintf(stderr, "%s:%d:%d: Symbol '%s' does not exist.\n",
+				        currExpr->fr.filename,
+				        currExpr->fr.s.l, currExpr->fr.s.c,
+				        currExpr->name);
+				retval++;
+			}
+			// was the name valid, but not point to a declaration?  Is that even possible????
+			else if(currName->decl == NULL)
+			{
+				fprintf(stderr, "%s:%d:%d: Symbol '%s' has a NULL 'decl' pointer.  TODO: what does this mean?\n",
+				        currExpr->fr.filename,
+				        currExpr->fr.s.l, currExpr->fr.s.c,
+				        currExpr->name);
+				retval++;
+			}
+			else
+				currExpr->decl = currName->decl;
 			break;
+
 		case(EXPR_ARR):
 			retval += checkExprName(currExpr->exprA, currScope);
 			retval += checkExprName(currExpr->exprB, currScope);
@@ -202,16 +254,25 @@ int semPhase30_expr(HWC_Expr *currExpr)
 		break;
 
 	case EXPR_TWOOP:
-assert(0);
-#if 0
-		// TODO: Anything to do with "currExpr->value" here?
-		// TODO: numLogic might not want to be incremented for every value
-		currExpr->offsets.bits = *numLogic;
-		*numLogic += 1;
-		retval += 1;
-		retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
-		retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
-#endif
+		retval += semPhase30_expr(currExpr->exprA);
+		retval += semPhase30_expr(currExpr->exprB);
+
+		// the total size is the sizes of the two expressions, plus
+		// the logical operator, plus space to store the result.
+		sizes_add(&currExpr->sizes,
+		          &currExpr->exprA->sizes, &currExpr->exprB->sizes);
+
+		currExpr->sizes.logicOps++;
+
+		switch(currExpr->value)
+		{
+		default:
+			assert(0);   // TODO: implement the rest
+
+		case OP_EQUALS:
+			currExpr->sizes.bits++;
+			break;
+		}
 		break;
 
 	case EXPR_BITNOT:
@@ -243,18 +304,29 @@ assert(0);
 		break;
 
 	case EXPR_DOT:
-assert(0);
-#if 0
-		retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
-#endif
+		retval += semPhase30_expr(currExpr->exprA);
+
+		// the size (consumption) of the expression is the same as the
+		// base expression size.  But the size (retval) of the
+		// expression is found by doing a lookup into the names of
+		// the base expression.
+		sizes_copy(&currExpr->sizes, &currExpr->exprA->sizes);
+
+		// the size of the new expression is determined by the type
+		// associated with this decl.  The offset (figured out in
+		// phase 35) is the offset of the base expression *plus* the
+		// offset of this decl.
+		assert(currExpr->exprA->retvalSize >= 0);
+		currExpr->retvalSize = currExpr->exprA->retvalSize;
+
 		break;
 
 	case EXPR_ARR:
-assert(0);
-#if 0
-		retval += findExprSize(currExpr->exprA, currOffset, numLogic, isLeft);
-		retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
-#endif
+		retval += semPhase30_expr(currExpr->exprA);
+		retval += semPhase30_expr(currExpr->exprB);
+
+		sizes_add(&currExpr->sizes,
+		          &currExpr->exprA->sizes, &currExpr->exprB->sizes);
 		break;
 	}
 

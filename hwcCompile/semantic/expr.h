@@ -57,11 +57,13 @@ struct HWC_Expr
 
 	int mode;
 
+#if 0
 	/* EXPR_PLUG */
 	HWC_Plug *plug;
 
 	/* EXPR_SUBCOMPONENT */
 	HWC_PartInstance *subcomponent;
+#endif
 
 	/* EXPR_IDENT     - uses name                     */
 	/* EXPR_NUM       - uses name                     */
