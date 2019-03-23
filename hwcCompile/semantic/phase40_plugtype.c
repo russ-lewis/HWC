@@ -1,32 +1,36 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "semantic/phase35.h"
 #include "semantic/phase40.h"
 
 
-int semPhase40_plugtype(HWC_PlugType *plugType)
+int semPhase40_plugtype(HWC_PlugType *plugtype)
 {
-	if (plugType->phases_completed >= 40)
+	if (plugtype->phases_completed >= 40)
 		return 0;
 
-	if (plugType->phases_begun >= 40)
+	if (plugtype->phases_begun >= 40)
 	{
 		/* report user error */
 		assert(0);
 	}
 
-	if (plugType->phases_completed < 30)
+	if (plugtype->phases_completed < 35)
 	{
-		int rc = semPhase30_plugtype(plugType);
+		int rc = semPhase35_plugtype(plugtype);
 		if (rc != 0)
 			return rc;
 	}
 
-	if (plugType->phases_completed >= 40)
+	if (plugtype->phases_completed >= 40)
 		return 0;
 
+	plugtype->phases_begun = 40;
+
+
 	// TODO: For now, we skip phase40, out of consideration for time
-	plugType->phases_completed = 40;
+	plugtype->phases_completed = 40;
 	return 0;
 }
 

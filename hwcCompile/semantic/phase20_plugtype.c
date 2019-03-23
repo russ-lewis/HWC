@@ -19,11 +19,11 @@ HWC_PlugType BitType = {
 
 
 /*
-Performs phase 20 on the given part.
-To be specific, convert all "name"/"char *" variables into pointers to other HWC structs.
-
-Returns how many errors were found during this function.
-*/
+ * Performs phase 20 on the given part.
+ * To be specific, convert all "name"/"char *" variables into pointers to other HWC structs.
+ *
+ * Returns how many errors were found during this function.
+ */
 int semPhase20_plugtype(HWC_PlugType *plugtype)
 {
 	/* phase 1 is executed right at the beginning, when we are doing
@@ -52,6 +52,9 @@ int semPhase20_plugtype(HWC_PlugType *plugtype)
 	 */
 	if (plugtype->phases_completed >= 20)
 		return 0;
+
+	plugtype->phases_begun = 20;
+
 
 	HWC_Decl *currDecl;
 	int i;

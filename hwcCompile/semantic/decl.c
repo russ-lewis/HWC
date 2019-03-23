@@ -287,73 +287,39 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 }
 
 
-/*
- * TODO: Add header comment
- * Include that, by this point, we know either base_part or base_plugType should be filled in
- *    - isWithinPlug == 1 if the decl is within a plugtype, 0 if not.
- */
-int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
+
+int semPhase30_decl(HWC_Decl *input, int isWithinPlug)
 {
-	int multiplier = 1;
+	sizes_set_zero(&input->sizes);
 
-	if(input->isMem == 1)
-	{
-		input->offsets.memoryObjs = *numMemory;
-		*numMemory += 1;
-
-		multiplier *= 2;
-	}
-
-	if (input->expr != NULL)
-	{
-		// this is an array declaration
-		int retval = semPhase20_expr(input->expr);
-			assert(retval == 0);  // TODO: refactor the retval from this function as an error report
-
-		if (input->expr->val.type != EXPR_VALTYPE_INT)
-			assert(0);  // TODO: turn this into a user error message
-
-		if (input->expr->val.intVal < 0)
-			assert(0);  // TODO: add syntax error message
-
-		if (input->expr->val.intVal == 0)
-			assert(0);  // TODO: how do we want to handle this?  Is it legal or not?
-
-		multiplier *= input->expr->val.intVal;
-	}
+	/* base size.  This will be multiplied, in some cases that follow */
 
 	if(input->base_plugType != NULL)
 	{
-		// TODO: Fix inconsistent capitalization
-
 		int retval = semPhase30_plugtype(input->base_plugType);
 		if (retval != 0)
-			assert(0);  // TODO: refactor the retval from this function as an error report
+			return retval;
 
 		assert(input->base_plugType->sizeBits != -1);
 
-		// TODO: copy the size into our declaration, instead of
-		//       returning the size, so that we can refactor the
-		//       retval as an error state.
-		return input->base_plugType->sizeBits * multiplier;
+		sizes_set_zero(&input->sizes);
+		input->sizes.bits = input->base_plugType->sizeBits;
 	}
 	else if(input->base_part != NULL)
 	{
 		if(isWithinPlug == 1)
 		{
-			// Plugtypes cannot contain declarations which
-			// reference part types.
-
-			// TODO: is this a syntax error, or a parser logical error?  I think it's a logical error, because the syntax error is reported earlier, but I need to confirm that.
-			assert(0);
+			fprintf(stderr, "%s:%d:%d: Part included as a field in a plugtype.  (Plugtypes can only include other plugtypes as fields.)\n",
+			        input->expr->fr.filename,
+			        input->expr->fr.s.l, input->expr->fr.s.c);
 		}
 		else
 		{
 			int retval = semPhase30_part(input->base_part);
 			if (retval != 0)
-				assert(0);  // TODO: see comments in the plugType block
+				return retval;
 
-			return input->base_part->sizes.bits * multiplier;
+			sizes_copy(&input->sizes, &input->base_part->sizes);
 		}
 	}
 	else
@@ -363,8 +329,63 @@ int findDeclSize(HWC_Decl *input, int isWithinPlug, int *numMemory)
 	}
 
 
-	// TODO: when we refactor this function to return error state
-	//       instead of size, this will change
-	assert(0);
-	return -1;
+	/* now that the base size is determined, we'll check to see if this
+	 * is memory and/or an array, since those require special handling.
+	 * Note that we need to handle the array case first, just in case
+	 * we have an array memory cell.
+	 */
+
+	if (input->expr != NULL)
+	{
+		// this is an array declaration
+		int retval = semPhase20_expr(input->expr);
+		if (retval != 0)
+			return retval;
+
+		if (input->expr->val.type != EXPR_VALTYPE_INT)
+		{
+			fprintf(stderr, "%s:%d:%d: Expression does not resolve to an compile-time integer.\n",
+			        input->expr->fr.filename,
+			        input->expr->fr.s.l, input->expr->fr.s.c);
+		}
+
+		if (input->expr->val.intVal < 0)
+		{
+			fprintf(stderr, "%s:%d:%d: Array size was negative (size=%d)\n",
+			        input->expr->fr.filename,
+			        input->expr->fr.s.l, input->expr->fr.s.c,
+			        input->expr->val.intVal);
+		}
+
+		if (input->expr->val.intVal == 0)
+		{
+			fprintf(stderr, "%s:%d:%d: Array size was zero.\n",
+			        input->expr->fr.filename,
+			        input->expr->fr.s.l, input->expr->fr.s.c);
+		}
+
+		input->sizes.bits *= input->expr->val.intVal;
+	}
+
+	/* if memory, then double the size.  Also, allocate a memory object,
+	 * and space in the memBits.
+	 */
+	if(input->isMem == 1)
+	{
+		/* memory should never be possible if the underlying type is
+		 * a part.  And plugtypes should never have sizes in anything
+		 * other than bits.
+		 */
+		assert(input->base_plugType != NULL);
+		assert(input->sizes.memoryObjs == 0);
+		assert(input->sizes.memBits    == 0);
+
+		input->sizes.memoryObjs = 1;
+		input->sizes.memBits    = input->sizes.bits;
+
+		input->sizes.bits *= 2;
+	}
+
+
+	return 0;
 }

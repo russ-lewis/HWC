@@ -32,13 +32,38 @@ struct HWC_Expr
 	FileRange fr;
 	HWC_Sizes sizes,offsets;    // see long description in semantic/sizes.h
 
+	/* NOTE: the 'sizes','offsets' fields above talk about *consumption*
+	 *       of resources.  This is *NOT* the same as the size of the
+	 *       retval.
+	 *
+	 *       For example, consider a huge, complex network of binary
+	 *       operators; they consume many,many bits in the virtual space,
+	 *       to store the various temporaries (not to mention many logical
+	 *       operators).  But they might only produce a *single* bit of
+	 *       returned data when evaluated.
+	 *
+	 *       This field stores that information.
+	 */
+	int retvalSize;
+
+	/* similarly, the retval has a *position* which is distinct from "the
+	 * position in the bit space where the next sub-component will
+	 * allocate its output;" in fact, for some expressions (such as
+	 * IDENT), this may be entirely dependent on a decl in a *totally
+	 * different* part of the virtual space.
+	 */
+	int retvalOffset;
+
+
 	int mode;
 
+#if 0
 	/* EXPR_PLUG */
 	HWC_Plug *plug;
 
 	/* EXPR_SUBCOMPONENT */
 	HWC_PartInstance *subcomponent;
+#endif
 
 	/* EXPR_IDENT     - uses name                     */
 	/* EXPR_NUM       - uses name                     */
@@ -75,6 +100,8 @@ struct HWC_Expr
 void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output);
 int checkExprName(HWC_Expr *, HWC_NameScope *);
 int findExprSize(HWC_Expr *, int *offset, int *logic, int isLeft);
+
+void expr_dump(HWC_Expr*, int prefixLen);
 
 #endif
 

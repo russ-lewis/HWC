@@ -193,6 +193,14 @@ static inline int sizes_are_ready(HWC_Sizes *obj)
 	       obj->asserts    >= 0;
 }
 
+static inline void sizes_copy(HWC_Sizes *dst, HWC_Sizes *src)
+{
+	assert(dst != NULL);
+	assert(sizes_are_ready(src));
+
+	memcpy(dst,src, sizeof(*dst));
+}
+
 static inline void sizes_add(HWC_Sizes *dst,
                              HWC_Sizes *src1, HWC_Sizes *src2)
 {
@@ -206,6 +214,11 @@ static inline void sizes_add(HWC_Sizes *dst,
 	dst->memoryObjs = src1->memoryObjs + src2->memoryObjs;
 	dst->logicOps   = src1->logicOps   + src2->logicOps;
 	dst->asserts    = src1->asserts    + src2->asserts;
+}
+
+static inline void sizes_inc(HWC_Sizes *dst, HWC_Sizes *more)
+{
+	sizes_add(dst, dst,more);
 }
 
 static inline void sizes_multiply(HWC_Sizes *dst,

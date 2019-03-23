@@ -3,7 +3,10 @@
 #include <assert.h>
 #include <malloc.h>
 
-#include "stmt.h"
+#include "semantic/phase30.h"
+#include "semantic/phase35.h"
+
+#include "semantic/stmt.h"
 
 #include "wiring/fileRange.h"
 
@@ -168,61 +171,182 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 }
 
 
-/*
-TODO: Add header comment
-*/
-int findStmtSize(HWC_Stmt *currStmt, int *currOffset, int *numConn, int *numLogic, int *numAssert)
+
+int semPhase30_stmt(HWC_Stmt *currStmt)
 {
 	int retval = 0;
 	int i;
 
-	// TODO: Fix all of this, offsets should not be dependent on numConns
+	sizes_set_zero(&currStmt->sizes);
+
 	switch(currStmt->mode)
 	{
-		default:
-			assert(0); // TODO: Potentially better error message?
-			break;
-		case STMT_DECL:
-			// NOP, but keeping case here for symmetry
-			break;
-		case STMT_BLOCK:
-			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
-			break;
-		case STMT_CONN:
-			// TODO:
-			// left  hand side of connection stmt should use mem write of memory cell
-			// right hand side of connection stmt should use mem read  of memory cell
-			currStmt->offsets.conns = *numConn;
-			*numConn += 1;
-			retval += findExprSize(currStmt->exprA, currOffset, numLogic, 1);
-			retval += findExprSize(currStmt->exprB, currOffset, numLogic, 0);
-			break;
-		case STMT_FOR:
-			// Since FOR initializes a variable, we add that to size.
-			// TODO: Is this the correct amount to add? The spec specifies for-loops use integers.
-			retval += 8;
+	default:
+		assert(0); // TODO: Potentially better error message?
+		break;
 
-			retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
-			retval += findExprSize(currStmt->exprB, currOffset, numLogic, 0);
+	case STMT_DECL:
+		// NOP, but keeping case here for symmetry
+		break;
 
-			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
-			break;
-		case STMT_IF:
-			retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+	case STMT_BLOCK:
+		for(i=0; i < currStmt->sizeA; i++)
+		{
+			retval += semPhase30_stmt(&currStmt->stmtA[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtA[i].sizes);
+		}
+		break;
 
-			for(i = 0; i < currStmt->sizeA; i++)
-				retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
-			for(i = 0; i < currStmt->sizeB; i++)
-				retval += findStmtSize(currStmt->stmtB +i, currOffset, numConn, numLogic, numAssert);
-			break;
-		case STMT_ASRT:
-			currStmt->offsets.bits = *numAssert;
-			*numAssert += 1;
-			retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
-			break;
+	case STMT_CONN:
+		// exprA: lhs
+		// exprB: rhs
+
+		retval  = semPhase30_expr(currStmt->exprA);
+		retval += semPhase30_expr(currStmt->exprB);
+
+		// this should be enforced earlier, by double-checking that
+		// they are both the same type.
+		if (retval == 0)
+			assert(currStmt->exprA->retvalSize == currStmt->exprB->retvalSize);
+
+		sizes_add(&currStmt->sizes,
+		          &currStmt->exprA->sizes, &currStmt->exprB->sizes);
+
+		// add in a connection component to the total size
+		currStmt->sizes.conns++;
+		break;
+
+	case STMT_FOR:
+assert(0);   // TODO
+#if 0
+		// Since FOR initializes a variable, we add that to size.
+		// TODO: Is this the correct amount to add? The spec specifies for-loops use integers.
+		retval += 8;
+
+		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+		retval += findExprSize(currStmt->exprB, currOffset, numLogic, 0);
+
+		for(i = 0; i < currStmt->sizeA; i++)
+			retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
+#endif
+		break;
+
+	case STMT_IF:
+		retval += semPhase30_expr(currStmt->exprA);
+		sizes_copy(&currStmt->sizes, &currStmt->exprA->sizes);
+
+		for(i = 0; i < currStmt->sizeA; i++)
+		{
+			retval += semPhase30_stmt(&currStmt->stmtA[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtA[i].sizes);
+		}
+
+		for(i = 0; i < currStmt->sizeB; i++)
+		{
+			retval += semPhase30_stmt(&currStmt->stmtB[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtB[i].sizes);
+		}
+		break;
+
+	case STMT_ASRT:
+assert(0);   // TODO
+#if 0
+		currStmt->offsets.bits = *numAssert;
+		*numAssert += 1;
+		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+#endif
+		break;
 	}
 
 	return retval;
 }
+
+
+
+int semPhase35_stmt(HWC_Stmt *currStmt)
+{
+	int retval = 0;
+
+	/* the caller has initialized the offset */
+	assert(sizes_are_ready(&currStmt->offsets));
+
+	switch(currStmt->mode)
+	{
+	default:
+		assert(0); // TODO: Potentially better error message?
+		break;
+
+	case STMT_DECL:
+		// NOP, but keeping case here for symmetry
+		break;
+
+	case STMT_BLOCK:
+		if (currStmt->sizeA > 0)
+		{
+			sizes_copy(&currStmt->stmtA[0].offsets,
+			           &currStmt->offsets);
+			retval += semPhase35_stmt(&currStmt->stmtA[0]);
+
+			int i;
+			for(i=1; i < currStmt->sizeA; i++)
+			{
+				sizes_add(&currStmt->stmtA[i].offsets,
+				          &currStmt->stmtA[i-1].offsets,
+				          &currStmt->stmtA[i-1].sizes);
+				retval += semPhase35_stmt(&currStmt->stmtA[i]);
+			}
+		}
+		break;
+
+	case STMT_CONN:
+		// exprA: lhs
+		// exprB: rhs
+
+		sizes_copy(&currStmt->exprA->offsets, &currStmt->offsets);
+		retval  = semPhase35_expr(currStmt->exprA, 1);
+
+		sizes_add(&currStmt->exprB->offsets,
+		          &currStmt->exprA->offsets, &currStmt->exprA->sizes);
+		retval += semPhase35_expr(currStmt->exprB, 0);
+		break;
+
+	case STMT_FOR:
+assert(0);   // TODO
+#if 0
+		// Since FOR initializes a variable, we add that to size.
+		// TODO: Is this the correct amount to add? The spec specifies for-loops use integers.
+		retval += 8;
+
+		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+		retval += findExprSize(currStmt->exprB, currOffset, numLogic, 0);
+
+		for(i = 0; i < currStmt->sizeA; i++)
+			retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
+#endif
+		break;
+
+	case STMT_IF:
+assert(0);   // TODO
+#if 0
+		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+
+		for(i = 0; i < currStmt->sizeA; i++)
+			retval += findStmtSize(currStmt->stmtA +i, currOffset, numConn, numLogic, numAssert);
+		for(i = 0; i < currStmt->sizeB; i++)
+			retval += findStmtSize(currStmt->stmtB +i, currOffset, numConn, numLogic, numAssert);
+#endif
+		break;
+
+	case STMT_ASRT:
+assert(0);   // TODO
+#if 0
+		currStmt->offsets.bits = *numAssert;
+		*numAssert += 1;
+		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
+#endif
+		break;
+	}
+
+	return retval;
+}
+

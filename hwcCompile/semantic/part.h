@@ -4,7 +4,7 @@
 
 #include "wiring/fileRange.h"
 #include "semantic/sizes.h"
-#include "names.h"
+#include "semantic/names.h"
 
 
 typedef struct HWC_Stmt HWC_Stmt;

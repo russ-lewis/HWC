@@ -4,7 +4,7 @@
  parent=<TODO>
   name: Foo
     --- PlugType ---
-    phases: begun 10 completed 40
+    phases: begun 40 completed 40
     publicNames:
       --- NameScope ---
       refcount=1
@@ -15,23 +15,21 @@
 TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=32 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
         name: y
           --- Decl ---
           type: EXPR_BIT_TYPE typeName: (null) isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
 TODO: decl_dump() marker 8
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=32 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-    decls: len=2
-      [0]
-      [1]
+          offsets: bits=32 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=32 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+    decls_len=2
     sizeBits: 64
   name: Bar
     --- Part ---
-    phases: begun 10 completed 40
+    phases: begun 40 completed 40
     publicNames:
       --- NameScope ---
       refcount=1
@@ -41,15 +39,15 @@ TODO: decl_dump() marker 8
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=64 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
         name: output
           --- Decl ---
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=64 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=64 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=64 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
     privateNames:
       --- NameScope ---
       refcount=1
@@ -59,29 +57,29 @@ TODO: decl_dump() marker 6
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=0 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=64 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
         name: output
           --- Decl ---
           type: EXPR_IDENT typeName: Foo isMem: 0
 TODO: decl_dump() marker 6
           expr: <TODO>
-          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
-          offsets: bits=64 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          offsets: bits=64 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+          sizes:   bits=64 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
     stmts: len=2
       [0]
         --- Stmt ---
         mode: STMT_DECL
-TODO: stmt_dump() marker 9
+        isPublic=0 isSubpart=0
+        offsets: bits=128 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+        sizes:   bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
       [1]
         --- Stmt ---
         mode: STMT_DECL
-TODO: stmt_dump() marker 9
-    decls: len=2
-      [0]
-TODO: part_dump() marker 5
-      [1]
-TODO: part_dump() marker 5
+        isPublic=0 isSubpart=0
+        offsets: bits=128 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+        sizes:   bits=0 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
+    decls_len=2
     sizes:   bits=128 memBits=0   conns=0 memoryObjs=0 logicOps=0 asserts=0
 
 rc=0
