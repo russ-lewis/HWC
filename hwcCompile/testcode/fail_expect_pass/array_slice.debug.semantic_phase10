@@ -138,7 +138,7 @@ TODO: expr_dump()
         rhs:
           --- Expr ---
           mode: EXPR_NUM
-          "0"
+          0
           offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
           retvalSize:   -1

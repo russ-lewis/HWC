@@ -5,6 +5,7 @@
 #include "decl.h"
 
 #include "semantic/part.h"
+#include "semantic/phase10.h"
 #include "semantic/phase20.h"
 
 #include "wiring/fileRange.h"
@@ -173,7 +174,10 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
 	// the base type and do the conversion
 	if(convert->mode == EXPR_ARR)
 	{
-		convertPTexprIntoHWCexpr(convert->indexExpr, &output->expr);
+		output->expr = phase10_expr(convert->indexExpr);
+		if (output->expr == NULL)
+			return 1;
+
 		convert = convert->arrayExpr;
 	}
 	else

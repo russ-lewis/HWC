@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <malloc.h>
 
+#include "semantic/phase10.h"
 #include "semantic/phase20.h"
 #include "semantic/phase30.h"
 #include "semantic/phase35.h"
@@ -66,27 +67,41 @@ int convertPTstmtIntoHWCstmt(PT_stmt *input, HWC_Stmt **output)
 				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->stmts, &currStmt->stmtA);
 				fprintf(stderr, "TODO: Decls within BLOCK stmts are not accounted for yet.\n");
 				break;
-			case STMT_CONN:
-				convertPTexprIntoHWCexpr(currPTstmt->lHand, &currStmt->exprA);
-				convertPTexprIntoHWCexpr(currPTstmt->rHand, &currStmt->exprB);
-				break;
-			case STMT_FOR:
-				// TODO: Should add to nameScope as well?
-				currStmt->name  = currPTstmt->forVar;
-				convertPTexprIntoHWCexpr(currPTstmt->forBegin, &currStmt->exprA);
-				convertPTexprIntoHWCexpr(currPTstmt->forEnd  , &currStmt->exprB);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, &currStmt->stmtA);
-				fprintf(stderr, "TODO: Decls within FOR stmts are not accounted for yet.\n");
-				break;
-			case STMT_IF:
-				convertPTexprIntoHWCexpr(currPTstmt->ifExpr, &currStmt->exprA);
-				currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, &currStmt->stmtA);
-				currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , &currStmt->stmtB);
-				fprintf(stderr, "TODO: Decls within IF stmts are not accounted for yet.\n");
-				break;
-			case STMT_ASRT:
-				convertPTexprIntoHWCexpr(currPTstmt->assertion, &currStmt->exprA);
-				break;
+
+		case STMT_CONN:
+			currStmt->exprA = phase10_expr(currPTstmt->lHand);
+			currStmt->exprB = phase10_expr(currPTstmt->rHand);
+
+			if (currStmt->exprA == NULL || currStmt->exprB == NULL)
+				assert(0);   // TODO: error handling
+			break;
+
+		case STMT_FOR:
+			// TODO: Should add to nameScope as well?
+			currStmt->name  = currPTstmt->forVar;
+
+			currStmt->exprA = phase10_expr(currPTstmt->forBegin);
+			currStmt->exprB = phase10_expr(currPTstmt->forEnd);
+			if (currStmt->exprA == NULL || currStmt->exprB == NULL)
+				assert(0);   // TODO: error handling
+
+			currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->forStmts, &currStmt->stmtA);
+			fprintf(stderr, "TODO: Decls within FOR stmts are not accounted for yet.\n");
+			break;
+
+		case STMT_IF:
+			currStmt->exprA = phase10_expr(currPTstmt->ifExpr);
+			if (currStmt->exprA == NULL)
+				assert(0);   // TODO: error handling
+
+			currStmt->sizeA = convertPTstmtIntoHWCstmt(currPTstmt->ifStmts, &currStmt->stmtA);
+			currStmt->sizeB = convertPTstmtIntoHWCstmt(currPTstmt->ifElse , &currStmt->stmtB);
+			fprintf(stderr, "TODO: Decls within IF stmts are not accounted for yet.\n");
+			break;
+
+		case STMT_ASRT:
+			currStmt->exprA = phase10_expr(currPTstmt->assertion);
+			break;
 		}
 
 		currPTstmt = currPTstmt->next;

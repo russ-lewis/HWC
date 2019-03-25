@@ -85,13 +85,13 @@ struct HWC_Expr
 	/* EXPR_BITNOT    - uses              exprA       */
 	/* EXPR_DOT       - uses              exprA,field */
 	/* EXPR_ARR       - uses              exprA,exprB */
-	/* EXPR_ARR_SLICE - uses              exprA,exprB */
+	/* EXPR_ARR_SLICE - uses              exprA,exprB,exprC */
 	/* EXPR_PAREN     - uses              exprA       */
 
 	char     *name; // Rewritten in Phase 20 to create decl
-	HWC_Decl *decl; // Points to decl that declared this expr
+	HWC_Decl *decl; // Points to decl that declared this expr   // TODO: remove me, move to val.plug.decl
 	int       twoOp;
-	HWC_Expr *exprA, *exprB;
+	HWC_Expr *exprA, *exprB, *exprC;
 
 	char *field;
 
@@ -118,14 +118,18 @@ struct HWC_Expr
 		union {
 			int  intVal;
 			int boolVal;
+
+			struct {
+				HWC_PlugType *base;
+				HWC_Expr     *arrLen;   // NULL if not an array
+
+				// this field used only for plug, not plugtype
+				HWC_Decl *decl;
+			} plug, plugtype;
 		};
 	} val;
 };
 
-
-
-/* TODO: replace this with semPhase10_*() */
-void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output);
 
 
 /* can be called in any phase *after* semPhase20_expr() has been

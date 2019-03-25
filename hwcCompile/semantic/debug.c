@@ -312,9 +312,13 @@ void expr_dump(HWC_Expr *expr, int prefixLen)
 		assert(0);  // invalid mode
 
 	case EXPR_IDENT:
-	case EXPR_NUM:
 		print_prefix(prefixLen);
 		printf("\"%s\"\n", expr->name);
+		break;
+
+	case EXPR_NUM:
+		print_prefix(prefixLen);
+		printf("%d\n", expr->val.intVal);
 		break;
 
 	case EXPR_BOOL:
@@ -351,6 +355,8 @@ void expr_dump(HWC_Expr *expr, int prefixLen)
 		printf("TODO: expr_dump()\n");
 		break;
 	}
+
+// TODO: print out the value structure!
 
 	print_prefix(prefixLen);
 	printf("offsets: ");

@@ -21,77 +21,139 @@ static int semPhase20_expr_twoOpValType(HWC_Expr *expr);
 
 
 /*
-Converts PT exprs into HWC exprs. What a good function name.
-
- - *input is a pointer to the PT_expr to convert
- - **output_out is a non-initialized HWC_Expr that this function will fill in
-
-Returns nothing, since all meaningful work is done upon **output_out
-*/
-void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output_out)
+ * phase10_expr() - See phase10.h
+ *
+ * Converts a PT expression into an HWC expression.  Returns the
+ * newly-malloc'ed expression, or NULL on error.  In the error case, this
+ * function will print out an error message; the caller should not print
+ * out anything.
+ */
+HWC_Expr *phase10_expr(PT_expr *input)
 {
 	assert(input != NULL);
 
-	HWC_Expr *output = malloc(sizeof(HWC_Expr));
-	if(output == NULL)
-	{
+	HWC_Expr *retval = malloc(sizeof(HWC_Expr));
+	if (retval == NULL)
 		assert(0); // TODO: Better error message?
-	}
-	*output_out = output;
+	memset(retval, 0, sizeof(*retval));
 
-	fr_copy   (&output->fr, &input->fr);
-	sizes_init(&output->sizes);
-	sizes_init(&output->offsets);
-	output->retvalSize = -1;
-	output->retvalOffset = -1;
+	fr_copy   (&retval->fr, &input->fr);
+	sizes_init(&retval->sizes);
+	sizes_init(&retval->offsets);
+	retval->retvalSize = -1;
+	retval->retvalOffset = -1;
  
-	output->mode = input->mode;
+	retval->mode = input->mode;
 	switch(input->mode)
 	{
 	default:
+		printf("%d\n", input->mode);   fflush(NULL);
 		assert(0);    // invalid expression type
 
-		case(EXPR_IDENT):
-			output->name  = input->name;
-			break;
+	case EXPR_IDENT:
+		retval->name = input->name;
+		break;
 
 	case EXPR_NUM:
-		output->val.type = EXPR_VALTYPE_INT;
+		retval->val.type = EXPR_VALTYPE_INT;
 
 		if (input->num[0] == '0' && input->num[1] == 'x')
 			assert(0);    // TODO: handle hex
 		else
-			output->val.intVal = atoi(input->num);
+			retval->val.intVal = atoi(input->num);
 
-		output->val.ready = 1;
+		retval->val.ready = 1;
 		break;
 
 	case EXPR_BOOL:
-		output->val.type = EXPR_VALTYPE_BOOL;
-		output->val.boolVal = input->value;
-		output->val.ready = 1;
+		retval->val.type = EXPR_VALTYPE_BOOL;
+		retval->val.boolVal = input->value;
+		retval->val.ready = 1;
 		break;
 
-		case(EXPR_TWOOP):
-			output->twoOp = input->opMode;
-			convertPTexprIntoHWCexpr(input->lHand, &output->exprA);
-			convertPTexprIntoHWCexpr(input->rHand, &output->exprB);
-			break;
-		case(EXPR_BITNOT):
-			convertPTexprIntoHWCexpr(input->notExpr, &output->exprA);
-			break;
-		case(EXPR_NOT):
-			convertPTexprIntoHWCexpr(input->notExpr, &output->exprA);
-			break;
-		case(EXPR_DOT):
-			convertPTexprIntoHWCexpr(input->dotExpr, &output->exprA);
-			output->field = input->field;
-			break;
-		case(EXPR_ARR):
-			convertPTexprIntoHWCexpr(input->arrayExpr, &output->exprA);
-			convertPTexprIntoHWCexpr(input->indexExpr, &output->exprB);
-			break;
+	case EXPR_TWOOP:
+		retval->twoOp = input->opMode;
+
+		retval->exprA = phase10_expr(input->lHand);
+		retval->exprB = phase10_expr(input->rHand);
+
+		if (retval->exprA == NULL || retval->exprB == NULL)
+		{
+			free(retval->exprA);
+			free(retval->exprB);
+			free(retval);
+			return NULL;
+		}
+		break;
+
+	case EXPR_BITNOT:
+	case EXPR_NOT:
+		retval->exprA = phase10_expr(input->notExpr);
+		if (retval->exprA == NULL)
+		{
+			free(retval);
+			return NULL;
+		}
+		break;
+
+	case EXPR_DOT:
+		retval->exprA = phase10_expr(input->dotExpr);
+		if (retval->exprA == NULL)
+		{
+			free(retval);
+			return NULL;
+		}
+
+		retval->field = input->field;
+		break;
+
+	case EXPR_ARR:
+		retval->exprA = phase10_expr(input->arrayExpr);
+		retval->exprB = phase10_expr(input->indexExpr);
+
+		if (retval->exprA == NULL || retval->exprB == NULL)
+		{
+			free(retval->exprA);
+			free(retval->exprB);
+			free(retval);
+			return NULL;
+		}
+		break;
+
+	case EXPR_ARR_SLICE:
+		retval->exprA = phase10_expr(input->arrayExpr);
+
+		if (input->indexExpr1 == NULL)
+			retval->exprB = NULL;
+		else
+			retval->exprB = phase10_expr(input->indexExpr1);
+
+		if (input->indexExpr2 == NULL)
+			retval->exprC = NULL;
+		else
+			retval->exprC = phase10_expr(input->indexExpr2);
+
+		if ( retval->exprA == NULL ||
+		    (retval->exprB == NULL && input->indexExpr1 != NULL) ||
+		    (retval->exprC == NULL && input->indexExpr2 != NULL))
+		{
+			free(retval->exprA);
+			free(retval->exprB);
+			free(retval->exprC);
+			free(retval);
+			return NULL;
+		}
+		break;
+
+	case EXPR_BIT_TYPE:
+		retval->val.type = EXPR_VALTYPE_PLUGTYPE;
+		retval->val.plugtype.base   = &BitType;
+		retval->val.plugtype.arrLen =  NULL;
+		retval->val.ready = 1;
+		break;
 	}
+
+	return retval;
 }
 
 
@@ -144,6 +206,20 @@ assert(0);   // TODO: is this even possible?  explain, or remove
 			return 1;
 		}
 
+		if (currName->decl->base_plugType != NULL)
+		{
+			expr->val.type = EXPR_VALTYPE_PLUG;
+			expr->val.plug.base   = currName->decl->base_plugType;
+			expr->val.plug.arrLen = currName->decl->expr;
+			expr->val.ready = 1;
+		}
+		else if (currName->decl->base_part != NULL)
+		{
+assert(0);   // TODO: this is a subcomp, right?
+		}
+		else
+			assert(0);   // TODO: is this even possible?
+
 		// save the decl for later.  We'll use this, later, to
 		// figure out the exact size and position of this
 		// expression's retval.
@@ -190,19 +266,26 @@ assert(0);   // TODO: is this even possible?  explain, or remove
 
 		if (expr->exprA->val.type == EXPR_VALTYPE_BOOL)
 		{
+			/* boolean */
 			expr->val.type = EXPR_VALTYPE_BOOL;
 			assert(0);   // TODO: set value
 		}
 		else if(expr->exprA->val.type == EXPR_VALTYPE_INT)
 		{
+			/* integer, check to see if either 0 or 1 */
 			expr->val.type = EXPR_VALTYPE_BOOL;
 assert(0);   // only allow 0,1.  Print syntax error otherwise.  Report the retval as a boolean.
 		}
 		else if (expr->exprA->val.type == EXPR_VALTYPE_PLUG &&
-		         0 /* TODO: is a single bit */)
+		         expr->exprA->val.ready >= 1 &&
+		         expr->exprA->val.plug.base   == &BitType   &&
+		         expr->exprA->val.plug.arrLen ==  NULL)
 		{
+			/* single bit */
 			expr->val.type = EXPR_VALTYPE_PLUG;
-assert(0);   // TODO: set the valtype to (simple) bit
+			expr->val.plug.base   = &BitType;
+			expr->val.plug.arrLen =  NULL;
+			expr->val.ready = 1;
 		}
 		else if (expr->exprA->val.type == EXPR_VALTYPE_PLUG &&
 		         0 /* TODO: is bit[1] */)
@@ -265,10 +348,18 @@ assert(0);   // TODO: set the valtype to (simple) bit.  Same as previous
 			expr->decl = currName->decl;
 		break;
 
-		case EXPR_ARR:
-			retval += semPhase20_expr(expr->exprA, scope);
+	case EXPR_ARR:
+		retval += semPhase20_expr(expr->exprA, scope);
+		retval += semPhase20_expr(expr->exprB, scope);
+		break;
+
+	case EXPR_ARR_SLICE:
+		retval += semPhase20_expr(expr->exprA, scope);
+		if (expr->exprB != NULL)
 			retval += semPhase20_expr(expr->exprB, scope);
-			break;
+		if (expr->exprC != NULL)
+			retval += semPhase20_expr(expr->exprC, scope);
+		break;
 	}
 
 	return retval;

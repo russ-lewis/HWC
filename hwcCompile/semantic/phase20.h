@@ -29,6 +29,7 @@
  * before terminating.
  */
 
+/* TODO: remove the 'sem' prefixes in phases 20 and afterward.  Phase 10 never had it... */
 int semPhase20_part    (HWC_Part     *part);
 int semPhase20_plugtype(HWC_PlugType *plugtype);
 int semPhase20_stmt    (HWC_Stmt     *stmt);

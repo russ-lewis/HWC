@@ -162,12 +162,8 @@ int phase10_stmt_ASSERT(PT_stmt *input, HWC_Stmt *output);
 /* this helper function converts a parse tree expression into a semantic
  * expression.  This returns the newly-created object on success, or NULL
  * on failure.
- *
- * We pass the private names for this context as a parameter, we do *NOT*
- * attempt to resolve any names yet (this happens in phase 20), but we
- * save the NameScope pointers for later use in that phase.
  */
-HWC_Expr *phase10_expr(PT_expr *input, HWC_NameScope *privateNames);
+HWC_Expr *phase10_expr(PT_expr *input);
 
 
 
