@@ -32,7 +32,7 @@
 int semPhase20_part    (HWC_Part     *part);
 int semPhase20_plugtype(HWC_PlugType *plugtype);
 int semPhase20_stmt    (HWC_Stmt     *stmt);
-int semPhase20_expr    (HWC_Expr     *expr);
+int semPhase20_expr    (HWC_Expr     *expr, HWC_NameScope *scope);
 
 
 #endif

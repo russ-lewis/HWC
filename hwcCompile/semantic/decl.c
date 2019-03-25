@@ -283,6 +283,28 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 
 			break;
 	}
+
+
+	/* recurse into the array index expression (if any); check the names
+	 * in there, and also figure out the type of the expression (it better
+	 * be an integer!
+	 */
+	if (currDecl->expr != NULL)
+	{
+		int retval = semPhase20_expr(currDecl->expr, currScope);
+		if (retval != 0)
+			return retval;
+
+		if (currDecl->expr->val.type != EXPR_VALTYPE_INT)
+		{
+printf("%d\n", currDecl->expr->val.type);
+			fprintf(stderr, "%s:%d:%d: Expression does not resolve to an compile-time integer.\n",
+			        currDecl->expr->fr.filename,
+			        currDecl->expr->fr.s.l, currDecl->expr->fr.s.c);
+			return 1;
+		}
+	}
+
 	return 0;
 }
 
@@ -337,17 +359,13 @@ int semPhase30_decl(HWC_Decl *input, int isWithinPlug)
 
 	if (input->expr != NULL)
 	{
-		// this is an array declaration
-		int retval = semPhase20_expr(input->expr);
-		if (retval != 0)
-			return retval;
+		/* we must have already run phase 20 on this expression, back
+		 * in phase 20 of the code!
+		 */
+		assert(input->expr->val.type != EXPR_VALTYPE_INVALID);
 
-		if (input->expr->val.type != EXPR_VALTYPE_INT)
-		{
-			fprintf(stderr, "%s:%d:%d: Expression does not resolve to an compile-time integer.\n",
-			        input->expr->fr.filename,
-			        input->expr->fr.s.l, input->expr->fr.s.c);
-		}
+		if (expr_evaluate(input->expr, 1) != 0)
+			return 1;
 
 		if (input->expr->val.intVal < 0)
 		{
@@ -355,6 +373,7 @@ int semPhase30_decl(HWC_Decl *input, int isWithinPlug)
 			        input->expr->fr.filename,
 			        input->expr->fr.s.l, input->expr->fr.s.c,
 			        input->expr->val.intVal);
+			return 1;
 		}
 
 		if (input->expr->val.intVal == 0)
@@ -362,6 +381,7 @@ int semPhase30_decl(HWC_Decl *input, int isWithinPlug)
 			fprintf(stderr, "%s:%d:%d: Array size was zero.\n",
 			        input->expr->fr.filename,
 			        input->expr->fr.s.l, input->expr->fr.s.c);
+			return 1;
 		}
 
 		input->sizes.bits *= input->expr->val.intVal;
@@ -389,3 +409,16 @@ int semPhase30_decl(HWC_Decl *input, int isWithinPlug)
 
 	return 0;
 }
+
+
+int expr_evaluate(HWC_Expr *expr, int force)
+{
+	assert(expr->val.type != EXPR_VALTYPE_INVALID);
+
+	if (expr->val.ready)
+		return 0;
+
+	printf("%d\n", expr->mode);
+	assert(0);   // TODO
+}
+

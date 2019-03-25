@@ -155,7 +155,7 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 			break;
 
 		case EXPR_TWOOP:
-			switch(expr->value)
+			switch(expr->twoOp)
 			{
 				default:
 					break;
@@ -166,15 +166,15 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 				case OP_OR:
 				case OP_XOR:
 					// TODO: Is there a better way to do this?
-					if(expr->value == OP_EQUALS)
+					if(expr->twoOp == OP_EQUALS)
 						temp = WIRING_EQ;
-					if(expr->value == OP_NEQUAL)
+					if(expr->twoOp == OP_NEQUAL)
 						temp = WIRING_NEQ;
-					if(expr->value == OP_AND)
+					if(expr->twoOp == OP_AND)
 						temp = WIRING_AND;
-					if(expr->value == OP_OR)
+					if(expr->twoOp == OP_OR)
 						temp = WIRING_OR;
-					if(expr->value == OP_XOR)
+					if(expr->twoOp == OP_XOR)
 						temp = WIRING_XOR;
 					logic[index].type = temp;
 
@@ -258,19 +258,16 @@ int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 int findAssert(HWC_Wiring_Assert *assert, HWC_Part *part, int index)
 {
 	int i;
-	HWC_Stmt currStmt;
 	for(i = 0; i < part->stmts_len; i++)
 	{
-		currStmt = part->stmts[i];
+		/* we ignore everything *except* for assert statements,
+		 * in this function.
+		 */
+		if (part->stmts[i].mode != STMT_ASRT)
+			continue;
 
-		// TODO: Add code to do IF, FOR, and other BLOCK stmts.
 
-		if(currStmt.mode == STMT_ASRT)
-		{
-			// TODO: Correct value?
-			assert[index].bit = currStmt.exprA->value;
-			assert[index].debug = NULL;
-		}
+		assert(0);   // TODO
 	}
 
 	return index;

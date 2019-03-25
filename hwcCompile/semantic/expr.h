@@ -2,25 +2,37 @@
 #define __SEMANTIC_EXPR_H__INCLUDED__
 
 
-#include "plug.h"
-#include "partinstance.h"
-#include "decl.h"
-#include "names.h"
+#include "semantic/plug.h"
+#include "semantic/partinstance.h"
+#include "semantic/decl.h"
+#include "semantic/names.h"
 
 #include "wiring/fileRange.h"
 #include "semantic/sizes.h"
 
-#include <pt/expr.h>    // we'll re-use the modes from the parser, but then
-                        // add some more
+#include "pt/expr.h"
+
 
 enum {
-	EXPR_PLUG = EXPR__LAST_PARSER_MODE+1,
-	EXPR_SUBCOMPONENT,
-};
+	EXPR_VALTYPE_INVALID = 0,  // init state
 
-enum {
 	EXPR_VALTYPE_INT = 401,
 	EXPR_VALTYPE_BOOL,
+
+	// this is a runtime field; it has a plugtype and position
+	// in the virtual space.
+	EXPR_VALTYPE_PLUG,
+
+	// this is a reference to a particular subcomponent; it is almost
+	// always the base of a DOT expression, which will return a PLUG
+	EXPR_VALTYPE_SUBCOMP,
+
+	// these are expressions which are references to a specific type.
+	// Currently, we don't support this, but we expect to eventually,
+	// so that we can have typeof() and sizeof() expressions, as well
+	// as casts.
+	EXPR_VALTYPE_PLUGTYPE,
+	EXPR_VALTYPE_PARTTYPE,
 };
 
 
@@ -78,7 +90,7 @@ struct HWC_Expr
 
 	char     *name; // Rewritten in Phase 20 to create decl
 	HWC_Decl *decl; // Points to decl that declared this expr
-	int       value; // TWOOP uses value to store what type of TWOOP it is. See ../pt/expr.h
+	int       twoOp;
 	HWC_Expr *exprA, *exprB;
 
 	char *field;
@@ -90,6 +102,19 @@ struct HWC_Expr
 		/* use EXPR_VALTYPE_* (see above) */
 		int type;
 
+		/* for most types, set to 1 if the value types below
+		 * are valid.  However, PLUG is special and has three
+		 * positive values:
+		 *    1 - the plugtype is known (including the array
+		 *        size expression being filled in), but the total
+		 *        size and position are not yet set (perhaps
+		 *        because the array expression has not yet evaluated
+		 *        to an integer).
+		 *    2 - same as 1, but now the total size is also known
+		 *    3 - all fields are known (that is, same as 2, plus position)
+		 */
+		int ready;
+
 		union {
 			int  intVal;
 			int boolVal;
@@ -97,10 +122,25 @@ struct HWC_Expr
 	} val;
 };
 
-void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output);
-int checkExprName(HWC_Expr *, HWC_NameScope *);
-int findExprSize(HWC_Expr *, int *offset, int *logic, int isLeft);
 
+
+/* TODO: replace this with semPhase10_*() */
+void convertPTexprIntoHWCexpr(PT_expr *input, HWC_Expr **output);
+
+
+/* can be called in any phase *after* semPhase20_expr() has been
+ * called on the expression.  Attempts to figure out the value of
+ * the expression.
+ *
+ * If it fails but force=0, then it ends silently (and returns 0);
+ * if it fails but force=1 - or if their is some syntax error
+ * detected - then it will print out a description of the problem
+ * and return nonzero.
+ */
+int expr_evaluate(HWC_Expr*, int force);
+
+
+/* debug */
 void expr_dump(HWC_Expr*, int prefixLen);
 
 #endif

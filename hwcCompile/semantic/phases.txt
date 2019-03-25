@@ -20,6 +20,9 @@ following dot expressions.  Since sizes and offsets are not yet known, the
 expressions cannot be mapped all the way to offsets, but we store the
 pointers to the NameScope entries for each such expression.
 
+Additionally, in this phase, we find the *type* of each expression; is it a
+boolean, integer, plug, etc?
+
 This phase generates lots of user errors (undefined name).
 
 PHASE 30

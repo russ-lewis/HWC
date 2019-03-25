@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <malloc.h>
 
+#include "semantic/phase20.h"
 #include "semantic/phase30.h"
 #include "semantic/phase35.h"
 
@@ -123,8 +124,8 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			break;
 
 		case STMT_CONN:
-			retval += checkExprName(currStmt->exprA, currScope);
-			retval += checkExprName(currStmt->exprB, currScope);
+			retval += semPhase20_expr(currStmt->exprA, currScope);
+			retval += semPhase20_expr(currStmt->exprB, currScope);
 			break;
 
 	/* STMT_FOR   - uses name, exprA,exprB, stmtA       */
@@ -147,15 +148,15 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 			fprintf(stderr, "TODO: Remove this syntax-error mark when we implement support for for() loops.\n");
 			retval++;
 
-			retval += checkExprName(currStmt->exprA, currScope);
-			retval += checkExprName(currStmt->exprB, currScope);
+			retval += semPhase20_expr(currStmt->exprA, currScope);
+			retval += semPhase20_expr(currStmt->exprB, currScope);
 
 			for(i = 0; i < currStmt->sizeA; i++)
 				retval += checkStmtName(currStmt->stmtA +i, currScope);
 			break;
 
 		case STMT_IF:
-			retval += checkExprName(currStmt->exprA, currScope);
+			retval += semPhase20_expr(currStmt->exprA, currScope);
 
 			for(i = 0; i < currStmt->sizeA; i++)
 				retval += checkStmtName(currStmt->stmtA +i, currScope);
@@ -163,7 +164,7 @@ int checkStmtName(HWC_Stmt *currStmt, HWC_NameScope *currScope)
 				retval += checkStmtName(currStmt->stmtB +i, currScope);
 			break;
 		case STMT_ASRT:
-			retval += checkExprName(currStmt->exprA, currScope);
+			retval += semPhase20_expr(currStmt->exprA, currScope);
 			break;
 	}
 
