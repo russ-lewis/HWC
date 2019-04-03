@@ -1,0 +1,28 @@
+IDEA:
+-----
+
+Construct a plug as a literal expression.  Like Python functions, you can use
+positional or keyword arguments.
+  Data x;
+  x = Data(plugA, plugB);
+
+  Data y;
+  y = Data(sum=x, carryOut=y);
+
+Note that parameters which are not provided are *UNCONNECTED* but could be
+connected to later.  Setting only some of the fields would be *NORMAL* with
+keyword arguments:
+  Data z = Data(valid=0);
+but should it be banned for positional arguments?
+
+
+
+Should we allow initializers or constructor syntax???
+  Data a = Data(...);
+  Data b(...);
+
+
+
+Allow these in return statements as well:
+  return Data(sum=x, carryOut=y);
+

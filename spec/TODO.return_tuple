@@ -1,0 +1,7 @@
+IDEA:
+-----
+
+Functions that return values (plugs *OR* compile-time constants) should be
+able to return tuples:
+   (x,y) = SomeFunc();
+

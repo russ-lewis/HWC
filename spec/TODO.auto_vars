@@ -1,0 +1,16 @@
+IDEA:
+-----
+
+Allow 'auto' variable declarations:
+    auto x = y;
+
+
+
+If we eventually implement return-tuple functions, then we could go one step
+further.  This would be a basic return-tuple use case:
+    bit[4] x;
+    Data   y;
+    (x,y) = SomeFunc();
+and this would be an auto version:
+    (auto x,auto y) = SomeFunc();
+
