@@ -23,7 +23,9 @@ part delay
 	memory(bit) next_s;   int idle = 0; // int delay_c = 1;
 
 	// in HWC, I would remove next_s,idle,delay, and simply use a
-	// 'busy' memory bit.  Just as easy to read.
+	// 'busy' memory bit.  Just as easy to read.  But I'm retaining the
+	// names from the VHDL code to give a more straightforward 1-to-1
+	// comparison.
 	if (next_s == idle)
 	{
 		if (valid_data)
@@ -33,11 +35,11 @@ part delay
 			c = 1;
 		}
 	}
-	else  // VHDL did another 'when' here, not necessary in our version
+	else  // VHDL did another 'when' here, but it's not necessary in our version
 	{
 		if (c == d)
 		{
-			c = 1;   // done in VHDL, but actually unnecessary
+			c = 1;   // done in VHDL, but actually redundant, since it's reset in the previous case
 			data_out = data_temp;
 			_data_out_valid = 1;
 			next_s = idle;
