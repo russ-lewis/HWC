@@ -1,0 +1,112 @@
+part Adder64_CLA
+{
+	public bit[64] a,b;
+	public bit carryIn;
+	public bit[64] out;
+
+	// TODO: support initializers in the grammar
+	bit[64] g;
+	        g = a & b;    // generate  bits
+	bit[64] p;
+	        p = a | b;    // propagate bits
+
+	bit[16] G;    // super-generate  bits, relate to nibbles
+	bit[16] P;    // super-propagate bits, relate to nibbles
+	for (i: 0..16)
+	{
+		SGP super;
+		super.g = g[4*i..4*i+4];
+		super.p = p[4*i..4*i+4];
+		G[i] = super.G;
+		P[i] = super.P;
+	}
+
+	bit[4] GG;     // super2-generate  bits, relate to halfwords
+	bit[4] PP;     // super2-propagate bits, relate to halfwords
+	for (i: 0..4)
+	{
+		SGP super;
+		super.g = G[4*i..4*i+4];
+		super.p = P[4*i..4*i+4];
+		GG[i] = super.G;
+		PP[i] = super.P;
+	}
+
+	bit[4] CC;     // halfword carry-in bits
+	CAR car2;
+	car2.g = GG;
+	car2.p = PP;
+	car2.carryIn = carryIn;
+	CC = car2.carryBits;
+
+	bit[16] C;     // nibble carry-in bits
+	for (i; 0..4)
+	{
+		CAR car1;
+		car1.g = G[i*4..i*4+4]
+		car1.p = P[i*4..i*4+4]
+		car1.carryIn = CC[i];
+		C[i*4..i*4+4] = car1.carryBits;
+	}
+
+	bit[64] c;     // bitwise carry-in bits
+	for (i; 0..16)
+	{
+		CAR car0;
+		car0.g = g[i*4..i*4+4]
+		car0.p = g[i*4..i*4+4]
+		car0.carryIn = C[i];
+		c[i*4..i*4+4] = car0.carryBits;
+	}
+
+	// now that we know all 64 carry-in bits, the calculation
+	// of the result is truly trivial
+	out = a ^ b ^ c;
+}
+
+
+
+/* calculates super-generate and super-propagate bits, given
+ * generate and propagate bits.  Always does 4 inputs at time;
+ * reports a single output bit for G, and another for P.
+ */
+part SGP
+{
+	public bit[4] g,p;
+	public bit    G,P;
+
+	P = p[0] & p[1] & p[2] & p[3];
+
+	G = G[3] |
+	    P[3] & G[2] |
+	    P[3] & P[2] & G[1] |
+	    P[3] & P[2] & P[1] & G[0];
+}
+
+
+
+/* calcualtes the carry-in bits for a set of 4 entities, given
+ * the generate and propagate bits for each, plus the carry-in
+ * to the 0th element.
+ */
+part CAR
+{
+	public bit[4] g,p;
+	public bit    carryIn;
+	public bit[4] carryBits;
+
+	carryBits[0] = carryIn;
+
+	carryBits[1] = g[0] |
+	               p[0] & carryIn;
+
+	carryBits[2] = g[1] |
+	               p[1] & g[0] |
+	               p[1] & p[0] & carryIn;
+
+	carryBits[3] = g[2] |
+	               p[2] & g[1] |
+	               p[2] & p[1] & g[0] |
+	               p[2] & p[1] & p[0] & carryIn;
+}
+
