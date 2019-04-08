@@ -101,6 +101,7 @@ static inline void _fr_build(FileRange*);
 %type<expr> expr5
 %type<expr> expr6
 %type<expr> expr7
+%type<expr> expr8
 
 
 /* this solves the if-else chaining problem.  Canonical example is the
@@ -211,6 +212,25 @@ stmt:
 		                             fr_build($$);
 		                             $$->isPublic  = 0;
 		                             $$->isSubpart = 0; }
+
+		/* can't use decl_stmt because it (a) allows for memory,
+		 * and (b) includes the trailing semicolon
+		 */
+	|	expr IDENT '=' expr ';'
+		                           { $$ = malloc(sizeof(PT_stmt));
+		                             fr_build($$);
+		                             $$->next      = NULL;   /* stmt list */
+		                             $$->mode      = STMT_DECL;
+		                             $$->declType  = $1;
+		                             $$->isPublic  = 0;
+		                             $$->isSubpart = 0;
+		                             $$->isMemory  = 0;
+		                             $$->declList  = malloc(sizeof(PT_decl));
+		                               fr_copy(&$$->declList->fr, &$4->fr);
+		                               $$->declList->next = NULL;
+		                               $$->declList->name = $2;
+		                               $$->declList->init = NULL; }
+
 	|	expr '=' expr ';'
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             fr_build($$);
@@ -328,13 +348,15 @@ decl_list:
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   fr_build($$);
 		                   $$->next = NULL;
-		                   $$->name = $1; }
+		                   $$->name = $1;
+		                   $$->init = NULL; }
 
 	|	IDENT ',' decl_list
 		                 { $$ = malloc(sizeof(PT_decl));
 		                   fr_build($$);
 		                   $$->name = $1;
-		                   $$->next = $3; }
+		                   $$->next = $3;
+		                   $$->init = NULL; }
 ;
 
 
@@ -496,10 +518,19 @@ expr5:
 
 expr6:
 		expr7
-	|	'(' expr ')'         { $$ = $2; }
+	|	'-' expr6
+                            { $$ = malloc(sizeof(PT_expr));
+		              fr_build($$);
+		              $$->mode    = EXPR_UNARY_NEG;
+		              $$->lHand   = $2; }
 ;
 
 expr7:
+		expr8
+	|	'(' expr ')'         { $$ = $2; }
+;
+
+expr8:
 	  /* this might resolve to either a type or value expression */
 		IDENT   { $$ = malloc(sizeof(PT_expr));
 		          fr_build($$);

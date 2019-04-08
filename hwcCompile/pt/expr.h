@@ -11,6 +11,7 @@ typedef struct PT_expr      PT_expr;
 enum {
 	EXPR_IDENT = 101,    // changed the enum definitions, to force non-overlapping values
 	EXPR_NUM,
+	EXPR_UNARY_NEG,
 	EXPR_BOOL,
 	EXPR_TWOOP,
 	EXPR_BITNOT,

@@ -158,7 +158,7 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
 	switch (convert->mode)
 	{
 		default:
-			fprintf(stderr, "Bad mode! Value of [%d].\n", convert->mode);
+			fprintf(stderr, "Unrecognized mode! Value of [%d].\n", convert->mode);
 			assert(0);
 			break;
 
@@ -206,6 +206,8 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
 
 	output->base_plugType = NULL;
 	output->base_part     = NULL;
+
+	assert(input->init == NULL);   // TODO: implement me
 
 	return 0;
 }

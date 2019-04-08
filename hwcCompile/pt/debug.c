@@ -175,6 +175,12 @@ void dump_pt_decl(PT_decl *obj, int spaces)
 		dump_helper(spaces);
 		printf("name: %s\n", cur->name);
 
+		if (cur->init != NULL)
+		{
+			dump_helper(spaces+2);
+			printf("MARKER: TODO: pt_decl init expression\n");
+		}
+
 		cur = cur->next;
 	}
 }

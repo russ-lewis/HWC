@@ -81,6 +81,8 @@ struct PT_decl
 	PT_decl *next;
 
 	char *name;
+
+	PT_expr *init;
 };
 
 
