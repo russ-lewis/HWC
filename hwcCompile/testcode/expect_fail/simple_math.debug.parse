@@ -5,22 +5,19 @@ File with the following decls:
       stmt: DECL:
         type:
           "bit"
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: a
       stmt: DECL:
         type:
           "bit"
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: b
       stmt: DECL:
         type:
           "bit"
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: c
       stmt: CONNECTION, with left and right exprs:

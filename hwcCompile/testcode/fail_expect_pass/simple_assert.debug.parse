@@ -5,8 +5,7 @@ File with the following decls:
       stmt: DECL:
         type:
           "bit"
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: a
         name: b

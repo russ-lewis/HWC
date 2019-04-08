@@ -5,22 +5,19 @@ File with the following decls:
       stmt: DECL:
         type:
           "bit"
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: control
       stmt: DECL:
         type:
           "bit"
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: in
       stmt: DECL:
         type:
           "bit"
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: out
       stmt: IF CHECK
@@ -40,8 +37,7 @@ File with the following decls:
       stmt: DECL:
         type:
           Expr: IDENT, name = simple_if
-        isPublic=0
-        isSubpart=1
+        prefix=subpart
         isMemory=0
         name: a
       stmt: CONNECTION, with left and right exprs:
@@ -76,8 +72,7 @@ File with the following decls:
       stmt: DECL:
         type:
           Expr: IDENT, name = simple_if
-        isPublic=0
-        isSubpart=1
+        prefix=subpart
         isMemory=0
         name: b
       stmt: CONNECTION, with left and right exprs:
@@ -112,8 +107,7 @@ File with the following decls:
       stmt: DECL:
         type:
           Expr: IDENT, name = simple_if
-        isPublic=0
-        isSubpart=1
+        prefix=subpart
         isMemory=0
         name: c
       stmt: CONNECTION, with left and right exprs:
@@ -148,8 +142,7 @@ File with the following decls:
       stmt: DECL:
         type:
           Expr: IDENT, name = simple_if
-        isPublic=0
-        isSubpart=1
+        prefix=subpart
         isMemory=0
         name: d
       stmt: CONNECTION, with left and right exprs:
@@ -184,8 +177,7 @@ File with the following decls:
       stmt: DECL:
         type:
           Expr: IDENT, name = simple_if
-        isPublic=0
-        isSubpart=1
+        prefix=subpart
         isMemory=0
         name: e
       stmt: CONNECTION, with left and right exprs:
@@ -220,8 +212,7 @@ File with the following decls:
       stmt: DECL:
         type:
           Expr: IDENT, name = simple_if
-        isPublic=0
-        isSubpart=1
+        prefix=subpart
         isMemory=0
         name: f
       stmt: CONNECTION, with left and right exprs:
@@ -256,8 +247,7 @@ File with the following decls:
       stmt: DECL:
         type:
           Expr: IDENT, name = simple_if
-        isPublic=0
-        isSubpart=1
+        prefix=subpart
         isMemory=0
         name: g
       stmt: CONNECTION, with left and right exprs:
@@ -292,8 +282,7 @@ File with the following decls:
       stmt: DECL:
         type:
           Expr: IDENT, name = simple_if
-        isPublic=0
-        isSubpart=1
+        prefix=subpart
         isMemory=0
         name: h
       stmt: CONNECTION, with left and right exprs:

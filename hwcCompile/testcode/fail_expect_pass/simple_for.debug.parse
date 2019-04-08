@@ -8,8 +8,7 @@ File with the following decls:
             "bit"
            index of
             Expr: NUM, value of 32
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: in
       stmt: DECL:
@@ -18,8 +17,7 @@ File with the following decls:
             "bit"
            index of
             Expr: NUM, value of 32
-        isPublic=1
-        isSubpart=0
+        prefix=public
         isMemory=0
         name: out
       stmt: FOR LOOP

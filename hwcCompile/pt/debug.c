@@ -108,10 +108,28 @@ void dump_pt_stmt(PT_stmt *obj, int spaces)
 			dump_pt_expr(obj->declType, spaces+4);
 
 			dump_helper(spaces+2);
-			printf("isPublic=%d\n", cur->isPublic);
+			printf("prefix=");
+			switch(cur->declPrefix)
+			{
+			default:
+				assert(0);    // invalid value!
 
-			dump_helper(spaces+2);
-			printf("isSubpart=%d\n", cur->isSubpart);
+			case DECL_PREFIX_NOTHING:
+				printf("n/a\n");
+				break;
+
+			case DECL_PREFIX_PUBLIC:
+				printf("public\n");
+				break;
+
+			case DECL_PREFIX_PRIVATE:
+				printf("private\n");
+				break;
+
+			case DECL_PREFIX_SUBPART:
+				printf("subpart\n");
+				break;
+			}
 
 			dump_helper(spaces+2);
 			printf("isMemory=%d\n", cur->isMemory);

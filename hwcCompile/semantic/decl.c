@@ -103,13 +103,13 @@ int extractHWCdeclsFromPTstmts(PT_stmt *input, HWC_Decl **output,
 			fr_copy(&thing->fr, &currHWCdecl->fr);
 			thing->decl = currHWCdecl;
 
-			/* if isPublic, then we definitely want to post
-			 * this name to the public namescope.  This
+			/* if the decl is public, then we definitely want to
+			 * post this name to the public namescope.  This
 			 * applies to *any* declaration within a
 			 * plugtype, and also public declarations
 			 * within a part.
 			 */
-			if (currPTstmt->isPublic)
+			if (currPTstmt->declPrefix == DECL_PREFIX_PUBLIC)
 				nameScope_add(publ, currPTdecl->name, thing);
 
 			/* if the private nameScope is defined, then we

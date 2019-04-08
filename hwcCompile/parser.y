@@ -197,35 +197,39 @@ stmt:
 		                             fr_build($$);
 		                             $$->mode  = STMT_BLOCK;
 		                             $$->stmts = $2; }
+
+	|	          decl_stmt
+		                           { $$ = $1;
+		                             fr_build($$);
+		                             $$->declPrefix = DECL_PREFIX_NOTHING; }
 	|	"subpart" decl_stmt
 		                           { $$ = $2;
 		                             fr_build($$);
-		                             $$->isPublic  = 0;
-		                             $$->isSubpart = 1; }
+		                             $$->declPrefix = DECL_PREFIX_SUBPART; }
 	|	"public"  decl_stmt
 		                           { $$ = $2;
 		                             fr_build($$);
-		                             $$->isPublic  = 1;
-		                             $$->isSubpart = 0; }
+		                             $$->declPrefix = DECL_PREFIX_PUBLIC; }
 	|	"private" decl_stmt
 		                           { $$ = $2;
 		                             fr_build($$);
-		                             $$->isPublic  = 0;
-		                             $$->isSubpart = 0; }
+		                             $$->declPrefix = DECL_PREFIX_PRIVATE; }
 
 		/* can't use decl_stmt because it (a) allows for memory,
 		 * and (b) includes the trailing semicolon
+		 *
+		 * TODO: do we want to just include this in decl_list, so
+		 *       that you can do multiple init's per line?
 		 */
 	|	expr IDENT '=' expr ';'
 		                           { $$ = malloc(sizeof(PT_stmt));
 		                             fr_build($$);
-		                             $$->next      = NULL;   /* stmt list */
-		                             $$->mode      = STMT_DECL;
-		                             $$->declType  = $1;
-		                             $$->isPublic  = 0;
-		                             $$->isSubpart = 0;
-		                             $$->isMemory  = 0;
-		                             $$->declList  = malloc(sizeof(PT_decl));
+		                             $$->next       = NULL;   /* stmt list */
+		                             $$->mode       = STMT_DECL;
+		                             $$->declType   = $1;
+		                             $$->declPrefix = DECL_PREFIX_NOTHING;
+		                             $$->isMemory   = 0;
+		                             $$->declList   = malloc(sizeof(PT_decl));
 		                               fr_copy(&$$->declList->fr, &$4->fr);
 		                               $$->declList->next = NULL;
 		                               $$->declList->name = $2;
@@ -311,13 +315,11 @@ plugtype_stmts:
 		decl_stmt                { $$ = $1;
 		                           fr_build($$);
 		                           $$->next = NULL;
-		                           $$->isPublic  = 1;
-		                           $$->isSubpart = 0; }
+		                           $$->declPrefix = DECL_PREFIX_PUBLIC; }
 	|	decl_stmt plugtype_stmts { $$ = $1;
 		                           fr_build($$);
 		                           $$->next = $2;
-		                           $$->isPublic  = 1;
-		                           $$->isSubpart = 0; }
+		                           $$->declPrefix = DECL_PREFIX_PUBLIC; }
 ;
 
 

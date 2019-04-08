@@ -24,6 +24,19 @@ enum {
 	STMT_NOP,
 };
 
+enum {
+	// refactored decl prefixes: it's now permissible not have any prefix
+	// at all; this means private, but it's unclear (until the semantic
+	// phase) whether it's a private plug or a subpart.  Thus, we now,
+	// instead of having a couple of boolean flags, we now store an enum
+	// which tells us what prefix (if any) was present.
+	DECL_PREFIX_NOTHING = 0,
+
+	DECL_PREFIX_PUBLIC = 501,
+	DECL_PREFIX_PRIVATE,
+	DECL_PREFIX_SUBPART,
+};
+
 struct PT_stmt
 {
 	FileRange fr;
@@ -34,8 +47,7 @@ struct PT_stmt
 	PT_stmt *next;
 
 	/* STMT_DECL */
-	int isPublic;       // 1 for true, 0 for false
-	int isSubpart;      // 1 for true, 0 for false
+	int declPrefix;     // DECL_PREFIX_*
 	int isMemory;       // 1 for true, 0 for false
 	PT_expr *declType;
 	PT_decl *declList;
