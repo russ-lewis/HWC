@@ -1,0 +1,155 @@
+part Adder_CLA(int SZ)
+{
+	static assert(SZ > 0);
+	static assert(SZ % 4 == 0);
+		// TODO: support non-power-of-4 with a trailer
+
+	public bit[SZ] a,b;
+	public bit carryIn;
+	public bit[SZ] out;
+	public bit carryOut;
+
+	bit[SZ] g = a & b;
+	bit[SZ] p = a | b;
+
+	// figure out what the carry-in bits are.  The way that we do this
+	// depends on the size of the input.
+	bit[SZ] c;
+
+	static if (SZ == 4)
+	{
+		CarryLogic car;
+		car.g = g;
+		car.p = p;
+		c = car.c;
+	}
+	else
+	{
+		// SCL is recursive, uses CarryLogic as its 4-bit base case
+		SuperCarryLogic(SZ) super;
+		super.g = g;
+		super.p = g;
+		c = super.c;
+	}
+
+
+	// do the same XOR operation on all bits, now that we have the
+	// carry bits figured out.
+	out = a ^ b ^ c;
+
+	// we don't have a fancy way to figure out the carry from the last
+	// bit, so just figure it out in the old-fashioned way.
+	carryOut = (a[-1] & b[-1]) | (a[-1] & c[-1]) | (b[-1] & c[-1]);
+}
+
+
+
+/* 4-step carry logic; can be used to calculate 4 carry-in bits from 4
+ * input generate/propagate sets, plus the group carryIn.  Doesn't care
+ * if the g/p bits are the raw g/p bits, super bits, or whatever.
+ */
+part CarryLogic
+{
+	public bit[4] g,p;
+	public bit carryIn;
+	publit bit[4] c;
+
+	c[0] = carryIn;
+
+	c[1] = g[0] |
+	       p[0] & carryIn;
+
+	c[2] = g[1] |
+	       p[1] & g[0] |
+	       p[1] & p[0] & carryIn;
+
+	c[3] = g[2] |
+	       p[2] & g[1] |
+	       p[2] & p[1] & g[0] |
+	       p[2] & p[1] & p[0] & carryIn;
+}
+
+
+
+/* recursive logic to generate carry-in bits from the g/p bits; uses
+ * super-carry bits as necessary.  Handles any size, down to its base
+ * case of 4.
+ */
+part SuperCarryLogic(int SZ)
+{
+	static assert(SZ >= 4);
+	static assert(SZ % 4 == 0);    // TODO: handle non-multiple lengths.
+
+	public bit[SZ] g,p;
+	public bit carryIn;
+	public bit[SZ] c;
+
+	static if (SZ == 4)
+	{
+		/* base case (only used recursively, not used from Adder(4)) -
+		 * generate the carry bits directly.
+		 */
+		CarryLogic car;
+		car.g = g;
+		car.p = p;
+		car.carryIn = carryIn;
+		c = car.c;
+	}
+	else
+	{
+		/* recursive case.  First, build the super-propagate and
+		 * super-generate bits.  Then, we'll pass those bits to a
+		 * (smaller) recursive call; then we'll use the carry bits
+		 * generated as the recursive call as the carry-In bits
+		 * to many calls to CarryLogic.
+		 */
+
+		// step 1: build G,P bits
+		bit[SZ] G,P;
+		for (i; 0..SZ/4)
+		{
+			SGP(SZ/4) super;
+			super.g = g[i*4..i*4+4];
+			super.p = p[i*4..i*4+4];
+			G[i] = super.G;
+			P[i] = super.P;
+		}
+
+		// step 2: recurse
+		SuperCarryLogic(SZ/4) recurse;
+		recurse.g = G;
+		recurse.p = P;
+		recurse.carryIn = carryIn;
+
+		// step 3: use outputs from recursion as carry-in for many
+		//         calls to CarryLogic
+		for (i; 0..SZ/4)
+		{
+			CarryLogic car;
+			car.g = g[i*4..i*4+4];
+			car.p = p[i*4..i*4+4];
+			car.carryIn = recurse.c[i];
+			c[i*4..i*4+4] = car.c;
+		}
+	}
+}
+
+
+
+/* calculates super-generate and super-propagate bits, given
+ * generate and propagate bits.  Always does 4 inputs at time;
+ * reports a single output bit for G, and another for P.
+ */
+part SGP
+{
+	public bit[4] g,p;
+	public bit    G,P;
+
+	P = p[0] & p[1] & p[2] & p[3];
+
+	G = G[3] |
+	    P[3] & G[2] |
+	    P[3] & P[2] & G[1] |
+	    P[3] & P[2] & P[1] & G[0];
+}
+
