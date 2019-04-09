@@ -1,4 +1,4 @@
-part simple_comp_equal   // this will short circuit every time, intentionally!
+part main   // this will short circuit every time, intentionally!
 {
 	public bit a, b;
 
