@@ -20,6 +20,7 @@ enum {
 	EXPR_ARR,
 	EXPR_ARR_SLICE,
 	EXPR_BIT_TYPE,
+	EXPR_FLAG_TYPE,
 };
 
 enum {

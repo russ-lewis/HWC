@@ -4,7 +4,7 @@ plugtype Foo
 	bit[32] y;
 }
 
-part Bar
+part main
 {
 	public Foo input;
 	public Foo output;

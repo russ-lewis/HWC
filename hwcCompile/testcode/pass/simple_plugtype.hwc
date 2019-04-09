@@ -5,3 +5,5 @@ plugtype simple
 	bit[3] c;
 }
 
+part main {}
+

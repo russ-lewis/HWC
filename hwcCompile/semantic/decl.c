@@ -163,6 +163,7 @@ int convertPTdeclIntoHWCdecl(PT_decl *input,
 			break;
 
 		case EXPR_BIT_TYPE:
+		case EXPR_FLAG_TYPE:
 		case EXPR_ARR:
 		case EXPR_IDENT:
 			break;
@@ -242,6 +243,10 @@ int checkDeclName(HWC_Decl *currDecl, HWC_NameScope *currScope, int isWithinPlug
 
 		case EXPR_BIT_TYPE:
 			currDecl->base_plugType = &BitType;
+			break;
+
+		case EXPR_FLAG_TYPE:
+			assert(0);   // TODO: implement me
 			break;
 
 		case EXPR_ARR:

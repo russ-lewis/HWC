@@ -553,10 +553,13 @@ expr8:
 		          $$->mode  = EXPR_BOOL;
 		          $$->value = 0;  }
 
-	  /* this is, unambiguously, a type expression. */
+	  /* these are, unambiguously, type expressions */
 	|	"bit"              { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode = EXPR_BIT_TYPE; }
+	|	"flag"             { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
+		                     $$->mode = EXPR_FLAG_TYPE; }
 ;
 
 
