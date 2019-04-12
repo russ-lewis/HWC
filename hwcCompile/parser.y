@@ -102,6 +102,7 @@ static inline void _fr_build(FileRange*);
 %type<expr> expr6
 %type<expr> expr7
 %type<expr> expr8
+%type<expr> expr9
 
 
 /* this solves the if-else chaining problem.  Canonical example is the
@@ -400,66 +401,77 @@ expr:
 		                     $$->opMode = OP_GREATEREQ;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
+;
+
+expr2:
+		expr3
+	|	expr2 "::" expr3   { $$ = malloc(sizeof(PT_expr));
+		                     fr_build($$);
+		                     $$->mode   = EXPR_TWOOP;
+		                     $$->opMode = OP_APPEND;
+		                     $$->lHand  = $1;
+		                     $$->rHand  = $3; }
+;
 
 /* Should insert an expr3 to allow for chaining of && and || and so on */
 /* Is there any way to compress these down? There's a lot of redundant code */
-expr2:
-		expr3
-	|	expr2 '&'  expr2   { $$ = malloc(sizeof(PT_expr));
+expr3:
+		expr4
+	|	expr3 '&'  expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_BITAND;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 "&&" expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 "&&" expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_AND;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 '|'  expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 '|'  expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_BITOR;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 "||" expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 "||" expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_OR;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 '^'  expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 '^'  expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_XOR;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 '+'  expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 '+'  expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_PLUS;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 '-'  expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 '-'  expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_MINUS;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 '*'  expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 '*'  expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_TIMES;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 '/'  expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 '/'  expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_DIVIDE;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
-	|	expr2 '%'  expr2   { $$ = malloc(sizeof(PT_expr));
+	|	expr3 '%'  expr4   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
 		                     $$->opMode = OP_MODULO;
@@ -468,39 +480,39 @@ expr2:
 ;
 
 /* I presume !!!!!!!!!expr is something the semantic phase handles */
-expr3:
-		expr4
-	|	'!' expr3          { $$ = malloc(sizeof(PT_expr));
+expr4:
+		expr5
+	|	'!' expr4          { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode    = EXPR_NOT;
 		                     $$->notExpr = $2; }
-	|	'~' expr3          { $$ = malloc(sizeof(PT_expr));
+	|	'~' expr4          { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode    = EXPR_BITNOT;
 		                     $$->notExpr = $2; }
 ;
 
-expr4:
-		expr5
+expr5:
+		expr6
 
-	|	expr4 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+	|	expr5 '[' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
 		                        fr_build($$);
 		                        $$->mode      = EXPR_ARR;
 		                        $$->arrayExpr = $1;
 		                        $$->indexExpr = $3; }
-	|	expr4 '[' expr2 ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+	|	expr5 '[' expr2 ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
 		                                   fr_build($$);
 		                                   $$->mode       = EXPR_ARR_SLICE;
 		                                   $$->arrayExpr  = $1;
 		                                   $$->indexExpr1 = $3;
 		                                   $$->indexExpr2 = $5; }
-	|	expr4 '['       ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+	|	expr5 '['       ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
 		                                   fr_build($$);
 		                                   $$->mode       = EXPR_ARR_SLICE;
 		                                   $$->arrayExpr  = $1;
 		                                   $$->indexExpr1 = NULL;
 		                                   $$->indexExpr2 = $4; }
-	|	expr4 '[' expr2 ".."       ']'   { $$ = malloc(sizeof(PT_expr));
+	|	expr5 '[' expr2 ".."       ']'   { $$ = malloc(sizeof(PT_expr));
 		                                   fr_build($$);
 		                                   $$->mode       = EXPR_ARR_SLICE;
 		                                   $$->arrayExpr  = $1;
@@ -508,9 +520,9 @@ expr4:
 		                                   $$->indexExpr2 = NULL; }
 ;
 
-expr5:
-		expr6
-	|	expr5 '.' IDENT
+expr6:
+		expr7
+	|	expr6 '.' IDENT
                             { $$ = malloc(sizeof(PT_expr));
 		              fr_build($$);
 		              $$->mode    = EXPR_DOT;
@@ -518,21 +530,21 @@ expr5:
 		              $$->field   = $3; }
 ;
 
-expr6:
-		expr7
-	|	'-' expr6
+expr7:
+		expr8
+	|	'-' expr7
                             { $$ = malloc(sizeof(PT_expr));
 		              fr_build($$);
 		              $$->mode    = EXPR_UNARY_NEG;
 		              $$->lHand   = $2; }
 ;
 
-expr7:
-		expr8
+expr8:
+		expr9
 	|	'(' expr ')'         { $$ = $2; }
 ;
 
-expr8:
+expr9:
 	  /* this might resolve to either a type or value expression */
 		IDENT   { $$ = malloc(sizeof(PT_expr));
 		          fr_build($$);
@@ -560,10 +572,6 @@ expr8:
 	|	"flag"             { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode = EXPR_FLAG_TYPE; }
-;
-
-
-
 ;
 
 

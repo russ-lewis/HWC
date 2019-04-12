@@ -1,0 +1,36 @@
+part main
+{
+	public bit[32] in;
+	public bit[5]  shamt;   // amount to rotate *LEFT*
+	public bit[32] out;
+
+	bit[32] step1;
+	if (shamt[0])
+		step1 = in[..-1] :: in[-1..];
+	else
+		step1 = in;
+
+	bit[32] step2;
+	if (shamt[1])
+		step2 = step1[..-2] :: step1[-2..];
+	else
+		step2 = step1;
+
+	bit[32] step3;
+	if (shamt[2])
+		step3 = step2[..-4] :: step2[-4..];
+	else
+		step3 = step2;
+
+	bit[32] step4;
+	if (shamt[3])
+		step4 = step3[..-8] :: step3[-8..];
+	else
+		step4 = step3;
+
+	if (shamt[4])
+		out = step4[..-16] :: step4[-16..];
+	else
+		out = step4;
+}
+

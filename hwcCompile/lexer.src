@@ -165,6 +165,7 @@ _*[a-zA-Z][_a-zA-Z0-9]*		return tokenLookup(yytext, 0);
    * because the defined token ID for any single-character token is the ASCII
    * code of that character.
    */
+(::)				return tokenLookup(yytext, 1);
 (<<|>>)				return tokenLookup(yytext, 1);
 (&&|[|][|])			return tokenLookup(yytext, 1);
 (==|!=|<=|>=)		return tokenLookup(yytext, 1);
