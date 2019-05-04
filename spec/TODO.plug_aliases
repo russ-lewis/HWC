@@ -1,0 +1,32 @@
+Future feature:
+
+  plug MIPSInstruction
+  {
+      bit[32] inst;
+
+      alias opcode <-> inst[       26:];
+      alias rs     <-> inst[    21:26];
+      alias rt     <-> inst[ 16:21];
+      alias imm16  <-> inst[:16];
+  }
+
+
+  // using an alias as reading a field
+  MIPSInstruction i;
+  i.inst = ... ;
+
+  bit[6] aField = i.opcode;
+
+
+  // using an alias as writing to a field
+  MIPSInstruction i2;
+  i.opcode = 0x23;     // LW
+  i.rs     = 16;       // s0
+  i.rt     = 17        // s1
+  i.imm16  = 0x1234;
+
+  bit[32] instruction_out = i2.inst;
+
+
+  // TODO: should we support aliases which are rhs expressions?
+
