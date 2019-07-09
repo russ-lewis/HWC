@@ -12,6 +12,12 @@ part Mux
        if (control == i)
            out = in[i];
 }
+
+interface Data
+{
+    bit[32] foo;
+    bit     fred,wilma;
+}
 ~~~
 
 ## Key directories:
