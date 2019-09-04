@@ -1,0 +1,170 @@
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within IF stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within IF stmts are not accounted for yet.
+TODO: Decls within BLOCK stmts are not accounted for yet.
+TODO: Decls within IF stmts are not accounted for yet.
+TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
+---- DEBUG: DUMPING SEMANTIC (after phase 10) ----
+ --- NameScope ---
+ refcount=1
+ parent=<TODO>
+  name: delay
+    --- Part ---
+    phases: begun 10 completed 10
+    publicNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: valid_data
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: data_in
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: data_out
+TODO: nameScope_dump() marker 1
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: _data_out_valid
+          --- Decl ---
+          type: <Unrecognized enum 112> typeName: (null) isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+    privateNames:
+      --- NameScope ---
+      refcount=1
+      parent=<TODO>
+        name: valid_data
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: data_in
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: data_out
+TODO: nameScope_dump() marker 1
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: _data_out_valid
+          --- Decl ---
+          type: <Unrecognized enum 112> typeName: (null) isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: c
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 1
+          expr: <TODO>
+TODO: decl_dump() marker 8
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: d
+          --- Decl ---
+          type: EXPR_IDENT typeName: int isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: data_temp
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 1
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: next_s
+          --- Decl ---
+          type: EXPR_BIT_TYPE typeName: (null) isMem: 1
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        name: idle
+          --- Decl ---
+          type: EXPR_IDENT typeName: int isMem: 0
+          expr: <TODO>
+          offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+          sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+    stmts: len=10
+      [0]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [1]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [2]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [3]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [4]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [5]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [6]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [7]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [8]
+        --- Stmt ---
+        mode: STMT_DECL
+        isPublic=0 isSubpart=0
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+      [9]
+        --- Stmt ---
+        mode: STMT_IF
+TODO: STMT_IF
+        offsets: bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+        sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+    decls_len=9
+    sizes:   bits=-1 memBits=-1   conns=-1 memoryObjs=-1 logicOps=-1 asserts=-1
+
+rc=0

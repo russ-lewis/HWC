@@ -79,6 +79,8 @@ int main(int argc, char **argv)
 			fprintf(stderr, "  debug MODEs:\n");
 			fprintf(stderr, "    parse\n");
 			fprintf(stderr, "    semantic_phase10\n");
+			fprintf(stderr, "    semantic_phase20\n");
+			fprintf(stderr, "    semantic_phase30\n");
 			fprintf(stderr, "    semantic_phase40\n");
 			return 1;
 		}

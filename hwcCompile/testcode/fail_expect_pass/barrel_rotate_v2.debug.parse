@@ -139,3 +139,5 @@ File with the following decls:
             -- none --
            upper bound
             --- debug: UNRECOGNIZED EXPR ---
+
+rc=0

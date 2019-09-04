@@ -175,3 +175,5 @@ File with the following decls:
                 --- debug: UNRECOGNIZED EXPR ---
                upper bound
                 -- none --
+
+rc=0

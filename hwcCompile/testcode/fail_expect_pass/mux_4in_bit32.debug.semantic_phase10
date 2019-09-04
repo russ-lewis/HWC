@@ -1,1 +1,0 @@
-FIXME: This testcase currently crashes due to an assert() failure.  I can't build a reliable 'expect' file until this is fixed, since the error messages produce by assert() are not predictable.
