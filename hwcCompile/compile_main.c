@@ -13,9 +13,6 @@
 #include "wiring/write.h"
 
 
-// The class says: "Have a good day!  And drink water."
-
-
 // globals, shared with the parser, through parsercommon.h
 PT_file *bisonParseRoot;
 char    *bisonParse_filename;
