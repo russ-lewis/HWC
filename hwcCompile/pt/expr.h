@@ -41,7 +41,7 @@ enum {
 	OP_TIMES,
 	OP_DIVIDE,
 	OP_MODULO,
-	OP_APPEND,
+	OP_CONCAT,
 };
 
 struct PT_expr

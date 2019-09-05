@@ -45,7 +45,7 @@ File with the following decls:
           Expr: NUM, value of 0
         stmt: CONNECTION, with left and right exprs:
           Expr: IDENT, name = step1
-          Expr: TWOOP of mode APPEND with exprs
+          Expr: TWOOP of mode CONCAT with exprs
             LHand:
               Expr: ARR_SLICE, into array expr
                 Expr: IDENT, name = in
@@ -76,7 +76,7 @@ File with the following decls:
           Expr: NUM, value of 1
         stmt: CONNECTION, with left and right exprs:
           Expr: IDENT, name = step2
-          Expr: TWOOP of mode APPEND with exprs
+          Expr: TWOOP of mode CONCAT with exprs
             LHand:
               Expr: ARR_SLICE, into array expr
                 Expr: IDENT, name = step1
@@ -107,7 +107,7 @@ File with the following decls:
           Expr: NUM, value of 2
         stmt: CONNECTION, with left and right exprs:
           Expr: IDENT, name = step3
-          Expr: TWOOP of mode APPEND with exprs
+          Expr: TWOOP of mode CONCAT with exprs
             LHand:
               Expr: ARR_SLICE, into array expr
                 Expr: IDENT, name = step2
@@ -138,7 +138,7 @@ File with the following decls:
           Expr: NUM, value of 3
         stmt: CONNECTION, with left and right exprs:
           Expr: IDENT, name = step4
-          Expr: TWOOP of mode APPEND with exprs
+          Expr: TWOOP of mode CONCAT with exprs
             LHand:
               Expr: ARR_SLICE, into array expr
                 Expr: IDENT, name = step3
@@ -160,7 +160,7 @@ File with the following decls:
           Expr: NUM, value of 4
         stmt: CONNECTION, with left and right exprs:
           Expr: IDENT, name = out
-          Expr: TWOOP of mode APPEND with exprs
+          Expr: TWOOP of mode CONCAT with exprs
             LHand:
               Expr: ARR_SLICE, into array expr
                 Expr: IDENT, name = step4

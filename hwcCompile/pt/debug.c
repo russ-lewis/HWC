@@ -290,8 +290,8 @@ void dump_pt_expr(PT_expr *obj, int spaces)
 				case OP_MODULO:
 					printf(" MODULO ");
 					break;
-				case OP_APPEND:
-					printf(" APPEND ");
+				case OP_CONCAT:
+					printf(" CONCAT ");
 					break;
 			}
 			printf("with exprs\n");

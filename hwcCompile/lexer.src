@@ -165,22 +165,23 @@ _*[a-zA-Z][_a-zA-Z0-9]*		return tokenLookup(yytext, 0);
    * because the defined token ID for any single-character token is the ASCII
    * code of that character.
    */
-(::)				return tokenLookup(yytext, 1);
-(<<|>>)				return tokenLookup(yytext, 1);
-(&&|[|][|])			return tokenLookup(yytext, 1);
-(==|!=|<=|>=)		return tokenLookup(yytext, 1);
-(\.\.)            return tokenLookup(yytext, 1); // Added by Jackson. Needed, I think.
+(::)                        return tokenLookup(yytext, 1);
+(<<|>>)                     return tokenLookup(yytext, 1);
+(&&|[|][|])                 return tokenLookup(yytext, 1);
+(==|!=|<=|>=)               return tokenLookup(yytext, 1);
+(\.\.)                      return tokenLookup(yytext, 1); // Added by Jackson. Needed, I think.
 
-[(){}\[\]]			return yytext[0];
-[+\-*/%]				return yytext[0];
-[=]					return yytext[0];
-;						return yytext[0];
-,						return yytext[0];
-[\.]					return yytext[0];
-!						return yytext[0];
-~						return yytext[0];
-[\&\|\^]				return yytext[0];
-[<>]					return yytext[0];
+[(){}\[\]]                  return yytext[0];
+[+\-*/%]                    return yytext[0];
+[=]                         return yytext[0];
+:                           return yytext[0];
+;                           return yytext[0];
+,                           return yytext[0];
+[\.]                        return yytext[0];
+!                           return yytext[0];
+~                           return yytext[0];
+[\&\|\^]                    return yytext[0];
+[<>]                        return yytext[0];
 
   /* LEXER ERROR, the default case */
 .				{ printf("Unrecognized character %d='%c' at line %d col %d.\n",yytext[0],yytext[0], yylloc.first_line, yylloc.first_column); return 256; }

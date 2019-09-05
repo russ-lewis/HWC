@@ -38,8 +38,8 @@ part Adder16_CLA
 	for (i; 0..4)          // TODO: maybe change the semicolon into a colon in the syntax definition???
 	{
 		SGP super;
-		super.g = g[i*4..i*4+4];
-		super.p = p[i*4..i*4+4];
+		super.g = g[i*4 : i*4+4];
+		super.p = p[i*4 : i*4+4];
 		G[i] = super.G;
 		P[i] = super.P;
 	}
@@ -54,10 +54,10 @@ part Adder16_CLA
 	for (i; 0..4)
 	{
 		CAR car0;
-		car0.g = g[i*4..i*4+4];
-		car0.p = p[i*4..i*4+4];
+		car0.g = g[i*4 : i*4+4];
+		car0.p = p[i*4 : i*4+4];
 		car0.carryIn = C[i];
-		c[i*4..i*4+4] = car0.c;
+		c[i*4 : i*4+4] = car0.c;
 	}
 
 	// see comments above
@@ -80,8 +80,8 @@ part Adder64_CLA
 	for (i; 0..16)
 	{
 		SGP super;
-		super.g = g[4*i..4*i+4];
-		super.p = p[4*i..4*i+4];
+		super.g = g[4*i : 4*i+4];
+		super.p = p[4*i : 4*i+4];
 		G[i] = super.G;
 		P[i] = super.P;
 	}
@@ -91,8 +91,8 @@ part Adder64_CLA
 	for (i; 0..4)
 	{
 		SGP super;
-		super.g = G[4*i..4*i+4];
-		super.p = P[4*i..4*i+4];
+		super.g = G[4*i : 4*i+4];
+		super.p = P[4*i : 4*i+4];
 		GG[i] = super.G;
 		PP[i] = super.P;
 	}
@@ -108,20 +108,20 @@ part Adder64_CLA
 	for (i; 0..4)
 	{
 		CAR car1;
-		car1.g = G[i*4..i*4+4];
-		car1.p = P[i*4..i*4+4];
+		car1.g = G[i*4 : i*4+4];
+		car1.p = P[i*4 : i*4+4];
 		car1.carryIn = CC[i];
-		C[i*4..i*4+4] = car1.carryBits;
+		C[i*4 : i*4+4] = car1.carryBits;
 	}
 
 	bit[64] c;     // bitwise carry-in bits
 	for (i; 0..16)
 	{
 		CAR car0;
-		car0.g = g[i*4..i*4+4];
-		car0.p = g[i*4..i*4+4];
+		car0.g = g[i*4 : i*4+4];
+		car0.p = g[i*4 : i*4+4];
 		car0.carryIn = C[i];
-		c[i*4..i*4+4] = car0.carryBits;
+		c[i*4 : i*4+4] = car0.carryBits;
 	}
 
 	out = a ^ b ^ c;

@@ -408,7 +408,7 @@ expr2:
 	|	expr2 "::" expr3   { $$ = malloc(sizeof(PT_expr));
 		                     fr_build($$);
 		                     $$->mode   = EXPR_TWOOP;
-		                     $$->opMode = OP_APPEND;
+		                     $$->opMode = OP_CONCAT;
 		                     $$->lHand  = $1;
 		                     $$->rHand  = $3; }
 ;
@@ -500,24 +500,24 @@ expr5:
 		                        $$->mode      = EXPR_ARR;
 		                        $$->arrayExpr = $1;
 		                        $$->indexExpr = $3; }
-	|	expr5 '[' expr2 ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
-		                                   fr_build($$);
-		                                   $$->mode       = EXPR_ARR_SLICE;
-		                                   $$->arrayExpr  = $1;
-		                                   $$->indexExpr1 = $3;
-		                                   $$->indexExpr2 = $5; }
-	|	expr5 '['       ".." expr2 ']'   { $$ = malloc(sizeof(PT_expr));
-		                                   fr_build($$);
-		                                   $$->mode       = EXPR_ARR_SLICE;
-		                                   $$->arrayExpr  = $1;
-		                                   $$->indexExpr1 = NULL;
-		                                   $$->indexExpr2 = $4; }
-	|	expr5 '[' expr2 ".."       ']'   { $$ = malloc(sizeof(PT_expr));
-		                                   fr_build($$);
-		                                   $$->mode       = EXPR_ARR_SLICE;
-		                                   $$->arrayExpr  = $1;
-		                                   $$->indexExpr1 = $3;
-		                                   $$->indexExpr2 = NULL; }
+	|	expr5 '[' expr2 ':' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                                  fr_build($$);
+		                                  $$->mode       = EXPR_ARR_SLICE;
+		                                  $$->arrayExpr  = $1;
+		                                  $$->indexExpr1 = $3;
+		                                  $$->indexExpr2 = $5; }
+	|	expr5 '['       ':' expr2 ']'   { $$ = malloc(sizeof(PT_expr));
+		                                  fr_build($$);
+		                                  $$->mode       = EXPR_ARR_SLICE;
+		                                  $$->arrayExpr  = $1;
+		                                  $$->indexExpr1 = NULL;
+		                                  $$->indexExpr2 = $4; }
+	|	expr5 '[' expr2 ':'       ']'   { $$ = malloc(sizeof(PT_expr));
+		                                  fr_build($$);
+		                                  $$->mode       = EXPR_ARR_SLICE;
+		                                  $$->arrayExpr  = $1;
+		                                  $$->indexExpr1 = $3;
+		                                  $$->indexExpr2 = NULL; }
 ;
 
 expr6:
