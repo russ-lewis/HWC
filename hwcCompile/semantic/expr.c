@@ -394,6 +394,10 @@ static int semPhase20_expr_twoOpValType(HWC_Expr *expr)
 		if (expr->val.type != NULL)
 			printf("VAL.TYPE: %d\n", expr->val.type);
 	}
+
+	/*CHECK for same type and no array elements*/
+	// moght not know if arrays are same length
+	/* SIZE OF EQUAL OPERAND: */
 	
 	switch(expr->twoOp)
 	{
@@ -401,7 +405,6 @@ static int semPhase20_expr_twoOpValType(HWC_Expr *expr)
 			printf("\n-- debug: UNRECOGNIZED TWO OP EXPR ---\n");
 			break;
 		case OP_EQUALS:
-			expr->val.type = EXPR_VALTYPE_BOOL;
 			break;
 
 assert(0);
