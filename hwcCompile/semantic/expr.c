@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -367,7 +367,96 @@ assert(0);   // TODO: set the valtype to (simple) bit.  Same as previous
 
 static int semPhase20_expr_twoOpValType(HWC_Expr *expr)
 {
-assert(0);   // TODO
+	int retval = 0;
+	if (expr == NULL)
+	{
+		printf("EXPR was NULL");
+		return 1;
+	}
+	else
+	{
+		if (expr->decl  != NULL)
+			printf("DECL: %p\n", expr->decl);
+		if (expr->exprA != NULL)
+			printf("EXPRA: %p\n", expr->exprA->val.type);
+		if (expr->exprB != NULL)
+			printf("EXPRB: %p\n", expr->exprB);
+		if (expr->exprC != NULL)
+			printf("EXPRC: %p\n", expr->exprC);
+		if (expr->field != NULL)
+			printf("FIELD: %s\n", expr->field);
+		if (expr->mode  != NULL)
+			printf("MODE: %d\n", expr->mode);
+		if (expr->name  != NULL)
+			printf("NAME: %s\n", expr->name);
+		if (expr->twoOp != NULL)
+			printf("TWOOP: %d\n", expr->twoOp);
+		if (expr->val.type != NULL)
+			printf("VAL.TYPE: %d\n", expr->val.type);
+	}
+	
+	switch(expr->twoOp)
+	{
+		default:
+			printf("\n-- debug: UNRECOGNIZED TWO OP EXPR ---\n");
+			break;
+		case OP_EQUALS:
+			expr->val.type = EXPR_VALTYPE_BOOL;
+			break;
+
+assert(0);
+		case OP_NEQUAL:
+			printf(" NEQUAL ");
+			break;
+		case OP_LESS:
+			printf(" LESS THAN ");
+			break;
+		case OP_GREATER:
+			printf(" GREATER THAN ");
+			break;
+		case OP_LESSEQ:
+			printf(" LESS THAN OR EQUAL TO ");
+			break;
+		case OP_GREATEREQ:
+			printf(" GREATER THAN OR EQUAL TO ");
+			break;
+		case OP_BITAND:
+			printf(" BITWISE AND ");
+			break;
+		case OP_AND:
+			printf(" AND ");
+			break;
+		case OP_BITOR:
+			printf(" BITWISE OR ");
+			break;
+		case OP_OR:
+			printf(" OR ");
+			break;
+		case OP_XOR:
+			printf(" XOR ");
+			break;
+		case OP_PLUS:
+			printf(" PLUS ");
+			break;
+		case OP_MINUS:
+			printf(" MINUS ");
+			break;
+		case OP_TIMES:
+			printf(" TIMES ");
+			break;
+		case OP_DIVIDE:
+			printf(" DIVIDE ");
+			break;
+		case OP_MODULO:
+			printf(" MODULO ");
+			break;
+		case OP_CONCAT:
+			printf(" CONCAT ");
+			break;
+	}
+	
+// assert(0);   // TODO
+return expr->twoOp;
 }
 
 

@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 #include "semantic/phase10.h"
 #include "semantic/phase20.h"

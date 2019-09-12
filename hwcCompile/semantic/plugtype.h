@@ -2,7 +2,7 @@
 #define __SEMANTIC_PLUGTYPE_H__INCLUDED__
 
 
-#include <malloc.h>
+#include <stdlib.h>
 
 #include "wiring/fileRange.h"
 #include "names.h"
