@@ -712,8 +712,9 @@ assert(0);
 
 		currExpr->retvalOffset = currExpr->offsets.bits;
 
-		sizes_add(&currExpr->exprA->offsets,
-		          &currExpr->offsets, &currExpr->sizes);
+		sizes_copy(&currExpr->exprA->offsets, &currExpr->offsets);
+		currExpr->exprA->offsets.bits++;
+
 		semPhase35_expr(currExpr->exprA, 0);
 		break;
 
