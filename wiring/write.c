@@ -62,7 +62,8 @@ int wiring_write(HWC_Wiring *core, FILE *fp)
 		switch(core->logic[i].type)
 		{
 		default:
-			assert(0);   // TODO: unsupported type
+			break;
+			// assert(0);   // TODO: unsupported type
 
 		case WIRING_AND: name = "AND"; break;
 		case WIRING_OR : name = "OR "; break;
