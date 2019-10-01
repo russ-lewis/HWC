@@ -373,93 +373,43 @@ static int semPhase20_expr_twoOpValType(HWC_Expr *expr)
 		printf("EXPR was NULL");
 		return 1;
 	}
-	else
-	{
-		if (expr->decl  != NULL)
-			printf("DECL: %p\n", expr->decl);
-		if (expr->exprA != NULL)
-			printf("EXPRA: %p\n", expr->exprA->val.type);
-		if (expr->exprB != NULL)
-			printf("EXPRB: %p\n", expr->exprB);
-		if (expr->exprC != NULL)
-			printf("EXPRC: %p\n", expr->exprC);
-		if (expr->field != NULL)
-			printf("FIELD: %s\n", expr->field);
-		if (expr->mode  != NULL)
-			printf("MODE: %d\n", expr->mode);
-		if (expr->name  != NULL)
-			printf("NAME: %s\n", expr->name);
-		if (expr->twoOp != NULL)
-			printf("TWOOP: %d\n", expr->twoOp);
-		if (expr->val.type != NULL)
-			printf("VAL.TYPE: %d\n", expr->val.type);
-	}
 
-	/*CHECK for same type and no array elements*/
-	// moght not know if arrays are same length
-	/* SIZE OF EQUAL OPERAND: */
-	
 	switch(expr->twoOp)
 	{
 		default:
-			printf("\n-- debug: UNRECOGNIZED TWO OP EXPR ---\n");
 			break;
+
 		case OP_EQUALS:
+			expr->val.type = EXPR_VALTYPE_PLUGTYPE;
+
+			// Types for exprA and exprB are not equal; therefore, aren't comparable yet?
+			if (expr->exprA->val.type != expr->exprB->val.type)
+				retval += 1;
 			break;
 
 assert(0);
+		// TODO
 		case OP_NEQUAL:
-			printf(" NEQUAL ");
-			break;
 		case OP_LESS:
-			printf(" LESS THAN ");
-			break;
 		case OP_GREATER:
-			printf(" GREATER THAN ");
-			break;
 		case OP_LESSEQ:
-			printf(" LESS THAN OR EQUAL TO ");
-			break;
 		case OP_GREATEREQ:
-			printf(" GREATER THAN OR EQUAL TO ");
-			break;
 		case OP_BITAND:
-			printf(" BITWISE AND ");
-			break;
 		case OP_AND:
-			printf(" AND ");
-			break;
 		case OP_BITOR:
-			printf(" BITWISE OR ");
-			break;
 		case OP_OR:
-			printf(" OR ");
-			break;
 		case OP_XOR:
-			printf(" XOR ");
-			break;
 		case OP_PLUS:
-			printf(" PLUS ");
-			break;
 		case OP_MINUS:
-			printf(" MINUS ");
-			break;
 		case OP_TIMES:
-			printf(" TIMES ");
-			break;
 		case OP_DIVIDE:
-			printf(" DIVIDE ");
-			break;
 		case OP_MODULO:
-			printf(" MODULO ");
-			break;
 		case OP_CONCAT:
-			printf(" CONCAT ");
-			break;
+		break;
 	}
 	
 // assert(0);   // TODO
-return expr->twoOp;
+return retval;
 }
 
 
@@ -531,6 +481,48 @@ int semPhase30_expr(HWC_Expr *currExpr)
 			assert(0);   // TODO: implement the rest
 
 		case OP_EQUALS:
+			assert(currExpr->exprA->val.type == EXPR_VALTYPE_INT  ||
+			       currExpr->exprA->val.type == EXPR_VALTYPE_BOOL ||
+			       currExpr->exprA->val.type == EXPR_VALTYPE_PLUG);
+
+			assert(currExpr->exprB->val.type == EXPR_VALTYPE_INT  ||
+			       currExpr->exprB->val.type == EXPR_VALTYPE_BOOL ||
+			       currExpr->exprB->val.type == EXPR_VALTYPE_PLUG);
+
+			if ((currExpr->exprA->val.type == EXPR_VALTYPE_INT ||
+			     currExpr->exprA->val.type == EXPR_VALTYPE_BOOL) &&
+			    (currExpr->exprB->val.type == EXPR_VALTYPE_INT ||
+			     currExpr->exprB->val.type == EXPR_VALTYPE_BOOL))
+			{
+				assert(currExpr->val.type == EXPR_VALTYPE_PLUG);
+				/* no additional resources required */
+			}
+			else
+			{
+				/* this is a runtime expression.  The size is
+				 * definitely 1 bit, no matter the input size.
+				 */
+				assert(currExpr->val.type == EXPR_VALTYPE_PLUGTYPE);
+
+				// sanity check that the expression has nonzero size.  Copy
+				// that into our expression.
+				assert(currExpr->exprA->retvalSize > 0);
+				assert(currExpr->exprB->retvalSize > 0);
+				currExpr->retvalSize = currExpr->exprA->retvalSize + currExpr->exprB->retvalSize;
+
+				// first, copy in the sizes from the underlying expression,
+				// since it might include many logical operators and bits used
+				// for the temporaries
+				sizes_add(&currExpr->sizes, &currExpr->exprA->sizes, &currExpr->exprB->sizes);
+
+				// then, add one additional logical operator for the EQUALS, and
+				// space for it to write out its results.
+				currExpr->sizes.logicOps++;
+				currExpr->sizes.bits++;
+			}
+			
+			break;
+
 		case OP_NEQUAL:
 			// ==  !=
 			//
@@ -676,6 +668,7 @@ int semPhase35_expr(HWC_Expr *currExpr, int isLHS)
 		break;
 
 	case EXPR_TWOOP:
+	/*
 assert(0);
 #if 0
 		// TODO: Anything to do with "currExpr->value" here?
@@ -686,6 +679,23 @@ assert(0);
 		retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
 		retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
 #endif
+*/
+
+		switch (currExpr->twoOp)
+		{
+		default:
+			break;
+
+		case OP_EQUALS:
+			printf("%d\n", currExpr->offsets.bits);
+			//currExpr->offsets.bits = *numLogic;
+			//*numLogic += 1;
+			retval += 1;
+			// retval += findExprSize(currExpr->exprA, currExpr->offsets, numLogic, 0);
+			// retval += findExprSize(currExpr->exprB, currExpr->offsets, numLogic, 0);
+			break;
+		}
+
 		break;
 
 	case EXPR_BITNOT:

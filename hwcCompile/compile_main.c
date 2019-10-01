@@ -8,6 +8,7 @@
 #include "semantic/phase10.h"
 #include "semantic/phase20.h"
 #include "semantic/phase30.h"
+#include "semantic/phase35.h"
 #include "semantic/phase40.h"
 #include "wiring/build.h"
 #include "wiring/write.h"
@@ -63,14 +64,19 @@ int main(int argc, char **argv)
 				debug = 4;
 				break;     // do *NOT* fallthrough
 			}
-			if (strcmp(optarg, "semantic_phase40") == 0)
+			if (strcmp(optarg, "semantic_phase35") == 0)
 			{
 				debug = 5;
 				break;     // do *NOT* fallthrough
 			}
+			if (strcmp(optarg, "semantic_phase40") == 0)
+			{
+				debug = 6;
+				break;     // do *NOT* fallthrough
+			}
 			else
 			{
-				fprintf(stderr, "ERROR: The only supported debug modes are 'parse', 'semantic_phase10', 'semantic_phase20', 'semantic_phase30', 'semantic_phase40'\n");
+				fprintf(stderr, "ERROR: The only supported debug modes are 'parse', 'semantic_phase10', 'semantic_phase20', 'semantic_phase30', 'semantic_phase35', 'semantic_phase40'\n");
 				// intentional fallthrough
 			}
 
@@ -81,6 +87,7 @@ int main(int argc, char **argv)
 			fprintf(stderr, "    semantic_phase10\n");
 			fprintf(stderr, "    semantic_phase20\n");
 			fprintf(stderr, "    semantic_phase30\n");
+			fprintf(stderr, "    semantic_phase35\n");
 			fprintf(stderr, "    semantic_phase40\n");
 			return 1;
 		}
@@ -173,6 +180,13 @@ int main(int argc, char **argv)
 			else
 				retval = semPhase30_plugtype(cur->thing->plugtype);
 		}
+		else if (debug == 5)
+		{
+			if (cur->thing->part != NULL)
+				retval = semPhase35_part(cur->thing->part);
+			else
+				retval = semPhase35_plugtype(cur->thing->plugtype);
+		}
 		else
 		{
 			if (cur->thing->part != NULL)
@@ -188,13 +202,15 @@ int main(int argc, char **argv)
 	}
 
 	/* shall we "stop and dump state" for the semantic phase? */
-	if (debug == 3 || debug == 4 || debug == 5)
+	if (debug == 3 || debug == 4 || debug == 5 || debug == 6)
 	{
 		if (debug == 3)
 			printf("---- DEBUG: DUMPING SEMANTIC (after phase 20) ----\n");
 		if (debug == 4)
 			printf("---- DEBUG: DUMPING SEMANTIC (after phase 30) ----\n");
 		if (debug == 5)
+			printf("---- DEBUG: DUMPING SEMANTIC (after phase 35) ----\n");
+		if (debug == 6)
 			printf("---- DEBUG: DUMPING SEMANTIC (after phase 40) ----\n");
 
 		nameScope_dump(fileScope, 0);
