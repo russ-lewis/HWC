@@ -1,0 +1,35 @@
+# HWC Wiring Diagram
+version: 1.0
+
+debug=""
+
+bits 5
+
+# TODO: I think it's time to re-factor the debug statements.
+#       Instead of (or maybe in addition to?) the per-component debug statements
+#       below, we'll have statements which associate subsets of the bit space
+#       with snippets from the code.
+#
+#       Thus, when we have an operation which reads from some particular set of
+#       inputs, and which writes to others, then we can mark *all* of the
+#       instances of the same 
+
+#debug mappings
+#  debug memory read 0 write 1 size 1 "simple_memory.hwc(3:17-3:19) in simple_memory.hwc(13:10-13:2)"   # memory(bit) state
+#  debug        start 2        size 1 "simple_memory.hwc(5:13-5:15) in simple_memory.hwc(13:10-13:2)"   # public bit  out
+#  debug        start 3        size 1 "simple_memory.hwc(8:11-8:15) in simple_memory.hwc(13:10-13:2)"   #  state inside the NOT operation
+#  debug        start 4        size 1 "simple_memory.hwc(8:10-8:15) in simple_memory.hwc(13:10-13:2)"   # !state
+
+memory count 1
+  memory size 1 read 0 write 1	debug="simple_memory.hwc:3:17-3:19"
+
+logic count 1
+  logic NOT size 1 a 3     out 4	debug="simple_memory.hwc:8:10-8:15"
+
+connection count 3
+  connection               size 1 to 2 from 0	debug="simple_memory.hwc:7:2-7:12"
+  connection               size 1 to 3 from 0
+  connection               size 1 to 1 from 4	debug="simple_memory.hwc:8:2-7:15"
+
+assert count 0
+
