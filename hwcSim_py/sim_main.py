@@ -9,6 +9,10 @@ from wiring.logic      import Logic
 from wiring.io         import Input
 from wiring.io         import Output
 
+from wiring.logic_ops  import *
+
+bit_dictionary = Bit_Dictionary()
+
 def main():
 
     '''
@@ -90,205 +94,6 @@ def main():
         print("\n############################################################################\n")
 
     # TODO: read in input files
-
-    '''
-
-    # Open the file
-    try:
-        file = open(input_filename, "r")
-
-        # Tracking total counts of parts and 
-        bits        = 0
-        memCount    = 0
-        logicCount  = 0
-        connCount   = 0
-        assertCount = 0
-
-        # Arrays for storing logic, connections, asserts
-        logics      = []
-        connections = []
-        asserts     = []
-        memory      = []
-        inputs      = []
-        outputs     = []
-
-        # Read the first line to initialize while loop
-        line  = file.readline()
-
-        while line:
-            # Avoid comment lines in .wire files
-            if (line[0] == "#"):
-                line = file.readline()
-                continue
-
-            # Catches empty and new lines
-            if (line == "\n" or line == ""):
-                line = file.readline()
-                continue
-
-            # Extracts total bit size from .wire file
-            if (line.startswith("bits")):
-                bits = int(line.split()[1])
-                line = file.readline()
-                continue
-
-            if line.startswith("memory count"):
-                memCount = int(line.split()[2])
-                memory   = [None] * memCount
-
-                line = file.readline()
-                for i in range(int(memCount)):
-                    memInfo   = line.strip().split()
-                    memory[i] = Memory(int(memInfo[2]),
-                                       memInfo[3],
-                                       int(memInfo[4]),
-                                       memInfo[5],
-                                       int(memInfo[6]))
-                    
-                    line = file.readline()
-
-                print("MEMORY:      {}".format(memory))
-
-            if line.startswith("logic count"):
-                logicCount = int(line.split()[2])
-                logics     = [None] * logicCount
-
-                line = file.readline()
-                for i in range(int(logicCount)):
-                    logInfo   = line.strip().split()
-                    if logInfo[1] != "NOT":
-                        logics[i] = Logic(logInfo[1],
-                                        int(logInfo[3]),
-                                        logInfo[4],
-                                        int(logInfo[5]),
-                                        logInfo[6],
-                                        int(logInfo[7]),
-                                        logInfo[8],
-                                        int(logInfo[9]))
-                    else:
-                        logics[i] = Logic(logInfo[1],
-                                        int(logInfo[3]),
-                                        logInfo[4],
-                                        int(logInfo[5]),
-                                        "",
-                                        "",
-                                        logInfo[6],
-                                        int(logInfo[7]))
-
-
-                    line = file.readline()
-
-                print("LOGIC:       {}".format(logics))
-
-            if line.startswith("connection count"):
-                connCount   = int(line.split()[2])
-                connections = [None] * connCount
-
-                line = file.readline()
-                for i in range(int(connCount)):
-                    connInfo       = line.strip().split()
-                    connections[i] = Connection(int(connInfo[2]),
-                                                connInfo[3],
-                                                int(connInfo[4]),
-                                                connInfo[5],
-                                                int(connInfo[6]))
-
-                    line = file.readline()
-
-                print("CONNECTIONS: {}".format(connections))
-
-            if line.startswith("assert count"):
-                assertCount = int(line.split()[2])
-                asserts     = [None] * assertCount
-
-                line = file.readline()
-                for i in range(int(assertCount)):
-                    assertInfo = line.strip().split()
-                    asserts[i] = HWCAssert(int(assertInfo[1]))
-
-                    line = file.readline()
-
-                print("ASSERTS:     {}".format(asserts))
-
-            if line.startswith("i/o count"):
-                ioCount = int(line.split()[2])
-
-                line = file.readline()
-                for i in range(int(ioCount)):
-                    ioInfo = line.strip().split()
-
-                    if ioInfo[0] == "input":
-                        inputs.append(Input(
-                                      int(ioInfo[2]),
-                                      ioInfo[3],
-                                      int(ioInfo[4])))
-
-                    elif ioInfo[0] == "output":
-                        outputs.append(Output(
-                                       int(ioInfo[2]),
-                                       ioInfo[3],
-                                       int(ioInfo[4])))
-
-                    else:
-                        print(line)
-                        print("ERROR: wire file was not readable")
-                        exit(1)
-                        # Throw error
-
-                    line = file.readline()
-
-                print("INPUTS:      {}".format(inputs))
-                print("OUTPUTS:     {}".format(outputs))
-
-            line = file.readline()
-
-        # END while loop
-
-        file.close()
-
-        # Print the argument fields to verify its working
-        print("\n############################################################################\n")
-
-        print("TOTAL BITS: " + str(bits) + "\n")
-
-        print("MEMORY OBJECT COUNT: " + str(memCount))
-        for mem in memory:
-            print(mem)
-        print("")
-
-        print("LOGIC OBJECT COUNT: " + str(logicCount))
-        for logic in logics:
-            print(logic)
-        print("")
-
-        print("CONNECTION OBJECT COUNT: " + str(connCount))
-        for connection in connections:
-            print(connection)
-        print("")
-
-        print("ASSERT OBJECT COUNT: " + str(assertCount))
-        for hwcassert in asserts:
-            print(hwcassert)
-        print("")
-
-        print("INPUT OBJECT COUNT: " + str(len(inputs)))
-        for hwcInput in inputs:
-            print(hwcInput)
-        print("")
-
-        print("OUTPUT OBJECT COUNT: " + str(len(outputs)))
-        for hwcOutput in outputs:
-            print(hwcOutput)
-        print("")
-        
-        print("\n############################################################################\n")
-
-    except IOError:
-        print("ERROR: Unable to find or open " + input_filename)
-        exit(1)
-
-    '''
-
     # TODO: build the object graph
 
     '''
@@ -302,10 +107,10 @@ def main():
     +---------------------------------------+
     |   Bit     |   Read    |   Write       |
     |   --------|-----------|-----------    |  
-    |   (0,1)   |   [a]     |   FALSE       |
-    |   (1,2)   |   [a,b]   |               |
-    |   (2,5)   |   [NOT]   |               |
-    |   (6,7)   |   []      |               |
+    |   [0,1]   |   [a]     |   c           |
+    |   [1,2]   |   [a,b]   |               |
+    |   [2,5]   |   [NOT]   |               |
+    |   [6,7]   |   []      |               |
     +---------------------------------------+
 
     INVARIANT: If there is no write, then output
@@ -317,7 +122,11 @@ def main():
     # 2. Add read and write values depending on line
     # 3. Collapse fan out and fan in connections
 
-    bit_dictionary = Bit_Dictionary()
+
+    # TODO: CHANGES
+    # TODO: Create objects for LogicOps (NOT, AND, etc)
+    # TODO: Change order of parsing to, output side first
+    # TODO: Lambdas for the connections
 
     try:
         # Open the file
@@ -327,6 +136,11 @@ def main():
         # Store read-write values in an array for now
         # TODO: Make a custom data structure to model READ-WRITE?
         # TODO: Make a custom data structure to model this?
+        
+        outputs = []
+        inputs  = []
+
+        logic_ops = {}
         
         # Read the first line to initialize while loop
         line = file.readline()
@@ -348,7 +162,6 @@ def main():
                 line = file.readline()
                 continue
 
-            # Adds logics to the bit dictionary
             if line.startswith("logic count"):
                 logicCount = int(line.split()[2])
 
@@ -360,9 +173,27 @@ def main():
                         size = int(logicInfo[3])
                         a    = int(logicInfo[5])
                         out  = int(logicInfo[7])
-                        
-                        bit_dictionary.addReader((a, size), out)
-                        bit_dictionary.addWriter((out, size))
+
+                        # Build keys for dictionary
+                        reader_a_key = (a  , size)
+                        writer_key   = (out, size)
+
+                        # Parse "to" bit
+                        result = bit_dictionary.addWriter(writer_key)
+
+                        if not result:
+                            print("Short circuit detected @ " + line)
+                            exit(1)
+
+                        # Create NOT Object for LogicOp
+                        not_obj = NOT(bit_dictionary.get_readers(writer_key), 
+                                      bit_dictionary.get_writers(writer_key), 
+                                      "NOT-" + str(writer_key))
+
+                        # Parse from side
+                        bit_dictionary.addReader(reader_a_key, lambda val: not_obj.deliver_a(val))
+
+                        logic_ops[not_obj.getName()] = not_obj
 
                     else:
                         size = int(logicInfo[3])
@@ -370,15 +201,33 @@ def main():
                         b    = int(logicInfo[7])
                         out  = int(logicInfo[9])
 
-                        bit_dictionary.addReader((a, size), out)
-                        bit_dictionary.addReader((b, size), out)
-                        bit_dictionary.addWriter((out, size))
+                        # Build keys for dictionary
+                        reader_a_key = (a  , size)
+                        reader_b_key = (b  , size)
+                        writer_key   = (out, size)
+
+                        # Parse "to" bit
+                        result = bit_dictionary.addWriter(writer_key)
+
+                        if not result:
+                            print("Short circuit detected @ " + line)
+                            exit(1)
+
+                        # Create AND Object for LogicOp
+                        and_obj = AND(bit_dictionary.get_readers(writer_key), 
+                                      bit_dictionary.get_writers(writer_key), 
+                                      "AND-" + str(writer_key))
+
+                        # Parse from side
+                        bit_dictionary.addReader(reader_a_key, lambda val: and_obj.deliver_a(val))
+                        bit_dictionary.addReader(reader_b_key, lambda val: and_obj.deliver_b(val))
+
+                        logic_ops[and_obj.getName()] = and_obj
 
                     line = file.readline()
 
                 continue
 
-            # Adds connections to the bit dictionary
             if line.startswith("connection count"):
                 connCount = int(line.split()[2])
 
@@ -390,14 +239,23 @@ def main():
                     toBit   = int(connInfo[4])
                     fromBit = int(connInfo[6])
 
-                    bit_dictionary.addReader((fromBit, size), toBit)
-                    bit_dictionary.addWriter((toBit, size))
+                    reader_key = (fromBit, size)
+                    writer_key = (toBit  , size)
+
+                    # Parse "to" side
+                    result = bit_dictionary.addWriter(writer_key)
+
+                    if not result:
+                        print("Short circuit detected @ " + line)
+                        exit(1)
+
+                    # Parse from side
+                    bit_dictionary.addReader(reader_key, make_conn(writer_key))
 
                     line = file.readline()
 
                 continue
 
-            # Adds i/o counts to the bit dictionary
             if line.startswith("i/o count"):
                 ioCount = int(line.split()[2])
 
@@ -409,12 +267,29 @@ def main():
                         size  = int(ioInfo[2])
                         inBit = int(ioInfo[4])
 
-                        bit_dictionary.addReader((inBit, size), "INPUT")
+                        writer_key = (inBit, size)
+
+                        bit_dictionary.addWriter(writer_key)
+                        inputs.append(writer_key)
+
+                        if not result:
+                            print("Short circuit detected @ " + line)
+                            exit(1)
+
                     else:
                         size   = int(ioInfo[2])
                         outBit = int(ioInfo[4])
 
-                        bit_dictionary.addWriter((outBit, size))
+                        reader_key = (outBit, size)
+                        output_obj = Output("OUT-" + str(reader_key))
+
+                        # THIS IS WEIRD:
+                        # So print(x) works on Windows but it doesnt work on Mac
+                        # sys.stdout.write(x) works on Mac tho
+                        #
+                        # https://stackoverflow.com/questions/2970858/why-doesnt-print-work-in-a-lambda
+                        bit_dictionary.addReader(reader_key, lambda val: sys.stdout.write("OUTPUT: " + str(val) + "\n")) #lambda val: output_obj.deliver_val(val))
+                        outputs.append(reader_key)
 
                     line = file.readline()
 
@@ -422,19 +297,52 @@ def main():
 
             line = file.readline()
 
-        file.close()
+        print(bit_dictionary)
+
+        for logic_op in logic_ops:
+            print(logic_ops.get(logic_op))
+
+        print("INPUTS: ")
+
+        for input_bit in inputs:
+            print(input_bit)
+
+        print("OUTPUTS: ")
+
+        for output in outputs:
+            print(output)
+
+        print("\n############################################################################\n")
 
     except IOError:
         print("ERROR: Unable to find or open " + input_filename)
         exit(1)
 
-    print(bit_dictionary)
+    # TODO: write the simiulation algorithm of propegating bits
+    # Run the simulation
 
-    # TODO: Build the lambdas to deliver the values
-    
+    user_inputs = {}
 
-    
+    # TODO: Get input from user input
+    for hwc_input in inputs:
+        user_inputs[hwc_input] = int(input("Enter input for " + str(hwc_input) + ": "))
+
+    # TODO: Drive rest of bits off input
+    # Follow until a 
+    for user_in in user_inputs:
+        print(str(user_in) + ": " + str(user_inputs.get(user_in)))
+
+        readers = bit_dictionary.get(user_in).get_readers()
+
+        for reader in readers:
+            reader(user_inputs.get(user_in))
+
+    # TODO: Show output
 
 
+
+# Needed to lock values when using lambda
+def make_conn(writer_key):
+    return lambda val: [reader(val) for reader in bit_dictionary.get_readers(writer_key)]
 
 main()

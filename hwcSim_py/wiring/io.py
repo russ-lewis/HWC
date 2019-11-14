@@ -17,10 +17,13 @@ class Input():
 
 class Output():
 
-    def __init__(self, size, name, bit):
-        self.size = size
+    def __init__(self, name):
         self.name = name
-        self.bit  = bit
+        self.val  = None
+
+    def deliver_val(self, val):
+        print("OUTPUT DELIVERED: " + str(val))
+        self.val = val
 
     def __str__(self):
         ioStr  = ""
