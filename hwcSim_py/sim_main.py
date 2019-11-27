@@ -327,6 +327,9 @@ def main():
     for hwc_input in inputs:
         user_inputs[hwc_input] = int(input("Enter input for " + str(hwc_input) + ": "))
 
+        assert user_inputs[hwc_input] >= 0
+        assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
+
     # TODO: Drive rest of bits off input
     # Follow until a 
     for user_in in user_inputs:
