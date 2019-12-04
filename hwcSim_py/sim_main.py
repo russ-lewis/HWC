@@ -43,6 +43,7 @@ def main():
         reset           = False
         genTemplate     = False
         tick_count      = 0
+        wire_filename   = ""
         input_filename  = ""
         debug           = 0
 
@@ -68,6 +69,11 @@ def main():
                 arg_ptr += 2
                 continue
 
+            if (sys.argv[arg_ptr] == "--wire"):
+                wire_filename = sys.argv[arg_ptr + 1]
+                arg_ptr += 2
+                continue
+
             # Sets the input file that the simluator will read in
             if (sys.argv[arg_ptr] == "--input"):
                 input_filename = sys.argv[arg_ptr + 1]
@@ -80,16 +86,24 @@ def main():
                 arg_ptr += 2
                 continue
 
+            # TODO: Auto gen input
+            if (sys.argv[arg_ptr] == "--auto"):
+                auto = True
+                arg_ptr += 1
+                continue
+
             # Additional arguments 
 
         # Print the argument fields to verify its working
         print("\n############################################################################\n")
 
+        print("Wire File:         " + wire_filename)
         print("Input File:        " + input_filename)
         print("Tick Count:        " + str(tick_count))
         print("Reset:             " + str(reset))
         print("Debug:             " + str(debug))
         print("Generate Template: " + str(genTemplate))
+        print("Auto:              " + str(auto))
 
         print("\n############################################################################\n")
 
@@ -130,7 +144,7 @@ def main():
 
     try:
         # Open the file
-        file = open(input_filename, "r")
+        file = open(wire_filename, "r")
 
         # Initializa bit dictionary using Python built in dictionary
         # Store read-write values in an array for now
@@ -285,7 +299,7 @@ def main():
 
                         # THIS IS WEIRD:
                         # So print(x) works on Windows but it doesnt work on Mac
-                        # sys.stdout.write(x) works on Mac tho
+                        # sys.stdout.write(x) works on Mac though
                         #
                         # https://stackoverflow.com/questions/2970858/why-doesnt-print-work-in-a-lambda
                         bit_dictionary.addReader(reader_key, lambda val: sys.stdout.write("OUTPUT: " + str(val) + "\n")) #lambda val: output_obj.deliver_val(val))
@@ -298,9 +312,6 @@ def main():
             line = file.readline()
 
         print(bit_dictionary)
-
-        for logic_op in logic_ops:
-            print(logic_ops.get(logic_op))
 
         print("INPUTS: ")
 
@@ -323,22 +334,43 @@ def main():
 
     user_inputs = {}
 
-    # TODO: Get input from user input
-    for hwc_input in inputs:
-        user_inputs[hwc_input] = int(input("Enter input for " + str(hwc_input) + ": "))
+    # AUTO FLAG: used for testing through test script 
 
-        assert user_inputs[hwc_input] >= 0
-        assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
+    # Relistically we should test all possible single bit inputs to determine if the program actually works
+    # BUT: for now I'm going to only test single bits -> 1
+    if (auto):
+        for hwc_input in inputs:
+            
+            user_inputs[hwc_input] = 1
 
-    # TODO: Drive rest of bits off input
-    # Follow until a 
-    for user_in in user_inputs:
-        print(str(user_in) + ": " + str(user_inputs.get(user_in)))
+            assert user_inputs[hwc_input] >= 0
+            assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
 
-        readers = bit_dictionary.get(user_in).get_readers()
+        # TODO: Drive rest of bits off input
+        # Follow until an output is reached
+        for user_in in user_inputs:
+            readers = bit_dictionary.get(user_in).get_readers()
 
-        for reader in readers:
-            reader(user_inputs.get(user_in))
+            for reader in readers:
+                reader(user_inputs.get(user_in))
+
+    else:
+        # TODO: Get input from user input
+        for hwc_input in inputs:
+            
+            user_inputs[hwc_input] = int(input("Enter input for " + str(hwc_input) + ": "))
+
+            assert user_inputs[hwc_input] >= 0
+            assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
+
+        # TODO: Drive rest of bits off input
+        # Follow until an output is reached
+        for user_in in user_inputs:
+
+            readers = bit_dictionary.get(user_in).get_readers()
+
+            for reader in readers:
+                reader(user_inputs.get(user_in))
 
     # TODO: Show output
 

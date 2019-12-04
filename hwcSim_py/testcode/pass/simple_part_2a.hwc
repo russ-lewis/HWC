@@ -1,0 +1,12 @@
+part main {
+    bit a;
+    bit b;
+    public bit c;
+    public bit y;
+    bit d;
+
+    y = !a;
+    a = b;
+    b = c;
+    d = b;
+}
