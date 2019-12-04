@@ -24,13 +24,25 @@ class Bit_Dictionary():
     def get_writers(self, key):
         return self.dictionary.get(key).get_writers()
 
-    def __str__(self):
+    def get_test_str(self):
         dictStr =  "BIT DICTIONARY: \n"
 
         # Depending on the size of the Bit array, may have to change.
         # Sorting algorithm might have ridiculuous time cost
         for key in sorted(self.dictionary.keys(), key=lambda x: x[0]):
             dictStr += str(key) + ":\t[" + str(len(self.dictionary.get(key).get_readers())) + ", " + str(self.dictionary.get(key).get_writers()) + "]\n"
+
+        dictStr += "\n############################################################################\n"
+
+        return dictStr
+
+    def __str__(self):
+        dictStr =  "BIT DICTIONARY: \n"
+
+        # Depending on the size of the Bit array, may have to change.
+        # Sorting algorithm might have ridiculuous time cost
+        for key in sorted(self.dictionary.keys(), key=lambda x: x[0]):
+            dictStr += str(key) + ":\t" + str(self.dictionary.get(key)) + "\n"
 
         dictStr += "\n############################################################################\n"
 

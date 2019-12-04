@@ -155,3 +155,42 @@ class OR(LogicOp):
 
     def get_lambda():
         return
+
+class XOR(LogicOp):
+
+    def __init__(self, readers, writers, name):
+        LogicOp.__init__(self, readers, writers, name)
+
+        self.val_a = None
+        self.val_b = None
+        self.out   = None
+
+    def deliver_a(self, val):
+        self.val_a = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def deliver_b(self, val):
+        self.val_b = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def evaluate_op(self):
+        if self.val_a == None or self.val_b == None or self.out != None:
+            return
+
+        val = self.val_a + self.val_b
+
+        # True if both 0 or both 1
+        if val == 1:
+            self.out = 1
+        else:
+            self.out = 0
+
+        for reader in self.readers:
+            reader(self.out)
+
+    def get_lambda():
+        return

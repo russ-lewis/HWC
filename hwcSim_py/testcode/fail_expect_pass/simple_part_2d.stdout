@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         testcode//pass/simple_part_2a.wire
+Wire File:         testcode//fail_expect_pass/simple_part_2d.wire
 Input File:        
 Tick Count:        0
 Reset:             False
@@ -13,19 +13,17 @@ Auto:              True
 
 BIT DICTIONARY: 
 (0, 1):	[1, True]
-(1, 1):	[2, True]
+(1, 1):	[1, True]
 (2, 1):	[1, True]
 (3, 1):	[1, True]
-(4, 1):	[0, True]
-(5, 1):	[1, True]
-(6, 1):	[1, True]
+(4, 1):	[1, True]
 
 ############################################################################
 
 INPUTS: 
-(2, 1)
+(0, 1)
 OUTPUTS: 
-(3, 1)
+(2, 1)
 
 ############################################################################
 

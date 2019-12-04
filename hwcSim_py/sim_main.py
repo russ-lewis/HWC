@@ -46,6 +46,7 @@ def main():
         wire_filename   = ""
         input_filename  = ""
         debug           = 0
+        auto            = False
 
         while (arg_ptr < len(sys.argv)):
 
@@ -227,16 +228,33 @@ def main():
                             print("Short circuit detected @ " + line)
                             exit(1)
 
-                        # Create AND Object for LogicOp
-                        and_obj = AND(bit_dictionary.get_readers(writer_key), 
-                                      bit_dictionary.get_writers(writer_key), 
-                                      "AND-" + str(writer_key))
+                        if logicInfo[1] == "AND":
+                            # Create AND Object for LogicOp
+                            logic_obj = AND(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "AND-" + str(writer_key))
+
+                        elif logicInfo[1] == "OR":
+                            # Create AND Object for LogicOp
+                            logic_obj = OR(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "OR-" + str(writer_key))
+
+                        elif logicInfo[1] == "XOR":
+                            # Create AND Object for LogicOp
+                            logic_obj = XOR(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "XOR-" + str(writer_key))
+
+                        else:
+                            print("ERROR: Logic object not yet supported")
+                            exit(1)
 
                         # Parse from side
-                        bit_dictionary.addReader(reader_a_key, lambda val: and_obj.deliver_a(val))
-                        bit_dictionary.addReader(reader_b_key, lambda val: and_obj.deliver_b(val))
+                        bit_dictionary.addReader(reader_a_key, lambda val: logic_obj.deliver_a(val))
+                        bit_dictionary.addReader(reader_b_key, lambda val: logic_obj.deliver_b(val))
 
-                        logic_ops[and_obj.getName()] = and_obj
+                        logic_ops[logic_obj.getName()] = logic_obj
 
                     line = file.readline()
 
@@ -311,7 +329,13 @@ def main():
 
             line = file.readline()
 
-        print(bit_dictionary)
+        if (auto):
+            print(bit_dictionary.get_test_str())
+        else:
+            print(bit_dictionary)
+
+            for logic_op in logic_ops:
+                print(logic_ops[logic_op])
 
         print("INPUTS: ")
 
@@ -360,8 +384,10 @@ def main():
             
             user_inputs[hwc_input] = int(input("Enter input for " + str(hwc_input) + ": "))
 
+            '''
             assert user_inputs[hwc_input] >= 0
             assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
+            '''
 
         # TODO: Drive rest of bits off input
         # Follow until an output is reached

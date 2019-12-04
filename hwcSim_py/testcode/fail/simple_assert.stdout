@@ -1,0 +1,16 @@
+
+############################################################################
+
+Wire File:         testcode//fail/simple_assert.wire
+Input File:        
+Tick Count:        0
+Reset:             False
+Debug:             0
+Generate Template: False
+Auto:              True
+
+############################################################################
+
+ERROR: Logic object not yet supported
+
+rc=1
