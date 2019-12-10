@@ -2,7 +2,7 @@
 ############################################################################
 
 Wire File:         testcode//fail/simple_assert.wire
-Input File:        
+Input File:        None
 Tick Count:        0
 Reset:             False
 Debug:             0

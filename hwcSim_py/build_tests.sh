@@ -14,8 +14,13 @@ do
   base=$(echo $TESTCASE | rev | cut -f2- -d'.' | rev)
 
   {
-    python sim_main.py --wire $base.wire --auto
-    #py 
+    if [[ ! -f $base.csv ]]
+    then
+      python sim_main.py --wire $base.wire --auto
+    else
+      python sim_main.py --wire $base.wire --input $base.csv --auto
+    fi
+
     rc=$?
 
     echo

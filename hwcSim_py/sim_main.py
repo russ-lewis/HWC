@@ -33,80 +33,80 @@ def main():
     # If the only argument is the sim_main.py, then return error message
     if (len(sys.argv) < 2):
         print("Correct Usage: python sim_main.py (--reset) (--genTemplate) (--run <tick_amount>) (--input <file_name>)")
+        exit(1)
 
-    else:
-        # Points to the first argument in sys.argv list
-        # The pointer moves to the next argument instead of checking total argument length
-        arg_ptr = 1
+    # Points to the first argument in sys.argv list
+    # The pointer moves to the next argument instead of checking total argument length
+    arg_ptr = 1
 
-        # Fields to store the values of the optional arguments
-        reset           = False
-        genTemplate     = False
-        tick_count      = 0
-        wire_filename   = ""
-        input_filename  = ""
-        debug           = 0
-        auto            = False
+    # Fields to store the values of the optional arguments
+    reset           = False
+    genTemplate     = False
+    tick_count      = 0
+    wire_filename   = None
+    input_filename  = None
+    debug           = 0
+    auto            = False
 
-        while (arg_ptr < len(sys.argv)):
+    while (arg_ptr < len(sys.argv)):
 
-            # NOT supported right now
-            if (sys.argv[arg_ptr] == "--reset"):
-                print("Command option '--reset' argument is currently not supported")
-                reset = True
-                arg_ptr += 1
-                continue
+        # NOT supported right now
+        if (sys.argv[arg_ptr] == "--reset"):
+            print("Command option '--reset' argument is currently not supported")
+            reset = True
+            arg_ptr += 1
+            continue
 
-            # NOT supported right now
-            if (sys.argv[arg_ptr] == "--genTemplate"):
-                print("Command option '--genTemplate' argument is currently not supported")
-                genTemplate = True
-                arg_ptr += 1
-                continue
+        # NOT supported right now
+        if (sys.argv[arg_ptr] == "--genTemplate"):
+            print("Command option '--genTemplate' argument is currently not supported")
+            genTemplate = True
+            arg_ptr += 1
+            continue
 
-            # Sets the tick amount for the simulator to run
-            if (sys.argv[arg_ptr] == "--run"):
-                tick_count = sys.argv[arg_ptr + 1]
-                arg_ptr += 2
-                continue
+        # Sets the tick amount for the simulator to run
+        if (sys.argv[arg_ptr] == "--run"):
+            tick_count = sys.argv[arg_ptr + 1]
+            arg_ptr += 2
+            continue
 
-            if (sys.argv[arg_ptr] == "--wire"):
-                wire_filename = sys.argv[arg_ptr + 1]
-                arg_ptr += 2
-                continue
+        if (sys.argv[arg_ptr] == "--wire"):
+            wire_filename = sys.argv[arg_ptr + 1]
+            arg_ptr += 2
+            continue
 
-            # Sets the input file that the simluator will read in
-            if (sys.argv[arg_ptr] == "--input"):
-                input_filename = sys.argv[arg_ptr + 1]
-                arg_ptr += 2
-                continue
+        # Sets the input file that the simluator will read in
+        if (sys.argv[arg_ptr] == "--input"):
+            input_filename = sys.argv[arg_ptr + 1]
+            arg_ptr += 2
+            continue
 
-            # NOT supported right now
-            if (sys.argv[arg_ptr] == "--debug"):
-                debug = sys.argv[arg_ptr + 1]
-                arg_ptr += 2
-                continue
+        # NOT supported right now
+        if (sys.argv[arg_ptr] == "--debug"):
+            debug = sys.argv[arg_ptr + 1]
+            arg_ptr += 2
+            continue
 
-            # TODO: Auto gen input
-            if (sys.argv[arg_ptr] == "--auto"):
-                auto = True
-                arg_ptr += 1
-                continue
+        # TODO: Auto gen input
+        if (sys.argv[arg_ptr] == "--auto"):
+            auto = True
+            arg_ptr += 1
+            continue
 
-            # Additional arguments 
+        # Additional arguments 
 
-        # Print the argument fields to verify its working
-        print("\n############################################################################\n")
+    # Print the argument fields to verify its working
+    print("\n############################################################################\n")
 
-        print("Wire File:         " + wire_filename)
-        print("Input File:        " + input_filename)
-        print("Tick Count:        " + str(tick_count))
-        print("Reset:             " + str(reset))
-        print("Debug:             " + str(debug))
-        print("Generate Template: " + str(genTemplate))
-        print("Auto:              " + str(auto))
+    print("Wire File:         " + str(wire_filename))
+    print("Input File:        " + str(input_filename))
+    print("Tick Count:        " + str(tick_count))
+    print("Reset:             " + str(reset))
+    print("Debug:             " + str(debug))
+    print("Generate Template: " + str(genTemplate))
+    print("Auto:              " + str(auto))
 
-        print("\n############################################################################\n")
+    print("\n############################################################################\n")
 
     # TODO: read in input files
     # TODO: build the object graph
@@ -156,6 +156,7 @@ def main():
         inputs  = []
 
         logic_ops = {}
+        constants = {}
         
         # Read the first line to initialize while loop
         line = file.readline()
@@ -327,7 +328,30 @@ def main():
 
                 continue
 
+            if line.startswith("constant count"):
+                constantCount = int(line.split()[2])
+
+                line = file.readline()
+                for constant in range(constantCount):
+                    constantInfo = line.split()
+
+                    size    = int(constantInfo[2])
+                    fromBit = int(constantInfo[4])
+                    value   = int(constantInfo[6])
+
+                    writer_key = (fromBit, size)
+
+                    # Add to bit dictionary
+                    bit_dictionary.addWriter(writer_key)
+                    constants[writer_key] = value
+
+                    line = file.readline()
+
+                continue
+
             line = file.readline()
+
+        file.close()
 
         if (auto):
             print(bit_dictionary.get_test_str())
@@ -349,56 +373,125 @@ def main():
 
         print("\n############################################################################\n")
 
+
     except IOError:
-        print("ERROR: Unable to find or open " + input_filename)
+        print("ERROR: Unable to find or open " + wire_filename)
         exit(1)
 
-    # TODO: write the simiulation algorithm of propegating bits
-    # Run the simulation
+    # Parse and drive input from input file if specified in the command line
+    if (input_filename != None):
 
-    user_inputs = {}
+        try:
+            # TODO: Create input file formats
 
-    # AUTO FLAG: used for testing through test script 
+            # TODO: Parse input file formats
+            file = open(input_filename, "r")
 
-    # Relistically we should test all possible single bit inputs to determine if the program actually works
-    # BUT: for now I'm going to only test single bits -> 1
-    if (auto):
-        for hwc_input in inputs:
-            
-            user_inputs[hwc_input] = 1
+            line = " "
+            user_inputs = {}
 
-            assert user_inputs[hwc_input] >= 0
-            assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
+            while line:
+                line = file.readline()
 
-        # TODO: Drive rest of bits off input
-        # Follow until an output is reached
-        for user_in in user_inputs:
-            readers = bit_dictionary.get(user_in).get_readers()
+                # Breaks on empty last line
+                if line == "":
+                    break
 
-            for reader in readers:
-                reader(user_inputs.get(user_in))
+                csv_inputs = line.strip().split(",")
 
+                if len(csv_inputs) != len(inputs):
+                    print("Input file does not have the correct number of inputs")
+                    exit(1)
+
+                for i in range(len(csv_inputs)):
+                    csv_input = int(csv_inputs[i].strip())
+                    usr_input = inputs[i]
+
+                    # START THE SIMULATION WITH THIS THIS INPUTS
+                    assert csv_input >= 0
+                    assert csv_input <  2**(csv_input)    # TODO: report an error to the user, not assert!
+
+                    user_inputs[usr_input] = csv_input
+
+                # TODO: Drive rest of bits off input
+                # Follow until an output is reached
+                for constant in constants:
+                    readers = bit_dictionary.get(constant).get_readers()
+
+                    for reader in readers:
+                        reader(constants[constant])
+
+                for usr_input in user_inputs:
+                    readers = bit_dictionary.get(usr_input).get_readers()
+
+                    for reader in readers:
+                        reader(user_inputs.get(usr_input))
+
+        except IOError:
+            print("ERROR: Unable to find or open " + input_filename + " or " + wire_filename)
+            exit(1)
+    
     else:
-        # TODO: Get input from user input
-        for hwc_input in inputs:
-            
-            user_inputs[hwc_input] = int(input("Enter input for " + str(hwc_input) + ": "))
 
-            '''
-            assert user_inputs[hwc_input] >= 0
-            assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
-            '''
+        # TODO: write the simiulation algorithm of propegating bits
+        # Run the simulation
 
-        # TODO: Drive rest of bits off input
-        # Follow until an output is reached
-        for user_in in user_inputs:
+        user_inputs = {}
 
-            readers = bit_dictionary.get(user_in).get_readers()
+        # AUTO FLAG: used for testing through test script 
 
-            for reader in readers:
-                reader(user_inputs.get(user_in))
+        # Relistically we should test all possible single bit inputs to determine if the program actually works
+        # BUT: for now I'm going to only test single bits -> 1
+        if (auto):
+            for hwc_input in inputs:
+                
+                user_inputs[hwc_input] = 1
 
-    # TODO: Show output
+                assert user_inputs[hwc_input] >= 0
+                assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
+
+            # TODO: Drive rest of bits off input
+            # Follow until an output is reached
+            for constant in constants:
+                readers = bit_dictionary.get(constant).get_readers()
+
+                for reader in readers:
+                    reader(constants[constant])
+
+            for user_in in user_inputs:
+                readers = bit_dictionary.get(user_in).get_readers()
+
+                for reader in readers:
+                    reader(user_inputs.get(user_in))
+
+        else:
+            # TODO: Get input from user input
+            for hwc_input in inputs:
+                
+                user_inputs[hwc_input] = int(input("Enter input for " + str(hwc_input) + ": "))
+
+                
+                assert user_inputs[hwc_input] >= 0
+                assert user_inputs[hwc_input] <  2**(hwc_input[1])    # TODO: report an error to the user, not assert!
+                
+
+            # TODO: Drive rest of bits off input
+            # Follow until an output is reached
+            for constant in constants:
+                readers = bit_dictionary.get(constant).get_readers()
+
+                for reader in readers:
+                    reader(constants[constant])
+
+            for user_in in user_inputs:
+
+                readers = bit_dictionary.get(user_in).get_readers()
+
+                for reader in readers:
+                    reader(user_inputs.get(user_in))
+
+        # TODO: Show output
+    
 
 
 

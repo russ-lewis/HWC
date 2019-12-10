@@ -2,7 +2,7 @@
 ############################################################################
 
 Wire File:         testcode//pass/simple_and.wire
-Input File:        
+Input File:        testcode//pass/simple_and.csv
 Tick Count:        0
 Reset:             False
 Debug:             0
@@ -29,6 +29,6 @@ OUTPUTS:
 
 ############################################################################
 
-OUTPUT: 1
+OUTPUT: 0
 
 rc=0
