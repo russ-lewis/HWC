@@ -1,0 +1,17 @@
+
+############################################################################
+
+Wire File:         simple_part_shortcircuit.wire
+Input File:        None
+Tick Count:        0
+Reset:             False
+Debug:             0
+Generate Template: False
+Auto:              True
+
+############################################################################
+
+Short circuit detected @   connection               size 1 to 1 from 3
+
+
+rc=1
