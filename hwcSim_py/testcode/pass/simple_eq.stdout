@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         simple_or.wire
+Wire File:         simple_eq.wire
 Input File:        None
 Tick Count:        0
 Reset:             False

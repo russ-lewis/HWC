@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         testcode//fail_expect_pass/simple_part.wire
+Wire File:         simple_part.wire
 Input File:        None
 Tick Count:        0
 Reset:             False

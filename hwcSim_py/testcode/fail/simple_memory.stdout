@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         testcode//fail/simple_memory.wire
+Wire File:         simple_memory.wire
 Input File:        None
 Tick Count:        0
 Reset:             False

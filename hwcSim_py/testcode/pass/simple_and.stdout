@@ -1,8 +1,8 @@
 
 ############################################################################
 
-Wire File:         testcode//pass/simple_and.wire
-Input File:        testcode//pass/simple_and.csv
+Wire File:         simple_and.wire
+Input File:        testcode/pass/simple_and.csv
 Tick Count:        0
 Reset:             False
 Debug:             0

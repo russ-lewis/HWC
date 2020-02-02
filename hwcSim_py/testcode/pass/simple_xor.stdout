@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         testcode//pass/simple_xor.wire
+Wire File:         simple_xor.wire
 Input File:        None
 Tick Count:        0
 Reset:             False

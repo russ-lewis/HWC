@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         testcode//fail/simple_io.wire
+Wire File:         simple_io.wire
 Input File:        None
 Tick Count:        0
 Reset:             False

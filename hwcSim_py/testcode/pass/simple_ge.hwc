@@ -1,0 +1,10 @@
+part main {
+    public bit a;
+    public bit b;
+    public bit c;
+
+    /*
+     * Might not be valid syntax, but at least for testing purposes
+     */
+    c = (a >= b);
+}

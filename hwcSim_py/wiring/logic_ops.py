@@ -183,8 +183,235 @@ class XOR(LogicOp):
 
         val = self.val_a + self.val_b
 
-        # True if both 0 or both 1
+        # True if only a or b is 1
         if val == 1:
+            self.out = 1
+        else:
+            self.out = 0
+
+        for reader in self.readers:
+            reader(self.out)
+
+    def get_lambda():
+        return
+
+
+class EQ(LogicOp):
+
+    def __init__(self, readers, writers, name):
+        LogicOp.__init__(self, readers, writers, name)
+        
+        self.val_a = None
+        self.val_b = None
+        self.out   = None
+
+    def deliver_a(self, val):
+        self.val_a = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def deliver_b(self, val):
+        self.val_b = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def evaluate_op(self):
+        if self.val_a == None or self.val_b == None or self.out != None:
+            return
+
+        val = self.val_a + self.val_b
+
+        # True if both XOR of two is 0
+        if val != 1:
+            self.out = 1
+        else:
+            self.out = 0
+
+        for reader in self.readers:
+            reader(self.out)
+
+    def get_lambda():
+        return
+
+class NEQ(LogicOp):
+
+    def __init__(self, readers, writers, name):
+        LogicOp.__init__(self, readers, writers, name)
+        
+        self.val_a = None
+        self.val_b = None
+        self.out   = None
+
+    def deliver_a(self, val):
+        self.val_a = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def deliver_b(self, val):
+        self.val_b = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def evaluate_op(self):
+        if self.val_a == None or self.val_b == None or self.out != None:
+            return
+
+        val = self.val_a + self.val_b
+
+        # True if both XOR of two is 1
+        if val == 1:
+            self.out = 1
+        else:
+            self.out = 0
+
+        for reader in self.readers:
+            reader(self.out)
+
+    def get_lambda():
+        return
+
+class GT(LogicOp):
+
+    def __init__(self, readers, writers, name):
+        LogicOp.__init__(self, readers, writers, name)
+        
+        self.val_a = None
+        self.val_b = None
+        self.out   = None
+
+    def deliver_a(self, val):
+        self.val_a = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def deliver_b(self, val):
+        self.val_b = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def evaluate_op(self):
+        if self.val_a == None or self.val_b == None or self.out != None:
+            return
+
+        # True if a > b
+        if self.val_a > self.val_b:
+            self.out = 1
+        else:
+            self.out = 0
+
+        for reader in self.readers:
+            reader(self.out)
+
+    def get_lambda():
+        return
+
+class GE(LogicOp):
+
+    def __init__(self, readers, writers, name):
+        LogicOp.__init__(self, readers, writers, name)
+        
+        self.val_a = None
+        self.val_b = None
+        self.out   = None
+
+    def deliver_a(self, val):
+        self.val_a = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def deliver_b(self, val):
+        self.val_b = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def evaluate_op(self):
+        if self.val_a == None or self.val_b == None or self.out != None:
+            return
+
+        # True if a > b
+        if self.val_a >= self.val_b:
+            self.out = 1
+        else:
+            self.out = 0
+
+        for reader in self.readers:
+            reader(self.out)
+
+    def get_lambda():
+        return
+
+class LT(LogicOp):
+
+    def __init__(self, readers, writers, name):
+        LogicOp.__init__(self, readers, writers, name)
+        
+        self.val_a = None
+        self.val_b = None
+        self.out   = None
+
+    def deliver_a(self, val):
+        self.val_a = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def deliver_b(self, val):
+        self.val_b = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def evaluate_op(self):
+        if self.val_a == None or self.val_b == None or self.out != None:
+            return
+
+        # True if a > b
+        if self.val_a < self.val_b:
+            self.out = 1
+        else:
+            self.out = 0
+
+        for reader in self.readers:
+            reader(self.out)
+
+    def get_lambda():
+        return
+
+class LE(LogicOp):
+
+    def __init__(self, readers, writers, name):
+        LogicOp.__init__(self, readers, writers, name)
+        
+        self.val_a = None
+        self.val_b = None
+        self.out   = None
+
+    def deliver_a(self, val):
+        self.val_a = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def deliver_b(self, val):
+        self.val_b = val
+
+        # try to evaluate operation
+        self.evaluate_op()
+
+    def evaluate_op(self):
+        if self.val_a == None or self.val_b == None or self.out != None:
+            return
+
+        # True if a > b
+        if self.val_a <= self.val_b:
             self.out = 1
         else:
             self.out = 0

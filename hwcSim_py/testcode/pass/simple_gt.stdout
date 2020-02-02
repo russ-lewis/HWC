@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         simple_or.wire
+Wire File:         simple_gt.wire
 Input File:        None
 Tick Count:        0
 Reset:             False
@@ -29,6 +29,6 @@ OUTPUTS:
 
 ############################################################################
 
-OUTPUT: 1
+OUTPUT: 0
 
 rc=0

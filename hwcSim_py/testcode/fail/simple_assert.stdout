@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         testcode//fail/simple_assert.wire
+Wire File:         simple_assert.wire
 Input File:        None
 Tick Count:        0
 Reset:             False
@@ -11,6 +11,17 @@ Auto:              True
 
 ############################################################################
 
-ERROR: Logic object not yet supported
+BIT DICTIONARY: 
+(0, 1):	[1, False]
+(1, 1):	[1, False]
+(2, 1):	[0, True]
 
-rc=1
+############################################################################
+
+INPUTS: 
+OUTPUTS: 
+
+############################################################################
+
+
+rc=0

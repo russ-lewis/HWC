@@ -98,7 +98,7 @@ def main():
     # Print the argument fields to verify its working
     print("\n############################################################################\n")
 
-    print("Wire File:         " + str(wire_filename))
+    print("Wire File:         " + str(wire_filename.split("/")[-1]))
     print("Input File:        " + str(input_filename))
     print("Tick Count:        " + str(tick_count))
     print("Reset:             " + str(reset))
@@ -246,6 +246,42 @@ def main():
                             logic_obj = XOR(bit_dictionary.get_readers(writer_key), 
                                         bit_dictionary.get_writers(writer_key), 
                                         "XOR-" + str(writer_key))
+
+                        elif logicInfo[1] == "EQ":
+                            # Create EQ object for LogicOp
+                            logic_obj = EQ(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "EQ-" + str(writer_key))
+
+                        elif logicInfo[1] == "NEQ":
+                            # Create NEQ object for LogicOp
+                            logic_obj = NEQ(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "NEQ-" + str(writer_key))
+
+                        elif logicInfo[1] == "GT":
+                            # Create EQ object for LogicOp
+                            logic_obj = GT(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "GT-" + str(writer_key))
+
+                        elif logicInfo[1] == "GE":
+                            # Create EQ object for LogicOp
+                            logic_obj = GE(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "GE-" + str(writer_key))
+
+                        elif logicInfo[1] == "LT":
+                            # Create EQ object for LogicOp
+                            logic_obj = LT(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "LT-" + str(writer_key))
+
+                        elif logicInfo[1] == "LE":
+                            # Create EQ object for LogicOp
+                            logic_obj = LE(bit_dictionary.get_readers(writer_key), 
+                                        bit_dictionary.get_writers(writer_key), 
+                                        "LE-" + str(writer_key))
 
                         else:
                             print("ERROR: Logic object not yet supported")
@@ -442,6 +478,8 @@ def main():
 
         # Relistically we should test all possible single bit inputs to determine if the program actually works
         # BUT: for now I'm going to only test single bits -> 1
+
+        #TODO: reset code so we can test all bits
         if (auto):
             for hwc_input in inputs:
                 

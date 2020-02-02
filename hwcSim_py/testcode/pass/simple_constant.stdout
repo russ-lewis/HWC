@@ -1,7 +1,7 @@
 
 ############################################################################
 
-Wire File:         testcode//pass/simple_constant.wire
+Wire File:         simple_constant.wire
 Input File:        None
 Tick Count:        0
 Reset:             False

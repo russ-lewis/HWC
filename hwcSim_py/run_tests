@@ -48,8 +48,14 @@ do
       py $HWC_BIN --wire $base.$HWC_SUFFIX --auto
       rc=$?
     else
-      py sim_main.py --wire $base.$HWC_SUFFIX --auto
-      rc=$?
+      if [[ ! -f $base.csv ]]
+      then
+        py sim_main.py --wire $base.$HWC_SUFFIX --auto
+        rc=$?
+      else
+        py sim_main.py --wire $base.$HWC_SUFFIX --input $base.csv --auto
+        rc=$?
+      fi
     fi
 
     echo
