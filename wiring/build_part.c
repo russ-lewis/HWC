@@ -161,6 +161,16 @@ int findLogicExpr(HWC_Wiring_Logic *logic, HWC_Expr *expr, int index)
 					break;
 
 				case OP_EQUALS:
+					// TODO
+					logic[index].type = WIRING_EQ;
+					logic[index].size = expr->sizes.bits;
+					logic[index].a    = expr->exprA->decl->offsets.bits;
+					logic[index].b    = expr->exprB->decl->offsets.bits;
+					logic[index].out  = expr->retvalSize;
+					logic[index].debug = NULL;
+					index++;
+					break;
+
 				case OP_NEQUAL:
 				case OP_AND:
 				case OP_OR:
@@ -258,6 +268,7 @@ int findConnect(HWC_Wiring_Connection *connect, HWC_Part *part, int index)
 int findAssert(HWC_Wiring_Assert *assert, HWC_Part *part, int index)
 {
 	int i;
+	HWC_Stmt *currStmt;
 	for(i = 0; i < part->stmts_len; i++)
 	{
 		/* we ignore everything *except* for assert statements,
@@ -266,8 +277,11 @@ int findAssert(HWC_Wiring_Assert *assert, HWC_Part *part, int index)
 		if (part->stmts[i].mode != STMT_ASRT)
 			continue;
 
+		currStmt = &part->stmts[i];
 
-		assert(0);   // TODO
+		// Set the bit the assert reads
+		assert[index].bit = currStmt->offsets.bits;
+		index++;
 	}
 
 	return index;

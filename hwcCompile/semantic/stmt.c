@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 #include "semantic/phase10.h"
 #include "semantic/phase20.h"
@@ -358,12 +358,28 @@ assert(0);   // TODO
 		break;
 
 	case STMT_ASRT:
-assert(0);   // TODO
-#if 0
+
+		/*
 		currStmt->offsets.bits = *numAssert;
 		*numAssert += 1;
 		retval += findExprSize(currStmt->exprA, currOffset, numLogic, 0);
-#endif
+		*/
+
+		retval += semPhase30_expr(currStmt->exprA);
+		sizes_copy(&currStmt->sizes, &currStmt->exprA->sizes);
+
+		for(i = 0; i < currStmt->sizeA; i++)
+		{
+			printf("HERE\n");
+			retval += semPhase30_stmt(&currStmt->stmtA[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtA[i].sizes);
+		}
+
+		for(i = 0; i < currStmt->sizeB; i++)
+		{
+			retval += semPhase30_stmt(&currStmt->stmtB[i]);
+			sizes_inc(&currStmt->sizes, &currStmt->stmtB[i].sizes);
+		}
 		break;
 	}
 

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -367,7 +367,49 @@ assert(0);   // TODO: set the valtype to (simple) bit.  Same as previous
 
 static int semPhase20_expr_twoOpValType(HWC_Expr *expr)
 {
-assert(0);   // TODO
+	int retval = 0;
+	if (expr == NULL)
+	{
+		printf("EXPR was NULL");
+		return 1;
+	}
+
+	switch(expr->twoOp)
+	{
+		default:
+			break;
+
+		case OP_EQUALS:
+			expr->val.type = EXPR_VALTYPE_PLUGTYPE;
+
+			// Types for exprA and exprB are not equal; therefore, aren't comparable yet?
+			if (expr->exprA->val.type != expr->exprB->val.type)
+				retval += 1;
+			break;
+
+assert(0);
+		// TODO
+		case OP_NEQUAL:
+		case OP_LESS:
+		case OP_GREATER:
+		case OP_LESSEQ:
+		case OP_GREATEREQ:
+		case OP_BITAND:
+		case OP_AND:
+		case OP_BITOR:
+		case OP_OR:
+		case OP_XOR:
+		case OP_PLUS:
+		case OP_MINUS:
+		case OP_TIMES:
+		case OP_DIVIDE:
+		case OP_MODULO:
+		case OP_CONCAT:
+		break;
+	}
+	
+// assert(0);   // TODO
+return retval;
 }
 
 
@@ -439,6 +481,48 @@ int semPhase30_expr(HWC_Expr *currExpr)
 			assert(0);   // TODO: implement the rest
 
 		case OP_EQUALS:
+			assert(currExpr->exprA->val.type == EXPR_VALTYPE_INT  ||
+			       currExpr->exprA->val.type == EXPR_VALTYPE_BOOL ||
+			       currExpr->exprA->val.type == EXPR_VALTYPE_PLUG);
+
+			assert(currExpr->exprB->val.type == EXPR_VALTYPE_INT  ||
+			       currExpr->exprB->val.type == EXPR_VALTYPE_BOOL ||
+			       currExpr->exprB->val.type == EXPR_VALTYPE_PLUG);
+
+			if ((currExpr->exprA->val.type == EXPR_VALTYPE_INT ||
+			     currExpr->exprA->val.type == EXPR_VALTYPE_BOOL) &&
+			    (currExpr->exprB->val.type == EXPR_VALTYPE_INT ||
+			     currExpr->exprB->val.type == EXPR_VALTYPE_BOOL))
+			{
+				assert(currExpr->val.type == EXPR_VALTYPE_PLUG);
+				/* no additional resources required */
+			}
+			else
+			{
+				/* this is a runtime expression.  The size is
+				 * definitely 1 bit, no matter the input size.
+				 */
+				assert(currExpr->val.type == EXPR_VALTYPE_PLUGTYPE);
+
+				// sanity check that the expression has nonzero size.  Copy
+				// that into our expression.
+				assert(currExpr->exprA->retvalSize > 0);
+				assert(currExpr->exprB->retvalSize > 0);
+				currExpr->retvalSize = currExpr->exprA->retvalSize + currExpr->exprB->retvalSize;
+
+				// first, copy in the sizes from the underlying expression,
+				// since it might include many logical operators and bits used
+				// for the temporaries
+				sizes_add(&currExpr->sizes, &currExpr->exprA->sizes, &currExpr->exprB->sizes);
+
+				// then, add one additional logical operator for the EQUALS, and
+				// space for it to write out its results.
+				currExpr->sizes.logicOps++;
+				currExpr->sizes.bits++;
+			}
+			
+			break;
+
 		case OP_NEQUAL:
 			// ==  !=
 			//
@@ -584,6 +668,7 @@ int semPhase35_expr(HWC_Expr *currExpr, int isLHS)
 		break;
 
 	case EXPR_TWOOP:
+	/*
 assert(0);
 #if 0
 		// TODO: Anything to do with "currExpr->value" here?
@@ -594,6 +679,23 @@ assert(0);
 		retval += findExprSize(currExpr->exprA, currOffset, numLogic, 0);
 		retval += findExprSize(currExpr->exprB, currOffset, numLogic, 0);
 #endif
+*/
+
+		switch (currExpr->twoOp)
+		{
+		default:
+			break;
+
+		case OP_EQUALS:
+			printf("%d\n", currExpr->offsets.bits);
+			//currExpr->offsets.bits = *numLogic;
+			//*numLogic += 1;
+			retval += 1;
+			// retval += findExprSize(currExpr->exprA, currExpr->offsets, numLogic, 0);
+			// retval += findExprSize(currExpr->exprB, currExpr->offsets, numLogic, 0);
+			break;
+		}
+
 		break;
 
 	case EXPR_BITNOT:
