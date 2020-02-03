@@ -3,9 +3,10 @@ version: 1.0
 
 debug=""
 
-bits 6
+bits 3
 
-memory count 0
+memory count 1
+  memory size 1 read 1 write 2
 
 logic count 0
 
@@ -14,8 +15,7 @@ connection count 1
 
 assert count 0
 
-i/o count 1
-  output size 1 in 0
+constant count 0
 
-constant count 1
-    constant    size 1 from 1 val 1
+i/o count 1
+    output size 1 in 0 

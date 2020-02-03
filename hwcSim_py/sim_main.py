@@ -178,6 +178,33 @@ def main():
                 line = file.readline()
                 continue
 
+            if line.startswith("memory count"):
+                mem_count = int(line.split()[2])
+
+                line = file.readline()
+                for mem in range(mem_count):
+                    mem_info = line.split()
+
+                    size  = int(logicInfo[2])
+                    read  = int(logicInfo[4])
+                    write = int(logicInfo[6])
+
+                    # Build keys for dictionary
+                    reader_key = (read , size)
+                    writer_key = (write, size)
+
+                    '''
+                    NOTE: Memory size is relative to the size of what it holds. So a size of 1 means the memory holds 1
+                          bit of information. Since there is a mem latch in the memory object, the actual mem bit size
+                          is double the size in the .wire file.
+                    '''
+
+                    mem_obj  = Memory(bit_dictionary.get_readers(writer_key),
+                                      bit_dictionary.get_writers(writer_key),
+                                      "MEM-" + str(writer_key))
+                    
+                    bit_dictionary.addReader(reader_key, lambda val: deliver_val(val))
+
             if line.startswith("logic count"):
                 logicCount = int(line.split()[2])
 

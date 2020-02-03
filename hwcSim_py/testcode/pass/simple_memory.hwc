@@ -1,0 +1,7 @@
+part main {
+    public bit out;
+
+    private memory(bit) mem;
+
+    out = mem;
+}
