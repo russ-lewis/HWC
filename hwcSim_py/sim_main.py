@@ -157,6 +157,7 @@ def main():
 
         logic_ops = {}
         constants = {}
+        memory    = {}
         
         # Read the first line to initialize while loop
         line = file.readline()
@@ -185,13 +186,13 @@ def main():
                 for mem in range(mem_count):
                     mem_info = line.split()
 
-                    size  = int(logicInfo[2])
-                    read  = int(logicInfo[4])
-                    write = int(logicInfo[6])
+                    size  = int(mem_info[2])
+                    read  = int(mem_info[4])
+                    write = int(mem_info[6])
 
                     # Build keys for dictionary
-                    reader_key = (read , size)
-                    writer_key = (write, size)
+                    reader_key = (read , size) # out val
+                    writer_key = (write, size) # in val
 
                     '''
                     NOTE: Memory size is relative to the size of what it holds. So a size of 1 means the memory holds 1
@@ -199,11 +200,15 @@ def main():
                           is double the size in the .wire file.
                     '''
 
-                    mem_obj  = Memory(bit_dictionary.get_readers(writer_key),
-                                      bit_dictionary.get_writers(writer_key),
-                                      "MEM-" + str(writer_key))
+                    mem_obj = Memory(size);
+
+                    memory[(reader_key, writer_key)] = mem_obj
                     
-                    bit_dictionary.addReader(reader_key, lambda val: deliver_val(val))
+                    print(mem_obj)
+
+                    line = file.readline()
+
+                continue
 
             if line.startswith("logic count"):
                 logicCount = int(line.split()[2])
@@ -345,7 +350,7 @@ def main():
                         print("Short circuit detected @ " + line)
                         exit(1)
 
-                    # Parse from side
+                    # Parse "from" side
                     bit_dictionary.addReader(reader_key, make_conn(writer_key))
 
                     line = file.readline()
@@ -484,6 +489,12 @@ def main():
                     for reader in readers:
                         reader(constants[constant])
 
+                for mem in memory:
+                    readers = bit_dictionary.get(mem[0]).get_readers()
+
+                    for reader in readers:
+                        reader(memory.get(mem).get_value())
+
                 for usr_input in user_inputs:
                     readers = bit_dictionary.get(usr_input).get_readers()
 
@@ -523,6 +534,12 @@ def main():
                 for reader in readers:
                     reader(constants[constant])
 
+            for mem in memory:
+                readers = bit_dictionary.get(mem[0]).get_readers()
+
+                for reader in readers:
+                    reader(memory.get(mem).get_value())
+
             for user_in in user_inputs:
                 readers = bit_dictionary.get(user_in).get_readers()
 
@@ -548,17 +565,19 @@ def main():
                 for reader in readers:
                     reader(constants[constant])
 
-            for user_in in user_inputs:
+            for mem in memory:
+                readers = bit_dictionary.get(mem[0]).get_readers()
 
+                for reader in readers:
+                    reader(memory.get(mem).get_value())
+
+            for user_in in user_inputs:
                 readers = bit_dictionary.get(user_in).get_readers()
 
                 for reader in readers:
                     reader(user_inputs.get(user_in))
 
         # TODO: Show output
-    
-
-
 
 # Needed to lock values when using lambda
 def make_conn(writer_key):
