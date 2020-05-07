@@ -2,7 +2,7 @@
 ############################################################################
 
 Wire File:         simple_not.wire
-Input File:        testcode/pass/simple_not.csv
+Input File:        testcode//pass/simple_not.csv
 Tick Count:        0
 Reset:             False
 Debug:             0
