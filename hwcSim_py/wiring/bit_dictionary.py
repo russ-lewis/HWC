@@ -6,8 +6,10 @@ class Bit_Dictionary():
     def addReader(self, key, value):
         if not key in self.dictionary:
             self.dictionary[key] = BD_Value()
-            
-        self.dictionary.get(key).addReader(value)
+
+        # Doesnt add a reader if memory
+        if not value == None:   
+            self.dictionary.get(key).addReader(value)
 
     def get(self, key):
         return self.dictionary.get(key)
