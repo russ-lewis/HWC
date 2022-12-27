@@ -1,0 +1,6 @@
+part main {
+    public bit in;
+    public bit out;
+    out = in;
+}
+
