@@ -9,6 +9,8 @@ from hwcLexer    import hwcLexer
 from hwcParser   import hwcParser
 from hwcListener import hwcListener
 
+import ast;
+
 
 
 def main():
@@ -16,105 +18,49 @@ def main():
     parser = hwcParser(CommonTokenStream(lexer))
     tree   = parser.file_()      # trailing underscore is because file is a Python type
 
-    printer = HWCPrinter()
+    printer = HWCAstGenerator()
     ParseTreeWalker().walk(printer,tree)
 
+    ast = tree.ast
+    print(ast)
 
 
-class HWCPrinter(hwcListener):
+
+class HWCAstGenerator(hwcListener):
     def enterFile(self, ctx):
-        print(f"enterFile   {ctx} {type(ctx)}")
-        print(ctx.getText())
-        print(ctx.children)
-        print()
-
+        ctx.file_nameScope = ast.NameScope(None)
     def exitFile(self, ctx):
-        print(f"exitFile")
-        print()
+        ctx.ast = [c.ast for c in ctx.decls]
 
-
-
-    def enterDecl(self, ctx):
-        print(f"enterDecl   {ctx}")
-        print(ctx.getText())
-        print([str(e) for e in ctx.children])
-        print()
 
     def exitDecl(self, ctx):
-        print(f"exitDecl")
-        print()
+        assert (ctx.stmts == []) != (ctx.decls == [])
+        if ctx.stmts != []:
+            stmts = ctx.stmts
+        else:
+            stmts = ctx.decls
+        stmts = [s.ast for s in stmts]
 
+        ctx.ast = ast.Decl("plug", ctx.name.text, stmts, ctx.parentCtx.file_nameScope)
 
-
-    def enterStmt_Decl(self, ctx):
-        print(f"enterStmt_Decl   {ctx}")
-        print(ctx.getText())
-        print([str(e) for e in ctx.children])
-        print()
 
     def exitStmt_Decl(self, ctx):
-        print(f"exitStmt_Decl")
-        print()
+        ast = ctx.children[1].ast
 
+        prefix = ctx.children[0].getText()
+        assert prefix in ["", "subpart", "public", "private"]
+        if prefix != "":
+            ast.prefix = prefix
 
+        ctx.ast = ast
 
-    def enterStmt_Connection(self, ctx):
-        print(f"enterStmt_Connection   {ctx}")
-        print(ctx.getText())
-        print([str(e) for e in ctx.children])
-        print()
 
     def exitStmt_Connection(self, ctx):
-        print(f"exitStmt_Connection")
-        print()
+        ctx.ast = ast.ConnStmt()
 
 
-
-    def enterDeclStmt(self, ctx):
-        print(f"enterDeclStmt   {ctx}")
-        print(ctx.getText())
-        print([str(e) for e in ctx.children])
-        print()
-
-    def exitDeclStmt(self, ctx):
-        print(f"exitDeclStmt")
-        print()
-
-
-
-    def enterDeclList(self, ctx):
-        print(f"enterDeclList   {ctx}")
-        print(ctx.getText())
-        print([str(e) for e in ctx.children])
-        print()
-
-    def exitDeclList(self, ctx):
-        print(f"exitDeclList")
-        print()
-
-
-
-    def enterDeclInit(self, ctx):
-        print(f"enterDeclInit   {ctx}")
-        print(ctx.getText())
-        print([str(e) for e in ctx.children])
-        print()
-
-    def exitDeclInit(self, ctx):
-        print(f"exitDeclInit")
-        print()
-
-
-
-    def enterType_Bit(self, ctx):
-        print(f"enterType_Bit   {ctx}")
-        print(ctx.getText())
-        print([str(e) for e in ctx.children])
-        print()
-
-    def exitType_Bit(self, ctx):
-        print(f"exitType_Bit")
-        print()
+    def exitDeclStmt_VarDecl(self, ctx):
+        ctx.ast = ast.VarDecl()
 
 
 

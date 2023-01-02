@@ -7,17 +7,17 @@ file:
 ;
 
 decl:
-      'part' IDENT '{'     stmt* '}'
-    | 'plug' IDENT '{' declStmt* '}'
+      'part' name=IDENT '{' stmts+=    stmt* '}'
+    | 'plug' name=IDENT '{' decls+=declStmt* '}'
 ;
 
 
 
 declStmt:
-                   type     declList ';'    # declStmt_SimpleDecl
+                   type     declList ';'    # declStmt_VarDecl
 
       /* TODO: forbid this in plugs */
-    | 'memory' '(' type ')' declList ';'    # declStmt_MemoryDecl
+    | 'memory' '(' type ')' declList ';'    # declStmt_MemDecl
 ;
 declList:
       decls+=declInit (',' decls+=declInit)*
