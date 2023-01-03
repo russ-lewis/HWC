@@ -3,10 +3,10 @@ grammar hwc;
 
 
 file:
-     decls+=decl* EOF
+     decls+=typeDecl* EOF
 ;
 
-decl:
+typeDecl:
       'part' name=IDENT '{' stmts+=    stmt* '}'
     | 'plug' name=IDENT '{' decls+=declStmt* '}'
 ;
@@ -14,26 +14,21 @@ decl:
 
 
 declStmt:
-                   type     declList ';'    # declStmt_VarDecl
-
-      /* TODO: forbid this in plugs */
-    | 'memory' '(' type ')' declList ';'    # declStmt_MemDecl
+      ( mem='memory' '(' t=type ')' |
+                         t=type     ) decls+=declNameInit (',' decls+=declNameInit)* ';'
 ;
-declList:
-      decls+=declInit (',' decls+=declInit)*
-;
-declInit:
-      IDENT ('=' expr)?
+declNameInit:
+      name=IDENT ('=' val=expr)?
 ;
 
 
 
 stmt:
-      '{' stmt* '}'                                           # stmt_Block
+      '{' stmts+=stmt* '}'                                      # stmt_Block
 
-    | ( /*empty*/ | 'subpart'|'public'|'private') declStmt    # stmt_Decl
+    | ( /*empty*/ | 'subpart'|'public'|'private') d=declStmt    # stmt_Decl
 
-    | (expr '=')+ expr ';'    # stmt_Connection
+    | (lhs+=expr '=')+ rhs=expr ';'    # stmt_Connection
 
 /* TODO: add nested part and plugdecls
     | {variant in [0,1]}? 'part' '{' stmt* '}'    # stmt_Part
@@ -78,93 +73,78 @@ type:
 /* TODO: use antlr's precedence mechanisms to make this more elegant. */
 
 expr:
-      expr2
-
       /* NOTE: comparison operators are all lowest precedence, and non-associative */
-    | expr2 ('==' |
-             '!=' |
+      left=expr2 (('==' |
+                   '!=' |
 
-             /* TODO: the lt/gt operators are only valid on int, not bit[] */
-             '<'  |
-             '>'  |
-             '<=' |
-             '>=')  expr2
+                   /* TODO: the lt/gt operators are only valid on int, not bit[] */
+                   '<'  |
+                   '>'  |
+                   '<=' |
+                   '>=')   right+=expr2)?   // right is not actually an array here, but I use that type of variable so that there's direct parallelism to expr[1-6].  Same code works in both places.
 ;
 
 expr2:
-      expr3
-
-      /* left associative */
-    | expr2 ('|'  |
-             '||' |
-             '^')   expr3
+      left=expr3 (('|'  |
+                   '||' |
+                   '^')   right+=expr3)*
 ;
 
 expr3:
-      expr4
-
-      /* left associative */
-    | expr3 ('&'  |
-             '&&')  expr4
+      left=expr4 (('&'  |
+                   '&&')  right+=expr4)*
 ;
 
 expr4:
-      expr5
-
-      /* left associative */
-    | expr4 ('+' |
-             '-' |
-             ':')  expr5
+      left=expr5 (('+' |
+                   '-' |
+                   ':')   right+=expr5)*
 ;
 
 expr5:
-      expr6
-
-      /* left associative */
-    | expr5 ('*' |
-             '/' |
-             '%')  expr6
+      left=expr6 (('*' |
+                   '/' |
+                   '%')   right+=expr6)*
 ;
 
 expr6:
-      expr7
-
-      /* left associative */
-    | expr6 ('*' |
-             '/' |
-             '%')  expr7
+      left=expr7 (('*' |
+                   '/' |
+                   '%')   right+=expr7)*
 ;
 
 expr7:
-      expr8
+      base=expr8
+
     | ('!' |
        '~' |
-       '-')  expr7
+       '-')  right=expr7
 ;
 
 expr8:
-      expr9
-    | expr8 '.' IDENT
-    | expr8 '[' a=expr? (':' b=expr) ']'    /* TODO: [a:] is legal, [:b] is legal, [:] is not */
+      base=expr9
+
+    | left=expr8 '.' field=IDENT
+    | left=expr8 '[' a=expr? (':' b=expr) ']'    /* TODO: [a:] is legal, [:b] is legal, [:] is not */
 ;
 
 expr9:
-      '(' expr ')'
-    | IDENT
-    | NUM
-    | 'true'
-    | 'false'
+      '(' subexpr=expr ')'
+    | name =IDENT
+    | num  =NUM
+    | true ='true'
+    | false='false'
 
       /* TODO: converts an integer to its bit-expression.  Only valid for non-negative.  Size
        *       is auto-detected; most users may prefer *assigning* an int to a well-known field.
        */
-    | 'bits' '(' expr ')'
+    | 'bits' '(' bitSize=expr ')'
 ;
 
 
 
 IDENT: [a-zA-Z_][a-zA-Z_0-9]* ;
-NUM  : ('-'? [1-9][0-9_]* | '0x'[0-9a-fA-F_]+ | '0b'[01_]+) ;
+NUM  : ('0' | '-'? [1-9][0-9_]* | '0x'[0-9a-fA-F_]+ | '0b'[01_]+) ;
 
 WS: [ \t\n]+ -> skip ;
 

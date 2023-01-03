@@ -2,5 +2,7 @@ part main {
     public bit in;
     public bit out;
     out = in;
+
+    private bit a, b=1, c, d=0, e=1;
 }
 
