@@ -48,6 +48,15 @@ class BlockStmt(ASTNode):
 #    def populate_name_scopes(self):
 #        self.names.add(decl, self)
 
+def flatten_statements(stmts_in):
+    stmst_out = []
+    for s in stmts_in:
+        if type(s) == BlockStmt:
+            stmts_out += s.stmts
+        else:
+            stmts_out.append(s)
+    return stmts_out
+
 
 
 class DeclStmt(ASTNode):

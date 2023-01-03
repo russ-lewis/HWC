@@ -15,7 +15,7 @@ many user errors here.
 PHASE 20
 
 In phase 20, we use the NameScope objects that we've built to do name lookups.
-We look up both root names (the first IDENT in a dot chain), and also the
+We look up both root names (the first IDENT in a dot chain), and also the IDENT
 following dot expressions.  Since sizes and offsets are not yet known, the
 expressions cannot be mapped all the way to offsets, but we store the
 pointers to the NameScope entries for each such expression.
@@ -38,6 +38,9 @@ Since the recursive process can reach the same type by many paths, we will use
 a flag to mark types that are already generated.  We will also have a flag to
 indicate that a type is in-process, so that we can detect recursive
 definitions.
+
+The process can be cyclic (because of type() and sizeof() expressions); if a
+cycle is detected, then the compile fails.
 
 PHASE 35 (previously, part of phase 30)
 
