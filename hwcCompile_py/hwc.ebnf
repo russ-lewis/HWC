@@ -1,0 +1,117 @@
+file:
+      
+    | typeDecl { typeDecl }
+.
+
+typeDecl:
+      "part" IDENT "{" ( |     stmt {    stmt}) "}"
+    | "plug" IDENT "{" ( | declStmt {declStmt}) "}"
+.
+
+
+
+declStmt:
+      ( "memory" "(" type ")" |
+                     type     ) declNameInit { "," declNameInit } ";"
+.
+declNameInit:
+      ID ( | "=" expr)
+.
+
+
+
+stmt:
+      "{" ( | stmt {stmt}) "}"
+
+    | ("subpart"|"public"|"private") declStmt
+
+    | expr {"=" expr} ";"
+
+    | "static" "if" "(" expr ")" stmt ( | "else" stmt)
+    |          "if" "(" expr ")" stmt ( | "else" stmt)
+
+    | "for" "(" ID ";" expr ".." expr ")" ( | "as" ID) stmt
+
+    | "assert" "(" expr ")" ";"
+.
+
+
+
+type:
+      type2 ( | {"[" expr "]"})
+.
+
+type2:
+      ID
+    | "typeof" "(" expr ")"
+    | "bit"
+
+    | "int"
+    | "bool"
+
+    | "flag"
+.
+
+
+
+expr:
+      expr2 (
+             | "==" expr2
+             | "!=" expr2
+             | "<"  expr2
+             | ">"  expr2
+             | "<=" expr2
+             | ">=" expr2)
+.
+
+expr2:
+      expr3 (
+             | "|"  expr2
+             | "||" expr2
+             | "^"  expr2)
+.
+
+expr3:
+      expr4 (
+             | "&"  expr3
+             | "&&" expr3)
+.
+
+expr4:
+      expr5 (
+             | "+" expr4
+             | "-" expr4)
+.
+
+expr5:
+      expr6 (
+             | "*" expr5
+             | "/" expr5
+             | "%" expr5)
+.
+
+expr6:
+          expr7
+    | "!" expr6
+    | "~" expr6
+    | "-" expr6
+.
+
+expr7:
+      expr8
+    | expr7 (  "." ID
+             | "[" expr          "]"
+             | "[" expr ":"      "]"
+             | "["      ":" expr "]"
+             | "[" expr ":" expr "]")
+.
+
+expr8:
+      "(" expr ")"
+    | ID
+    | NUM
+    | "true"
+    | "false"
+    | "bits" "(" expr ")"
+.
+

@@ -1,9 +1,6 @@
+hwc.py: hwc.ebnf rdgen/main.py
+	python3 -m rdgen.main create < hwc.ebnf > hwc.py
 
-
-all: hwcParser.py
-
-
-
-hwcParser.py: hwc.g4
-	antlr4 -Dlanguage=Python3 hwc.g4
+rdgen/main.py:
+	git clone https://github.com/proebsting/rdgen
 
