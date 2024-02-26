@@ -26,7 +26,7 @@ declNameInit:
 stmt:
       '{' stmts+=stmt* '}'                                      # stmt_Block
 
-    | ( /*empty*/ | 'subpart'|'public'|'private') d=declStmt    # stmt_Decl
+    | ('subpart'|'public'|'private'|'static') d=declStmt    # stmt_Decl
 
     | (lhs+=expr '=')+ rhs=expr ';'    # stmt_Connection
 
