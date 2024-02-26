@@ -30,15 +30,6 @@ stmt:
 
     | (lhs+=expr '=')+ rhs=expr ';'    # stmt_Connection
 
-/* TODO: add nested part and plugdecls
-    | {variant in [0,1]}? 'part' '{' stmt* '}'    # stmt_Part
-    |                     'plug' '{' stmt* '}'    # stmt_Plug
- */
-
-/* TODO: add functions
-    | 'function' IDENT '(' TODO ')' '{' TODO '}'    # stmt_Function
- */
-
     | 'static'? 'if' '(' expr ')' stmt ('else' stmt)    # stmt_If
     | 'for' '(' IDENT ';' expr '..' expr ')' stmt       # stmt_For
 
