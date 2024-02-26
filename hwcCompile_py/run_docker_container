@@ -1,2 +1,2 @@
 #! /bin/bash
-exec docker run -ti -v $(cygpath -w $(pwd)):/hwcCompile_py -w /hwcCompile_py antlr
+exec docker run -ti --rm -v $(cygpath -w $(pwd)):/hwcCompile_py -w /hwcCompile_py antlr
