@@ -47,7 +47,7 @@ class PartDecl(ASTNode):
         return f"ast.PartDecl({self.name}, {self.stmts})"
 
     def print_tree(self, prefix):
-        print(f"{prefix}PART DECL: name={self.name}")
+        print(f"{prefix}PART DECL: name={self.name} id={id(self)}")
         for d in self.stmts:
             d.print_tree(prefix+"  ")
 
@@ -102,7 +102,7 @@ class DeclStmt(ASTNode):
         return f"ast.DeclStmt({self.prefix}, mem={self.isMem}, {self.typ_}, {self.name}, init={self.initVal})"
 
     def print_tree(self, prefix):
-        print(f"{prefix}DECL STATEMENT: name={self.name} prefix={self.prefix} isMem={self.isMem}")
+        print(f"{prefix}DECL STATEMENT: name={self.name} prefix={self.prefix} isMem={self.isMem} id={id(self)}")
 
         if self.typ_.leafNode:
             print(f"{prefix}  type: {repr(self.typ_)}")
@@ -162,13 +162,20 @@ class ConnStmt(ASTNode):
 class IdentExpr(ASTNode):
     leafNode = True
 
-    def __init__(self, name):
-        self.name      = name
+    def __init__(self, nameScope, name):
+        self.nameScope = nameScope
+        self.name   = name
+        self.target = None
     def __repr__(self):
-        return f"IDENT={self.name}"
+        if self.target is None:
+            return f"IDENT={self.name} target=None"
+        else:
+            return f"IDENT={self.name} target ID={id(self.target)}"
 
     def resolve_name_lookups(self):
-        pass
+        self.target = self.nameScope.search(self.name)
+        if self.target is None:
+            assert False, "report syntax error"
 
 class NumExpr(ASTNode):
     leafNode = True
@@ -205,6 +212,7 @@ class NameScope:
         self.directory[name] = obj
 
     def search(self, name):
+        print(f"NAMESCOPE SEARCH: name='{name}' ns={id(self)}")
         if name in self.directory:
             return self.directory[name]
         elif self.parent is None:

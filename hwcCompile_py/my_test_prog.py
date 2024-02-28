@@ -34,15 +34,19 @@ def main():
 
 
 class HWCAstGenerator(hwcListener):
-    def default_enter(self, ctx):
+    def enterFile(self, ctx):
         ctx.nameScope = ast.NameScope(None)
-
-    enterFile = default_enter
     def exitFile(self, ctx):
         ctx.ast = ast.File(ctx.nameScope, [c.ast for c in ctx.decls])
 
 
-    enterTypeDecl = default_enter
+    def default_enter_newScope(self, ctx):
+        ctx.nameScope = ast.NameScope(ctx.parentCtx.nameScope)
+    def default_enter_sameScope(self, ctx):
+        ctx.nameScope = ctx.parentCtx.nameScope
+
+
+    enterTypeDecl = default_enter_newScope
     def exitTypeDecl(self, ctx):
         ns         = ctx.nameScope
         partOrPlug = ctx.children[0].getText()
@@ -65,7 +69,7 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ast.PlugDecl(ns, name, flatten(ctx.decls))
 
 
-    enterDeclStmt = default_enter
+    enterDeclStmt = default_enter_sameScope
     def exitDeclStmt(self, ctx):
         ns  =  ctx.nameScope
         mem = (ctx.mem is not None)
@@ -84,7 +88,12 @@ class HWCAstGenerator(hwcListener):
             ctx.ast_arr.append(stmt)
 
 
-    enterStmt_Decl = default_enter
+    enterDeclNameInit = default_enter_sameScope
+    def exitDeclNameInit(self, ctx):
+        pass
+
+
+    enterStmt_Decl = default_enter_sameScope
     def exitStmt_Decl(self, ctx):
         prefix = ctx.children[0].getText()
         decls  = ctx.children[1].ast_arr
@@ -98,7 +107,7 @@ class HWCAstGenerator(hwcListener):
         ctx.ast_arr = decls
 
 
-    enterStmt_Connection = default_enter
+    enterStmt_Connection = default_enter_sameScope
     def exitStmt_Connection(self, ctx):
         assert len(ctx.lhs) >= 1
         if len(ctx.lhs) > 1:
@@ -106,7 +115,7 @@ class HWCAstGenerator(hwcListener):
         ctx.ast = ast.ConnStmt(ctx.lhs[0].ast, ctx.rhs.ast)
 
 
-    enterExpr = default_enter
+    enterExpr = default_enter_sameScope
     def exitExpr(self, ctx):
         assert ctx.left is not None
         if ctx.right != []:
@@ -129,7 +138,7 @@ class HWCAstGenerator(hwcListener):
     exitExpr6  = exitExpr
 
 
-    enterExpr7 = default_enter
+    enterExpr7 = default_enter_sameScope
     def exitExpr7(self, ctx):
         assert (ctx.base is not None) != (ctx.right is not None)
 
@@ -139,7 +148,7 @@ class HWCAstGenerator(hwcListener):
             assert False, "TODO"
 
 
-    enterExpr8 = default_enter
+    enterExpr8 = default_enter_sameScope
     def exitExpr8(self, ctx):
         assert (ctx.base is not None) != (ctx.left is not None)
 
@@ -149,13 +158,13 @@ class HWCAstGenerator(hwcListener):
             assert False, "TODO"
 
 
-    enterExpr9 = default_enter
+    enterExpr9 = default_enter_sameScope
     def exitExpr9(self, ctx):
         if ctx.subexpr is not None:
             ctx.ast = ctx.subexpr.ast
 
         elif ctx.name is not None:
-            ctx.ast = ast.IdentExpr(ctx.name.text)
+            ctx.ast = ast.IdentExpr(ctx.nameScope, ctx.name.text)
         elif ctx.num is not None:
             ctx.ast = ast.NumExpr(ctx.num.text)
 
@@ -164,7 +173,7 @@ class HWCAstGenerator(hwcListener):
 
         else:
             assert False, "TODO-more-base-expressions"
-        
+
 
 
 if __name__ == "__main__":
