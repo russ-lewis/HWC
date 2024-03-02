@@ -153,18 +153,17 @@ class HWCAstGenerator(hwcListener):
     def exitExpr9(self, ctx):
         if ctx.subexpr is not None:
             ctx.ast = ctx.subexpr.ast
+
         elif ctx.name is not None:
             ctx.ast = ast.IdentExpr(ctx.name.text)
         elif ctx.num is not None:
             ctx.ast = ast.NumExpr(ctx.num.text)
 
+        elif ctx.children[0].getText() == "bit":
+            ctx.ast = ast.BitType()
+
         else:
             assert False, "TODO-more-base-expressions"
-
-
-    enterType_Bit = default_enter
-    def exitType_Bit(self, ctx):
-        ctx.ast = ast.BitType()
         
 
 

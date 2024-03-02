@@ -14,8 +14,8 @@ typeDecl:
 
 
 declStmt:
-      ( mem='memory' '(' t=type ')' |
-                         t=type     ) decls+=declNameInit (',' decls+=declNameInit)* ';'
+      ( mem='memory' '(' t=expr ')' |
+                         t=expr     ) decls+=declNameInit (',' decls+=declNameInit)* ';'
 ;
 declNameInit:
       name=IDENT ('=' val=expr)?
@@ -42,21 +42,6 @@ stmt:
 
 nameList:
       name+=IDENT (',' name+=IDENT)*     /* ANTLR generates a single array name[] because += */
-;
-
-
-
-type:
-      IDENT                    # type_Named
-    | type     '[' expr ']'    # type_Array
-    | 'typeof' '(' expr ')'    # type_Typeof
-    | 'bit'                    # type_Bit
-
-    | 'int'                    # type_Int
-    | 'bool'                   # type_Bool
-
-      /* TODO: add support for this */
-    | 'flag'                   # type_Flag
 ;
 
 
@@ -116,20 +101,36 @@ expr8:
       base=expr9
 
     | left=expr8 '.' field=IDENT
-    | left=expr8 '[' a=expr? (':' b=expr) ']'    /* TODO: [a:] is legal, [:b] is legal, [:] is not */
+    | left=expr8 '['                         ']'    // only valid for field declarations
+    | left=expr8 '[' a=expr                  ']'
+    | left=expr8 '[' a=expr colon=':'        ']'
+    | left=expr8 '['        colon=':' b=expr ']'
+    | left=expr8 '[' a=expr colon=':' b=expr ']'
 ;
 
 expr9:
       '(' subexpr=expr ')'
     | name =IDENT
     | num  =NUM
-    | true ='true'
-    | false='false'
+    | 'true'
+    | 'false'
+
+    | 'bit'
+    | 'flag'
 
       /* TODO: converts an integer to its bit-expression.  Only valid for non-negative.  Size
        *       is auto-detected; most users may prefer *assigning* an int to a well-known field.
+       * 
+       * REMVOED: 'bits'   '('   bits_expr=expr ')'
+       *
+       * NEWER FORM is auto-types initialization:
+       #           bit[] the_bits = expr;
        */
-    | 'bits' '(' bitSize=expr ')'
+
+    | 'typeof' '(' typeof_expr=expr ')'
+
+    | 'int'
+    | 'bool'
 ;
 
 
