@@ -23,11 +23,20 @@ def main():
 
     ast = tree.ast
 
-    # this was called Phase 10 in the old compiler, that was written in C++
+    # this was called Phase 10 in the old (C++) compiler
     ast.populate_name_scopes()
 
-    # this was called Phase 20 in the old compiler, that was written in C++
+    # this was called Phase 20 in the old (C++) compiler
     ast.resolve_name_lookups()
+
+    print()
+    ast.print_tree("")
+    print()
+    print("---------------")
+    print()
+
+    # this was called Phase 30 in the old (C++) compiler
+    ast.calc_sizes_and_offsets()
 
     ast.print_tree("")
 
@@ -55,7 +64,8 @@ class HWCAstGenerator(hwcListener):
         def flatten(stmts):
             retval = []
             for s in stmts:
-                if type(s) == hwcParser.Stmt_DeclContext:
+                if type(s) in [hwcParser.Stmt_DeclContext,     # used for parts
+                               hwcParser. DeclStmtContext ]:   # used for plugs
                     retval.extend(s.ast_arr)
                 else:
                     retval.append(s.ast)
@@ -144,8 +154,9 @@ class HWCAstGenerator(hwcListener):
 
         if ctx.base is not None:
             ctx.ast = ctx.base.ast
+
         else:
-            assert False, "TODO"
+            assert False, "Unrecognized expression"
 
 
     enterExpr8 = default_enter_sameScope
@@ -154,8 +165,37 @@ class HWCAstGenerator(hwcListener):
 
         if ctx.base is not None:
             ctx.ast = ctx.base.ast
+
+        elif ctx.field is not None:
+            ctx.ast = TODO()
+
+        elif ctx.a is not None and ctx.colon is None:
+            # either declaration of an array type, if the underlying expression
+            # is a type, or indexing into an array, if the underlying
+            # expression is a runtime value.
+            #
+            # We must defer the resolution of what it is until later, when we
+            # have resolved the names; then we will replace this object with
+            # one of the proper type.
+            ctx.ast = ast.Unresolved_Single_Index_Expr(ctx.nameScope, ctx.left.ast, ctx.a.ast)
+
+        elif ctx.a is not None and ctx.colon is not None:
+            # slice of a runtime value, which goes to the end of the array
+
+            ctx.ast = TODO()
+
+        elif ctx.a is None and ctx.colon is not None and ctx.b is not None:
+            # slice of a runtime value, which starts at the beginning of the array
+
+            ctx.ast = TODO()
+
+        elif ctx.a is not None and ctx.colon is not None and ctx.b is not None:
+            # slice of a runtime value
+
+            ctx.ast = TODO()
+
         else:
-            assert False, "TODO"
+            assert False, "Unrecognized expression"
 
 
     enterExpr9 = default_enter_sameScope
@@ -168,11 +208,31 @@ class HWCAstGenerator(hwcListener):
         elif ctx.num is not None:
             ctx.ast = ast.NumExpr(ctx.num.text)
 
+        elif ctx.children[0].getText() == "true":
+            ctx.ast = TODO()
+        elif ctx.children[0].getText() == "false":
+            ctx.ast = TODO()
+
         elif ctx.children[0].getText() == "bit":
             ctx.ast = ast.BitType()
+        elif ctx.children[0].getText() == "flag":
+            ctx.ast = TODO()
+
+        elif ctx.children[0].getText() == "typeof":
+            ctx.ast = TODO()
+
+        elif ctx.children[0].getText() == "int":
+            ctx.ast = TODO()
+        elif ctx.children[0].getText() == "bool":
+            ctx.ast = TODO()
 
         else:
-            assert False, "TODO-more-base-expressions"
+            assert False, "Unrecognized expression"
+
+
+    enterType_Named = default_enter_sameScope
+    def exitType_Named(self, ctx):
+        ctx.ast = ast.IdentExpr(ctx.nameScope, ctx.name.text)
 
 
 

@@ -4,5 +4,17 @@ part main {
     out = in;
 
     private bit a, b=1, c, d=0, e=1;
+
+    public memory(four_things) the_things;
+}
+
+plug thing {
+    bit    foo;
+    bit[8] bar;
+}
+
+plug four_things {
+    thing[2] ab;
+    thing    c,d;
 }
 
