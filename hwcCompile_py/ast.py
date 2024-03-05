@@ -56,7 +56,7 @@ class PartDecl(ASTNode):
         self.nameScope = NameScope(nameScope)
         self.name      = name
         self.stmts     = stmts
-        self.size      = None
+        self.decl_bits = None
     def __repr__(self):
         return f"ast.PartDecl({self.name}, {self.stmts})"
 
@@ -64,7 +64,7 @@ class PartDecl(ASTNode):
         print(f"{prefix}PART DECL: name={self.name} id={id(self)}")
         for d in self.stmts:
             d.print_tree(prefix+"  ")
-            print(f"{prefix}    size: {d.size}")
+            print(f"{prefix}    decl_bits: {d.decl_bits}")
 
 
     def populate_name_scopes(self):
@@ -76,21 +76,15 @@ class PartDecl(ASTNode):
             s.resolve_name_lookups()
 
     def calc_sizes_and_offsets(self):
-        if self.size is not None:
+        if self.decl_bits == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bits is not None:
             return
+        self.decl_bits = "in progress"
 
         for s in self.stmts:
             s.calc_sizes_and_offsets()
-
-        # the 'part_size' is the number of storage bits that must be
-        # allocated for each instance of this part.  All statements include
-        # this field (even if it's zero).  For declarations, this field tells
-        # us how many bits are required by this newly-declared item; for
-        # connections, it tells us how many bits are required as temporary
-        # values; for if() and for() statements, it summarizes declarations
-        # embedded inside the statement (if any).
-
-        self.part_size = sum(s.part_size for s in self.stmts)
+        self.decl_bits = sum(s.decl_bits for s in self.stmts)
 
 
 
@@ -157,8 +151,13 @@ class DeclStmt(ASTNode):
             self.initVal.resolve_name_lookups()
 
     def calc_sizes_and_offsets(self):
-        if self.size is not None:
+        if self.decl_bits == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bits is not None:
             return
+        self.decl_bits = "in progress"
+
+        assert False    # TODO: audit and port to the new design doc
 
         self.typ_.calc_sizes_and_offsets()
 
@@ -213,8 +212,13 @@ class ConnStmt(ASTNode):
         self.rhs.resolve_name_lookups()
 
     def calc_sizes_and_offsets(self):
-        if self.size is not None:
+        if self.decl_bits == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bits is not None:
             return
+        self.decl_bits = "in progress"
+
+        assert False    # TODO: audit and port to the new design doc
 
         if type(self.lhs.target) != DeclStmt or \
            type(self.rhs.target) != DeclStmt:
@@ -280,7 +284,7 @@ class BitType_(ASTNode):
     def resolve_name_lookups(self):
         pass
     def calc_sizes_and_offsets(self):
-        pass
+        assert False    # TODO: audit and port to the new design doc
 BitType_.singleton = BitType_()
 def BitType():
     return BitType_.singleton
@@ -296,7 +300,7 @@ class IntType_(ASTNode):
     def resolve_name_lookups(self):
         pass
     def calc_sizes_and_offsets(self):
-        assert False
+        assert False    # TODO: audit and port to the new design doc
 IntType_.singleton = IntType_()
 def IntType():
     return IntType_.singleton
@@ -348,7 +352,7 @@ class IdentExpr(ASTNode):
             assert False
 
     def calc_sizes_and_offsets(self):
-        pass
+        assert False    # TODO: audit and port to the new design doc
 
 
 
@@ -413,7 +417,7 @@ class ArrayOf(ASTNode):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
     def calc_sizes_and_offsets(self):
-        TODO()
+        assert False    # TODO: audit and port to the new design doc
 
 
 
@@ -427,7 +431,7 @@ class ArrayIndex(ASTNode):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
     def calc_sizes_and_offsets(self):
-        TODO()
+        assert False    # TODO: audit and port to the new design doc
 
 
 
@@ -442,5 +446,5 @@ class ArraySlice(ASTNode):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
     def calc_sizes_and_offsets(self):
-        TODO()
+        assert False    # TODO: audit and port to the new design doc
 

@@ -1,0 +1,21 @@
+When I added the named for() loop syntax
+    for (int i; 0..32) as adder_loop { ... }
+I very quickly realized that I would have to implement array expressions where
+the array didn't start at zero.  This was obvious for certain for() loops
+    for (int j; 4..8) as whatever { ... }
+but also would be necessary in order to implement slicing:
+    bit[32] a,b;
+    a[:16] = b[16:];
+
+So I just thought to myself, why should I limit myself to arrays that have
+zero-based indices?  Why not allow slicing-like syntax for array declarations,
+like this:
+    bit[4:8] something;
+
+And of course, since for() loops might reasonably use negative indices
+sometimes, the language just begs for generality:
+    bit[-16:16] thirty_two_bits;
+
+(BTW, I'm thinking that if I add this, I'm almost *certainly* going to want
+to change the for() loop internal operator from .. to a colon.)
+

@@ -1,0 +1,183 @@
+The HWC compiler, as simple as it is, still has to deal with some issues which
+are melting my brain.  Here's where I'm putting my current thoughts; I'll clean
+them up into a more formal spec later.
+
+
+
+META-TYPES
+
+Obviously, HWC has "types" - the language supports the declaration of both plug
+types, and part types.  But the compiler internally needs to classify certain
+expressions as well.  For this, we will use the term "metatype" to refer to a
+group which can encompass multiple HWC language types.
+
+Metatypes are used only for expressions; statements don't need them.  The
+following metatypes are available:
+
+    TBD - expression refers to an imported file, or a subset of a path to
+          the same, such as "foo" or "foo.bar", as subsets of a full path
+          "foo.bar.baz".  Not implemented yet.
+
+    PlugDecl - expression refers to the declaration of a plug type (or an array
+               of the same).  This refers to the *type* itself, not to any
+               particular instantiation of the type.
+
+               EXAMPLE
+                 plug Foo { bit x; }
+
+                 part Bar {
+                     Foo asdf;      // 'Foo' has the PlugDecl metatype.
+                     asdf.x = 1;    // 'asdf' and 'asdf.x' both have the PlugExpr metatype (see below)
+                 }
+
+    PartDecl - see PlugDecl, but for parts.
+
+    PlugExpr - expression refers to a specific instantiation of a PlugType;
+               it has a specific position in the bit-space (which takes a few
+               steps for us to evaluate).  Early in the compile process, this
+               has a lot of metadata (until the bit-space position is known);
+               late in the compile, we care about fairly little other than its
+               position and type.  (NOTE: The 'type' here must be a PlugDecl.)
+
+               Some PlugExpr can be used as lhs, and some are rhs-only.
+
+    PartExpr - see PlugExpr, but for parts.  But notice that very few things
+               can be done with a PartExpr; almost all operators require
+               PlugExpr as their parameter types.  (dot-expr is a noteworthy
+               exception.)
+
+    StaticType - expression refers to a type which can only hold static data.
+                 Users cannot declare custom types, although arrays are
+                 allowed.  Currently, the only supported "base" static types
+                 are "int" and "bool".
+
+    StaticVar - expression refers to a single declared static variable, or
+                array of same.  Can be used as lhs or rhs.
+
+    StaticExpr - expression refers to an expression with a static value.  Has
+                 an underlying type, which must have metatype of StaticType.
+                 Does not refer to any particular variable, and thus can be
+                 used only as a rhs.  We currently do not have syntax to allow
+                 the user to express array-type StaticExpr; we can only express
+                 the base types.
+
+
+
+STATEMENTS
+
+Statements do not have metatypes; however, they make fairly strong assumptions
+about the metatypes of the expressions that they use.  For instance, a DeclStmt
+assumes that the type is a PlugDecl, PartDecl, or StaticType.  A ConnStmt, on
+the other hand, assumes that both the lhs and rhs are PlugExpr, although it has
+special case handling for some exceptions, such as static assignments, or
+initializing a runtime PlugExpr a value which is a StaticExpr.
+
+But a statement in HWC can never be an expression - and so they don't need
+expression metatypes.
+
+
+
+SIZES
+
+The HWC compiler must track two different types of sizes.  The first one that
+comes to mind is the size of a given PlugExpr.  But, as it turns out, this
+doesn't have to be explicitly tracked by the PlugExpr at all - because all
+PlugExpr have an underlying type (which is a PlugDecl).  The "size of the plug"
+is, by definition, equal to the physical size of the underlying PlugDecl -
+that is, the "decl_bits".
+
+The "decl_bits" is a property of all PlugDecl and PartDecl objects (and, as we
+will discover, also all statements).  It is the number of physical bits which
+must be allocated to instantiate a new field of that type.  For plugs, this is
+simply a sum of all of the fields declared in the plug; for parts, this is a
+sum of all of the plugs used by the part (both public and private), all of the
+bits needed for various temporary expressions used inside the part, and of
+course all of the bits of any sub-parts that the part contains.
+
+For a statement, the "decl_bits" are the bits required to implement that entire
+statement.  For DeclStmt, this is simply the size of the various declarations
+(perhaps plus some temporaries used by initVal expressions).  For ConnStmt, the
+"decl_bits" is sometimes zero, even for non-trivial expressions; this would
+happen if no temporaries are needed to hold calculations along the way.  On the
+other hand, ConnStmt can have *many* decl_bits, if there are complex
+expressions on either side of the expression (such as the AND of two fields).
+Similarly, if() statements generally have a single "decl_bit" (plus any
+temporaries needed to calculate it), which represents the condition; this
+condition will control any and all ConnStmt inside the if() statement.  (Of
+course, the total "decl_bits" for any if() statement will be cost of the
+condition, plus *both* its true and false branches.)  Finally, for() statements
+don't generally require any "extra" decl_bits for the loop itself, but will
+need to include many copies of the underlying loop body.
+
+
+
+OFFSETS
+
+PlugExpr need to know not just the underlying type of the expression (a
+PlugDecl) but also the *position* where this plug exists.  And as we walk
+through the tree (starting at a field, and then accessing subfields, array
+elements, individual bits, etc.) the more complex expressions (the ones
+closer to the root) will have a more refined "position" in the bit-space,
+even as they have a smaller and simpler underlying type.
+
+Eventually, all of this has to resolve down to specific bits in the wiring
+diagram, but we *cannot* do that in the AST.  That's because any type that is
+declared in the AST must be something that might be instantiated multiple
+times - and so the same AST node may result in generating different wires at
+different locations in the wiring diagram.  For this reason, the AST doesn't
+store absolute locations, but rather *offsets* into the enclosing type.
+
+For PlugDecl, the offsets are fairly simple to fill in; once we know the
+underlying PlugDecl of each field, we can just keep a running sum, assigning
+offsets as we go.  (Note that, in my current HWC design, PlugDecl cannot
+include any fields which are not themselves PlugDecl types.)
+
+For PartDecl, the same principle applies: we iterate through the statements,
+and assign offsets by recursing into them in turn.  The offsets that we assign
+to various expressions will all be relative to the enclosing part; we do not
+assign "sub-offsets" to individual statements (with one exception, see below).
+Even statements that are inside if() statements still use the part as the base
+for all offset calculations.
+
+Of course, when a part contains sub-parts, those sub-parts are each assigned
+an offset, and the offsets of any code *inside* that part is part of a
+different part; that is, the offset of any fields inside it are relative to
+the deepest enclosing part.  For example:
+    part Foo { bit x,y; }
+    part Bar {
+        bit[8] asdf;
+        Foo thing;
+        thing.y = asdf[3];
+    }
+In the example above, the fields x,y are both part of Foo, and thus, in the
+AST, their offsets are calculated to Foo (0 and 1, respectively).  Similarly,
+asdf is declared inside Bar, and so its offset it zero; the offset of the
+expression asdf[3] is thus 3, relative to Bar.  The offset of the expression
+'thing' is 8, relative to Bar.  Now, we know that the offset of y is 1,
+relative to Bar, and that of course is encoded in the AST as the DeclStmt
+inside Foo (and the associated NameScope).
+
+However, when we resolve the offset for the dot-expr in the AST (and remember
+that the dot-expr is inside the AST for Bar), the correct offset (relative to
+Bar) is 8+1=9, because we have gone into a sub-field of the IdentExpr.  So we
+see that, while the offset of fields is defined relative to the innermost
+part, the *effective* offset of expressions (as used in code) will have to be
+defined relative to the declaration where they were used.
+
+Above, I had said that there was one exception to the rule that offsets were
+calculated relative to the innermost enclosing part; that exception is the
+body of for() statements.  I recently added the following syntax to for():
+    for(int i; 0..32) as adder_loop
+    {
+        ...
+    }
+This allows you to access all of the variables (including static variables and
+subparts) declared inside the loop body, using array indexing:
+    adder_loop[0].carryIn = 1;
+
+In effect, a for() loop body is an anonymous PartDecl, and the for() loop
+automatically declares an array of those parts.  Thus, all statements *inside*
+the loop body are effectively internal statements of another part declaration
+(with the special property that they can access the NameScope of the enclosing
+code).
+
