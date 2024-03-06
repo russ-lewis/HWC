@@ -17,6 +17,10 @@ class ASTNode:
 
 
 
+import ast_expr_metatypes as metatypes;
+
+
+
 class File(ASTNode):
     def __init__(self, nameScope, decls):
         assert type(nameScope) == NameScope
@@ -293,25 +297,6 @@ class NameScope:
 
 
 
-class BitType_(ASTNode):
-    leafNode  = True
-    plug_size = 1
-
-    def __repr__(self):
-        return "bit"
-
-    def resolve_name_lookups(self):
-        pass
-    def calc_sizes_and_offsets(self):
-        assert False    # TODO: audit and port to the new design doc
-    def convert_to_metatype(self):
-        return self
-BitType_.singleton = BitType_()
-def BitType():
-    return BitType_.singleton
-
-
-
 class IntType_(ASTNode):
     leafNode = True
 
@@ -383,7 +368,6 @@ class IdentExpr(ASTNode):
 
 class NumExpr(ASTNode):
     leafNode = True
-    typ_ = BitType()
 
     def __init__(self, num_txt):
         self.num = int(num_txt)
@@ -440,20 +424,6 @@ class Unresolved_Single_Index_Expr(ASTNode):
 
 
 
-class ArrayOf(ASTNode):
-    def __init__(self, base, indx):
-        # NOTE: no nameScope required, since we have already resolved names
-        self.base = base
-        self.indx = indx
-
-    def resolve_name_lookups(self):
-        assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
-
-    def calc_sizes_and_offsets(self):
-        assert False    # TODO: audit and port to the new design doc
-
-
-
 class ArrayIndex(ASTNode):
     def __init__(self, base, indx):
         # NOTE: no nameScope required, since we have already resolved names
@@ -480,36 +450,4 @@ class ArraySlice(ASTNode):
 
     def calc_sizes_and_offsets(self):
         assert False    # TODO: audit and port to the new design doc
-
-
-
-class PlugExpr(ASTNode):       # metatype
-    def __init__(self):
-        pass
-
-
-
-class PartExpr(ASTNode):       # metatype
-    def __init__(self):
-        pass
-
-
-
-class StaticType(ASTNode):     # metatype
-    def __init__(self):
-        pass
-
-
-
-class StaticVar(ASTNode):      # metatype
-    def __init__(self):
-        pass
-
-
-
-class StaticExpr(ASTNode):     # metatype
-    def __init__(self):
-        pass
-
-
 
