@@ -30,7 +30,7 @@ class HWCAstGenerator(hwcListener):
     def enterFile(self, ctx):
         ctx.nameScope = ast.NameScope(None)
     def exitFile(self, ctx):
-        ctx.ast = ast.File(ctx.nameScope, [c.ast for c in ctx.decls])
+        ctx.ast = ast.g_File(ctx.nameScope, [c.ast for c in ctx.decls])
 
 
     def default_enter_newScope(self, ctx):
@@ -57,10 +57,10 @@ class HWCAstGenerator(hwcListener):
 
         if partOrPlug == "part":
             assert len(ctx.decls) == 0
-            ctx.ast = ast.PartDecl(ns, name, flatten(ctx.stmts))
+            ctx.ast = ast.g_PartDecl(ns, name, flatten(ctx.stmts))
         else:
             assert len(ctx.stmts) == 0
-            ctx.ast = ast.PlugDecl(ns, name, flatten(ctx.decls))
+            ctx.ast = ast.g_PlugDecl(ns, name, flatten(ctx.decls))
 
 
     enterDeclStmt = default_enter_sameScope
@@ -78,7 +78,7 @@ class HWCAstGenerator(hwcListener):
             else:
                 initVal = d.val.ast
 
-            stmt = ast.DeclStmt(ns,mem,typ, name,initVal)
+            stmt = ast.g_DeclStmt(ns,mem,typ, name,initVal)
             ctx.ast_arr.append(stmt)
 
 
@@ -106,7 +106,7 @@ class HWCAstGenerator(hwcListener):
         assert len(ctx.lhs) >= 1
         if len(ctx.lhs) > 1:
             assert False, "TODO-implement-chain-assignment"    # maybe generate n-1 connection statements in a block?
-        ctx.ast = ast.ConnStmt(ctx.lhs[0].ast, ctx.rhs.ast)
+        ctx.ast = ast.g_ConnStmt(ctx.lhs[0].ast, ctx.rhs.ast)
 
 
     enterStmt_If = default_enter_sameScope
@@ -181,7 +181,7 @@ class HWCAstGenerator(hwcListener):
             # We must defer the resolution of what it is until later, when we
             # have resolved the names; then we will replace this object with
             # one of the proper type.
-            ctx.ast = ast.Unresolved_Single_Index_Expr(ctx.nameScope, ctx.left.ast, ctx.a.ast)
+            ctx.ast = ast.g_Unresolved_Single_Index_Expr(ctx.nameScope, ctx.left.ast, ctx.a.ast)
 
         elif ctx.a is not None and ctx.colon is not None:
             # slice of a runtime value, which goes to the end of the array
@@ -208,9 +208,9 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ctx.subexpr.ast
 
         elif ctx.name is not None:
-            ctx.ast = ast.IdentExpr(ctx.nameScope, ctx.name.text)
+            ctx.ast = ast.g_IdentExpr(ctx.nameScope, ctx.name.text)
         elif ctx.num is not None:
-            ctx.ast = ast.NumExpr(ctx.num.text)
+            ctx.ast = ast.g_NumExpr(ctx.num.text)
 
         elif ctx.children[0].getText() == "true":
             ctx.ast = TODO()

@@ -21,7 +21,7 @@ import ast_expr_metatypes as metatypes;
 
 
 
-class File(ASTNode):
+class g_File(ASTNode):
     def __init__(self, nameScope, decls):
         assert type(nameScope) == NameScope
         super().__init__()
@@ -59,7 +59,7 @@ class File(ASTNode):
 
 
 
-class PartDecl(ASTNode):
+class g_PartDecl(ASTNode):
     def __init__(self, nameScope, name, stmts):
         assert type(nameScope) == NameScope
         super().__init__()
@@ -68,7 +68,7 @@ class PartDecl(ASTNode):
         self.stmts     = stmts
         self.decl_bits = None
     def __repr__(self):
-        return f"ast.PartDecl({self.name}, {self.stmts})"
+        return f"ast.g_PartDecl({self.name}, {self.stmts})"
 
     def print_tree(self, prefix):
         print(f"{prefix}PART DECL: name={self.name} id={id(self)}")
@@ -102,7 +102,7 @@ class PartDecl(ASTNode):
 
 
 
-class PlugDecl(ASTNode):
+class g_PlugDecl(ASTNode):
     def __init__(self, nameScope, name, stmts):
         assert type(nameScope) == NameScope
         super().__init__()
@@ -112,10 +112,10 @@ class PlugDecl(ASTNode):
     def __repr__(self):
         return f"ast.PlugDecl({self.name}, {self.stmts})"
 
-    populate_name_scopes       = PartDecl.populate_name_scopes
-    resolve_name_lookups       = PartDecl.resolve_name_lookups
-    calc_sizes_and_offsets     = PartDecl.calc_sizes_and_offsets
-    convert_exprs_to_metatypes = PartDecl.convert_exprs_to_metatypes
+    populate_name_scopes       = g_PartDecl.populate_name_scopes
+    resolve_name_lookups       = g_PartDecl.resolve_name_lookups
+    calc_sizes_and_offsets     = g_PartDecl.calc_sizes_and_offsets
+    convert_exprs_to_metatypes = g_PartDecl.convert_exprs_to_metatypes
 
     def print_tree(self, prefix):
         print(f"{prefix}PLUG DECL: name={self.name} id={id(self)}")
@@ -125,7 +125,7 @@ class PlugDecl(ASTNode):
 
 
 
-class DeclStmt(ASTNode):
+class g_DeclStmt(ASTNode):
     def __init__(self, nameScope, isMem, typ_, name, initVal):
         assert type(nameScope) == NameScope
         super().__init__()
@@ -201,7 +201,7 @@ class DeclStmt(ASTNode):
 
 
 
-class ConnStmt(ASTNode):
+class g_ConnStmt(ASTNode):
     def __init__(self, lhs,rhs):
         super().__init__()
         self.lhs       = lhs
@@ -297,7 +297,7 @@ class NameScope:
 
 
 
-class IntType_(ASTNode):
+class g_IntType_(ASTNode):
     leafNode = True
 
     def __repr__(self):
@@ -307,13 +307,13 @@ class IntType_(ASTNode):
         pass
     def calc_sizes_and_offsets(self):
         assert False    # TODO: audit and port to the new design doc
-IntType_.singleton = IntType_()
+g_IntType_.singleton = g_IntType_()
 def IntType():
-    return IntType_.singleton
+    return g_IntType_.singleton
 
 
 
-class IdentExpr(ASTNode):
+class g_IdentExpr(ASTNode):
     leafNode  = True
 
     def __init__(self, nameScope, name):
@@ -337,15 +337,15 @@ class IdentExpr(ASTNode):
         #   2) The name of a plug or part declaration, in this file (or aliased into it)
         #   3) A public or private declaration within the current scope, or any enclosing scope (all the way up to the file scope, maybe)
         assert type(self.target) in [ # TODO: case 1
-                                      PartDecl, PlugDecl,
-                                      DeclStmt           ]
+                                      g_PartDecl, g_PlugDecl,
+                                      g_DeclStmt              ]
 
-        if   type(self.target) == PartDecl:
+        if   type(self.target) == g_PartDecl:
             pass
-        elif type(self.target) == PlugDecl:
+        elif type(self.target) == g_PlugDecl:
             pass
 
-        elif type(self.target) == DeclStmt:
+        elif type(self.target) == g_DeclStmt:
             print()
             print(self.target.prefix)
             print(self.target.isMem)
@@ -366,7 +366,7 @@ class IdentExpr(ASTNode):
 
 
 
-class NumExpr(ASTNode):
+class g_NumExpr(ASTNode):
     leafNode = True
 
     def __init__(self, num_txt):
@@ -383,7 +383,7 @@ class NumExpr(ASTNode):
 
 
 
-class Unresolved_Single_Index_Expr(ASTNode):
+class g_Unresolved_Single_Index_Expr(ASTNode):
     def __init__(self, nameScope, base, indx):
         self.nameScope = nameScope
         self.base      = base
@@ -424,7 +424,7 @@ class Unresolved_Single_Index_Expr(ASTNode):
 
 
 
-class ArrayIndex(ASTNode):
+class g_ArrayIndex(ASTNode):
     def __init__(self, base, indx):
         # NOTE: no nameScope required, since we have already resolved names
         self.base = base
@@ -438,7 +438,7 @@ class ArrayIndex(ASTNode):
 
 
 
-class ArraySlice(ASTNode):
+class g_ArraySlice(ASTNode):
     def __init__(self, base, start,end):
         # NOTE: no nameScope required, since we have already resolved names
         self.base  = base
