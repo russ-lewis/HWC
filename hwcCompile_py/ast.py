@@ -10,6 +10,8 @@ class ASTNode:
         assert False, f"Need to override this in the child class: {type(self)}"
     def resolve_name_lookups(self):
         assert False, f"Need to override this in the child class: {type(self)}"
+    def convert_exprs_to_metatypes(self):
+        assert False, f"Need to override this in the child class: {type(self)}"
     def calc_sizes_and_offsets(self):
         assert False, f"Need to override this in the child class: {type(self)}"
 
@@ -38,6 +40,10 @@ class File(ASTNode):
     def resolve_name_lookups(self):
         for d in self.decls:
             d.resolve_name_lookups()
+
+    def convert_exprs_to_metatypes(self):
+        for d in self.decls:
+            d.convert_exprs_to_metatypes()
 
     def calc_sizes_and_offsets(self):
         # files don't have sizes, not even if it's the root file of the
@@ -75,6 +81,10 @@ class PartDecl(ASTNode):
         for s in self.stmts:
             s.resolve_name_lookups()
 
+    def convert_exprs_to_metatypes(self):
+        for d in self.stmts:
+            d.convert_exprs_to_metatypes()
+
     def calc_sizes_and_offsets(self):
         if self.decl_bits == "in progress":
             assert False    # TODO: report cyclic declaration
@@ -98,16 +108,16 @@ class PlugDecl(ASTNode):
     def __repr__(self):
         return f"ast.PlugDecl({self.name}, {self.stmts})"
 
-    populate_name_scopes   = PartDecl.populate_name_scopes
-    resolve_name_lookups   = PartDecl.resolve_name_lookups
-    calc_sizes_and_offsets = PartDecl.calc_sizes_and_offsets
+    populate_name_scopes       = PartDecl.populate_name_scopes
+    resolve_name_lookups       = PartDecl.resolve_name_lookups
+    calc_sizes_and_offsets     = PartDecl.calc_sizes_and_offsets
+    convert_exprs_to_metatypes = PartDecl.convert_exprs_to_metatypes
 
     def print_tree(self, prefix):
         print(f"{prefix}PLUG DECL: name={self.name} id={id(self)}")
         for d in self.stmts:
             d.print_tree(prefix+"  ")
-            print(f"{prefix}    size: {d.size}")
-
+            print(f"{prefix}    decl_bits: {d.decl_bits}")
 
 
 
@@ -121,7 +131,7 @@ class DeclStmt(ASTNode):
         self.typ_      = typ_
         self.name      = name
         self.initVal   = initVal
-        self.size      = None
+        self.decl_bits = None
     def __repr__(self):
         return f"ast.DeclStmt({self.prefix}, mem={self.isMem}, {self.typ_}, {self.name}, init={self.initVal})"
 
@@ -142,6 +152,7 @@ class DeclStmt(ASTNode):
             print(f"{prefix}  initVal:")
             self.initVal.print_tree(prefix+"    ")
 
+
     def populate_name_scopes(self):
         self.nameScope.add(self.name, self)
 
@@ -149,6 +160,11 @@ class DeclStmt(ASTNode):
         self.typ_.resolve_name_lookups()
         if self.initVal is not None:
             self.initVal.resolve_name_lookups()
+
+    def convert_exprs_to_metatypes(self):
+        self.typ_ = self.typ_.convert_to_metatype()
+        if self.initVal is not None:
+            self.initVal = self.initVal.convert_to_metatype()
 
     def calc_sizes_and_offsets(self):
         if self.decl_bits == "in progress":
@@ -184,9 +200,9 @@ class DeclStmt(ASTNode):
 class ConnStmt(ASTNode):
     def __init__(self, lhs,rhs):
         super().__init__()
-        self.lhs  = lhs
-        self.rhs  = rhs
-        self.size = None
+        self.lhs       = lhs
+        self.rhs       = rhs
+        self.decl_bits = None
     def __repr__(self):
         return f"ast.ConnStmt({self.lhs}, {self.rhs})"
 
@@ -210,6 +226,9 @@ class ConnStmt(ASTNode):
     def resolve_name_lookups(self):
         self.lhs.resolve_name_lookups()
         self.rhs.resolve_name_lookups()
+    def convert_exprs_to_metatypes(self):
+        self.lhs = self.lhs.convert_to_metatype()
+        self.rhs = self.rhs.convert_to_metatype()
 
     def calc_sizes_and_offsets(self):
         if self.decl_bits == "in progress":
@@ -285,6 +304,8 @@ class BitType_(ASTNode):
         pass
     def calc_sizes_and_offsets(self):
         assert False    # TODO: audit and port to the new design doc
+    def convert_to_metatype(self):
+        return self
 BitType_.singleton = BitType_()
 def BitType():
     return BitType_.singleton
@@ -351,6 +372,10 @@ class IdentExpr(ASTNode):
         else:
             assert False
 
+    def convert_to_metatype(self):
+        print(f"TODO: {type(self)}.convert_to_metatype()")
+        return self
+
     def calc_sizes_and_offsets(self):
         assert False    # TODO: audit and port to the new design doc
 
@@ -367,6 +392,10 @@ class NumExpr(ASTNode):
 
     def resolve_name_lookups(self):
         pass
+
+    def convert_to_metatype(self):
+        print(f"TODO: {type(self)}.convert_to_metatype()")
+        return self
 
 
 
@@ -395,6 +424,10 @@ class Unresolved_Single_Index_Expr(ASTNode):
     def resolve_name_lookups(self):
         self.base.resolve_name_lookups()
         self.indx.resolve_name_lookups()
+
+    def convert_to_metatype(self):
+        print(f"TODO: {type(self)}.convert_to_metatype()")
+        return self
 
     def resolve(self):
         if self.base.TODO_figure_out_if_is_declaration_type_or_runtime_val():
@@ -447,4 +480,36 @@ class ArraySlice(ASTNode):
 
     def calc_sizes_and_offsets(self):
         assert False    # TODO: audit and port to the new design doc
+
+
+
+class PlugExpr(ASTNode):       # metatype
+    def __init__(self):
+        pass
+
+
+
+class PartExpr(ASTNode):       # metatype
+    def __init__(self):
+        pass
+
+
+
+class StaticType(ASTNode):     # metatype
+    def __init__(self):
+        pass
+
+
+
+class StaticVar(ASTNode):      # metatype
+    def __init__(self):
+        pass
+
+
+
+class StaticExpr(ASTNode):     # metatype
+    def __init__(self):
+        pass
+
+
 
