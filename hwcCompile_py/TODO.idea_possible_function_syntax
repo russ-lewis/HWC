@@ -1,0 +1,15 @@
+part function IDENT(args) { ... }
+part function IDENT(args) { ... ; return ...; }
+
+plug function IDENT(args) { ... }
+
+static function IDENT(args) { ... ; return ...; }
+
+args can be:
+  int
+  bool
+  plug / part - type argument
+  any plug type (connection arguments)
+
+  ??? plug function / part function / static function ???
+
