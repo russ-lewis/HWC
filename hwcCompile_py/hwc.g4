@@ -40,14 +40,6 @@ stmt:
 
 
 
-nameList:
-      name+=IDENT (',' name+=IDENT)*     /* ANTLR generates a single array name[] because += */
-;
-
-
-
-/* TODO: use antlr's precedence mechanisms to make this more elegant. */
-
 expr:
       /* NOTE: comparison operators are all lowest precedence, and non-associative */
       left=expr2 (('==' |
