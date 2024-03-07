@@ -17,7 +17,7 @@ class ASTNode:
 
 
 
-import ast_expr_metatypes as metatypes;
+from ast_expr_metatypes import *;
 
 
 
@@ -176,6 +176,13 @@ class g_DeclStmt(ASTNode):
         if self.decl_bits is not None:
             return
         self.decl_bits = "in progress"
+
+        if   isinstance(self.typ_, mt_PlugDecl):
+            TODO()
+        elif isinstance(self.typ_, mt_PartDecl):
+            assert(self.prefix == "subpart")
+        else:
+            assert False, f"Unexpected metatype {type(self.typ_)} of the declaration type expression"
 
         assert False    # TODO: audit and port to the new design doc
 
