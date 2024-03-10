@@ -23,8 +23,8 @@ declNameInit:
 
 
 
-# TODO: rework decls into a single rule, which is part of stmt.  Use the syntax
-#       ( | prefix='subpart' | prefix='public' | ... ) to encode the prefix options
+// TODO: rework decls into a single rule, which is part of stmt.  Use the syntax
+//       ( | prefix='subpart' | prefix='public' | ... ) to encode the prefix options
 
 stmt:
       '{' stmts+=stmt* '}'                                      # stmt_Block

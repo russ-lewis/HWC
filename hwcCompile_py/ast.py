@@ -59,19 +59,19 @@ class g_File(ASTNode):
 
 
 
-class g_PartDecl(ASTNode):
-    def __init__(self, nameScope, name, stmts):
-        assert type(nameScope) == NameScope
-        super().__init__()
-        self.nameScope = NameScope(nameScope)
-        self.name      = name
-        self.stmts     = stmts
-        self.decl_bits = None
+class g_PartOrPlugDecl(ASTNode):
+    def __init__(self, isPart, ns_pub, name, stmts):
+        assert type(ns_pub) == NameScope
+        self.pub_nameScope = ns_pub
+        self.isPart        = isPart
+        self.name          = name
+        self.stmts         = stmts
+        self.decl_bits     = None       # TODO: rename as decl_bitSize
     def __repr__(self):
         return f"ast.g_PartDecl({self.name}, {self.stmts})"
 
     def print_tree(self, prefix):
-        print(f"{prefix}PART DECL: name={self.name} id={id(self)}")
+        print(f"{prefix}PART-OR-PLUG DECL: isPart={self.isPart} name={self.name} id={id(self)}")
         for d in self.stmts:
             d.print_tree(prefix+"  ")
             print(f"{prefix}    decl_bits: {d.decl_bits}")
@@ -102,40 +102,18 @@ class g_PartDecl(ASTNode):
 
 
 
-class g_PlugDecl(ASTNode):
-    def __init__(self, nameScope, name, stmts):
-        assert type(nameScope) == NameScope
-        super().__init__()
-        self.nameScope = NameScope(nameScope)
-        self.name      = name
-        self.stmts     = stmts
-    def __repr__(self):
-        return f"ast.PlugDecl({self.name}, {self.stmts})"
-
-    populate_name_scopes       = g_PartDecl.populate_name_scopes
-    resolve_name_lookups       = g_PartDecl.resolve_name_lookups
-    calc_sizes_and_offsets     = g_PartDecl.calc_sizes_and_offsets
-    convert_exprs_to_metatypes = g_PartDecl.convert_exprs_to_metatypes
-
-    def print_tree(self, prefix):
-        print(f"{prefix}PLUG DECL: name={self.name} id={id(self)}")
-        for d in self.stmts:
-            d.print_tree(prefix+"  ")
-            print(f"{prefix}    decl_bits: {d.decl_bits}")
-
-
-
 class g_DeclStmt(ASTNode):
-    def __init__(self, nameScope, isMem, typ_, name, initVal):
-        assert type(nameScope) == NameScope
-        super().__init__()
-        self.nameScope = nameScope
-        self.prefix    = None
-        self.isMem     = isMem
-        self.typ_      = typ_
-        self.name      = name
-        self.initVal   = initVal
-        self.decl_bits = None
+    def __init__(self, ns_pub,ns_pri, isMem, typ_, name, initVal):
+        assert                   type(ns_pub) == NameScope
+        assert ns_pri is None or type(ns_pri) == NameScope
+        self.pub_nameScope = ns_pub
+        self.pri_nameScope = ns_pri
+        self.prefix        = None
+        self.isMem         = isMem
+        self.typ_          = typ_
+        self.name          = name
+        self.initVal       = initVal
+        self.decl_bits     = None
     def __repr__(self):
         return f"ast.DeclStmt({self.prefix}, mem={self.isMem}, {self.typ_}, {self.name}, init={self.initVal})"
 
@@ -158,7 +136,16 @@ class g_DeclStmt(ASTNode):
 
 
     def populate_name_scopes(self):
-        self.nameScope.add(self.name, self)
+        # declarations always add to the private nameScope.  But we only add to
+        # the public nameScope if this is a public declaration.  (Note that
+        # public declarations are not legal inside block statements.)
+
+        self.pri_nameScope.add(self.name, self)
+
+        if self.prefix == "public":
+            if self.pub_nameScope is None:
+                TODO()    # report syntax error
+            self.pub_nameScope.add(self.name, self)
 
     def resolve_name_lookups(self):
         self.typ_.resolve_name_lookups()
@@ -344,12 +331,10 @@ class g_IdentExpr(ASTNode):
         #   2) The name of a plug or part declaration, in this file (or aliased into it)
         #   3) A public or private declaration within the current scope, or any enclosing scope (all the way up to the file scope, maybe)
         assert type(self.target) in [ # TODO: case 1
-                                      g_PartDecl, g_PlugDecl,
+                                      g_PartOrPlugDecl,
                                       g_DeclStmt              ]
 
-        if   type(self.target) == g_PartDecl:
-            pass
-        elif type(self.target) == g_PlugDecl:
+        if   type(self.target) == g_PartOrPlugDecl:
             pass
 
         elif type(self.target) == g_DeclStmt:

@@ -33,15 +33,36 @@ class HWCAstGenerator(hwcListener):
         ctx.ast = ast.g_File(ctx.nameScope, [c.ast for c in ctx.decls])
 
 
-    def default_enter_newScope(self, ctx):
-        ctx.nameScope = ast.NameScope(ctx.parentCtx.nameScope)
-    def default_enter_sameScope(self, ctx):
-        ctx.nameScope = ctx.parentCtx.nameScope
+    def enterTypeDecl(self, ctx):
+        # a part or plug declaration has *TWO* nameScope objects.  The "public"
+        # nameScope is for use by external code, which is attempting to access
+        # the fields of the part.  This will *only* include fields that are
+        # declared public, which cannot (currently) include static variables
+        # and subparts.  (Note that in a plug, *all* declarations are assumed
+        # to be public.)
+        #
+        # The "private" nameScope is for use by internal code, to access the
+        # fields and subparts declared inside this part.  Or rather, this is
+        # the nameScope used for *all* lookups by code inside this part (or
+        # plug).  It has the public fields, of course, and the private fields -
+        # but also includes a parent pointer to the enclosing scope.
+        #
+        # (Why do plugs have a private nameScope for lookup, when they can't
+        # have any statements other than declarations?  Because those
+        # declarations have expressions inside them, and the expressions might
+        # do name lookups for the fields of the plug, such as "typeof(fieldX)".
+        # Plus, we're planning ahead for the future, when plugs might include
+        # static-if statements.)
+        #
+        # When we build a new nameScope inside a part or plug (as part of an
+        # if() or curly-brace statement), it is always a child of the "private"
+        # nameScope.
+        ctx.pub_nameScope = ast.NameScope(None)
+        ctx.pri_nameScope = ast.NameScope(ctx.parentCtx.nameScope)
 
-
-    enterTypeDecl = default_enter_newScope
     def exitTypeDecl(self, ctx):
-        ns         = ctx.nameScope
+        ns_pub     = ctx.pub_nameScope
+        ns_pri     = ctx.pri_nameScope
         partOrPlug = ctx.children[0].getText()
         name       = ctx.name.text
 
@@ -55,39 +76,62 @@ class HWCAstGenerator(hwcListener):
                     retval.append(s.ast)
             return retval
 
+        # NOTE: While we needed both the public and private nameScope's to
+        #       build our AST (because our children in the grammar will need
+        #       access to the private nameScope for their own lookups,
+        #       eventually), the AST object which represents this part doesn't
+        #       need both; it only needs the public.  This is because no one
+        #       will use the AST object for the Plug/Part for name lookups
+        #       *except* for field lookups.
+
+        # TODO: Unify the two grammar rules entirely.
         if partOrPlug == "part":
             assert len(ctx.decls) == 0
-            ctx.ast = ast.g_PartDecl(ns, name, flatten(ctx.stmts))
+            ctx.ast = ast.g_PartOrPlugDecl(True, ns_pub, name, flatten(ctx.stmts))
         else:
             assert len(ctx.stmts) == 0
-            ctx.ast = ast.g_PlugDecl(ns, name, flatten(ctx.decls))
+            ctx.ast = ast.g_PartOrPlugDecl(False, ns_pub, name, flatten(ctx.decls))
 
 
-    enterDeclStmt = default_enter_sameScope
+    def default_enter_stmt(self, ctx):
+        print(type(ctx))
+        print(type(ctx.parentCtx))
+        ctx.pub_nameScope = ctx.parentCtx.pub_nameScope
+        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
+
+
+    enterDeclStmt = default_enter_stmt
     def exitDeclStmt(self, ctx):
-        ns  =  ctx.nameScope
-        mem = (ctx.mem is not None)
-        typ =  ctx.t.ast
+        ns_pub  =  ctx.pub_nameScope
+        ns_pri  =  ctx.pri_nameScope
+        mem     = (ctx.mem is not None)
+        typ     =  ctx.t.ast
 
-        ctx.ast_arr = []
+        ast_arr = []
         for d in ctx.decls:
-            name    = d.name.text
+            name = d.name.text
 
             if d.val is None:
                 initVal = None
             else:
                 initVal = d.val.ast
 
-            stmt = ast.g_DeclStmt(ns,mem,typ, name,initVal)
-            ctx.ast_arr.append(stmt)
+            stmt = ast.g_DeclStmt(ns_pub,ns_pri, mem,typ, name,initVal)
+            ast_arr.append(stmt)
+        ctx.ast_arr = ast_arr
 
 
-    enterDeclNameInit = default_enter_sameScope
+    def enterDeclNameInit(self, ctx):
+        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
     def exitDeclNameInit(self, ctx):
         pass
 
 
-    enterStmt_Decl = default_enter_sameScope
+    def enterStmt_Block(self, ctx):
+        TODO()    # not implemented yet.  This should create a new (private) nameScope, but its public nameScope should be None.  (We don't support public declarations inside {} blocks.  Not yet, perhaps not ever.)
+
+
+    enterStmt_Decl = default_enter_stmt
     def exitStmt_Decl(self, ctx):
         prefix = ctx.children[0].getText()
         decls  = ctx.children[1].ast_arr
@@ -101,7 +145,7 @@ class HWCAstGenerator(hwcListener):
         ctx.ast_arr = decls
 
 
-    enterStmt_Connection = default_enter_sameScope
+    enterStmt_Connection = default_enter_stmt
     def exitStmt_Connection(self, ctx):
         assert len(ctx.lhs) >= 1
         if len(ctx.lhs) > 1:
@@ -109,7 +153,7 @@ class HWCAstGenerator(hwcListener):
         ctx.ast = ast.g_ConnStmt(ctx.lhs[0].ast, ctx.rhs.ast)
 
 
-    enterStmt_If = default_enter_sameScope
+    enterStmt_If = default_enter_stmt
     def exitStmt_If(self, ctx):
         if ctx.static != None:
             # VERSION 1 OF STATIC IF() DECLARATIONS
@@ -129,7 +173,11 @@ class HWCAstGenerator(hwcListener):
         TODO()
 
 
-    enterExpr = default_enter_sameScope
+    def default_enter_expr(self, ctx):
+        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
+
+
+    enterExpr = default_enter_expr
     def exitExpr(self, ctx):
         assert ctx.left is not None
         if ctx.right != []:
@@ -152,7 +200,7 @@ class HWCAstGenerator(hwcListener):
     exitExpr6  = exitExpr
 
 
-    enterExpr7 = default_enter_sameScope
+    enterExpr7 = default_enter_expr
     def exitExpr7(self, ctx):
         assert (ctx.base is not None) != (ctx.right is not None)
 
@@ -163,7 +211,7 @@ class HWCAstGenerator(hwcListener):
             assert False, "Unrecognized expression"
 
 
-    enterExpr8 = default_enter_sameScope
+    enterExpr8 = default_enter_expr
     def exitExpr8(self, ctx):
         assert (ctx.base is not None) != (ctx.left is not None)
 
@@ -181,7 +229,7 @@ class HWCAstGenerator(hwcListener):
             # We must defer the resolution of what it is until later, when we
             # have resolved the names; then we will replace this object with
             # one of the proper type.
-            ctx.ast = ast.g_Unresolved_Single_Index_Expr(ctx.nameScope, ctx.left.ast, ctx.a.ast)
+            ctx.ast = ast.g_Unresolved_Single_Index_Expr(ctx.pri_nameScope, ctx.left.ast, ctx.a.ast)
 
         elif ctx.a is not None and ctx.colon is not None:
             # slice of a runtime value, which goes to the end of the array
@@ -202,13 +250,13 @@ class HWCAstGenerator(hwcListener):
             assert False, "Unrecognized expression"
 
 
-    enterExpr9 = default_enter_sameScope
+    enterExpr9 = default_enter_expr
     def exitExpr9(self, ctx):
         if ctx.subexpr is not None:
             ctx.ast = ctx.subexpr.ast
 
         elif ctx.name is not None:
-            ctx.ast = ast.g_IdentExpr(ctx.nameScope, ctx.name.text)
+            ctx.ast = ast.g_IdentExpr(ctx.pri_nameScope, ctx.name.text)
         elif ctx.num is not None:
             ctx.ast = ast.g_NumExpr(ctx.num.text)
 
