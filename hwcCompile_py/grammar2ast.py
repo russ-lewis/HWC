@@ -109,6 +109,26 @@ class HWCAstGenerator(hwcListener):
         ctx.ast = ast.ConnStmt(ctx.lhs[0].ast, ctx.rhs.ast)
 
 
+    enterStmt_If = default_enter_sameScope
+    def exitStmt_If(self, ctx):
+        if ctx.static != None:
+            # VERSION 1 OF STATIC IF() DECLARATIONS
+            #   - Create new nameScope for both blocks (if,else)
+            #   - Add new names *only* to the new nameScope
+            #   - Require static if() code to "reach out" to other, non-static-if variables
+            # VERSION 2 OF STATIC IF() DECLARATIONS
+            #   In addition to VERSION 1, also:
+            #   - Add all declarations to the parent context as well, but under a "static-if-declaration" wrapper; the name points to the static-if wrapper, and there are many possible declarations underneath
+            #   - Must add to both "private" and "public" nameScopes
+            #   - Names in the parent scope map to the wrapper object, many possible actual-declarations under each wrapper
+            #   - Early in compile, confirm that all declarations under a common wrapper are the same general sort (Expr metatype)
+            #   - After size() phase in the compiler, resolve all static if()s and replace wrappers with final declarations
+            #   - Have a check for "in this case, nothing is declared?"
+            TODO()
+
+        TODO()
+
+
     enterExpr = default_enter_sameScope
     def exitExpr(self, ctx):
         assert ctx.left is not None
