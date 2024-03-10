@@ -213,8 +213,3 @@ class HWCAstGenerator(hwcListener):
         else:
             assert False, "Unrecognized expression"
 
-
-    enterType_Named = default_enter_sameScope
-    def exitType_Named(self, ctx):
-        ctx.ast = ast.IdentExpr(ctx.nameScope, ctx.name.text)
-
