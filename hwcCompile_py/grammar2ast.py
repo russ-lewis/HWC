@@ -94,8 +94,6 @@ class HWCAstGenerator(hwcListener):
 
 
     def default_enter_stmt(self, ctx):
-        print(type(ctx))
-        print(type(ctx.parentCtx))
         ctx.pub_nameScope = ctx.parentCtx.pub_nameScope
         ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
 
