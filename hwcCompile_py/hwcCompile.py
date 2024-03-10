@@ -13,16 +13,16 @@ def main():
     # this was called Phase 20 in the old (C++) compiler
     ast.resolve_name_lookups()
 
+    # this was not in the old compiler; I've added it, because sorting
+    # expressions into their metatypes makes the rest of the phases
+    # easier to handle.
+    ast.convert_exprs_to_metatypes()
+
     print()
     ast.print_tree("")
     print()
     print("---------------")
     print()
-
-    # this was not in the old compiler; I've added it, because sorting
-    # expressions into their metatypes makes the rest of the phases
-    # easier to handle.
-    ast.convert_exprs_to_metatypes()
 
     # this was called Phase 30 in the old (C++) compiler
     ast.calc_sizes_and_offsets()

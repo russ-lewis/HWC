@@ -37,8 +37,9 @@ class g_File(ASTNode):
 
     def populate_name_scopes(self):
         for d in self.decls:
+            assert type(d) == g_PartOrPlugDecl    # TODO: someday, support functions and static constants
+
             self.nameScope.add(d.name, d)
-        for d in self.decls:
             d.populate_name_scopes()
 
     def resolve_name_lookups(self):
@@ -197,7 +198,6 @@ class g_DeclStmt(ASTNode):
 
 class g_ConnStmt(ASTNode):
     def __init__(self, lhs,rhs):
-        super().__init__()
         self.lhs       = lhs
         self.rhs       = rhs
         self.decl_bits = None
@@ -325,28 +325,36 @@ class g_IdentExpr(ASTNode):
         if self.target is None:
             assert False, "report syntax error"
 
+    def convert_to_metatype(self):
         # an IDENT (as a primary expression, not the right-hand side of a
         # dot-expr) can refer to:
         #   1) The first part of a file name (maybe all of it)
         #   2) The name of a plug or part declaration, in this file (or aliased into it)
         #   3) A public or private declaration within the current scope, or any enclosing scope (all the way up to the file scope, maybe)
-        assert type(self.target) in [ # TODO: case 1
-                                      g_PartOrPlugDecl,
-                                      g_DeclStmt              ]
 
-        if   type(self.target) == g_PartOrPlugDecl:
-            pass
+        if False:   # TODO: handle case 1
+            TODO()
 
-        elif type(self.target) == g_DeclStmt:
-            self.plug_type = self.target.typ_;
-            self.part_size = 0
+        elif type(self.target) == g_PartOrPlugDecl:     # case 2
+            if self.target.isPart:
+                return mt_PartDecl_Code(self.target)
+            else:
+                return mt_PlugDecl_Code(self.target)
+
+        elif type(self.target) == g_DeclStmt:      # case 3
+            if   isinstance(self.target.typ_, mt_PartDecl):
+                return mt_PartExpr(self.target)
+            elif isinstance(self.target.typ_, mt_PlugDecl):
+                return mt_PlugExpr(self.target)
+
+            elif type(self.target.typ_) == g_PartOrPlugDecl:
+                TODO()   # handle IDENTs that come before their declarations
+
+            else:
+                TODO()
 
         else:
-            assert False
-
-    def convert_to_metatype(self):
-        print(f"TODO: {type(self)}.convert_to_metatype()")
-        return self
+            assert False    # unexpected type
 
     def calc_sizes_and_offsets(self):
         assert False    # TODO: audit and port to the new design doc
@@ -365,8 +373,7 @@ class g_NumExpr(ASTNode):
         pass
 
     def convert_to_metatype(self):
-        print(f"TODO: {type(self)}.convert_to_metatype()")
-        return self
+        return mt_NumExpr(self.num)
 
 
 
@@ -397,31 +404,24 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         self.indx.resolve_name_lookups()
 
     def convert_to_metatype(self):
-        print(f"TODO: {type(self)}.convert_to_metatype()")
-        return self
+        base = self.base.convert_to_metatype()
+        indx = self.indx.convert_to_metatype()
 
-    def resolve(self):
-        if self.base.TODO_figure_out_if_is_declaration_type_or_runtime_val():
-            return ArrayOf   (self.base, self.indx)
+        if   isinstance(base, mt_PlugDecl):
+            return mt_PlugDecl_ArrayOf(base,indx)
+        elif isinstance(base, mt_PartDecl):
+            return mt_PartDecl_ArrayOf(base,indx)
+
+        elif isinstance(base, mt_PlugExpr):
+            TODO()
+        elif isinstance(base, mt_PartExpr):
+            TODO()
+
         else:
-            return ArrayIndex(self.base, self.indx)
+            assert False    # TODO: unexpected case
 
     def calc_sizes_and_offsets(self):
         assert False, "If you get here, then you forgot to call resolve() on this object after name resolution, and then to save the resolved function into the enclosing object."
-
-
-
-class g_ArrayIndex(ASTNode):
-    def __init__(self, base, indx):
-        # NOTE: no nameScope required, since we have already resolved names
-        self.base = base
-        self.indx = indx
-
-    def resolve_name_lookups(self):
-        assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
-
-    def calc_sizes_and_offsets(self):
-        assert False    # TODO: audit and port to the new design doc
 
 
 
@@ -431,10 +431,4 @@ class g_ArraySlice(ASTNode):
         self.base  = base
         self.start = start
         self.end   = end
-
-    def resolve_name_lookups(self):
-        assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
-
-    def calc_sizes_and_offsets(self):
-        assert False    # TODO: audit and port to the new design doc
 
