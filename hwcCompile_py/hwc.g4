@@ -100,6 +100,11 @@ expr8:
     | left=expr8 '[' a=expr colon=':' b=expr ']'
 ;
 
+# TODO: should 'typeof', 'len', and 'cast' be removed from the grammar, and a
+#       general-purpose function-call expression be added?  We could say, at
+#       first, that these 3 are the only allowed functions; later, we could say
+#       that they are *special* functions, and that no top-level function can
+#       have a conflicting name.
 expr9:
       '(' subexpr=expr ')'
     | name =IDENT
@@ -120,6 +125,9 @@ expr9:
        */
 
     | 'typeof' '(' typeof_expr=expr ')'
+    | 'len'    '('    len_expr=expr ')'
+
+    | 'cast' '(' castType=expr ',' castVal=expr ')'
 
     | 'int'
     | 'bool'
