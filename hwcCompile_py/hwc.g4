@@ -3,37 +3,32 @@ grammar hwc;
 
 
 file:
-     decls+=typeDecl* EOF
+     decls+=partOrPlugDecl* EOF
 ;
 
-typeDecl:
-      'part' name=IDENT '{' stmts+=    stmt* '}'
-    | 'plug' name=IDENT '{' decls+=declStmt* '}'
+partOrPlugDecl:
+      (isPart='part' | isPart='plug') name=IDENT '{' stmts+=stmt* '}'
 ;
 
 
 
-declStmt:
-      ( mem='memory' '(' t=expr ')' |
-                         t=expr     ) decls+=declNameInit (',' decls+=declNameInit)* ';'
-;
 declNameInit:
       name=IDENT ('=' val=expr)?
 ;
 
 
 
-// TODO: rework decls into a single rule, which is part of stmt.  Use the syntax
-//       ( | prefix='subpart' | prefix='public' | ... ) to encode the prefix options
-
 stmt:
       '{' stmts+=stmt* '}'                                      # stmt_Block
 
-    | ('subpart'|'public'|'private'|'static') d=declStmt    # stmt_Decl
+    | ( | prefix='subpart' | prefix='public' | prefix='private' | prefix='static')
+      ( mem='memory' '(' t=expr ')' | t=expr )
+      decls+=declNameInit (',' decls+=declNameInit)* ';'        # stmt_Decl
 
     | (lhs+=expr '=')+ rhs=expr ';'    # stmt_Connection
 
     | 'static'? 'if' '(' expr ')' stmt ('else' stmt)    # stmt_If
+
     | 'for' '(' IDENT ';' expr '..' expr ')' stmt       # stmt_For
 
     | 'assert' '(' expr ')' ';'    # stmt_Assert
@@ -103,11 +98,11 @@ expr8:
     | left=expr8 '[' a=expr colon=':' b=expr ']'
 ;
 
-# TODO: should 'typeof', 'len', and 'cast' be removed from the grammar, and a
-#       general-purpose function-call expression be added?  We could say, at
-#       first, that these 3 are the only allowed functions; later, we could say
-#       that they are *special* functions, and that no top-level function can
-#       have a conflicting name.
+// # TODO: should 'typeof', 'len', and 'cast' be removed from the grammar, and a
+// #       general-purpose function-call expression be added?  We could say, at
+// #       first, that these 3 are the only allowed functions; later, we could say
+// #       that they are *special* functions, and that no top-level function can
+// #       have a conflicting name.
 expr9:
       '(' subexpr=expr ')'
     | name =IDENT

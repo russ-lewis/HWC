@@ -33,7 +33,7 @@ class HWCAstGenerator(hwcListener):
         ctx.ast = ast.g_File(ctx.nameScope, [c.ast for c in ctx.decls])
 
 
-    def enterTypeDecl(self, ctx):
+    def enterPartOrPlugDecl(self, ctx):
         # a part or plug declaration has *TWO* nameScope objects.  The "public"
         # nameScope is for use by external code, which is attempting to access
         # the fields of the part.  This will *only* include fields that are
@@ -60,17 +60,19 @@ class HWCAstGenerator(hwcListener):
         ctx.pub_nameScope = ast.NameScope(None)
         ctx.pri_nameScope = ast.NameScope(ctx.parentCtx.nameScope)
 
-    def exitTypeDecl(self, ctx):
+    def exitPartOrPlugDecl(self, ctx):
         ns_pub     = ctx.pub_nameScope
         ns_pri     = ctx.pri_nameScope
-        partOrPlug = ctx.children[0].getText()
+        partOrPlug = ctx.isPart.text
         name       = ctx.name.text
+
+        assert partOrPlug in ["part","plug"]
+        isPart = (partOrPlug == "part")
 
         def flatten(stmts):
             retval = []
             for s in stmts:
-                if type(s) in [hwcParser.Stmt_DeclContext,     # used for parts
-                               hwcParser. DeclStmtContext ]:   # used for plugs
+                if type(s) == hwcParser.Stmt_DeclContext:
                     retval.extend(s.ast_arr)
                 else:
                     retval.append(s.ast)
@@ -84,39 +86,12 @@ class HWCAstGenerator(hwcListener):
         #       will use the AST object for the Plug/Part for name lookups
         #       *except* for field lookups.
 
-        # TODO: Unify the two grammar rules entirely.
-        if partOrPlug == "part":
-            assert len(ctx.decls) == 0
-            ctx.ast = ast.g_PartOrPlugDecl(True, ns_pub, name, flatten(ctx.stmts))
-        else:
-            assert len(ctx.stmts) == 0
-            ctx.ast = ast.g_PartOrPlugDecl(False, ns_pub, name, flatten(ctx.decls))
+        ctx.ast = ast.g_PartOrPlugDecl(isPart, ns_pub, name, flatten(ctx.stmts))
 
 
     def default_enter_stmt(self, ctx):
         ctx.pub_nameScope = ctx.parentCtx.pub_nameScope
         ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
-
-
-    enterDeclStmt = default_enter_stmt
-    def exitDeclStmt(self, ctx):
-        ns_pub  =  ctx.pub_nameScope
-        ns_pri  =  ctx.pri_nameScope
-        mem     = (ctx.mem is not None)
-        typ     =  ctx.t.ast
-
-        ast_arr = []
-        for d in ctx.decls:
-            name = d.name.text
-
-            if d.val is None:
-                initVal = None
-            else:
-                initVal = d.val.ast
-
-            stmt = ast.g_DeclStmt(ns_pub,ns_pri, mem,typ, name,initVal)
-            ast_arr.append(stmt)
-        ctx.ast_arr = ast_arr
 
 
     def enterDeclNameInit(self, ctx):
@@ -131,13 +106,19 @@ class HWCAstGenerator(hwcListener):
 
     enterStmt_Decl = default_enter_stmt
     def exitStmt_Decl(self, ctx):
-        prefix = ctx.children[0].getText()
-        decls  = ctx.children[1].ast_arr
+        ns_pub =  ctx.pub_nameScope
+        ns_pri =  ctx.pri_nameScope
 
-        # apply the prefix to all of the decls
-        assert prefix in ["subpart", "public", "private", "static"]
-        for d in decls:
-            d.prefix = prefix
+        prefix =  ctx.prefix.text if ctx.prefix is not None else None
+        mem    = (ctx.mem is not None)
+        typ_   =  ctx.t.ast
+
+        decls = []
+        for d in ctx.decls:
+            name    = d.name.text
+            initVal = d.val.ast if d.val is not None else None
+            stmt = ast.g_DeclStmt(ns_pub,ns_pri, prefix,mem,typ_, name,initVal)
+            decls.append(stmt)
 
         assert len(decls) >= 1
         ctx.ast_arr = decls

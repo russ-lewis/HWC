@@ -103,12 +103,12 @@ class g_PartOrPlugDecl(ASTNode):
 
 
 class g_DeclStmt(ASTNode):
-    def __init__(self, ns_pub,ns_pri, isMem, typ_, name, initVal):
+    def __init__(self, ns_pub,ns_pri, prefix, isMem, typ_, name, initVal):
         assert                   type(ns_pub) == NameScope
         assert ns_pri is None or type(ns_pri) == NameScope
         self.pub_nameScope = ns_pub
         self.pri_nameScope = ns_pri
-        self.prefix        = None
+        self.prefix        = prefix
         self.isMem         = isMem
         self.typ_          = typ_
         self.name          = name
@@ -338,11 +338,6 @@ class g_IdentExpr(ASTNode):
             pass
 
         elif type(self.target) == g_DeclStmt:
-            print()
-            print(self.target.prefix)
-            print(self.target.isMem)
-            print(self.target.typ_)
-            print(self.target.name)
             self.plug_type = self.target.typ_;
             self.part_size = 0
 

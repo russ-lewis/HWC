@@ -21,10 +21,13 @@ class mt_StaticExpr(ASTNode):
 
 
 class mt_PlugDecl_Simple(mt_PlugDecl):
+    leafNode = True
     def __init__(self, decl_bits):
         self.decl_bits = decl_bits
+    def __repr__(self):
+        return f"mt_PlugDecl_Simple: decl_bits = {self.decl_bits}"
     def print_tree(self, prefix):
-        print(f"{prefix}decl_bits = {self.decl_bits}")
+        print(f"{prefix}{repr(self)}")
 
     def resolve_name_lookups(self):
         pass
