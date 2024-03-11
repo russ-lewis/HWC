@@ -53,7 +53,9 @@ class g_File(ASTNode):
     def calc_sizes_and_offsets(self):
         # files don't have sizes, not even if it's the root file of the
         # compilation; the size of the "entire compilation" is the size
-        # of the main *part* inside that file.
+        # of the main *part* inside that file.  So we won't calculate one.
+        # But of course, we must recurse into all of our declarations, and
+        # calculate the sizes and offsets for all of them!
 
         for d in self.decls:
             d.calc_sizes_and_offsets()
@@ -67,7 +69,7 @@ class g_PartOrPlugDecl(ASTNode):
         self.isPart        = isPart
         self.name          = name
         self.stmts         = stmts
-        self.decl_bits     = None       # TODO: rename as decl_bitSize
+        self.decl_bitSize  = None
     def __repr__(self):
         return f"ast.g_PartDecl({self.name}, {self.stmts})"
 
@@ -75,7 +77,7 @@ class g_PartOrPlugDecl(ASTNode):
         print(f"{prefix}PART-OR-PLUG DECL: isPart={self.isPart} name={self.name} id={id(self)}")
         for d in self.stmts:
             d.print_tree(prefix+"  ")
-            print(f"{prefix}    decl_bits: {d.decl_bits}")
+            print(f"{prefix}    decl_bitSize: {d.decl_bitSize}")
 
 
     def populate_name_scopes(self):
@@ -91,15 +93,15 @@ class g_PartOrPlugDecl(ASTNode):
             d.convert_exprs_to_metatypes()
 
     def calc_sizes_and_offsets(self):
-        if self.decl_bits == "in progress":
+        if self.decl_bitSize == "in progress":
             assert False    # TODO: report cyclic declaration
-        if self.decl_bits is not None:
+        if self.decl_bitSize is not None:
             return
-        self.decl_bits = "in progress"
+        self.decl_bitSize = "in progress"
 
         for s in self.stmts:
             s.calc_sizes_and_offsets()
-        self.decl_bits = sum(s.decl_bits for s in self.stmts)
+        self.decl_bitSize = sum(s.decl_bitSize for s in self.stmts)
 
 
 
@@ -114,7 +116,7 @@ class g_DeclStmt(ASTNode):
         self.typ_          = typ_
         self.name          = name
         self.initVal       = initVal
-        self.decl_bits     = None
+        self.decl_bitSize  = None
     def __repr__(self):
         return f"ast.DeclStmt({self.prefix}, mem={self.isMem}, {self.typ_}, {self.name}, init={self.initVal})"
 
@@ -159,48 +161,43 @@ class g_DeclStmt(ASTNode):
             self.initVal = self.initVal.convert_to_metatype()
 
     def calc_sizes_and_offsets(self):
-        if self.decl_bits == "in progress":
+        if self.decl_bitSize == "in progress":
             assert False    # TODO: report cyclic declaration
-        if self.decl_bits is not None:
+        if self.decl_bitSize is not None:
             return
-        self.decl_bits = "in progress"
-
-        if   isinstance(self.typ_, mt_PlugDecl):
-            TODO()
-        elif isinstance(self.typ_, mt_PartDecl):
-            assert(self.prefix == "subpart")
-        else:
-            assert False, f"Unexpected metatype {type(self.typ_)} of the declaration type expression"
-
-        assert False    # TODO: audit and port to the new design doc
+        self.decl_bitSize = "in progress"
 
         self.typ_.calc_sizes_and_offsets()
 
         if self.isMem:
             # the type of a memory cell *MUST* be plug, never a part
-            assert type(self.typ_.target     ) == DeclStmt and \
-                   type(self.typ_.target.typ_) == PlugDecl
+            assert isinstance(self.typ_, mt_PlugDecl)
 
         # if the type of the var doesn't match the type of the expression, then
         # we need to build a converter.  I haven't thought about how to do
         # that, yet.  Maybe build a wrapper expression at an earlier phase?
         if self.initVal is not None and self.typ_ != self.initVal.typ_:
+            print("ABOUT TO CRASH.  DECLARATION INIT PLUGTYPE MISMATCH")
+            print()
+            self.typ_.print_tree("")
+            print()
+            self.initVal.print_tree("")
+            print()
+
             assert False    # TODO
 
-        self.plug_size = self.typ_.plug_size
-
-        if not self.isMem:
-            self.part_size = self.typ_.part_size
+        if self.isMem == False:
+            self.decl_bitSize = self.typ_.decl_bitSize
         else:
-            self.part_size = self.typ_.part_size*2
+            self.decl_bitSize = self.typ_.decl_bitSize*2
 
 
 
 class g_ConnStmt(ASTNode):
     def __init__(self, lhs,rhs):
-        self.lhs       = lhs
-        self.rhs       = rhs
-        self.decl_bits = None
+        self.lhs          = lhs
+        self.rhs          = rhs
+        self.decl_bitSize = None
     def __repr__(self):
         return f"ast.ConnStmt({self.lhs}, {self.rhs})"
 
@@ -229,43 +226,30 @@ class g_ConnStmt(ASTNode):
         self.rhs = self.rhs.convert_to_metatype()
 
     def calc_sizes_and_offsets(self):
-        if self.decl_bits == "in progress":
+        if self.decl_bitSize == "in progress":
             assert False    # TODO: report cyclic declaration
-        if self.decl_bits is not None:
+        if self.decl_bitSize is not None:
             return
-        self.decl_bits = "in progress"
-
-        assert False    # TODO: audit and port to the new design doc
-
-        if type(self.lhs.target) != DeclStmt or \
-           type(self.rhs.target) != DeclStmt:
-            assert False    # TODO: implement other variants
-
-        assert self.lhs.target.prefix in ["", "subpart","public","private","static"]
-        assert self.rhs.target.prefix in ["", "subpart","public","private","static"]
-
-        if self.lhs.target.prefix == "subpart":
-            assert False    # TODO: report syntax error
-        if self.rhs.target.prefix == "subpart":
-            assert False    # TODO: report syntax error
-
-        if self.lhs.target.prefix not in ["", "public","private"]:
-            assert False    # TODO: handle static assignments.
-        if self.lhs.target.prefix not in ["", "public","private"]:
-            assert False    # TODO: handle static assignments.
-
-        # if the type of the var doesn't match the type of the expression, then
-        # we need to build a converter.  I haven't thought about how to do
-        # that, yet.  Maybe build a wrapper expression at an earlier phase?
-        if self.lhs.plug_type != self.rhs.plug_type:
-            print(self.lhs.typ_)
-            print(self.rhs.typ_)
-            assert False    # TODO
+        self.decl_bitSize = "in progress"
 
         self.lhs.calc_sizes_and_offsets()
         self.rhs.calc_sizes_and_offsets()
 
-        self.part_size = self.lhs.part_size + self.rhs.part_size
+        if isinstance(self.lhs, mt_PlugExpr) == False or \
+           isinstance(self.rhs, mt_PlugExpr) == False:
+            assert False    # TODO: implement other variants
+
+        print("TODO: Add is_lhs checking to ConnStmt")
+        #if self.lhs.is_lhs == False:
+        #    TODO()    # report syntax error
+
+        # if the type of the var doesn't match the type of the expression, then
+        # we need to build a converter.  I haven't thought about how to do
+        # that, yet.  Maybe build a wrapper expression at an earlier phase?
+        if self.lhs.typ_ != self.rhs.typ_:
+            assert False    # TODO
+
+        self.decl_bitSize = self.lhs.decl_bitSize + self.rhs.decl_bitSize
 
 
 
@@ -343,9 +327,9 @@ class g_IdentExpr(ASTNode):
 
         elif type(self.target) == g_DeclStmt:      # case 3
             if   isinstance(self.target.typ_, mt_PartDecl):
-                return mt_PartExpr(self.target)
+                return mt_PartExpr_Var(self.target)
             elif isinstance(self.target.typ_, mt_PlugDecl):
-                return mt_PlugExpr(self.target)
+                return mt_PlugExpr_Var(self.target)
 
             elif type(self.target.typ_) == g_PartOrPlugDecl:
                 TODO()   # handle IDENTs that come before their declarations
