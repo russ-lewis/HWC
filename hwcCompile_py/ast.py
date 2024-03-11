@@ -12,7 +12,7 @@ class ASTNode:
         assert False, f"Need to override this in the child class: {type(self)}"
     def convert_exprs_to_metatypes(self):
         assert False, f"Need to override this in the child class: {type(self)}"
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         assert False, f"Need to override this in the child class: {type(self)}"
 
 
@@ -50,7 +50,7 @@ class g_File(ASTNode):
         for d in self.decls:
             d.convert_exprs_to_metatypes()
 
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         # files don't have sizes, not even if it's the root file of the
         # compilation; the size of the "entire compilation" is the size
         # of the main *part* inside that file.  So we won't calculate one.
@@ -58,7 +58,7 @@ class g_File(ASTNode):
         # calculate the sizes and offsets for all of them!
 
         for d in self.decls:
-            d.calc_sizes_and_offsets()
+            d.calc_sizes()
 
 
 
@@ -92,7 +92,7 @@ class g_PartOrPlugDecl(ASTNode):
         for d in self.stmts:
             d.convert_exprs_to_metatypes()
 
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         if self.decl_bitSize == "in progress":
             assert False    # TODO: report cyclic declaration
         if self.decl_bitSize is not None:
@@ -100,7 +100,7 @@ class g_PartOrPlugDecl(ASTNode):
         self.decl_bitSize = "in progress"
 
         for s in self.stmts:
-            s.calc_sizes_and_offsets()
+            s.calc_sizes()
         self.decl_bitSize = sum(s.decl_bitSize for s in self.stmts)
 
 
@@ -160,14 +160,32 @@ class g_DeclStmt(ASTNode):
         if self.initVal is not None:
             self.initVal = self.initVal.convert_to_metatype()
 
-    def calc_sizes_and_offsets(self):
+            # if there is a type mismatch between the initVal and the
+            # declaration, we need to build a converter for that.  So far,
+            # I only support NUM->bit and NUM->bit[].  Are there any other
+            # cases to handle in the future?
+            if self.typ_ != self.initVal.typ_:
+                if type(self.initVal) == mt_NumExpr and self.typ_ == plugType_bit:
+                    if self.initVal.num not in [0,1]:
+                        TODO()    # report syntax error, cannot assign anything to a bit except 0,1
+                    self.initVal = mt_PlugExpr_Bit(self.initVal.num)
+
+                if type(self.initVal)  == mt_NumExpr       and \
+                   type(self.typ_)     == mt_PlugDecl_ArrayOf and \
+                        self.typ_.base ==    plugType_bit:
+                    dest_wid = self.typ_.len_
+                    if self.initVal.num < 0 or (self.initVal.num >> dest_wid) != 0:
+                        TODO()    # report syntax error, value doesn't fit
+                    self.initVal = mt_PlugExpr_BitArray(dest_wid, self.initVal.num)
+
+    def calc_sizes(self):
         if self.decl_bitSize == "in progress":
             assert False    # TODO: report cyclic declaration
         if self.decl_bitSize is not None:
             return
         self.decl_bitSize = "in progress"
 
-        self.typ_.calc_sizes_and_offsets()
+        self.typ_.calc_sizes()
 
         if self.isMem:
             # the type of a memory cell *MUST* be plug, never a part
@@ -225,15 +243,15 @@ class g_ConnStmt(ASTNode):
         self.lhs = self.lhs.convert_to_metatype()
         self.rhs = self.rhs.convert_to_metatype()
 
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         if self.decl_bitSize == "in progress":
             assert False    # TODO: report cyclic declaration
         if self.decl_bitSize is not None:
             return
         self.decl_bitSize = "in progress"
 
-        self.lhs.calc_sizes_and_offsets()
-        self.rhs.calc_sizes_and_offsets()
+        self.lhs.calc_sizes()
+        self.rhs.calc_sizes()
 
         if isinstance(self.lhs, mt_PlugExpr) == False or \
            isinstance(self.rhs, mt_PlugExpr) == False:
@@ -283,7 +301,7 @@ class g_IntType_(ASTNode):
 
     def resolve_name_lookups(self):
         pass
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         assert False    # TODO: audit and port to the new design doc
 g_IntType_.singleton = g_IntType_()
 def IntType():
@@ -340,7 +358,7 @@ class g_IdentExpr(ASTNode):
         else:
             assert False    # unexpected type
 
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         assert False    # TODO: audit and port to the new design doc
 
 
@@ -389,12 +407,16 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
 
     def convert_to_metatype(self):
         base = self.base.convert_to_metatype()
-        indx = self.indx.convert_to_metatype()
+        len_ = self.indx.convert_to_metatype()
+
+        if type(len_) != mt_NumExpr:
+            TODO()    # need to resolve values of complex expressions
+        len_ = len_.num
 
         if   isinstance(base, mt_PlugDecl):
-            return mt_PlugDecl_ArrayOf(base,indx)
+            return mt_PlugDecl_ArrayOf(base,len_)
         elif isinstance(base, mt_PartDecl):
-            return mt_PartDecl_ArrayOf(base,indx)
+            return mt_PartDecl_ArrayOf(base,len_)
 
         elif isinstance(base, mt_PlugExpr):
             TODO()
@@ -404,7 +426,7 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         else:
             assert False    # TODO: unexpected case
 
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         assert False, "If you get here, then you forgot to call resolve() on this object after name resolution, and then to save the resolved function into the enclosing object."
 
 

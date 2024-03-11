@@ -19,7 +19,7 @@ class mt_PlugDecl_Simple(mt_PlugDecl):
         pass
     def convert_to_metatype(self):
         return self
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         pass
 
 
@@ -35,20 +35,19 @@ class mt_PlugDecl_Code(mt_PlugDecl):
 
 
 class mt_PlugDecl_ArrayOf(mt_PlugDecl):
-    def __init__(self, base, indx):
+    def __init__(self, base, len_):
         # NOTE: no nameScope required, since we have already resolved names
         self.base = base
-        self.indx = indx
+        self.len_ = len_
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugDecl_ArrayOf:")
         print(f"{prefix}  base:")
         self.base.print_tree(prefix+"    ")
-        print(f"{prefix}  indx:")
-        self.indx.print_tree(prefix+"    ")
+        print(f"{prefix}  len_={self.len_}")
 
     def resolve_name_lookups(self):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         assert False    # TODO: audit and port to the new design doc
 

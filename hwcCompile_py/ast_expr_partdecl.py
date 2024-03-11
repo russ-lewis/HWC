@@ -28,6 +28,6 @@ class mt_PartDecl_ArrayOf(mt_PartDecl):
     def resolve_name_lookups(self):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
-    def calc_sizes_and_offsets(self):
+    def calc_sizes(self):
         assert False    # TODO: audit and port to the new design doc
 

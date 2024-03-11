@@ -25,7 +25,7 @@ def main():
     print()
 
     # this was called Phase 30 in the old (C++) compiler
-    ast.calc_sizes_and_offsets()
+    ast.calc_sizes()
 
     ast.print_tree("")
 

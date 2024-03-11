@@ -3,7 +3,8 @@ part main {
     public bit out;
     out = in;
 
-    private bit a, b=1, c, d=0, e=1;
+    private bit    a, b=1, c, d=0, e=1;
+    public  bit[4] f=7;
 
     public memory(four_things) the_things;
 }
