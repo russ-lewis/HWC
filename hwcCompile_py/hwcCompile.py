@@ -18,12 +18,6 @@ def main():
     # easier to handle.
     ast.convert_exprs_to_metatypes()
 
-    print()
-    ast.print_tree("")
-    print()
-    print("---------------")
-    print()
-
     # this was called Phase 30 in the old (C++) compiler
     ast.calc_sizes()
 

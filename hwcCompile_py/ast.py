@@ -199,7 +199,7 @@ class g_DeclStmt(ASTNode):
             print()
             self.typ_.print_tree("")
             print()
-            self.initVal.print_tree("")
+            self.initVal.typ_.print_tree("")
             print()
 
             assert False    # TODO

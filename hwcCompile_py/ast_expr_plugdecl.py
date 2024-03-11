@@ -32,6 +32,10 @@ class mt_PlugDecl_Code(mt_PlugDecl):
         print(f"{prefix}  code:")
         self.code.print_tree(prefix+"    ")
 
+    def calc_sizes(self):
+        self.code.calc_sizes()
+        self.decl_bitSize = self.code.decl_bitSize
+
 
 
 class mt_PlugDecl_ArrayOf(mt_PlugDecl):
@@ -45,9 +49,15 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         self.base.print_tree(prefix+"    ")
         print(f"{prefix}  len_={self.len_}")
 
+    def __eq__(self, other):
+        return type(self) == type(other) and \
+               self.base  == other.base  and \
+               self.len_  == other.len_
+
     def resolve_name_lookups(self):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
     def calc_sizes(self):
-        assert False    # TODO: audit and port to the new design doc
+        self.base.calc_sizes()
+        self.decl_bitSize = self.base.decl_bitSize * self.len_
 
