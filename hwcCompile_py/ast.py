@@ -14,6 +14,8 @@ class ASTNode:
         assert False, f"Need to override this in the child class: {type(self)}"
     def calc_sizes(self):
         assert False, f"Need to override this in the child class: {type(self)}"
+    def calc_offsets(self):
+        assert False, f"Need to override this in the child class: {type(self)}"
 
 
 
@@ -59,6 +61,9 @@ class g_File(ASTNode):
 
         for d in self.decls:
             d.calc_sizes()
+    def calc_offsets(self):
+        for d in self.decls:
+            d.calc_offsets()
 
 
 
@@ -102,6 +107,17 @@ class g_PartOrPlugDecl(ASTNode):
         for s in self.stmts:
             s.calc_sizes()
         self.decl_bitSize = sum(s.decl_bitSize for s in self.stmts)
+
+    def calc_offsets(self):
+        # NOTE: while calc_offsets() recurses, it *never* cycles, because IDENT
+        #       and dot-expr expressions don't look up offsets until later.  So
+        #       duplicate-call and cycle detection are not required (unlike
+        #       calc_sizes())
+
+        running_offset = 0
+        for s in self.stmts:
+            s.offset = running_offset
+            running_offset += s.decl_bitSize
 
 
 
@@ -208,6 +224,9 @@ class g_DeclStmt(ASTNode):
             self.decl_bitSize = self.typ_.decl_bitSize
         else:
             self.decl_bitSize = self.typ_.decl_bitSize*2
+
+    def calc_offsets(self):
+        assert False    # should never be called!
 
 
 

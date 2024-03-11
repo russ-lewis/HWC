@@ -25,7 +25,7 @@ class mt_PlugExpr_Var(mt_PlugExpr):
         assert type(self.decl.decl_bitSize) == int
         assert      self.decl.decl_bitSize  >  0
 
-        self.decl_bitSize = self.decl.decl_bitSize
+        self.decl_bitSize = 0
 
 
 

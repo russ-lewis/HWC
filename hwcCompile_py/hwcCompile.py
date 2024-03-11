@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 from grammar2ast import grammar2ast;
+from ast import g_PartOrPlugDecl
 
 
 
@@ -21,7 +22,19 @@ def main():
     # this was called Phase 30 in the old (C++) compiler
     ast.calc_sizes()
 
-    ast.print_tree("")
+    ast.calc_offsets()
+
+    main_part = ast.nameScope.search("main")
+    assert type(main_part) == g_PartOrPlugDecl
+    assert      main_part.isPart
+
+    main_part.print_tree("")
+
+    print()
+    print(f"main part size: {main_part.decl_bitSize}")
+    print()
+    for d in ast.decls:
+        print(f"name: {d.name} isPart: {d.isPart} decl_bitSize: {d.decl_bitSize}")
 
 
 
