@@ -22,6 +22,17 @@ def main():
     # this was called Phase 30 in the old (C++) compiler
     ast.calc_sizes()
 
+    # TODO: once static-if() is implemented, we will resolve all of
+    #       those statements as part of the call above.  This is
+    #       necessary (the two cannot be separated) because (a) some
+    #       static-if expressions need to know the size of types; and
+    #       (b) static-if expressions can impact the size of types.
+    #
+    # Note that even before static-if exists, static expressions (like
+    # sizeof) could cause some complexity here.  I'm not using them yet -
+    # but I'll probably add them soon.
+
+    # this was called Phase 35 in the old (C++) compiler
     ast.calc_offsets()
 
     main_part = ast.nameScope.search("main")
