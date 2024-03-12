@@ -16,6 +16,8 @@ class ASTNode:
         assert False, f"Need to override this in the child class: {type(self)}"
     def calc_offsets(self):
         assert False, f"Need to override this in the child class: {type(self)}"
+    def print_bit_descriptions(self, name, start_bit):
+        assert False, f"Need to override this in the child class: {type(self)}"
 
 
 
@@ -118,6 +120,10 @@ class g_PartOrPlugDecl(ASTNode):
         for s in self.stmts:
             s.offset = running_offset
             running_offset += s.decl_bitSize
+
+    def print_bit_descriptions(self, name, start_bit):
+        for s in self.stmts:
+            s.print_bit_descriptions(name, start_bit+s.offset)
 
 
 
@@ -228,6 +234,13 @@ class g_DeclStmt(ASTNode):
     def calc_offsets(self):
         assert False    # should never be called!
 
+    def print_bit_descriptions(self, name, start_bit):
+        if not self.isMem:
+            self.typ_.print_bit_descriptions(f"{name}.{self.name}", start_bit)
+        else:
+            self.typ_.print_bit_descriptions(f"{name}.{self.name}(r)", start_bit)
+            self.typ_.print_bit_descriptions(f"{name}.{self.name}(w)", start_bit+self.typ_.decl_bitSize)
+
 
 
 class g_ConnStmt(ASTNode):
@@ -287,6 +300,13 @@ class g_ConnStmt(ASTNode):
             assert False    # TODO
 
         self.decl_bitSize = self.lhs.decl_bitSize + self.rhs.decl_bitSize
+
+    def print_bit_descriptions(self, name, start_bit):
+        if self.lhs.decl_bitSize > 0:
+            self.lhs.print_bit_descriptions(self, f"{name}._tmp_{start_bit}", start_bit)
+        if self.rhs.decl_bitSize > 0:
+            rgt_start = start_bit + self.lhs.decl_bitSize
+            self.rhs.print_bit_descriptions(self, f"{name}._tmp_{rgt_start}", rgt_start)
 
 
 

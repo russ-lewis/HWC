@@ -34,6 +34,9 @@ class mt_PlugDecl_Bit(mt_PlugDecl):
     def calc_sizes(self):
         pass
 
+    def print_bit_descriptions(self, name, start_bit):
+        print(f"# {start_bit:6d} {' ':6s} {name}")
+
 
 
 class mt_PlugDecl_Code(mt_PlugDecl):
@@ -47,6 +50,9 @@ class mt_PlugDecl_Code(mt_PlugDecl):
     def calc_sizes(self):
         self.code.calc_sizes()
         self.decl_bitSize = self.code.decl_bitSize
+
+    def print_bit_descriptions(self, name, start_bit):
+        self.code.print_bit_descriptions(f"{name}", start_bit)
 
 
 
@@ -72,4 +78,11 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
     def calc_sizes(self):
         self.base.calc_sizes()
         self.decl_bitSize = self.base.decl_bitSize * self.len_
+
+    def print_bit_descriptions(self, name, start_bit):
+        if type(self.base) == mt_PlugDecl_Bit:
+            print(f"# {start_bit:6d} {start_bit+self.len_:6d} {name}")
+        else:
+            for i in range(self.len_):
+                self.base.print_bit_descriptions(f"{name}[{i}]", start_bit + i*self.base.decl_bitSize)
 

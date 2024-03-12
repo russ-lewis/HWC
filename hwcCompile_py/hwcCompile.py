@@ -47,6 +47,8 @@ def main():
     for d in ast.decls:
         print(f"name: {d.name} isPart: {d.isPart} decl_bitSize: {d.decl_bitSize}")
 
+    main_part.print_bit_descriptions("main", 0)
+
 
 
 if __name__ == "__main__":
