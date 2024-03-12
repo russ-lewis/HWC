@@ -33,21 +33,18 @@ def main():
     # but I'll probably add them soon.
 
     # this was called Phase 35 in the old (C++) compiler
-    ast.calc_offsets()
+    ast.   calc_decl_offsets(None)
+    # was this in the old compiler???
+    ast.resolve_expr_offsets()
+
 
     main_part = ast.nameScope.search("main")
     assert type(main_part) == g_PartOrPlugDecl
     assert      main_part.isPart
 
-    main_part.print_tree("")
-
-    print()
-    print(f"main part size: {main_part.decl_bitSize}")
-    print()
-    for d in ast.decls:
-        print(f"name: {d.name} isPart: {d.isPart} decl_bitSize: {d.decl_bitSize}")
-
     main_part.print_bit_descriptions("main", 0)
+    print()
+    main_part.print_wiring_diagram(0)
 
 
 

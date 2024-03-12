@@ -14,9 +14,13 @@ class ASTNode:
         assert False, f"Need to override this in the child class: {type(self)}"
     def calc_sizes(self):
         assert False, f"Need to override this in the child class: {type(self)}"
-    def calc_offsets(self):
+    def calc_decl_offsets(self, offset):
+        assert False, f"Need to override this in the child class: {type(self)}"
+    def resolve_expr_offsets(self):
         assert False, f"Need to override this in the child class: {type(self)}"
     def print_bit_descriptions(self, name, start_bit):
+        assert False, f"Need to override this in the child class: {type(self)}"
+    def print_wiring_diagram(self, start_bit):
         assert False, f"Need to override this in the child class: {type(self)}"
 
 
@@ -60,12 +64,16 @@ class g_File(ASTNode):
         # of the main *part* inside that file.  So we won't calculate one.
         # But of course, we must recurse into all of our declarations, and
         # calculate the sizes and offsets for all of them!
-
         for d in self.decls:
             d.calc_sizes()
-    def calc_offsets(self):
+
+    def calc_decl_offsets(self, offset):
+        assert offset is None
         for d in self.decls:
-            d.calc_offsets()
+            d.calc_decl_offsets(None)
+    def resolve_expr_offsets(self):
+        for d in self.decls:
+            d.resolve_expr_offsets()
 
 
 
@@ -110,7 +118,9 @@ class g_PartOrPlugDecl(ASTNode):
             s.calc_sizes()
         self.decl_bitSize = sum(s.decl_bitSize for s in self.stmts)
 
-    def calc_offsets(self):
+    def calc_decl_offsets(self, offset):
+        assert offset is None
+
         # NOTE: while calc_offsets() recurses, it *never* cycles, because IDENT
         #       and dot-expr expressions don't look up offsets until later.  So
         #       duplicate-call and cycle detection are not required (unlike
@@ -118,12 +128,21 @@ class g_PartOrPlugDecl(ASTNode):
 
         running_offset = 0
         for s in self.stmts:
-            s.offset = running_offset
-            running_offset += s.decl_bitSize
+            if s.decl_bitSize > 0:
+                s.calc_decl_offsets(running_offset)
+                running_offset += s.decl_bitSize
+
+    def resolve_expr_offsets(self):
+        for s in self.stmts:
+            s.resolve_expr_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
         for s in self.stmts:
-            s.print_bit_descriptions(name, start_bit+s.offset)
+            s.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        for s in self.stmts:
+            s.print_wiring_diagram(start_bit)
 
 
 
@@ -231,15 +250,45 @@ class g_DeclStmt(ASTNode):
         else:
             self.decl_bitSize = self.typ_.decl_bitSize*2
 
-    def calc_offsets(self):
-        assert False    # should never be called!
+    def calc_decl_offsets(self, offset):
+        assert type(offset) == int and offset >= 0
+        self.offset = offset      # IDENT exprs will end up reading this in resolve_expr_offsets()
+
+    def resolve_expr_offsets(self):
+        assert type(self.offset) == int and self.offset >= 0
+
+        # don't need to call resolve_expr_offsets() on the typ_ because types
+        # don't have offsets, just sizes.
+
+        # don't need to call resolve_expr_offsets() on the initVal because
+        # initVal expressions cannot be runtime values, they must be statically
+        # determined.
+        #
+        # TODO: assert that?
 
     def print_bit_descriptions(self, name, start_bit):
         if not self.isMem:
-            self.typ_.print_bit_descriptions(f"{name}.{self.name}", start_bit)
+            self.typ_.print_bit_descriptions(f"{name}.{self.name}", start_bit + self.offset)
         else:
-            self.typ_.print_bit_descriptions(f"{name}.{self.name}(r)", start_bit)
-            self.typ_.print_bit_descriptions(f"{name}.{self.name}(w)", start_bit+self.typ_.decl_bitSize)
+            self.typ_.print_bit_descriptions(f"{name}.{self.name}(r)", start_bit + self.offset)
+            self.typ_.print_bit_descriptions(f"{name}.{self.name}(w)", start_bit+self.typ_.decl_bitSize + self.offset)
+
+    def print_wiring_diagram(self, start_bit):
+        if self.initVal is not None:
+            if type(self.initVal) == mt_PlugExpr_Bit:
+                assert self.typ_ == plugType_bit
+                initVal = self.initVal.val
+                size    = 1
+            elif type(self.initVal) == mt_PlugExpr_BitArray:
+                assert type(self.typ_)           == mt_PlugDecl_ArrayOf
+                assert      self.typ_.base       == plugType_bit
+                assert self.initVal.decl_bitSize == self.typ_.len_
+                initVal = self.initVal.val
+                size    = self.typ_.len_
+            else:
+                assert False
+
+            print(f"conn {start_bit + self.offset} <= int({initVal}) size {size}    # TODO: line number")
 
 
 
@@ -301,12 +350,31 @@ class g_ConnStmt(ASTNode):
 
         self.decl_bitSize = self.lhs.decl_bitSize + self.rhs.decl_bitSize
 
+    def calc_decl_offsets(self, offset):
+        assert type(offset) == int and offset >= 0
+        self.lhs.calc_decl_offsets(offset)
+        self.rhs.calc_decl_offsets(offset + self.lhs.decl_bitSize)
+
+    def resolve_expr_offsets(self):
+        self.lhs.resolve_expr_offsets()
+        self.rhs.resolve_expr_offsets()
+
     def print_bit_descriptions(self, name, start_bit):
         if self.lhs.decl_bitSize > 0:
             self.lhs.print_bit_descriptions(self, f"{name}._tmp_{start_bit}", start_bit)
         if self.rhs.decl_bitSize > 0:
             rgt_start = start_bit + self.lhs.decl_bitSize
             self.rhs.print_bit_descriptions(self, f"{name}._tmp_{rgt_start}", rgt_start)
+
+    def print_wiring_diagram(self, start_bit):
+        self.lhs.print_wiring_diagram(start_bit)
+        self.rhs.print_wiring_diagram(start_bit + self.lhs.decl_bitSize)
+
+        # TODO: need to update the code to call calc_offsets() through the expression trees
+        assert type(self.lhs) == mt_PlugExpr_Var
+        assert type(self.rhs) == mt_PlugExpr_Var
+
+        print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}    # TODO: line number")
 
 
 

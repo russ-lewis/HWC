@@ -27,6 +27,17 @@ class mt_PlugExpr_Var(mt_PlugExpr):
 
         self.decl_bitSize = 0
 
+    def calc_decl_offsets(self, offset):
+        assert type(offset) == int and offset >= 0
+        assert self.offset is None    # we'll resolve this later
+
+    def resolve_expr_offsets(self):
+        assert type(self.decl.offset) == int and self.decl.offset >= 0
+        self.offset = self.decl.offset
+
+    def print_wiring_diagram(self, start_bit):
+        pass
+
 
 
 class mt_PlugExpr_BitArray(mt_PlugExpr):
@@ -34,6 +45,7 @@ class mt_PlugExpr_BitArray(mt_PlugExpr):
         self.typ_         = mt_PlugDecl_ArrayOf(plugType_bit, bitSize)
         self.val          = val
         self.decl_bitSize = bitSize
+        self.offset       = None
     def __repr__(self):
         return f"mt_PlugExpr_BitArray: bitSize={self.decl_bitSize} val={self.val}"
     def print_tree(self, prefix):
