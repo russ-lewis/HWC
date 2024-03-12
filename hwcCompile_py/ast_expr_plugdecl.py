@@ -3,17 +3,29 @@ from ast_expr_metatypes import *
 
 
 
-class mt_PlugDecl_Simple(mt_PlugDecl):
+class mt_PlugDecl_Bit(mt_PlugDecl):
     leafNode = True
-    def __init__(self, decl_bitSize):
-        self.decl_bitSize = decl_bitSize
+
+    # BUGFIX: This used to have a decl_bitSize parameter.  But I also had
+    #         ArrayOf(bit) to represent an array of bits.  In time, I
+    #         realized that the *only* reason to have that parameter in
+    #         this type was to support arrays...and we had a better way
+    #         to do it over there.  So I considered *banning* using ArrayOf
+    #         for 1D arrays of bits, but then I realized that I needed to
+    #         handle bit, bit[1], bit[0] all as separate types.  So I
+    #         decided that bit[x] must be ArrayOf(bit, x)
+
+    decl_bitSize = 1
+
+    def __init__(self):
+        pass
     def __repr__(self):
-        return f"mt_PlugDecl_Simple: decl_bitSize = {self.decl_bitSize}"
+        return f"mt_PlugDecl_Bit"
     def print_tree(self, prefix):
         print(f"{prefix}{repr(self)}")
 
     def __eq__(self, other):
-        return type(other) == type(self) and other.decl_bitSize == self.decl_bitSize
+        return type(other) == type(self)
 
     def resolve_name_lookups(self):
         pass

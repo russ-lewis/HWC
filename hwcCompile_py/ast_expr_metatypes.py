@@ -23,7 +23,7 @@ class mt_StaticExpr(ASTNode):
 from ast_expr_plugdecl   import *
 from ast_expr_partdecl   import *
 
-plugType_bit = mt_PlugDecl_Simple(1)
+plugType_bit = mt_PlugDecl_Bit()
 
 from ast_expr_plugexpr   import *
 from ast_expr_partexpr   import *
