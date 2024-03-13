@@ -21,7 +21,7 @@ declNameInit:
 stmt:
       '{' stmts+=stmt* '}'                                      # stmt_Block
 
-    | ( | prefix='subpart' | prefix='public' | prefix='private' | prefix='static')
+    | (prefix=('subpart'|'public'|'private'|'static'))?
       ( mem='memory' '(' t=expr ')' | t=expr )
       decls+=declNameInit (',' decls+=declNameInit)* ';'        # stmt_Decl
 
@@ -31,7 +31,7 @@ stmt:
 
     | 'for' '(' IDENT ';' expr '..' expr ')' stmt       # stmt_For
 
-    | 'assert' '(' expr ')' ';'    # stmt_Assert
+    | 'assert' '(' exp_=expr ')' ';'    # stmt_Assert
 
       /* TODO: add 'unittest' statements */
 ;
@@ -40,51 +40,51 @@ stmt:
 
 expr:
       /* NOTE: comparison operators are all lowest precedence, and non-associative */
-      left=expr2 (('==' |
-                   '!=' |
+      left=expr2 (op=('==' |
+                      '!=' |
 
-                   /* TODO: the lt/gt operators are only valid on int, not bit[] */
-                   '<'  |
-                   '>'  |
-                   '<=' |
-                   '>=')   right+=expr2)?   // right is not actually an array here, but I use that type of variable so that there's direct parallelism to expr[1-6].  Same code works in both places.
+                      /* TODO: the lt/gt operators are only valid on int, not bit[] */
+                      '<'  |
+                      '>'  |
+                      '<=' |
+                      '>=')   right+=expr2)?   // right is not actually an array here, but I use that type of variable so that there's direct parallelism to expr[1-6].  Same code works in both places.
 ;
 
 expr2:
-      left=expr3 (('|'  |
-                   '||' |
-                   '^')   right+=expr3)*
+      left=expr3 (op=('|'  |
+                      '||' |
+                      '^')   right+=expr3)*
 ;
 
 expr3:
-      left=expr4 (('&'  |
-                   '&&')  right+=expr4)*
+      left=expr4 (op=('&'  |
+                      '&&')  right+=expr4)*
 ;
 
 expr4:
-      left=expr5 (('+' |
-                   '-' |
-                   ':')   right+=expr5)*
+      left=expr5 (op=('+' |
+                      '-' |
+                      ':')   right+=expr5)*
 ;
 
 expr5:
-      left=expr6 (('*' |
-                   '/' |
-                   '%')   right+=expr6)*
+      left=expr6 (op=('*' |
+                      '/' |
+                      '%')   right+=expr6)*
 ;
 
 expr6:
-      left=expr7 (('*' |
-                   '/' |
-                   '%')   right+=expr7)*
+      left=expr7 (op=('*' |
+                      '/' |
+                      '%')   right+=expr7)*
 ;
 
 expr7:
       base=expr8
 
-    | ('!' |
-       '~' |
-       '-')  right=expr7
+    | op=('!' |
+          '~' |
+          '-')  right=expr7
 ;
 
 expr8:
@@ -136,5 +136,5 @@ expr9:
 IDENT: [a-zA-Z_][a-zA-Z_0-9]* ;
 NUM  : ('0' | '-'? [1-9][0-9_]* | '0x'[0-9a-fA-F_]+ | '0b'[01_]+) ;
 
-WS: [ \t\n]+ -> skip ;
+WS: [ \t\r\n]+ -> skip ;
 

@@ -39,7 +39,7 @@ def main():
 
 
     main_part = ast.nameScope.search("main")
-    assert type(main_part) == g_PartOrPlugDecl
+    assert type(main_part) == g_PartOrPlugDecl, type(main_part)
     assert      main_part.isPart
 
     main_part.print_bit_descriptions("main", 0)

@@ -378,6 +378,59 @@ class g_ConnStmt(ASTNode):
 
 
 
+class g_AssertStmt(ASTNode):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def populate_name_scopes(self):
+        pass
+
+    def resolve_name_lookups(self):
+        self.expr.resolve_name_lookups()
+
+    def convert_exprs_to_metatypes(self):
+        self.expr = self.expr.convert_to_metatype()
+
+    def calc_sizes(self):
+        self.expr.calc_sizes()
+        self.decl_bitSize = self.expr.decl_bitSize
+
+    def calc_decl_offsets(self, offset):
+        self.expr.calc_decl_offsets(offset)
+
+    def resolve_expr_offsets(self):
+        self.expr.resolve_expr_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        self.expr.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        self.expr.print_wiring_diagram(start_bit)
+        print(f"assert {start_bit + self.expr.offset}    # TODO: line number")
+
+
+
+class g_BinaryExpr(ASTNode):
+    def __init__(self, lft, op, rgt):
+        self.lft = lft
+        self.op  = op
+        self.rgt = rgt
+
+    def resolve_name_lookups(self):
+        self.lft.resolve_name_lookups()
+        self.rgt.resolve_name_lookups()
+
+    def convert_to_metatype(self):
+        self.lft = self.lft.convert_to_metatype()
+        self.rgt = self.rgt.convert_to_metatype()
+
+        if   self.op == "==":
+            return mt_PlugExpr_Eq(self.lft, self.rgt)
+        else:
+            TODO()      # add support for more operators
+
+
+
 class NameScope:
     def __init__(self, parent):
         super().__init__()

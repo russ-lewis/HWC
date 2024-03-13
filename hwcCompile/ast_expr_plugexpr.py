@@ -35,6 +35,9 @@ class mt_PlugExpr_Var(mt_PlugExpr):
         assert type(self.decl.offset) == int and self.decl.offset >= 0
         self.offset = self.decl.offset
 
+    def print_bit_descriptions(self, name, start_bit):
+        pass
+
     def print_wiring_diagram(self, start_bit):
         pass
 
@@ -65,4 +68,46 @@ class mt_PlugExpr_Bit(mt_PlugExpr):
         return f"mt_PlugExpr_Bit: val={self.val}"
     def print_tree(self, prefix):
         print(f"{prefix}{self}")
+
+
+
+class mt_PlugExpr_Eq(mt_PlugExpr):
+    def __init__(self, lft,rgt):
+        assert isinstance(lft, mt_PlugExpr)
+        assert isinstance(rgt, mt_PlugExpr)
+
+        if lft.typ_ != lft.typ_:
+            TODO()     # report syntax error
+
+        self.lft  = lft
+        self.rgt  = rgt
+        self.typ_ = plugType_bit
+        self.decl_bitSize = None
+        self.offset       = None
+
+    def calc_sizes(self):
+        self.lft.calc_sizes()
+        self.rgt.calc_sizes()
+
+        # 1 bit for the answer
+        self.decl_bitSize = self.lft.decl_bitSize + self.rgt.decl_bitSize + 1
+
+    def calc_decl_offsets(self, offset):
+        self.lft.calc_decl_offsets(offset)
+        self.rgt.calc_decl_offsets(offset + self.lft.decl_bitSize)
+        self.offset              = offset + self.lft.decl_bitSize + self.rgt.decl_bitSize
+
+    def resolve_expr_offsets(self):
+        self.lft.resolve_expr_offsets()
+        self.rgt.resolve_expr_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        self.lft.print_bit_descriptions(name, start_bit)
+        self.rgt.print_bit_descriptions(name, start_bit)
+        print(f"# {self.offset:6d} {' ':6s} {name}._EQ_{self.offset}")
+
+    def print_wiring_diagram(self, start_bit):
+        self.lft.print_wiring_diagram(start_bit)
+        self.rgt.print_wiring_diagram(start_bit + self.lft.decl_bitSize)
+        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} EQ {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
 

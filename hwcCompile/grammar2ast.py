@@ -152,6 +152,11 @@ class HWCAstGenerator(hwcListener):
         TODO()
 
 
+    enterStmt_Assert = default_enter_stmt
+    def exitStmt_Assert(self, ctx):
+        ctx.ast = ast.g_AssertStmt(ctx.exp_.ast)
+
+
     def default_enter_expr(self, ctx):
         ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
 
@@ -159,9 +164,12 @@ class HWCAstGenerator(hwcListener):
     enterExpr = default_enter_expr
     def exitExpr(self, ctx):
         assert ctx.left is not None
-        if ctx.right != []:
-            assert False    # TODO implement me
-        ctx.ast = ctx.left.ast
+        if   len(ctx.right) == 0:
+            ctx.ast = ctx.left.ast
+        elif len(ctx.right) == 1:
+            ctx.ast = ast.g_BinaryExpr(ctx.left.ast, ctx.op.text, ctx.right[0].ast)
+        else:
+            TODO()    # implement me, chain of more operations
 
 
     # all binary operators have the same implementation in the AST.  We use
