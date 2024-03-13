@@ -1,0 +1,9 @@
+plugtype simple
+{
+	bit    a;
+	bit    b;
+	bit[3] c;
+}
+
+part main {}
+

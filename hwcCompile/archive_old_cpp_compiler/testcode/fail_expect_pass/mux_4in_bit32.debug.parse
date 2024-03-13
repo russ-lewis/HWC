@@ -1,0 +1,63 @@
+---- DEBUG: DUMPING PARSE TREE ----
+File with the following decls: 
+  File_decl with these decls: 
+    Part_decl: named 'MUX_4in_bit32', with stmts: 
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            Expr: ARR, into array expr
+              "bit"
+             index of
+              Expr: NUM, value of 32
+           index of
+            Expr: NUM, value of 4
+        prefix=public
+        isMemory=0
+        name: in
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            Expr: ARR, into array expr
+              "bit"
+             index of
+              Expr: NUM, value of 32
+           index of
+            Expr: NUM, value of 4
+        prefix=public
+        isMemory=0
+        name: out
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            Expr: ARR, into array expr
+              "bit"
+             index of
+              Expr: NUM, value of 32
+           index of
+            Expr: NUM, value of 4
+        prefix=public
+        isMemory=0
+        name: control
+      stmt: FOR LOOP
+        var: i
+        Bgn:
+          Expr: NUM, value of 0
+        End=:
+          Expr: NUM, value of 4
+        Stmts:
+          stmt: BLOCK, that has stmts...
+            stmt: IF CHECK
+              Expr: TWOOP of mode EQUALS with exprs
+                LHand:
+                  Expr: IDENT, name = control
+                RHand:
+                  Expr: IDENT, name = i
+              stmt: BLOCK, that has stmts...
+                stmt: CONNECTION, with left and right exprs:
+                  Expr: IDENT, name = out
+                  Expr: ARR, into array expr
+                    Expr: IDENT, name = in
+                   index of
+                    Expr: IDENT, name = i
+
+rc=0

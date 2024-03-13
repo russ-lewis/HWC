@@ -1,0 +1,11 @@
+part unresolvable
+{
+	public bit foo,bar;
+	public bit a,b;
+
+	if (foo == bar)
+		a = b;
+	if (a == b)
+		foo = bar;
+}
+

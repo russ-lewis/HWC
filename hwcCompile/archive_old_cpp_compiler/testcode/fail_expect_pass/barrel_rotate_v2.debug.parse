@@ -1,0 +1,143 @@
+---- DEBUG: DUMPING PARSE TREE ----
+File with the following decls: 
+  File_decl with these decls: 
+    Part_decl: named 'main', with stmts: 
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
+        prefix=public
+        isMemory=0
+        name: in
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
+        prefix=public
+        isMemory=0
+        name: shamt
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
+        prefix=public
+        isMemory=0
+        name: out
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
+        prefix=n/a
+        isMemory=0
+        name: tmp0
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
+        prefix=n/a
+        isMemory=0
+        name: tmp1
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
+        prefix=n/a
+        isMemory=0
+        name: tmp2
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
+        prefix=n/a
+        isMemory=0
+        name: tmp3
+      stmt: DECL:
+        type:
+          Expr: ARR, into array expr
+            "bit"
+           index of
+            Expr: NUM, value of 32
+        prefix=n/a
+        isMemory=0
+        name: tmp4
+      stmt: IF CHECK
+        Expr: ARR, into array expr
+          Expr: IDENT, name = shamt
+         index of
+          Expr: NUM, value of 0
+        stmt: CONNECTION, with left and right exprs:
+          Expr: IDENT, name = tmp1
+          Expr: ARR_SLICE, into array expr
+            Expr: IDENT, name = tmp0
+           lower bound
+            -- none --
+           upper bound
+            --- debug: UNRECOGNIZED EXPR ---
+      stmt: IF CHECK
+        Expr: ARR, into array expr
+          Expr: IDENT, name = shamt
+         index of
+          Expr: NUM, value of 1
+        stmt: CONNECTION, with left and right exprs:
+          Expr: IDENT, name = tmp2
+          Expr: ARR_SLICE, into array expr
+            Expr: IDENT, name = tmp1
+           lower bound
+            -- none --
+           upper bound
+            --- debug: UNRECOGNIZED EXPR ---
+      stmt: IF CHECK
+        Expr: ARR, into array expr
+          Expr: IDENT, name = shamt
+         index of
+          Expr: NUM, value of 2
+        stmt: CONNECTION, with left and right exprs:
+          Expr: IDENT, name = tmp3
+          Expr: ARR_SLICE, into array expr
+            Expr: IDENT, name = tmp2
+           lower bound
+            -- none --
+           upper bound
+            --- debug: UNRECOGNIZED EXPR ---
+      stmt: IF CHECK
+        Expr: ARR, into array expr
+          Expr: IDENT, name = shamt
+         index of
+          Expr: NUM, value of 3
+        stmt: CONNECTION, with left and right exprs:
+          Expr: IDENT, name = tmp4
+          Expr: ARR_SLICE, into array expr
+            Expr: IDENT, name = tmp3
+           lower bound
+            -- none --
+           upper bound
+            --- debug: UNRECOGNIZED EXPR ---
+      stmt: IF CHECK
+        Expr: ARR, into array expr
+          Expr: IDENT, name = shamt
+         index of
+          Expr: NUM, value of 4
+        stmt: CONNECTION, with left and right exprs:
+          Expr: IDENT, name = out
+          Expr: ARR_SLICE, into array expr
+            Expr: IDENT, name = tmp4
+           lower bound
+            -- none --
+           upper bound
+            --- debug: UNRECOGNIZED EXPR ---
+
+rc=0

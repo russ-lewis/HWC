@@ -1,6 +1,0 @@
-*.interp
-*.tokens
-__pycache__
-*Lexer.py
-*Parser.py
-*Listener.py

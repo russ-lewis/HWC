@@ -1,0 +1,13 @@
+/* This should fail semantic, because a and b aren't ints */
+part simple_math
+{
+	public bit a;
+	public bit b;
+	public bit c;
+
+	c = a + b;
+	c = a - b;
+	c = a * b;
+	c = a / b;
+	c = a % b;
+}

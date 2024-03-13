@@ -1,0 +1,19 @@
+part testPart {
+	public bit input;
+	public bit output;
+
+	output = input;
+}
+
+
+part main {
+	/* TODO: FIXME:  NOTE: the 'subpart' keyword is optional */
+	subpart testPart a;
+	  a.input = 0;
+	  assert(a.output == 0);
+
+	subpart testPart b;
+	  b.input = 1;
+	  assert(b.output == 1);
+}
+

@@ -1,0 +1,16 @@
+part conditional_memory
+{
+	public bit     get;
+	public bit[32] getVal;
+
+	public bit     set;
+	public bit[32] setVal;
+
+	public memory(bit[32]) data;
+
+	if (get)
+		getVal = data;
+	if (set)
+		data = setVal;
+}
+

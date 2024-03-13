@@ -1,0 +1,12 @@
+plugtype Foo
+{
+	bit[32] x;
+	bit[32] y;
+}
+
+part main
+{
+	public Foo input;
+	public Foo output;
+}
+

@@ -1,0 +1,16 @@
+part just_else
+{
+	/* This test should pass the parser for now, but should lead to an error during post-processing */
+	public bit in;
+	public bit out1;
+	public bit out2;
+
+	else
+		out1 = in;
+
+	else
+	{
+		out2 = in;
+	}
+}
+

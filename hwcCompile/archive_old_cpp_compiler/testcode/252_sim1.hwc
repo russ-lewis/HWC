@@ -1,0 +1,79 @@
+part Sim1_AND
+{
+	public bit a,b;
+	public bit out;
+
+	out = a & b;
+}
+
+part Sim1_OR
+{
+	public bit a,b;
+	public bit out;
+
+	out = a | b;
+}
+
+part Sim1_NOT
+{
+	public bit in;
+	public bit out;
+
+	out = !in;
+}
+
+part Sim1_XOR
+{
+	public bit a,b;
+	public bit out;
+
+	out = a & ~b | ~a & b;
+}
+
+part Sim1_ADD
+{
+	public bit[32] a,b;
+	public bit[32] sum;
+	public bit     carryOut;
+	public bit     overflow;
+
+	private bit[33] carry;
+
+	carry[0] = 0;
+	for (i; 0..32)
+	{
+		sum[i] = a[i] ^ b[i] ^ carryIns[i];
+		carry[i+1] = a[i] & b[i] | a[i] & carry[i] | b[i] & carry[i];
+	}
+
+	carryOut = carry[32];
+	overflow = (a[31] == b[31]) & (sum[31] != a[31]);
+}
+
+part Sim1_2sComplement
+{
+	public bit[32] in;
+	public bit[32] out;
+
+	subpart Sim1_ADD adder;
+	adder.a = in;
+	adder.b = 1;
+	out = adder.out;
+}
+
+part Sim1_SUB
+{
+	public bit[32] a,b;
+	public bit[32] out;
+
+	subpart Sim1_2sComplement comp;
+	subpart Sim1_ADD          adder;
+
+	comp.in = b;
+
+	adder.a = a;
+	adder.b = comp.out;
+
+	out = adder.sum;
+}
+

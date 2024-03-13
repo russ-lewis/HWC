@@ -1,0 +1,12 @@
+part nested_if
+{
+	public bit a,b,c,d;
+	public bit[4] out;
+
+	if (a == b)
+		if (c == d)
+			out = 0;
+		else
+			out = 1;
+}
+

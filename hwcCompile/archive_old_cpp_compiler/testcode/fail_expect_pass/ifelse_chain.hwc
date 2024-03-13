@@ -1,0 +1,22 @@
+part ifelse_chain
+{
+	public bit[4] control;
+	public bit[5] in;
+	public bit out;
+
+	/* Awful, convoluted style, but should be valid */
+	if (control[0] == 1)
+		out = in[0];
+	else if (control[1] == 1)
+	{
+		out = in[1];
+	}
+	else if (control[2] == 1)
+		if (control[3] == 1)
+			out = in[2];
+		else
+			out = in[3];
+	else
+		out = in[4];
+}
+

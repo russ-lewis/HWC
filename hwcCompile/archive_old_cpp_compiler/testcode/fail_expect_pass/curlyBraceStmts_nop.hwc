@@ -1,0 +1,11 @@
+part Test
+{
+	public bit asdf;
+
+	{ /* NOP */ }
+
+	public bit jkl;
+
+	asdf = jkl;
+}
+

@@ -1,0 +1,15 @@
+part tick_tock
+{
+	private memory(bit) state;
+
+	public bit out;
+
+	out = state;
+	state = !state;
+}
+
+part main
+{
+	subpart tick_tock dummy;
+}
+

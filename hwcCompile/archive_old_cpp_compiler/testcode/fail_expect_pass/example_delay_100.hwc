@@ -1,0 +1,57 @@
+// see the matching VHDL file.  This is an example to compare/contrast
+// the two languages.
+//
+// I've tried to match the names used in the VHDL example as much as possible.
+
+part delay
+{
+	public bit valid_data;
+	public bit data_in;
+	public bit data_out;
+
+	// as far as I can tell, VHLD allows the writer to set a value and
+	// the *wait* on it being set; the listener magically knows when it
+	// finally has been set.  HWC requires an explicit valid bit.
+	//
+	// Since it's normally 0 and only 1 in an exceptional case, a flag
+	// is the perfect implementation.
+	public flag _data_out_valid;
+
+	memory(bit[8]) c;
+	int d = 100;
+	memory(bit) data_temp;
+	memory(bit) next_s;   int idle = 0; // int delay_c = 1;
+
+	// in HWC, I would remove next_s,idle,delay, and simply use a
+	// 'busy' memory bit.  Just as easy to read.  But I'm retaining the
+	// names from the VHDL code to give a more straightforward 1-to-1
+	// comparison.
+	if (next_s == idle)
+	{
+		if (valid_data)
+		{
+			next_s = delay_c;
+			data_temp = data_in;
+			c = 1;
+		}
+	}
+	else  // VHDL did another 'when' here, but it's not necessary in our version
+	{
+		if (c == d)
+		{
+			c = 1;   // done in VHDL, but actually redundant, since it's reset in the previous case
+			data_out = data_temp;
+			_data_out_valid = 1;
+			next_s = idle;
+		}
+		else
+		{
+			// let's assume that we've imported an 8-bit adder
+			Adder8 adder;
+			adder.a = c;
+			adder.b = 1;
+			c = adder.sum;
+		}
+	}
+}
+

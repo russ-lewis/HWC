@@ -1,0 +1,22 @@
+part testPart {
+	public bit input;
+	public bit output;
+
+	output = input;
+}
+
+
+part main {
+	{
+		subpart testPart test;
+		  test.input = 0;
+		  assert(test.output == 0);
+	}
+
+	{
+		subpart testPart test;
+		  test.input = 1;
+		  assert(test.output == 1);
+	}
+}
+
