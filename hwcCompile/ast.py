@@ -175,6 +175,9 @@ class g_DeclStmt(ASTNode):
             print(f"{prefix}  initVal:")
             self.initVal.print_tree(prefix+"    ")
 
+        print(f"{prefix}  decl_bitSize: {self.decl_bitSize}")
+        print(f"{prefix}  offset      : {self.offset}")
+
 
     def populate_name_scopes(self):
         # declarations always add to the private nameScope.  But we only add to
@@ -194,7 +197,7 @@ class g_DeclStmt(ASTNode):
             self.initVal.resolve_name_lookups()
 
     def convert_exprs_to_metatypes(self):
-        self.typ_ = self.typ_.convert_to_metatype()
+        self.typ_ = self.typ_.convert_to_metatype("right")
 
         if   isinstance(self.typ_, mt_PlugDecl):
             pass
@@ -205,7 +208,7 @@ class g_DeclStmt(ASTNode):
             TODO()    # report syntax error
 
         if self.initVal is not None:
-            self.initVal = self.initVal.convert_to_metatype()
+            self.initVal = self.initVal.convert_to_metatype("right")
 
             # if there is a type mismatch between the initVal and the
             # declaration, we need to build a converter for that.  So far,
@@ -340,8 +343,8 @@ class g_ConnStmt(ASTNode):
         self.rhs.resolve_name_lookups()
 
     def convert_exprs_to_metatypes(self):
-        self.lhs = self.lhs.convert_to_metatype()
-        self.rhs = self.rhs.convert_to_metatype()
+        self.lhs = self.lhs.convert_to_metatype("left")
+        self.rhs = self.rhs.convert_to_metatype("right")
 
         if self.lhs.is_lhs == False:
             print(self.lhs)
@@ -388,8 +391,9 @@ class g_ConnStmt(ASTNode):
         self.lhs.print_wiring_diagram(start_bit)
         self.rhs.print_wiring_diagram(start_bit + self.lhs.decl_bitSize)
 
-        assert type(self.lhs) == mt_PlugExpr_Var
+        assert isinstance(self.lhs, mt_PlugExpr)
         assert isinstance(self.rhs, mt_PlugExpr)
+        assert self.lhs.is_lhs
 
         print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}    # TODO: line number")
 
@@ -406,7 +410,7 @@ class g_AssertStmt(ASTNode):
         self.expr.resolve_name_lookups()
 
     def convert_exprs_to_metatypes(self):
-        self.expr = self.expr.convert_to_metatype()
+        self.expr = self.expr.convert_to_metatype("right")
 
     def calc_sizes(self):
         self.expr.calc_sizes()
@@ -438,8 +442,8 @@ class g_BinaryExpr(ASTNode):
         self.rgt.resolve_name_lookups()
 
     def convert_to_metatype(self):
-        self.lft = self.lft.convert_to_metatype()
-        self.rgt = self.rgt.convert_to_metatype()
+        self.lft = self.lft.convert_to_metatype("right")
+        self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op == "==":
             return mt_PlugExpr_Eq(self.lft, self.rgt)
@@ -456,8 +460,8 @@ class g_UnaryExpr(ASTNode):
     def resolve_name_lookups(self):
         self.rgt.resolve_name_lookups()
 
-    def convert_to_metatype(self):
-        self.rgt = self.rgt.convert_to_metatype()
+    def convert_to_metatype(self, side):
+        self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op == "!":
             return mt_PlugExpr_NOT(self.rgt)
@@ -522,7 +526,7 @@ class g_IdentExpr(ASTNode):
         if self.target is None:
             assert False, "report syntax error"
 
-    def convert_to_metatype(self):
+    def convert_to_metatype(self, side):
         # an IDENT (as a primary expression, not the right-hand side of a
         # dot-expr) can refer to:
         #   1) The first part of a file name (maybe all of it)
@@ -542,7 +546,19 @@ class g_IdentExpr(ASTNode):
             if   isinstance(self.target.typ_, mt_PartDecl):
                 return mt_PartExpr_Var(self.target)
             elif isinstance(self.target.typ_, mt_PlugDecl):
-                return mt_PlugExpr_Var(self.target)
+                var = mt_PlugExpr_Var(self.target)
+
+                if self.target.isMem == False:
+                    return var
+
+                else:
+                    if side == "right":
+                        offset_cb = lambda: 0
+                    else:
+                        assert side == "left"
+                        offset_cb = lambda: var.typ_.decl_bitSize
+
+                    return mt_PlugExpr_SubsetOf(var, offset_cb, self.target.typ_)
 
             elif type(self.target.typ_) == g_PartOrPlugDecl:
                 TODO()   # handle IDENTs that come before their declarations
@@ -554,7 +570,7 @@ class g_IdentExpr(ASTNode):
             assert False    # unexpected type
 
     def calc_sizes(self):
-        assert False    # TODO: audit and port to the new design doc
+        assert False    # will never get here, is replaced by a metatype
 
 
 
@@ -600,9 +616,9 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         self.base.resolve_name_lookups()
         self.indx.resolve_name_lookups()
 
-    def convert_to_metatype(self):
-        base = self.base.convert_to_metatype()
-        len_ = self.indx.convert_to_metatype()
+    def convert_to_metatype(self, side):
+        base = self.base.convert_to_metatype(side)
+        len_ = self.indx.convert_to_metatype("right")
 
         if type(len_) != mt_StaticExpr_NumExpr:
             TODO()    # need to resolve values of complex expressions

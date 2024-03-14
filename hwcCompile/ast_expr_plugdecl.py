@@ -34,7 +34,7 @@ class mt_PlugDecl_Bit(mt_PlugDecl):
 
     def resolve_name_lookups(self):
         pass
-    def convert_to_metatype(self):
+    def convert_to_metatype(self, side):
         return self
     def calc_sizes(self):
         pass
@@ -96,6 +96,8 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         self.decl_bitSize = "in progress"
 
         self.base.calc_sizes()
+        assert self.base.decl_bitSize > 0
+
         self.decl_bitSize = self.base.decl_bitSize * self.len_
 
     def print_bit_descriptions(self, name, start_bit):

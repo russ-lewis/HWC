@@ -35,8 +35,63 @@ class mt_PlugExpr_Var(mt_PlugExpr):
         self.offset = self.decl.offset
 
     def print_bit_descriptions(self, name, start_bit):
-        pass
+        # if this is a memory variable, then this Var object should be
+        # wrapped inside a SubsetOf object (as part of a MemVar), and
+        # the SubsetOf should never recurse into us.  Same for the next
+        # func, too.
+        assert not self.decl.isMem
+    def print_wiring_diagram(self, start_bit):
+        assert not self.decl.isMem
 
+
+
+# this class is useful for any expression which needs to build a subset of a
+# larger PlugExpr, such as array indexing, slicing, dot-expr, or Memory.  It
+# has a base expression, along with an offset and a size into the base
+# expression, plus a type of the underlying expression.  The true offset of
+# this expression is not calculated until the offset of the underlying
+# expression is known.
+
+class mt_PlugExpr_SubsetOf(mt_PlugExpr):
+    def __init__(self, base, offset_cb, typ_):
+        self.base      = base
+        self.offset_cb = offset_cb
+        self.typ_      = typ_
+
+        self.decl_bitSize = None
+        self.offset       = None
+
+        self.is_lhs = base.is_lhs
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_PlugExpr_SubsetOf:")
+        print(f"{prefix}  offset_from: {self.offset_from}")
+        print(f"{prefix}  subset_size: {self.subset_size}")
+        print(f"{prefix}  base:")
+        self.base.print_tree("    ")
+
+    def calc_sizes(self):
+        if self.decl_bitSize == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bitSize is not None:
+            return
+        self.decl_bitSize = "in progress"
+
+        self.base.calc_sizes()
+
+        self.decl_bitSize = self.base.decl_bitSize
+
+    def calc_top_down_offsets(self, offset):
+        self.base.calc_top_down_offsets(offset)
+        assert self.offset is None    # we'll resolve this later
+
+    def calc_bottom_up_offsets(self):
+        self.base.calc_bottom_up_offsets()
+        assert type(self.base.offset) == int
+        self.offset = self.base.offset + self.offset_cb()
+
+    def print_bit_descriptions(self, name, start_bit):
+        pass
     def print_wiring_diagram(self, start_bit):
         pass
 
