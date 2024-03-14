@@ -441,7 +441,7 @@ class g_BinaryExpr(ASTNode):
         self.lft.resolve_name_lookups()
         self.rgt.resolve_name_lookups()
 
-    def convert_to_metatype(self):
+    def convert_to_metatype(self, side):
         self.lft = self.lft.convert_to_metatype("right")
         self.rgt = self.rgt.convert_to_metatype("right")
 
