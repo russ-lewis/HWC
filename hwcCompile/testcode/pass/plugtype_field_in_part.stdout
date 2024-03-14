@@ -1,2 +1,7 @@
+#      0     32 main.input.x
+#     32     64 main.input.y
+#     64     96 main.output.x
+#     96    128 main.output.y
+
 
 rc=0

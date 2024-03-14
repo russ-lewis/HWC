@@ -47,7 +47,7 @@ class mt_PlugDecl_Bit(mt_PlugDecl):
 class mt_PlugDecl_Code(mt_PlugDecl):
     def __init__(self, code):
         self.code = code
-        self.decl_bitSize
+        self.decl_bitSize = None
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugDecl_Code:")
         print(f"{prefix}  code:")
