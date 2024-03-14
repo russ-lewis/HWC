@@ -1,0 +1,33 @@
+#      0        main.in
+#      1        main.out
+#      2        main.a
+#      3        main.b
+#      4        main.c
+#      5        main.d
+#      6        main.e
+#      7     11 main.f
+#     11        main.the_things(r).ab[0].foo
+#     12     20 main.the_things(r).ab[0].bar
+#     20        main.the_things(r).ab[1].foo
+#     21     29 main.the_things(r).ab[1].bar
+#     29        main.the_things(r).c.foo
+#     30     38 main.the_things(r).c.bar
+#     38        main.the_things(r).d.foo
+#     39     47 main.the_things(r).d.bar
+#     47        main.the_things(w).ab[0].foo
+#     48     56 main.the_things(w).ab[0].bar
+#     56        main.the_things(w).ab[1].foo
+#     57     65 main.the_things(w).ab[1].bar
+#     65        main.the_things(w).c.foo
+#     66     74 main.the_things(w).c.bar
+#     74        main.the_things(w).d.foo
+#     75     83 main.the_things(w).d.bar
+
+conn 1 <= 0 size 1    # TODO: line number
+conn 3 <= int(1) size 1    # TODO: line number
+conn 5 <= int(0) size 1    # TODO: line number
+conn 6 <= int(1) size 1    # TODO: line number
+conn 7 <= int(7) size 4    # TODO: line number
+mem r 11 w 47 size 36    # TODO: line number
+
+rc=0

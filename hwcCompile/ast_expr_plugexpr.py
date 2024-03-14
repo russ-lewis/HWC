@@ -55,6 +55,11 @@ class mt_PlugExpr_BitArray(mt_PlugExpr):
     def print_tree(self, prefix):
         print(f"{prefix}{self}")
 
+    def calc_top_down_offsets(self, offset):
+        pass
+    def calc_bottom_up_offsets(self):
+        pass
+
 
 
 class mt_PlugExpr_Bit(mt_PlugExpr):
@@ -70,6 +75,11 @@ class mt_PlugExpr_Bit(mt_PlugExpr):
         return f"mt_PlugExpr_Bit: val={self.val}"
     def print_tree(self, prefix):
         print(f"{prefix}{self}")
+
+    def calc_top_down_offsets(self, offset):
+        pass
+    def calc_bottom_up_offsets(self):
+        pass
 
 
 
