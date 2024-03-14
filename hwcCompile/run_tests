@@ -1,0 +1,66 @@
+#! /bin/bash
+
+
+if [[ $* == "" ]]
+then
+  search=testcode/
+else
+  search=$*
+fi
+
+
+attempted=0
+passed=0
+
+for TESTCASE in $(find $search -name \*.hwc 2>/dev/null)
+do
+  attempted=$((attempted+1))
+
+  base=$(echo $TESTCASE | rev | cut -f2- -d'.' | rev)
+
+  rm $base.actual_stdout $base.FAIL $base.PASS 2>/dev/null
+
+  if [[ ! -f $base.stdout ]]
+  then
+    echo "Testcase $TESTCASE failed: $base.stdout not found" | tee $base.FAIL
+    continue
+  fi
+
+  {
+    ./hwcCompile.py < $TESTCASE
+    rc=$?
+
+    echo
+    echo rc=$rc
+  } > $base.actual_stdout 2>&1
+
+  if [[ $(diff $base.stdout $base.actual_stdout) != "" ]]
+  then
+    echo "Testcase $TESTCASE failed: stdout mismatch"
+    mv $base.actual_stdout $base.FAIL
+  else
+    rm $base.actual_stdout
+    touch $base.PASS
+    passed=$((passed+1))
+  fi
+done
+
+
+
+if [[ $attempted = 0 ]]
+then
+  echo "ERROR: No testcases found!  Please check your search parameters!" 1>&2
+  echo "       Current Search: $search" 1>&2
+  exit 1
+fi
+
+echo
+echo "$0: Testing completed. $attempted testcases attempted, $passed passed, $((passed*100/attempted))%"
+
+if [[ $passed == $attempted ]]
+then
+  exit 0
+else
+  exit 1
+fi
+
