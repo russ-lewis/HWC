@@ -4,13 +4,15 @@ from ast_expr_metatypes import *
 
 
 class mt_PlugExpr_Var(mt_PlugExpr):
+    decl_bitSize = 0
+    is_lhs       = True
+
     def __init__(self, decl):
         assert isinstance(decl.typ_, mt_PlugDecl)
         self.decl = decl
 
         self.typ_ = decl.typ_
 
-        self.decl_bitSize = 0
         self.offset       = None
 
     def print_tree(self, prefix):
@@ -41,6 +43,8 @@ class mt_PlugExpr_Var(mt_PlugExpr):
 
 
 class mt_PlugExpr_BitArray(mt_PlugExpr):
+    is_lhs = False
+
     def __init__(self, bitSize, val):
         self.typ_         = mt_PlugDecl_ArrayOf(plugType_bit, bitSize)
         self.val          = val
@@ -54,9 +58,10 @@ class mt_PlugExpr_BitArray(mt_PlugExpr):
 
 
 class mt_PlugExpr_Bit(mt_PlugExpr):
-    leafNode = True
-    typ_ = plugType_bit
+    leafNode     = True
+    typ_         = plugType_bit
     decl_bitSize = 1
+    is_lhs       = False
 
     def __init__(self, val):
         assert val in [0,1]
@@ -69,6 +74,8 @@ class mt_PlugExpr_Bit(mt_PlugExpr):
 
 
 class mt_PlugExpr_Eq(mt_PlugExpr):
+    is_lhs = False
+
     def __init__(self, lft,rgt):
         assert isinstance(lft, mt_PlugExpr)
         assert isinstance(rgt, mt_PlugExpr)
@@ -124,6 +131,8 @@ class mt_PlugExpr_Eq(mt_PlugExpr):
 
 
 class mt_PlugExpr_NOT(mt_PlugExpr):
+    is_lhs = False
+
     def __init__(self, rgt):
         assert isinstance(rgt, mt_PlugExpr)
         self.rgt  = rgt

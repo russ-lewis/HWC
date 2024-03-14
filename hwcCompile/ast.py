@@ -338,9 +338,14 @@ class g_ConnStmt(ASTNode):
     def resolve_name_lookups(self):
         self.lhs.resolve_name_lookups()
         self.rhs.resolve_name_lookups()
+
     def convert_exprs_to_metatypes(self):
         self.lhs = self.lhs.convert_to_metatype()
         self.rhs = self.rhs.convert_to_metatype()
+
+        if self.lhs.is_lhs == False:
+            print(self.lhs)
+            TODO()     # report syntax error
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
@@ -355,10 +360,6 @@ class g_ConnStmt(ASTNode):
         if isinstance(self.lhs, mt_PlugExpr) == False or \
            isinstance(self.rhs, mt_PlugExpr) == False:
             assert False    # TODO: implement other variants
-
-        print("TODO: Add is_lhs checking to ConnStmt")
-        #if self.lhs.is_lhs == False:
-        #    TODO()    # report syntax error
 
         # if the type of the var doesn't match the type of the expression, then
         # we need to build a converter.  I haven't thought about how to do
