@@ -27,6 +27,11 @@ class mt_PlugDecl_Bit(mt_PlugDecl):
     def __eq__(self, other):
         return type(other) == type(self)
 
+    def calc_top_down_offsets(self, offset):
+        pass
+    def calc_bottom_up_offsets(self):
+        pass
+
     def resolve_name_lookups(self):
         pass
     def convert_to_metatype(self):
@@ -42,12 +47,19 @@ class mt_PlugDecl_Bit(mt_PlugDecl):
 class mt_PlugDecl_Code(mt_PlugDecl):
     def __init__(self, code):
         self.code = code
+        self.decl_bitSize
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugDecl_Code:")
         print(f"{prefix}  code:")
         self.code.print_tree(prefix+"    ")
 
     def calc_sizes(self):
+        if self.decl_bitSize == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bitSize is not None:
+            return
+        self.decl_bitSize = "in progress"
+
         self.code.calc_sizes()
         self.decl_bitSize = self.code.decl_bitSize
 
@@ -61,6 +73,7 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         # NOTE: no nameScope required, since we have already resolved names
         self.base = base
         self.len_ = len_
+        self.decl_bitSize = None
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugDecl_ArrayOf:")
         print(f"{prefix}  base:")
@@ -76,6 +89,12 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
     def calc_sizes(self):
+        if self.decl_bitSize == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bitSize is not None:
+            return
+        self.decl_bitSize = "in progress"
+
         self.base.calc_sizes()
         self.decl_bitSize = self.base.decl_bitSize * self.len_
 

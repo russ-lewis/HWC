@@ -1,4 +1,4 @@
-part tick_tock
+part main
 {
 	private memory(bit) state;
 
@@ -6,10 +6,5 @@ part tick_tock
 
 	out = state;
 	state = !state;
-}
-
-part main
-{
-	subpart tick_tock dummy;
 }
 

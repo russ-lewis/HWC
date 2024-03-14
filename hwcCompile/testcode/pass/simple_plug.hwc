@@ -1,4 +1,4 @@
-plugtype simple
+plug simple
 {
 	bit    a;
 	bit    b;

@@ -14,9 +14,9 @@ class ASTNode:
         assert False, f"Need to override this in the child class: {type(self)}"
     def calc_sizes(self):
         assert False, f"Need to override this in the child class: {type(self)}"
-    def calc_decl_offsets(self, offset):
+    def  calc_top_down_offsets(self, offset):
         assert False, f"Need to override this in the child class: {type(self)}"
-    def resolve_expr_offsets(self):
+    def calc_bottom_up_offsets(self):
         assert False, f"Need to override this in the child class: {type(self)}"
     def print_bit_descriptions(self, name, start_bit):
         assert False, f"Need to override this in the child class: {type(self)}"
@@ -67,13 +67,14 @@ class g_File(ASTNode):
         for d in self.decls:
             d.calc_sizes()
 
-    def calc_decl_offsets(self, offset):
+    def calc_top_down_offsets(self, offset):
         assert offset is None
         for d in self.decls:
-            d.calc_decl_offsets(None)
-    def resolve_expr_offsets(self):
+            d.calc_top_down_offsets(None)
+
+    def calc_bottom_up_offsets(self):
         for d in self.decls:
-            d.resolve_expr_offsets()
+            d.calc_bottom_up_offsets()
 
 
 
@@ -118,23 +119,18 @@ class g_PartOrPlugDecl(ASTNode):
             s.calc_sizes()
         self.decl_bitSize = sum(s.decl_bitSize for s in self.stmts)
 
-    def calc_decl_offsets(self, offset):
+    def calc_top_down_offsets(self, offset):
         assert offset is None
-
-        # NOTE: while calc_offsets() recurses, it *never* cycles, because IDENT
-        #       and dot-expr expressions don't look up offsets until later.  So
-        #       duplicate-call and cycle detection are not required (unlike
-        #       calc_sizes())
 
         running_offset = 0
         for s in self.stmts:
             if s.decl_bitSize > 0:
-                s.calc_decl_offsets(running_offset)
+                s.calc_top_down_offsets(running_offset)
                 running_offset += s.decl_bitSize
 
-    def resolve_expr_offsets(self):
+    def calc_bottom_up_offsets(self):
         for s in self.stmts:
-            s.resolve_expr_offsets()
+            s.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
         for s in self.stmts:
@@ -158,6 +154,7 @@ class g_DeclStmt(ASTNode):
         self.name          = name
         self.initVal       = initVal
         self.decl_bitSize  = None
+        self.offset        = None
     def __repr__(self):
         return f"ast.DeclStmt({self.prefix}, mem={self.isMem}, {self.typ_}, {self.name}, init={self.initVal})"
 
@@ -198,6 +195,15 @@ class g_DeclStmt(ASTNode):
 
     def convert_exprs_to_metatypes(self):
         self.typ_ = self.typ_.convert_to_metatype()
+
+        if   isinstance(self.typ_, mt_PlugDecl):
+            pass
+        elif isinstance(self.typ_, mt_PartDecl):
+            assert     self.prefix == "subpart"
+            assert not self.isMem
+        else:
+            TODO()    # report syntax error
+
         if self.initVal is not None:
             self.initVal = self.initVal.convert_to_metatype()
 
@@ -250,21 +256,25 @@ class g_DeclStmt(ASTNode):
         else:
             self.decl_bitSize = self.typ_.decl_bitSize*2
 
-    def calc_decl_offsets(self, offset):
+    def calc_top_down_offsets(self, offset):
         assert type(offset) == int and offset >= 0
-        self.offset = offset      # IDENT exprs will end up reading this in resolve_expr_offsets()
+        self.offset = offset
 
-    def resolve_expr_offsets(self):
-        assert type(self.offset) == int and self.offset >= 0
+        # a type reference can certainly have complex expressions inside of it,
+        # but it cannot possibly have any *runtime* expressions.  So I don't
+        # need to assign any offsets to any of its expressions; they are all
+        # decls.
+        assert isinstance(self.typ_, mt_PlugDecl) or isinstance(self.typ_, mt_PartDecl)
 
-        # don't need to call resolve_expr_offsets() on the typ_ because types
-        # don't have offsets, just sizes.
+        if self.initVal is not None:
+            soFar = self.typ_.decl_bitSize
+            if self.isMem:
+                soFar *= 2
+            self.initVal.calc_top_down_offsets(offset + soFar)
 
-        # don't need to call resolve_expr_offsets() on the initVal because
-        # initVal expressions cannot be runtime values, they must be statically
-        # determined.
-        #
-        # TODO: assert that?
+    def calc_bottom_up_offsets(self):
+        if self.initVal is not None:
+            self.initVal.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
         if not self.isMem:
@@ -274,6 +284,14 @@ class g_DeclStmt(ASTNode):
             self.typ_.print_bit_descriptions(f"{name}.{self.name}(w)", start_bit+self.typ_.decl_bitSize + self.offset)
 
     def print_wiring_diagram(self, start_bit):
+        if self.prefix == "subpart":
+            assert type(self.typ_) == mt_PartDecl_Code
+            self.typ_.code.print_wiring_diagram(start_bit + self.offset)
+
+        if self.isMem:
+            assert isinstance(self.typ_, mt_PlugDecl)
+            print(f"mem r {start_bit + self.offset} w {start_bit + self.offset + self.typ_.decl_bitSize} size {self.typ_.decl_bitSize}    # TODO: line number")
+
         if self.initVal is not None:
             if type(self.initVal) == mt_PlugExpr_Bit:
                 assert self.typ_ == plugType_bit
@@ -350,29 +368,27 @@ class g_ConnStmt(ASTNode):
 
         self.decl_bitSize = self.lhs.decl_bitSize + self.rhs.decl_bitSize
 
-    def calc_decl_offsets(self, offset):
-        assert type(offset) == int and offset >= 0
-        self.lhs.calc_decl_offsets(offset)
-        self.rhs.calc_decl_offsets(offset + self.lhs.decl_bitSize)
+    def calc_top_down_offsets(self, offset):
+        self.lhs.calc_top_down_offsets(offset)
+        self.rhs.calc_top_down_offsets(offset + self.lhs.decl_bitSize)
 
-    def resolve_expr_offsets(self):
-        self.lhs.resolve_expr_offsets()
-        self.rhs.resolve_expr_offsets()
+    def calc_bottom_up_offsets(self):
+        self.lhs.calc_bottom_up_offsets()
+        self.rhs.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
         if self.lhs.decl_bitSize > 0:
-            self.lhs.print_bit_descriptions(self, f"{name}._tmp_{start_bit}", start_bit)
+            self.lhs.print_bit_descriptions(name, start_bit)
         if self.rhs.decl_bitSize > 0:
             rgt_start = start_bit + self.lhs.decl_bitSize
-            self.rhs.print_bit_descriptions(self, f"{name}._tmp_{rgt_start}", rgt_start)
+            self.rhs.print_bit_descriptions(name, rgt_start)
 
     def print_wiring_diagram(self, start_bit):
         self.lhs.print_wiring_diagram(start_bit)
         self.rhs.print_wiring_diagram(start_bit + self.lhs.decl_bitSize)
 
-        # TODO: need to update the code to call calc_offsets() through the expression trees
         assert type(self.lhs) == mt_PlugExpr_Var
-        assert type(self.rhs) == mt_PlugExpr_Var
+        assert isinstance(self.rhs, mt_PlugExpr)
 
         print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}    # TODO: line number")
 
@@ -395,11 +411,11 @@ class g_AssertStmt(ASTNode):
         self.expr.calc_sizes()
         self.decl_bitSize = self.expr.decl_bitSize
 
-    def calc_decl_offsets(self, offset):
-        self.expr.calc_decl_offsets(offset)
+    def calc_top_down_offsets(self, offset):
+        self.expr.calc_top_down_offsets(offset)
 
-    def resolve_expr_offsets(self):
-        self.expr.resolve_expr_offsets()
+    def calc_bottom_up_offsets(self):
+        self.expr.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
         self.expr.print_bit_descriptions(name, start_bit)
@@ -426,6 +442,24 @@ class g_BinaryExpr(ASTNode):
 
         if   self.op == "==":
             return mt_PlugExpr_Eq(self.lft, self.rgt)
+        else:
+            TODO()      # add support for more operators
+
+
+
+class g_UnaryExpr(ASTNode):
+    def __init__(self, op, rgt):
+        self.op  = op
+        self.rgt = rgt
+
+    def resolve_name_lookups(self):
+        self.rgt.resolve_name_lookups()
+
+    def convert_to_metatype(self):
+        self.rgt = self.rgt.convert_to_metatype()
+
+        if   self.op == "!":
+            return mt_PlugExpr_NOT(self.rgt)
         else:
             TODO()      # add support for more operators
 

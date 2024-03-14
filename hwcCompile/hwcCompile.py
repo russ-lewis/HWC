@@ -32,10 +32,22 @@ def main():
     # sizeof) could cause some complexity here.  I'm not using them yet -
     # but I'll probably add them soon.
 
-    # this was called Phase 35 in the old (C++) compiler
-    ast.   calc_decl_offsets(None)
-    # was this in the old compiler???
-    ast.resolve_expr_offsets()
+    # this was called Phase 35 in the old (C++) compiler.  But it is split
+    # into two phases here, in order to prevent the need for recursion from
+    # one type into another.  In the first call, we establish the offset of
+    # each statement, based on decl_bitSize fields; it is *top-down*.  We
+    # recurse through nested statements inside a single PartOrPlug, and we
+    # also recurse into all expressions, since many expressions have their
+    # own # temporary values, which need offsets which are assigned top-down.
+    # However, we refuse to resolve the offset of any IDENTs or dot-exprs,
+    # since those require lookup of offsets of other declarations, which might
+    # not be declared yet.
+    #
+    # In the second call, we re-traverse the entire tree, but now fill in the
+    # missing offsets (those that must be resolved bottom-up), which include
+    # IDENTs, dot-exprs, array-index, and array-slicing.
+    ast.calc_top_down_offsets(None)
+    ast.calc_bottom_up_offsets()
 
 
     main_part = ast.nameScope.search("main")

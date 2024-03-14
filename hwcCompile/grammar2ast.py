@@ -195,7 +195,9 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ctx.base.ast
 
         else:
-            assert False, "Unrecognized expression"
+            op = ctx.op.text
+            assert op in ["!", "-"]
+            ctx.ast = ast.g_UnaryExpr(op, ctx.right.ast)
 
 
     enterExpr8 = default_enter_expr
