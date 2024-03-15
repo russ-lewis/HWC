@@ -71,9 +71,14 @@ class mt_PlugDecl_Code(mt_PlugDecl):
 class mt_PlugDecl_ArrayOf(mt_PlugDecl):
     def __init__(self, base, len_):
         # NOTE: no nameScope required, since we have already resolved names
+
+        assert                                      isinstance(base, mt_PlugDecl)
+        assert len_ is None or type(len_) == int or isinstance(len_, mt_StaticExpr), len_
+
         self.base = base
         self.len_ = len_
         self.decl_bitSize = None
+
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugDecl_ArrayOf:")
         print(f"{prefix}  base:")
@@ -97,6 +102,19 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
 
         self.base.calc_sizes()
         assert self.base.decl_bitSize > 0
+
+        # it is permissible for the len_ to be None in the constructor, but if
+        # so, then the caller must have fixed it up with an int or StaticExpr
+        # before this call.
+
+        if type(self.len_) != int:
+            assert isinstance(self.len_, mt_StaticExpr)
+            self.len_ = self.len_.resolve_static_expr()
+            if type(self.len_) != int:
+                TODO()    # report syntax error
+
+        if self.len_ <= 0:
+            TODO()    # report syntax error
 
         self.decl_bitSize = self.base.decl_bitSize * self.len_
 

@@ -97,6 +97,158 @@ class mt_PlugExpr_SubsetOf(mt_PlugExpr):
 
 
 
+class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
+    def __init__(self, base, indx):
+        self.base = base
+        self.indx = indx
+
+        self.is_lhs = base.is_lhs
+
+        # TODO: I need a version of this class (maybe integrated into this?)
+        # that can handle a runtime index.
+        assert isinstance(self.indx, mt_StaticExpr)
+
+        assert type(base.typ_) == mt_PlugDecl_ArrayOf
+        self.typ_ = base.typ_.base
+
+        self.decl_bitSize = None
+        self.offset       = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_PlugExpr_ArrayIndex:")
+        print(f"{prefix}  base:")
+        self.base.print_tree("    ")
+        print(f"{prefix}  indx:")
+        self.indx.print_tree("    ")
+        print(f"{prefix}  typ_:")
+        self.typ_.print_tree("    ")
+
+    def calc_sizes(self):
+        if self.decl_bitSize == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bitSize is not None:
+            return
+        self.decl_bitSize = "in progress"
+
+        self.base.calc_sizes()
+        self.indx.calc_sizes()
+
+        self.indx = self.indx.resolve_static_expr()
+        if type(self.indx) != int:
+            TODO()    # report syntax error
+        if self.indx < 0 or self.indx >= self.base.typ_.len_:
+            TODO()    # report syntax error
+
+        self.decl_bitSize = self.base.decl_bitSize
+
+    def calc_top_down_offsets(self, offset):
+        self.base.calc_top_down_offsets(offset)
+
+    def calc_bottom_up_offsets(self):
+        self.base.calc_bottom_up_offsets()
+        self.offset = self.base.offset + self.typ_.decl_bitSize * self.indx
+
+    def print_bit_descriptions(self, name, start_bit):
+        self.base.print_bit_descriptions(name, start_bit)
+
+
+
+class mt_PlugExpr_ArraySlice(mt_PlugExpr):
+    def __init__(self, base, start,end):
+        self.base  = base
+        self.start = start
+        self.end   = end
+
+        self.is_lhs = base.is_lhs
+
+        # array index expressions can have runtime indices, but array
+        # slices cannot, since the size would be variable.
+        assert                                              isinstance(self.start, mt_StaticExpr)
+        assert self.end is None or type(self.end) == int or isinstance(self.end  , mt_StaticExpr)
+
+        # the type of our expression is *almost* identical to the base
+        # type...but not exactly, because we have a shorter len.  But we
+        # won't know the exact len until we can resolve the static
+        # expressions (which can't happen until calc_sizes())
+
+        assert type(base.typ_) == mt_PlugDecl_ArrayOf
+        self.typ_ = mt_PlugDecl_ArrayOf(base.typ_.base, None)
+
+        self.decl_bitSize = None
+        self.offset       = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_PlugExpr_ArraySlice:")
+        print(f"{prefix}  base :")
+        self.base.print_tree("    ")
+
+        if type(self.start) == int:
+            print(f"{prefix}  start: {self.start}")
+        else:
+            print(f"{prefix}  start:")
+            self.start.print_tree("    ")
+
+        if self.end is None or type(self.end) == int or self.end.is_leaf:
+            print(f"{prefix}  end  : {self.end}")
+        else:
+            print(f"{prefix}  end  :")
+            self.end.print_tree("    ")
+
+    def calc_sizes(self):
+        if self.decl_bitSize == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bitSize is not None:
+            return
+        self.decl_bitSize = "in progress"
+
+        self.base .calc_sizes()
+        self.start.calc_sizes()
+        if self.end is not None:
+            self.end.calc_sizes()
+
+        assert                     isinstance(self.start, mt_StaticExpr)
+        assert self.end is None or isinstance(self.end  , mt_StaticExpr)
+
+        assert type(self.base.typ_.len_) == int
+
+        self.start = self.start.resolve_static_expr()
+        if type(self.start) != int:
+            TODO()    # report syntax error
+        if self.start < 0:
+            TODO()    # report syntax error
+
+        if self.end is None:
+            self.end = self.base.typ_.len_
+        else:
+            self.end = self.end.resolve_static_expr()
+            if type(self.end) != int:
+                TODO()    # resolve static expr
+            if self.end <= self.start:
+                print(self.start)
+                print(self.end)
+                TODO()    # resolve static expr
+
+        if self.end > self.base.typ_.len_:
+            self.print_tree("")
+            TODO()    # report syntax error
+
+        self.typ_.len_ = self.end - self.start
+        self.typ_.calc_sizes()
+
+        self.decl_bitSize = self.base.decl_bitSize    # we don't need to allocate more temporary bits
+
+    def calc_top_down_offsets(self, offset):
+        self.base.calc_top_down_offsets(offset)
+
+    def calc_bottom_up_offsets(self):
+        self.base.calc_bottom_up_offsets()
+        self.offset = self.base.offset + self.typ_.base.decl_bitSize * self.start
+
+    def print_bit_descriptions(self, name, start_bit):
+        self.base.print_bit_descriptions(name, start_bit)
+
+
+
 class mt_PlugExpr_BitArray(mt_PlugExpr):
     is_lhs = False
 
@@ -138,7 +290,7 @@ class mt_PlugExpr_Bit(mt_PlugExpr):
 
 
 
-class mt_PlugExpr_Eq(mt_PlugExpr):
+class mt_PlugExpr_EQ(mt_PlugExpr):
     is_lhs = False
 
     def __init__(self, lft,rgt):
@@ -192,6 +344,82 @@ class mt_PlugExpr_Eq(mt_PlugExpr):
         self.lft.print_wiring_diagram(start_bit)
         self.rgt.print_wiring_diagram(start_bit + self.lft.decl_bitSize)
         print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} EQ {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
+
+
+
+class mt_PlugExpr_CONCAT(mt_PlugExpr):
+    is_lhs = False
+
+    def __init__(self, lft,rgt):
+        assert isinstance(lft, mt_PlugExpr)
+        assert isinstance(rgt, mt_PlugExpr)
+
+        if type(lft.typ_) != mt_PlugDecl_ArrayOf:
+            TODO()    # report syntax error
+
+        if lft.typ_ != rgt.typ_:
+            TODO()    # report syntax error
+
+        self.lft  = lft
+        self.rgt  = rgt
+        self.typ_ = mt_PlugDecl_ArrayOf(lft.typ_.base, None)    # we will set the length later, when we know it
+
+        self.decl_bitSize = None
+        self.offset       = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_PlugExpr_CONCAT:")
+        print(f"{prefix}  lft:")
+        self.lft.print_tree(prefix+"    ")
+        print(f"{prefix}  rgt:")
+        self.rgt.print_tree(prefix+"    ")
+
+    def calc_sizes(self):
+        if self.decl_bitSize == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bitSize is not None:
+            return
+        self.decl_bitSize = "in progress"
+
+        self.lft.calc_sizes()
+        self.rgt.calc_sizes()
+
+        assert type(self.lft.typ_.len_) == int and self.lft.typ_.len_ >0
+        assert type(self.rgt.typ_.len_) == int and self.rgt.typ_.len_ >0
+        self.typ_.len_ = self.lft.typ_.len_ + self.rgt.typ_.len_
+        self.typ_.calc_sizes()
+
+        # decl_bitSize is however much we need to evaluate the two
+        # sub-expressions (could be as little as 0 each), plus the size of
+        # the destination buffer to hold the concatenated data (definitely
+        # not zero!)
+        self.decl_bitSize = self.typ_.decl_bitSize + self.lft.decl_bitSize + self.rgt.decl_bitSize
+
+        # this was also confirmed in the constructor
+        assert type(self.lft.typ_) == mt_PlugDecl_ArrayOf
+        assert type(self.rgt.typ_) == mt_PlugDecl_ArrayOf
+
+        # this is new, should be a side effect of calc_sizes() calls above
+        assert type(self.lft.typ_.len_) == int and self.lft.typ_.len_ > 0
+        assert type(self.rgt.typ_.len_) == int and self.rgt.typ_.len_ > 0
+        self.typ_.len_ = self.lft.typ_.len_ + self.rgt.typ_.len_
+
+    def calc_top_down_offsets(self, offset):
+        self.offset = offset
+        self.lft.calc_top_down_offsets(offset + self.typ_.decl_bitSize)
+        self.rgt.calc_top_down_offsets(offset + self.typ_.decl_bitSize + self.lft.decl_bitSize)
+
+    def calc_bottom_up_offsets(self):
+        self.lft.calc_bottom_up_offsets()
+        self.rgt.calc_bottom_up_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        start = self.offset
+        end   = self.offset + self.typ_.decl_bitSize
+        print(f"# {start:6d} {end:6d} {name}._CONCAT_{start}")
+
+        self.lft.print_bit_descriptions(name, start_bit)
+        self.rgt.print_bit_descriptions(name, start_bit)
 
 
 

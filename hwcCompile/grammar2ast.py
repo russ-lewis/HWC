@@ -149,7 +149,10 @@ class HWCAstGenerator(hwcListener):
             #   - Have a check for "in this case, nothing is declared?"
             TODO()
 
-        TODO()
+        cond  = ctx.cond.ast
+        tru_  = ctx.tru_ .ast if ctx.tru_  is not None else None
+        fals_ = ctx.fals_.ast if ctx.fals_ is not None else None
+        ctx.ast = ast.g_RuntimeIfStmt(cond, tru_, fals_)
 
 
     enterStmt_Assert = default_enter_stmt
@@ -222,18 +225,21 @@ class HWCAstGenerator(hwcListener):
 
         elif ctx.a is not None and ctx.colon is not None:
             # slice of a runtime value, which goes to the end of the array
-
-            ctx.ast = TODO()
+            ctx.ast = ast.g_ArraySlice(ctx.left.ast,
+                                       ctx.a.ast,
+                                       None)
 
         elif ctx.a is None and ctx.colon is not None and ctx.b is not None:
             # slice of a runtime value, which starts at the beginning of the array
-
-            ctx.ast = TODO()
+            ctx.ast = ast.g_ArraySlice(ctx.left.ast,
+                                       ast.g_NumExpr("0"),
+                                       ctx.b.ast)
 
         elif ctx.a is not None and ctx.colon is not None and ctx.b is not None:
             # slice of a runtime value
-
-            ctx.ast = TODO()
+            ctx.ast = ast.g_ArraySlice(ctx.left.ast,
+                                       ctx.a.ast,
+                                       ctx.b.ast)
 
         else:
             assert False, "Unrecognized expression"

@@ -27,7 +27,7 @@ stmt:
 
     | (lhs+=expr '=')+ rhs=expr ';'    # stmt_Connection
 
-    | static='static'? 'if' '(' expr ')' stmt ('else' stmt)    # stmt_If
+    | static='static'? 'if' '(' cond=expr ')' tru_=stmt ('else' fals_=stmt)?    # stmt_If
 
     | 'for' '(' IDENT ';' expr '..' expr ')' stmt       # stmt_For
 
@@ -134,4 +134,6 @@ IDENT: [a-zA-Z_][a-zA-Z_0-9]* ;
 NUM  : ('0' | '-'? [1-9][0-9_]* | '0x'[0-9a-fA-F_]+ | '0b'[01_]+) ;
 
 WS: [ \t\r\n]+ -> skip ;
+
+COMMENT: '//' ~('\r' | '\n')* -> skip ;    /* https://stackoverflow.com/questions/7070763/parse-comment-line   and    https://tomassetti.me/antlr-mega-tutorial/#chapter58 */
 

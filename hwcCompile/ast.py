@@ -14,7 +14,7 @@ class ASTNode:
         assert False, f"Need to override this in the child class: {type(self)}"
     def calc_sizes(self):
         assert False, f"Need to override this in the child class: {type(self)}"
-    def  calc_top_down_offsets(self, offset):
+    def calc_top_down_offsets(self, offset):
         assert False, f"Need to override this in the child class: {type(self)}"
     def calc_bottom_up_offsets(self):
         assert False, f"Need to override this in the child class: {type(self)}"
@@ -210,23 +210,14 @@ class g_DeclStmt(ASTNode):
         if self.initVal is not None:
             self.initVal = self.initVal.convert_to_metatype("right")
 
-            # if there is a type mismatch between the initVal and the
-            # declaration, we need to build a converter for that.  So far,
-            # I only support NUM->bit and NUM->bit[].  Are there any other
-            # cases to handle in the future?
-            if self.typ_ != self.initVal.typ_:
-                if type(self.initVal) == mt_StaticExpr_NumExpr and self.typ_ == plugType_bit:
-                    if self.initVal.num not in [0,1]:
-                        TODO()    # report syntax error, cannot assign anything to a bit except 0,1
-                    self.initVal = mt_PlugExpr_Bit(self.initVal.num)
-
-                if type(self.initVal)  == mt_StaticExpr_NumExpr and \
-                   type(self.typ_)     == mt_PlugDecl_ArrayOf   and \
-                        self.typ_.base ==    plugType_bit:
-                    dest_wid = self.typ_.len_
-                    if self.initVal.num < 0 or (self.initVal.num >> dest_wid) != 0:
-                        TODO()    # report syntax error, value doesn't fit
-                    self.initVal = mt_PlugExpr_BitArray(dest_wid, self.initVal.num)
+            # BUGFIX:
+            #
+            # Originally, I tried to convert static expressions to the
+            # the appropriate type here.  However, as I thought about
+            # complex static expressions (including those that might
+            # include sizeof() expressions), I realized that I wouldn't
+            # be able to resolve all static expressions until calc_sizes()
+            # ran.  So I deferred the work until then.
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
@@ -241,6 +232,32 @@ class g_DeclStmt(ASTNode):
             # the type of a memory cell *MUST* be plug, never a part
             assert isinstance(self.typ_, mt_PlugDecl)
 
+        # if there is an initVal and it is a static expression, then convert
+        # it to its Python type.
+        if self.initVal is not None and isinstance(self.initVal, mt_StaticExpr):
+            self.initVal = self.initVal.resolve_static_expr()
+
+        # if there is a type mismatch between the initVal and the
+        # declaration, we need to build a converter for that.  So far,
+        # I only support NUM->bit and NUM->bit[].  Are there any other
+        # cases to handle in the future?
+        if self.initVal is not None and (type(self.initVal) == int or self.typ_ != self.initVal.typ_):
+            if type(self.initVal) == int and self.typ_ == plugType_bit:
+                if self.initVal not in [0,1]:
+                    TODO()    # report syntax error, cannot assign anything to a bit except 0,1
+                self.initVal = mt_PlugExpr_Bit(self.initVal)
+
+            if type(self.initVal)  == int                 and \
+               type(self.typ_)     == mt_PlugDecl_ArrayOf and \
+                    self.typ_.base ==    plugType_bit:
+
+                assert type(self.typ_.len_) == int
+                dest_wid = self.typ_.len_
+
+                if self.initVal < 0 or (self.initVal >> dest_wid) != 0:
+                    TODO()    # report syntax error, value doesn't fit
+                self.initVal = mt_PlugExpr_BitArray(dest_wid, self.initVal)
+
         # if the type of the var doesn't match the type of the expression, then
         # we need to build a converter.  I haven't thought about how to do
         # that, yet.  Maybe build a wrapper expression at an earlier phase?
@@ -249,7 +266,7 @@ class g_DeclStmt(ASTNode):
             print()
             self.typ_.print_tree("")
             print()
-            self.initVal.typ_.print_tree("")
+            self.initVal.print_tree("")
             print()
 
             assert False    # TODO
@@ -368,6 +385,23 @@ class g_ConnStmt(ASTNode):
         # we need to build a converter.  I haven't thought about how to do
         # that, yet.  Maybe build a wrapper expression at an earlier phase?
         if self.lhs.typ_ != self.rhs.typ_:
+            if isinstance(self.lhs, mt_PlugExpr) and isinstance(self.rhs, mt_PlugExpr):
+                print()
+                self.print_tree("")
+                print()
+                self.lhs.typ_.print_tree("")
+                print()
+                self.rhs.typ_.print_tree("")
+                print()
+                TODO()    # report syntax error
+
+            print()
+            self.print_tree("")
+            print()
+            self.lhs.typ_.print_tree("")
+            print()
+            self.rhs.typ_.print_tree("")
+            print()
             assert False    # TODO
 
         self.decl_bitSize = self.lhs.decl_bitSize + self.rhs.decl_bitSize
@@ -396,6 +430,60 @@ class g_ConnStmt(ASTNode):
         assert self.lhs.is_lhs
 
         print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}    # TODO: line number")
+
+
+
+# used to give a non-None stmt for missing else blocks
+class g_NullStmt(ASTNode):
+    decl_bitSize = 0
+    offset = 0
+
+
+
+class g_RuntimeIfStmt(ASTNode):
+    def __init__(self, cond, tru_, fals_):
+        self.cond  = cond
+        self.tru_  = tru_
+        self.fals_ = fals_
+
+    def populate_name_scopes(self):
+        pass
+    def resolve_name_lookups(self):
+        self.cond.resolve_name_lookups()
+        self.tru_.resolve_name_lookups()
+        self.fals_.resolve_name_lookups()
+
+    def convert_exprs_to_metatypes(self):
+        self.cond = self.cond.convert_to_metatype("right")
+        self.tru_ .convert_exprs_to_metatypes()
+        self.fals_.convert_exprs_to_metatypes()
+
+    def calc_sizes(self):
+        self.cond .calc_sizes()
+        self.tru_ .calc_sizes()
+        self.fals_.calc_sizes()
+        self.decl_bitSize = self.cond.decl_bitSize + self.tru_.decl_bitSize + self.fals_.decl_bitSize
+
+    def calc_top_down_offsets(self, offset):
+        running_offset = offset
+
+        self.cond.calc_top_down_offsets(running_offset)
+        running_offset += self.cond.decl_bitSize
+
+        self.tru_.calc_top_down_offsets(running_offset)
+        running_offset += self.tru_.decl_bitSize
+
+        self.fals_.calc_top_down_offsets(running_offset)
+
+    def calc_bottom_up_offsets(self):
+        self.cond .calc_bottom_up_offsets()
+        self.tru_ .calc_bottom_up_offsets()
+        self.fals_.calc_bottom_up_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        self.cond .print_bit_descriptions(name, start_bit)
+        self.tru_ .print_bit_descriptions(name, start_bit + self.cond.decl_bitSize)
+        self.fals_.print_bit_descriptions(name, start_bit + self.cond.decl_bitSize + self.tru_.decl_bitSize)
 
 
 
@@ -446,7 +534,9 @@ class g_BinaryExpr(ASTNode):
         self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op == "==":
-            return mt_PlugExpr_Eq(self.lft, self.rgt)
+            return mt_PlugExpr_EQ(self.lft, self.rgt)
+        elif self.op == ":":
+            return mt_PlugExpr_CONCAT(self.lft, self.rgt)
         else:
             TODO()      # add support for more operators
 
@@ -585,7 +675,7 @@ class g_NumExpr(ASTNode):
     def resolve_name_lookups(self):
         pass
 
-    def convert_to_metatype(self):
+    def convert_to_metatype(self, side):
         return mt_StaticExpr_NumExpr(self.num)
 
 
@@ -617,20 +707,20 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         self.indx.resolve_name_lookups()
 
     def convert_to_metatype(self, side):
-        base = self.base.convert_to_metatype(side)
-        len_ = self.indx.convert_to_metatype("right")
-
-        if type(len_) != mt_StaticExpr_NumExpr:
-            TODO()    # need to resolve values of complex expressions
-        len_ = len_.num
+        base         = self.base.convert_to_metatype(side)
+        len_or_index = self.indx.convert_to_metatype("right")
 
         if   isinstance(base, mt_PlugDecl):
-            return mt_PlugDecl_ArrayOf(base,len_)
+            return mt_PlugDecl_ArrayOf(base,len_or_index)
         elif isinstance(base, mt_PartDecl):
-            return mt_PartDecl_ArrayOf(base,len_)
+            return mt_PartDecl_ArrayOf(base,len_or_index)
 
         elif isinstance(base, mt_PlugExpr):
-            TODO()
+            if type(base.typ_) == mt_PlugDecl_ArrayOf:
+                return mt_PlugExpr_ArrayIndex(base, len_or_index)
+            else:
+                TODO()    # report syntax error
+
         elif isinstance(base, mt_PartExpr):
             TODO()
 
@@ -648,4 +738,20 @@ class g_ArraySlice(ASTNode):
         self.base  = base
         self.start = start
         self.end   = end
+
+    def resolve_name_lookups(self):
+        self.base .resolve_name_lookups()
+        self.start.resolve_name_lookups()
+        if self.end is not None:
+            self.end  .resolve_name_lookups()
+
+    def convert_to_metatype(self, side):
+        base  = self.base .convert_to_metatype("right")
+        start = self.start.convert_to_metatype("right")
+        end   = self.end  .convert_to_metatype("right") if self.end is not None else None
+
+        if type(base.typ_) == mt_PlugDecl_ArrayOf:
+            return mt_PlugExpr_ArraySlice(base, start,end)
+        else:
+            TODO()
 
