@@ -27,7 +27,7 @@ stmt:
 
     | (lhs+=expr '=')+ rhs=expr ';'    # stmt_Connection
 
-    | 'static'? 'if' '(' expr ')' stmt ('else' stmt)    # stmt_If
+    | static='static'? 'if' '(' expr ')' stmt ('else' stmt)    # stmt_If
 
     | 'for' '(' IDENT ';' expr '..' expr ')' stmt       # stmt_For
 
