@@ -262,20 +262,32 @@ class mt_PlugExpr_ArraySlice(mt_PlugExpr):
 
 class mt_PlugExpr_BitArray(mt_PlugExpr):
     is_lhs = False
+    decl_bitSize = 0    # consumes no space!
 
     def __init__(self, bitSize, val):
+        assert type(val) == int
+        assert (val >> bitSize) == 0
+
         self.typ_         = mt_PlugDecl_ArrayOf(plugType_bit, bitSize)
         self.val          = val
-        self.decl_bitSize = bitSize
-        self.offset       = None
+
     def __repr__(self):
         return f"mt_PlugExpr_BitArray: bitSize={self.decl_bitSize} val={self.val}"
     def print_tree(self, prefix):
         print(f"{prefix}{self}")
 
+    def calc_sizes(self):
+        self.typ_.calc_sizes()
+
     def calc_top_down_offsets(self, offset):
         pass
     def calc_bottom_up_offsets(self):
+        pass
+
+    # this type represents a *value* which will be connected or init'd to a plug
+    def print_bit_descriptions(self, name, start_bit):
+        pass
+    def print_wiring_diagram(self, start_bit):
         pass
 
 
@@ -283,20 +295,30 @@ class mt_PlugExpr_BitArray(mt_PlugExpr):
 class mt_PlugExpr_Bit(mt_PlugExpr):
     leafNode     = True
     typ_         = plugType_bit
-    decl_bitSize = 1
+    decl_bitSize = 0    # consumes no space!
     is_lhs       = False
 
     def __init__(self, val):
         assert val in [0,1]
         self.val = val
+
     def __repr__(self):
         return f"mt_PlugExpr_Bit: val={self.val}"
     def print_tree(self, prefix):
         print(f"{prefix}{self}")
 
+    def calc_sizes(self):
+        self.typ_.calc_sizes()
+
     def calc_top_down_offsets(self, offset):
         pass
     def calc_bottom_up_offsets(self):
+        pass
+
+    # this type represents a *value* which will be connected or init'd to a plug
+    def print_bit_descriptions(self, name, start_bit):
+        pass
+    def print_wiring_diagram(self, start_bit):
         pass
 
 
@@ -349,6 +371,9 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
     def print_bit_descriptions(self, name, start_bit):
         self.lft.print_bit_descriptions(name, start_bit)
         self.rgt.print_bit_descriptions(name, start_bit)
+
+        assert start_bit == 0   # I think that I'm supposed to add start_bit into the offset on the left side, right???
+
         print(f"# {self.offset:6d} {' ':6s} {name}._EQ_{self.offset}")
 
     def print_wiring_diagram(self, start_bit):

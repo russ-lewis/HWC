@@ -237,8 +237,6 @@ class g_DeclStmt(ASTNode):
         self.decl_bitSize = "in progress"
 
         self.typ_.calc_sizes()
-        if self.initVal is not None:
-            self.initVal.calc_sizes()
 
         if self.isMem:
             # the type of a memory cell *MUST* be plug, never a part
@@ -269,6 +267,9 @@ class g_DeclStmt(ASTNode):
                 if self.initVal < 0 or (self.initVal >> dest_wid) != 0:
                     TODO()    # report syntax error, value doesn't fit
                 self.initVal = mt_PlugExpr_BitArray(dest_wid, self.initVal)
+
+        if self.initVal is not None:
+            self.initVal.calc_sizes()
 
         # if the type of the var doesn't match the type of the expression, then
         # we need to build a converter.  I haven't thought about how to do
@@ -335,13 +336,13 @@ class g_DeclStmt(ASTNode):
         if self.initVal is not None:
             if type(self.initVal) == mt_PlugExpr_Bit:
                 assert self.typ_ == plugType_bit
-                initExprl = f"int({self.initVal.val})"
-                size      = 1
+                initStr = f"int({self.initVal.val})"
+                size    = 1
 
             elif type(self.initVal) == mt_PlugExpr_BitArray:
-                assert type(self.typ_)           == mt_PlugDecl_ArrayOf
-                assert      self.typ_.base       == plugType_bit
-                assert self.initVal.decl_bitSize == self.typ_.len_
+                assert type(self.typ_)                == mt_PlugDecl_ArrayOf
+                assert      self.typ_.base            == plugType_bit
+                assert self.initVal.typ_.decl_bitSize == self.typ_.len_
                 initStr = f"int({self.initVal.val})"
                 size    = self.typ_.len_
 
