@@ -151,7 +151,7 @@ class HWCAstGenerator(hwcListener):
 
         cond  = ctx.cond.ast
         tru_  = ctx.tru_ .ast if ctx.tru_  is not None else None
-        fals_ = ctx.fals_.ast if ctx.fals_ is not None else None
+        fals_ = ctx.fals_.ast if ctx.fals_ is not None else ast.g_NullStmt()
         ctx.ast = ast.g_RuntimeIfStmt(cond, tru_, fals_)
 
 

@@ -1,4 +1,4 @@
-part conditional_assert
+part main
 {
 	public bit valid;
 	public bit a;

@@ -527,6 +527,23 @@ class g_NullStmt(ASTNode):
     decl_bitSize = 0
     offset = 0
 
+    def deliver_if_conditions(self, cond):
+        pass
+    def resolve_name_lookups(self):
+        pass
+    def convert_exprs_to_metatypes(self):
+        pass
+    def calc_sizes(self):
+        pass
+    def calc_top_down_offsets(self, offset):
+        pass
+    def calc_bottom_up_offsets(self):
+        pass
+    def print_bit_descriptions(self, name, start_bit):
+        pass
+    def print_wiring_diagram(self, start_bit):
+        pass
+
 
 
 class g_RuntimeIfStmt(ASTNode):
@@ -582,7 +599,10 @@ class g_AssertStmt(ASTNode):
         self.expr = expr
 
     def deliver_if_conditions(self, cond):
-        pass
+        if cond is not None:
+            self.expr = g_BinaryExpr( g_UnaryExpr("!", cond),
+                                      "|",
+                                      self.expr )
 
     def populate_name_scopes(self):
         pass
@@ -636,6 +656,8 @@ class g_BinaryExpr(ASTNode):
 
         if   self.op == "==":
             return mt_PlugExpr_EQ(self.lft, self.rgt)
+        elif self.op == "|":
+            return mt_PlugExpr_OR(self.lft, self.rgt)
         elif self.op == ":":
             return mt_PlugExpr_CONCAT(self.lft, self.rgt)
         else:
