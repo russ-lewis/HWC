@@ -39,7 +39,7 @@ part Adder_CLA(int SZ)
 
 	// we don't have a fancy way to figure out the carry from the last
 	// bit, so just figure it out in the old-fashioned way.
-	carryOut = (a[-1] & b[-1]) | (a[-1] & c[-1]) | (b[-1] & c[-1]);
+	carryOut = (a[SZ-1] & b[SZ-1]) | (a[SZ-1] & c[SZ-1]) | (b[SZ-1] & c[SZ-1]);
 }
 
 

@@ -21,7 +21,7 @@ part Adder4_CLA
 
 	// we don't have a fancy way to figure out the carry from the last
 	// bit, so just figure it out in the old-fashioned way.
-	carryOut = (a[-1] & b[-1]) | (a[-1] & c[-1]) | (b[-1] & c[-1]);
+	carryOut = (a[3] & b[3]) | (a[3] & c[3]) | (b[3] & c[3]);
 }
 
 part Adder16_CLA
@@ -62,7 +62,7 @@ part Adder16_CLA
 
 	// see comments above
 	out = a ^ b ^ c;
-	carryOut = (a[-1] & b[-1]) | (a[-1] & c[-1]) | (b[-1] & c[-1]);
+	carryOut = (a[15] & b[15]) | (a[15] & c[15]) | (b[15] & c[15]);
 }
 
 part Adder64_CLA
@@ -125,7 +125,7 @@ part Adder64_CLA
 	}
 
 	out = a ^ b ^ c;
-	carryOut = (a[-1] & b[-1]) | (a[-1] & c[-1]) | (b[-1] & c[-1]);
+	carryOut = (a[63] & b[63]) | (a[63] & c[63]) | (b[63] & c[63]);
 }
 
 
