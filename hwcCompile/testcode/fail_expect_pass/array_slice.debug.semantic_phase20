@@ -1,6 +1,0 @@
-TODO: Decls within FOR stmts are not accounted for yet.
-TODO: Remove this syntax-error mark when we implement support for for() loops.
-<stdin>:9:7: Symbol 'i' does not exist.
-TODO: extractHWCdeclsFromPTstmts(): Implement declarations inside of IF/FOR/BLOCK statements.
-
-rc=2
