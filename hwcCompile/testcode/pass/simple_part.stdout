@@ -2,5 +2,3 @@
 #      1        main.output
 
 conn 1 <= 0 size 1    # TODO: line number
-
-rc=0

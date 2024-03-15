@@ -29,5 +29,3 @@ conn 5 <= int(0) size 1    # TODO: line number
 conn 6 <= int(1) size 1    # TODO: line number
 conn 7 <= int(7) size 4    # TODO: line number
 mem r 11 w 47 size 36    # TODO: line number
-
-rc=0

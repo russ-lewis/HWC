@@ -41,5 +41,3 @@ conn 345 <= 264 size 16    # TODO: line number
 conn 37 <= 329 size 32 cond 36    # TODO: line number
 logic 361 <= NOT 36 size 1    # TODO: line number
 conn 37 <= 264 size 32 cond 361    # TODO: line number
-
-rc=0

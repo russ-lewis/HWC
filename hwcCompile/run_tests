@@ -30,8 +30,11 @@ do
     ./hwcCompile.py < $TESTCASE
     rc=$?
 
-    echo
-    echo rc=$rc
+    if [[ $rc != 0 ]]
+    then
+      echo
+      echo "WARNING: rc=$rc"
+    fi
   } > $base.actual_stdout 2>&1
 
   if [[ $(diff $base.stdout $base.actual_stdout) != "" ]]
