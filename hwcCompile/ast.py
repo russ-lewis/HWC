@@ -43,6 +43,10 @@ class g_File(ASTNode):
         for d in self.decls:
             d.print_tree(prefix+"  ")
 
+    def deliver_if_conditions(self):
+        for d in self.decls:
+            d.deliver_if_conditions()
+
     def populate_name_scopes(self):
         for d in self.decls:
             assert type(d) == g_PartOrPlugDecl    # TODO: someday, support functions and static constants
@@ -95,6 +99,10 @@ class g_PartOrPlugDecl(ASTNode):
             d.print_tree(prefix+"  ")
             print(f"{prefix}    decl_bitSize: {d.decl_bitSize}")
 
+
+    def deliver_if_conditions(self):
+        for s in self.stmts:
+            s.deliver_if_conditions(None)
 
     def populate_name_scopes(self):
         for s in self.stmts:
@@ -178,6 +186,9 @@ class g_DeclStmt(ASTNode):
         print(f"{prefix}  decl_bitSize: {self.decl_bitSize}")
         print(f"{prefix}  offset      : {self.offset}")
 
+
+    def deliver_if_conditions(self, cond):
+        pass
 
     def populate_name_scopes(self):
         # declarations always add to the private nameScope.  But we only add to
@@ -332,14 +343,24 @@ class g_DeclStmt(ASTNode):
 
 class g_ConnStmt(ASTNode):
     def __init__(self, lhs,rhs):
+        self.cond         = "not delivered yet"
         self.lhs          = lhs
         self.rhs          = rhs
         self.decl_bitSize = None
     def __repr__(self):
         return f"ast.ConnStmt({self.lhs}, {self.rhs})"
 
+    def deliver_if_conditions(self, cond):
+        self.cond = cond
+
     def print_tree(self, prefix):
         print(f"{prefix}CONN STATEMENT:")
+
+        if self.cond is None:
+            print(f"{prefix}  cond: None")
+        else:
+            print(f"{prefix}  cond:")
+            self.cond.print_tree(prefix+"    ")
 
         if self.lhs.leafNode:
             print(f"{prefix}  lhs: {repr(self.lhs)}")
@@ -356,10 +377,22 @@ class g_ConnStmt(ASTNode):
     def populate_name_scopes(self):
         pass    # this statement does not have any declarations inside it
     def resolve_name_lookups(self):
-        self.lhs.resolve_name_lookups()
-        self.rhs.resolve_name_lookups()
+        if self.cond is not None:
+            self.cond.resolve_name_lookups()
+
+        self.lhs .resolve_name_lookups()
+        self.rhs .resolve_name_lookups()
 
     def convert_exprs_to_metatypes(self):
+        if self.cond is not None:
+            self.cond = self.cond.convert_to_metatype("right")
+
+            # TODO: add support for statically-resolved runtime if() conditions
+            if not isinstance(self.cond, mt_PlugExpr):
+                TODO()    # report syntax error
+            if self.cond.typ_ != plugType_bit:
+                TODO()    # report syntax error
+
         self.lhs = self.lhs.convert_to_metatype("left")
         self.rhs = self.rhs.convert_to_metatype("right")
 
@@ -373,6 +406,9 @@ class g_ConnStmt(ASTNode):
         if self.decl_bitSize is not None:
             return
         self.decl_bitSize = "in progress"
+
+        if self.cond is not None:
+            self.cond.calc_sizes()
 
         self.lhs.calc_sizes()
         self.rhs.calc_sizes()
@@ -404,32 +440,66 @@ class g_ConnStmt(ASTNode):
             print()
             assert False    # TODO
 
-        self.decl_bitSize = self.lhs.decl_bitSize + self.rhs.decl_bitSize
+        if self.cond is None:
+            cond_size = 0
+        else:
+            cond_size = self.cond.decl_bitSize
+        self.decl_bitSize = cond_size + self.lhs.decl_bitSize + self.rhs.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
-        self.lhs.calc_top_down_offsets(offset)
-        self.rhs.calc_top_down_offsets(offset + self.lhs.decl_bitSize)
+        if self.cond is None:
+            running_offset = offset
+        else:
+            self.cond.calc_top_down_offsets(offset)
+            running_offset = offset + self.cond.decl_bitSize
+
+        self.lhs.calc_top_down_offsets(running_offset)
+        self.rhs.calc_top_down_offsets(running_offset + self.lhs.decl_bitSize)
 
     def calc_bottom_up_offsets(self):
-        self.lhs.calc_bottom_up_offsets()
-        self.rhs.calc_bottom_up_offsets()
+        if self.cond is not None:
+            self.cond.calc_bottom_up_offsets()
+        self.lhs .calc_bottom_up_offsets()
+        self.rhs .calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        running_start_bit = start_bit
+
+        if self.cond is not None and self.cond.decl_bitSize > 0:
+            self.cond.print_bit_descriptions(name, running_start_bit)
+            running_start_bit += self.cond.decl_bitSize
+
         if self.lhs.decl_bitSize > 0:
-            self.lhs.print_bit_descriptions(name, start_bit)
+            self.lhs.print_bit_descriptions(name, running_start_bit)
+            running_start_bit += self.lhs.decl_bitSize
+
         if self.rhs.decl_bitSize > 0:
-            rgt_start = start_bit + self.lhs.decl_bitSize
-            self.rhs.print_bit_descriptions(name, rgt_start)
+            self.rhs.print_bit_descriptions(name, running_start_bit)
 
     def print_wiring_diagram(self, start_bit):
-        self.lhs.print_wiring_diagram(start_bit)
-        self.rhs.print_wiring_diagram(start_bit + self.lhs.decl_bitSize)
+        running_start_bit = start_bit
+
+        if self.cond is not None:
+            self.cond.print_wiring_diagram(running_start_bit)
+            running_start_bit += self.cond.decl_bitSize
+
+        self.lhs.print_wiring_diagram(running_start_bit)
+        running_start_bit += self.lhs.decl_bitSize
+
+        self.rhs.print_wiring_diagram(running_start_bit)
 
         assert isinstance(self.lhs, mt_PlugExpr)
         assert isinstance(self.rhs, mt_PlugExpr)
         assert self.lhs.is_lhs
 
-        print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}    # TODO: line number")
+        if self.cond is not None:
+            assert isinstance(self.cond, mt_PlugExpr)
+            assert self.cond.typ_ == plugType_bit
+            cond = f" cond {self.cond.offset}"
+        else:
+            cond = ""
+
+        print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}{cond}    # TODO: line number")
 
 
 
@@ -446,50 +516,54 @@ class g_RuntimeIfStmt(ASTNode):
         self.tru_  = tru_
         self.fals_ = fals_
 
+    def deliver_if_conditions(self, cond):
+        if cond is not None:
+            self.cond = g_BinaryExpr(cond, "&", self.cond)
+
+        self.tru_ .deliver_if_conditions(self.cond)
+        self.fals_.deliver_if_conditions(g_UnaryExpr("!", self.cond))
+
+        self.cond = "delivered down the tree, do not use here anymore"
+
     def populate_name_scopes(self):
         pass
     def resolve_name_lookups(self):
-        self.cond.resolve_name_lookups()
-        self.tru_.resolve_name_lookups()
+        self.tru_ .resolve_name_lookups()
         self.fals_.resolve_name_lookups()
 
     def convert_exprs_to_metatypes(self):
-        self.cond = self.cond.convert_to_metatype("right")
         self.tru_ .convert_exprs_to_metatypes()
         self.fals_.convert_exprs_to_metatypes()
 
     def calc_sizes(self):
-        self.cond .calc_sizes()
         self.tru_ .calc_sizes()
         self.fals_.calc_sizes()
-        self.decl_bitSize = self.cond.decl_bitSize + self.tru_.decl_bitSize + self.fals_.decl_bitSize
+        self.decl_bitSize = self.tru_.decl_bitSize + self.fals_.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
-        running_offset = offset
-
-        self.cond.calc_top_down_offsets(running_offset)
-        running_offset += self.cond.decl_bitSize
-
-        self.tru_.calc_top_down_offsets(running_offset)
-        running_offset += self.tru_.decl_bitSize
-
-        self.fals_.calc_top_down_offsets(running_offset)
+        self.tru_ .calc_top_down_offsets(offset)
+        self.fals_.calc_top_down_offsets(offset + self.tru_.decl_bitSize)
 
     def calc_bottom_up_offsets(self):
-        self.cond .calc_bottom_up_offsets()
         self.tru_ .calc_bottom_up_offsets()
         self.fals_.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
-        self.cond .print_bit_descriptions(name, start_bit)
-        self.tru_ .print_bit_descriptions(name, start_bit + self.cond.decl_bitSize)
-        self.fals_.print_bit_descriptions(name, start_bit + self.cond.decl_bitSize + self.tru_.decl_bitSize)
+        self.tru_ .print_bit_descriptions(name, start_bit)
+        self.fals_.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        self.tru_ .print_wiring_diagram(start_bit)
+        self.fals_.print_wiring_diagram(start_bit)
 
 
 
 class g_AssertStmt(ASTNode):
     def __init__(self, expr):
         self.expr = expr
+
+    def deliver_if_conditions(self, cond):
+        pass
 
     def populate_name_scopes(self):
         pass
@@ -521,9 +595,17 @@ class g_AssertStmt(ASTNode):
 
 class g_BinaryExpr(ASTNode):
     def __init__(self, lft, op, rgt):
+        assert type(op) == str
         self.lft = lft
         self.op  = op
         self.rgt = rgt
+
+    def print_tree(self, prefix):
+        print(f"{prefix}g_BinaryExpr:  op: {self.op}")
+        print(f"{prefix}  lft:")
+        self.lft.print_tree(prefix+"    ")
+        print(f"{prefix}  rgt:")
+        self.rgt.print_tree(prefix+"    ")
 
     def resolve_name_lookups(self):
         self.lft.resolve_name_lookups()
@@ -546,6 +628,11 @@ class g_UnaryExpr(ASTNode):
     def __init__(self, op, rgt):
         self.op  = op
         self.rgt = rgt
+
+    def print_tree(self, prefix):
+        print(f"{prefix}g_UnaryExpr:   op: {repr(self.op)}")
+        print(f"{prefix}  rgt:")
+        self.rgt.print_tree(prefix+"    ")
 
     def resolve_name_lookups(self):
         self.rgt.resolve_name_lookups()
@@ -610,6 +697,8 @@ class g_IdentExpr(ASTNode):
             return f"IDENT={self.name} target=None"
         else:
             return f"IDENT={self.name} target ID={id(self.target)}"
+    def print_tree(self, prefix):
+        print(f"{prefix}{self}")
 
     def resolve_name_lookups(self):
         self.target = self.nameScope.search(self.name)
@@ -671,6 +760,8 @@ class g_NumExpr(ASTNode):
         self.num = int(num_txt)
     def __repr__(self):
         return f"NUM={self.num}"
+    def print_tree(self, prefix):
+        print(f"{prefix}{self}")
 
     def resolve_name_lookups(self):
         pass
@@ -738,6 +829,21 @@ class g_ArraySlice(ASTNode):
         self.base  = base
         self.start = start
         self.end   = end
+
+    def print_tree(self, prefix):
+        print(f"{prefix}g_ArraySlice:")
+
+        print(f"{prefix}  base:")
+        self.base.print_tree(prefix+"    ")
+
+        print(f"{prefix}  start:")
+        self.start.print_tree(prefix+"    ")
+
+        if self.end is None:
+            print(f"{prefix}  end: {self.end}")
+        else:
+            print(f"{prefix}  end:")
+            self.end.print_tree(prefix+"    ")
 
     def resolve_name_lookups(self):
         self.base .resolve_name_lookups()

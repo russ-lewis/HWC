@@ -1,0 +1,45 @@
+#      0     32 main.in
+#     32     37 main.shamt
+#     37     69 main.out
+#     69    101 main.step1
+#    101    133 main._CONCAT_101
+#    133        main._NOT_133
+#    134    166 main.step2
+#    166    198 main._CONCAT_166
+#    198        main._NOT_198
+#    199    231 main.step3
+#    231    263 main._CONCAT_231
+#    263        main._NOT_263
+#    264    296 main.step4
+#    296    328 main._CONCAT_296
+#    328        main._NOT_328
+#    329    361 main._CONCAT_329
+#    361        main._NOT_361
+
+conn 101 <= 31 size 1    # TODO: line number
+conn 102 <= 0 size 31    # TODO: line number
+conn 69 <= 101 size 32 cond 32    # TODO: line number
+logic 133 <= NOT 32 size 1    # TODO: line number
+conn 69 <= 0 size 32 cond 133    # TODO: line number
+conn 166 <= 99 size 2    # TODO: line number
+conn 168 <= 69 size 30    # TODO: line number
+conn 134 <= 166 size 32 cond 33    # TODO: line number
+logic 198 <= NOT 33 size 1    # TODO: line number
+conn 134 <= 69 size 32 cond 198    # TODO: line number
+conn 231 <= 162 size 4    # TODO: line number
+conn 235 <= 134 size 28    # TODO: line number
+conn 199 <= 231 size 32 cond 34    # TODO: line number
+logic 263 <= NOT 34 size 1    # TODO: line number
+conn 199 <= 134 size 32 cond 263    # TODO: line number
+conn 296 <= 223 size 8    # TODO: line number
+conn 304 <= 199 size 24    # TODO: line number
+conn 264 <= 296 size 32 cond 35    # TODO: line number
+logic 328 <= NOT 35 size 1    # TODO: line number
+conn 264 <= 199 size 32 cond 328    # TODO: line number
+conn 329 <= 280 size 16    # TODO: line number
+conn 345 <= 264 size 16    # TODO: line number
+conn 37 <= 329 size 32 cond 36    # TODO: line number
+logic 361 <= NOT 36 size 1    # TODO: line number
+conn 37 <= 264 size 32 cond 361    # TODO: line number
+
+rc=0

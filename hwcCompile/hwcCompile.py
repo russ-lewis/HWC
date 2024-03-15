@@ -8,6 +8,15 @@ from ast import g_PartOrPlugDecl
 def main():
     ast = grammar2ast()
 
+    # if() statements are weird for our parser, because we want to build our
+    # conditions from the top-down (if statements applying their condition to
+    # statements inside them), but the tree is built from the bottom-up.  I
+    # tried to do this with ANLTR enter/exit functions, but that didn't work,
+    # because the condition wasn't known in enter(), and the statement was
+    # already built by the time that if() gets its exit().  So a
+    # post-processing step is required.
+    ast.deliver_if_conditions()
+
     # this was called Phase 10 in the old (C++) compiler
     ast.populate_name_scopes()
 

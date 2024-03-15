@@ -68,7 +68,7 @@ class mt_PlugExpr_SubsetOf(mt_PlugExpr):
         print(f"{prefix}  offset_from: {self.offset_from}")
         print(f"{prefix}  subset_size: {self.subset_size}")
         print(f"{prefix}  base:")
-        self.base.print_tree("    ")
+        self.base.print_tree(prefix+"    ")
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
@@ -117,11 +117,16 @@ class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_ArrayIndex:")
         print(f"{prefix}  base:")
-        self.base.print_tree("    ")
-        print(f"{prefix}  indx:")
-        self.indx.print_tree("    ")
+        self.base.print_tree(prefix+"    ")
+
+        if not isinstance(self.indx, mt_StaticExpr):
+            print(f"{prefix}  indx: {self.indx}")
+        else:
+            print(f"{prefix}  indx:")
+            self.indx.print_tree(prefix+"    ")
+
         print(f"{prefix}  typ_:")
-        self.typ_.print_tree("    ")
+        self.typ_.print_tree(prefix+"    ")
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
@@ -150,6 +155,9 @@ class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
 
     def print_bit_descriptions(self, name, start_bit):
         self.base.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        self.base.print_wiring_diagram(start_bit)
 
 
 
@@ -180,19 +188,19 @@ class mt_PlugExpr_ArraySlice(mt_PlugExpr):
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_ArraySlice:")
         print(f"{prefix}  base :")
-        self.base.print_tree("    ")
+        self.base.print_tree(prefix+"    ")
 
         if type(self.start) == int:
             print(f"{prefix}  start: {self.start}")
         else:
             print(f"{prefix}  start:")
-            self.start.print_tree("    ")
+            self.start.print_tree(prefix+"    ")
 
         if self.end is None or type(self.end) == int or self.end.is_leaf:
             print(f"{prefix}  end  : {self.end}")
         else:
             print(f"{prefix}  end  :")
-            self.end.print_tree("    ")
+            self.end.print_tree(prefix+"    ")
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
@@ -246,6 +254,9 @@ class mt_PlugExpr_ArraySlice(mt_PlugExpr):
 
     def print_bit_descriptions(self, name, start_bit):
         self.base.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        self.base.print_wiring_diagram(start_bit)
 
 
 
@@ -420,6 +431,13 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
 
         self.lft.print_bit_descriptions(name, start_bit)
         self.rgt.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        self.lft.print_wiring_diagram(start_bit + self.typ_.decl_bitSize)
+        self.rgt.print_wiring_diagram(start_bit + self.typ_.decl_bitSize + self.lft.decl_bitSize)
+
+        print(f"conn {start_bit+self.offset} <= {start_bit+self.lft.offset} size {self.lft.typ_.decl_bitSize}    # TODO: line number")
+        print(f"conn {start_bit+self.offset+self.lft.typ_.decl_bitSize} <= {start_bit+self.rgt.offset} size {self.rgt.typ_.decl_bitSize}    # TODO: line number")
 
 
 
