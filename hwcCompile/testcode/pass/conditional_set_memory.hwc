@@ -1,4 +1,4 @@
-part conditional_memory
+part main
 {
 	public bit     get;
 	public bit[32] getVal;

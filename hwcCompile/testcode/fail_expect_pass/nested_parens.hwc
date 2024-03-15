@@ -1,4 +1,4 @@
-part nestedParens
+part main
 {
 	public bit a;
 	public bit b;

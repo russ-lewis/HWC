@@ -3,7 +3,7 @@
 //
 // I've tried to match the names used in the VHDL example as much as possible.
 
-part delay
+part main
 {
 	public bit valid_data;
 	public bit data_in;

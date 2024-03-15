@@ -1,0 +1,10 @@
+#      0        main.get
+#      1     33 main.getVal
+#     33        main.set
+#     34     66 main.setVal
+#     66     98 main.data(r)
+#     98    130 main.data(w)
+
+mem r 66 w 98 size 32    # TODO: line number
+conn 1 <= 66 size 32 cond 0    # TODO: line number
+conn 98 <= 34 size 32 cond 33    # TODO: line number

@@ -1,4 +1,4 @@
-part MUX_4in_bit32
+part main
 {
 	public bit[32][4] in;
 	public bit[32]    out;
