@@ -5,7 +5,7 @@ part main
 	public bit[32] out;
 
         // double the input, minus duplicate of bottom bit
-	bit[63] tmp0 = in :: in[:31];
+	bit[63] tmp0 = in : in[:31];
 
 	bit[62] tmp1;           // after (maybe) shift 1 (30 left to discard)
 	bit[60] tmp2;           // after (maybe) shift 2 (28 left to discard)
