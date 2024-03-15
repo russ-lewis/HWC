@@ -212,13 +212,13 @@ class g_DeclStmt(ASTNode):
             # I only support NUM->bit and NUM->bit[].  Are there any other
             # cases to handle in the future?
             if self.typ_ != self.initVal.typ_:
-                if type(self.initVal) == mt_NumExpr and self.typ_ == plugType_bit:
+                if type(self.initVal) == mt_StaticExpr_NumExpr and self.typ_ == plugType_bit:
                     if self.initVal.num not in [0,1]:
                         TODO()    # report syntax error, cannot assign anything to a bit except 0,1
                     self.initVal = mt_PlugExpr_Bit(self.initVal.num)
 
-                if type(self.initVal)  == mt_NumExpr       and \
-                   type(self.typ_)     == mt_PlugDecl_ArrayOf and \
+                if type(self.initVal)  == mt_StaticExpr_NumExpr and \
+                   type(self.typ_)     == mt_PlugDecl_ArrayOf   and \
                         self.typ_.base ==    plugType_bit:
                     dest_wid = self.typ_.len_
                     if self.initVal.num < 0 or (self.initVal.num >> dest_wid) != 0:
@@ -569,7 +569,7 @@ class g_NumExpr(ASTNode):
         pass
 
     def convert_to_metatype(self):
-        return mt_NumExpr(self.num)
+        return mt_StaticExpr_NumExpr(self.num)
 
 
 
@@ -603,7 +603,7 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         base = self.base.convert_to_metatype()
         len_ = self.indx.convert_to_metatype()
 
-        if type(len_) != mt_NumExpr:
+        if type(len_) != mt_StaticExpr_NumExpr:
             TODO()    # need to resolve values of complex expressions
         len_ = len_.num
 
