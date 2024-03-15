@@ -362,13 +362,14 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
     is_lhs = False
 
     def __init__(self, lft,rgt):
-        assert isinstance(lft, mt_PlugExpr)
-        assert isinstance(rgt, mt_PlugExpr)
-
-        if type(lft.typ_) != mt_PlugDecl_ArrayOf:
+        if not isinstance(lft, mt_PlugExpr):
+            TODO()    # report syntax error
+        if not isinstance(rgt, mt_PlugExpr):
             TODO()    # report syntax error
 
-        if lft.typ_ != rgt.typ_:
+        assert type(lft.typ_) == mt_PlugDecl_ArrayOf
+        assert type(rgt.typ_) == mt_PlugDecl_ArrayOf
+        if lft.typ_.base != rgt.typ_.base:
             TODO()    # report syntax error
 
         self.lft  = lft
@@ -384,6 +385,9 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
         self.lft.print_tree(prefix+"    ")
         print(f"{prefix}  rgt:")
         self.rgt.print_tree(prefix+"    ")
+        print(f"{prefix}  typ_:")
+        self.typ_.print_tree(prefix+"    ")
+        print(f"{prefix}  offset: {self.offset}")
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":

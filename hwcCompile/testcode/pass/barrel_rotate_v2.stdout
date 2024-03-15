@@ -1,0 +1,33 @@
+#      0     32 main.in
+#     32     37 main.shamt
+#     37     69 main.out
+#     69    132 main.tmp0
+#    132    195 main._CONCAT_132
+#    195    257 main.tmp1
+#    257    317 main.tmp2
+#    317    373 main.tmp3
+#    373    421 main.tmp4
+#    421        main._NOT_421
+#    422        main._NOT_422
+#    423        main._NOT_423
+#    424        main._NOT_424
+#    425        main._NOT_425
+
+conn 132 <= 0 size 32    # TODO: line number
+conn 164 <= 0 size 31    # TODO: line number
+conn 69 <= 132 size 63    # TODO: line number
+conn 195 <= 69 size 62 cond 32    # TODO: line number
+logic 421 <= NOT 32 size 1    # TODO: line number
+conn 195 <= 70 size 62 cond 421    # TODO: line number
+conn 257 <= 195 size 60 cond 33    # TODO: line number
+logic 422 <= NOT 33 size 1    # TODO: line number
+conn 257 <= 197 size 60 cond 422    # TODO: line number
+conn 317 <= 257 size 56 cond 34    # TODO: line number
+logic 423 <= NOT 34 size 1    # TODO: line number
+conn 317 <= 261 size 56 cond 423    # TODO: line number
+conn 373 <= 317 size 48 cond 35    # TODO: line number
+logic 424 <= NOT 35 size 1    # TODO: line number
+conn 373 <= 325 size 48 cond 424    # TODO: line number
+conn 37 <= 373 size 32 cond 36    # TODO: line number
+logic 425 <= NOT 36 size 1    # TODO: line number
+conn 37 <= 389 size 32 cond 425    # TODO: line number

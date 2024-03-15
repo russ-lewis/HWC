@@ -10,9 +10,10 @@ class mt_StaticExpr_NumExpr(mt_StaticExpr):
     def __init__(self, num):
         assert type(num) == int
         self.num = num
-
+    def __repr__(self):
+        return f"mt_StaticExpr_NumExpr: num={self.num}"
     def print_tree(self, prefix):
-        print(f"{prefix}mt_StaticExpr_NumExpr: num={self.num}")
+        print(f"{prefix}{self}")
 
     def calc_sizes(self):
         pass

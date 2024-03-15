@@ -97,7 +97,6 @@ class g_PartOrPlugDecl(ASTNode):
         print(f"{prefix}PART-OR-PLUG DECL: isPart={self.isPart} name={self.name} id={id(self)}")
         for d in self.stmts:
             d.print_tree(prefix+"  ")
-            print(f"{prefix}    decl_bitSize: {d.decl_bitSize}")
 
 
     def deliver_if_conditions(self):
@@ -183,8 +182,8 @@ class g_DeclStmt(ASTNode):
             print(f"{prefix}  initVal:")
             self.initVal.print_tree(prefix+"    ")
 
-        print(f"{prefix}  decl_bitSize: {self.decl_bitSize}")
         print(f"{prefix}  offset      : {self.offset}")
+        print(f"{prefix}  decl_bitSize: {self.decl_bitSize}")
 
 
     def deliver_if_conditions(self, cond):
@@ -238,6 +237,8 @@ class g_DeclStmt(ASTNode):
         self.decl_bitSize = "in progress"
 
         self.typ_.calc_sizes()
+        if self.initVal is not None:
+            self.initVal.calc_sizes()
 
         if self.isMem:
             # the type of a memory cell *MUST* be plug, never a part
@@ -277,15 +278,20 @@ class g_DeclStmt(ASTNode):
             print()
             self.typ_.print_tree("")
             print()
-            self.initVal.print_tree("")
+            self.initVal.typ_.print_tree("")
             print()
 
             assert False    # TODO
 
-        if self.isMem == False:
-            self.decl_bitSize = self.typ_.decl_bitSize
+        if self.initVal is None:
+            initSize = 0
         else:
-            self.decl_bitSize = self.typ_.decl_bitSize*2
+            initSize = self.initVal.decl_bitSize
+
+        if self.isMem == False:
+            self.decl_bitSize = initSize + self.typ_.decl_bitSize
+        else:
+            self.decl_bitSize = initSize + self.typ_.decl_bitSize*2
 
     def calc_top_down_offsets(self, offset):
         assert type(offset) == int and offset >= 0
@@ -314,6 +320,9 @@ class g_DeclStmt(ASTNode):
             self.typ_.print_bit_descriptions(f"{name}.{self.name}(r)", start_bit + self.offset)
             self.typ_.print_bit_descriptions(f"{name}.{self.name}(w)", start_bit+self.typ_.decl_bitSize + self.offset)
 
+        if self.initVal is not None:
+            self.initVal.print_bit_descriptions(name, start_bit)
+
     def print_wiring_diagram(self, start_bit):
         if self.prefix == "subpart":
             assert type(self.typ_) == mt_PartDecl_Code
@@ -326,18 +335,27 @@ class g_DeclStmt(ASTNode):
         if self.initVal is not None:
             if type(self.initVal) == mt_PlugExpr_Bit:
                 assert self.typ_ == plugType_bit
-                initVal = self.initVal.val
-                size    = 1
+                initExprl = f"int({self.initVal.val})"
+                size      = 1
+
             elif type(self.initVal) == mt_PlugExpr_BitArray:
                 assert type(self.typ_)           == mt_PlugDecl_ArrayOf
                 assert      self.typ_.base       == plugType_bit
                 assert self.initVal.decl_bitSize == self.typ_.len_
-                initVal = self.initVal.val
+                initStr = f"int({self.initVal.val})"
                 size    = self.typ_.len_
+
+            elif isinstance(self.initVal, mt_PlugExpr):
+                self.initVal.print_wiring_diagram(start_bit)
+
+                assert self.initVal.typ_ == self.typ_
+                initStr = f"{self.initVal.offset}"
+                size    = self.typ_.decl_bitSize
+
             else:
                 assert False
 
-            print(f"conn {start_bit + self.offset} <= int({initVal}) size {size}    # TODO: line number")
+            print(f"conn {start_bit + self.offset} <= {initStr} size {size}    # TODO: line number")
 
 
 
