@@ -1,4 +1,4 @@
-part ifelse_chain
+part main
 {
 	public bit[4] control;
 	public bit[5] in;

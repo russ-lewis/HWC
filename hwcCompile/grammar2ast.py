@@ -26,6 +26,17 @@ def grammar2ast():
 
 
 
+# HELPER FUNCTION
+def flatten(stmts):
+    retval = []
+    for s in stmts:
+        if type(s) == hwcParser.Stmt_DeclContext:
+            retval.extend(s.ast_arr)
+        else:
+            retval.append(s.ast)
+    return retval
+
+
 class HWCAstGenerator(hwcListener):
     def enterFile(self, ctx):
         ctx.nameScope = ast.NameScope(None)
@@ -69,15 +80,6 @@ class HWCAstGenerator(hwcListener):
         assert partOrPlug in ["part","plug"]
         isPart = (partOrPlug == "part")
 
-        def flatten(stmts):
-            retval = []
-            for s in stmts:
-                if type(s) == hwcParser.Stmt_DeclContext:
-                    retval.extend(s.ast_arr)
-                else:
-                    retval.append(s.ast)
-            return retval
-
         # NOTE: While we needed both the public and private nameScope's to
         #       build our AST (because our children in the grammar will need
         #       access to the private nameScope for their own lookups,
@@ -101,7 +103,15 @@ class HWCAstGenerator(hwcListener):
 
 
     def enterStmt_Block(self, ctx):
-        TODO()    # not implemented yet.  This should create a new (private) nameScope, but its public nameScope should be None.  (We don't support public declarations inside {} blocks.  Not yet, perhaps not ever.)
+        # a {} block creates a new scope for declaring private fields, but
+        # we don't support public declarations inside such a scope.
+        ctx.pri_nameScope = ast.NameScope(ctx.parentCtx.pri_nameScope)
+        ctx.pub_nameScope = None
+
+    def exitStmt_Block(self, ctx):
+        ns_pub =  ctx.pub_nameScope
+        ns_pri =  ctx.pri_nameScope
+        ctx.ast = ast.g_BlockStmt(ns_pub,ns_pri, flatten(ctx.stmts))
 
 
     enterStmt_Decl = default_enter_stmt
@@ -129,6 +139,7 @@ class HWCAstGenerator(hwcListener):
         assert len(ctx.lhs) >= 1
         if len(ctx.lhs) > 1:
             assert False, "TODO-implement-chain-assignment"    # maybe generate n-1 connection statements in a block?
+
         ctx.ast = ast.g_ConnStmt(ctx.lhs[0].ast, ctx.rhs.ast)
 
         # if() statements that wrap this statement will want to know this

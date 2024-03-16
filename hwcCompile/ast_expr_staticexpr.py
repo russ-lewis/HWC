@@ -15,6 +15,9 @@ class mt_StaticExpr_NumExpr(mt_StaticExpr):
     def print_tree(self, prefix):
         print(f"{prefix}{self}")
 
+    def convert_to_metatype(self, side):
+        return self
+
     def calc_sizes(self):
         pass
 

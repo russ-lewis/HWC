@@ -135,5 +135,7 @@ NUM  : ('0' | '-'? [1-9][0-9_]* | '0x'[0-9a-fA-F_]+ | '0b'[01_]+) ;
 
 WS: [ \t\r\n]+ -> skip ;
 
-COMMENT: '//' ~('\r' | '\n')* -> skip ;    /* https://stackoverflow.com/questions/7070763/parse-comment-line   and    https://tomassetti.me/antlr-mega-tutorial/#chapter58 */
+LINE_COMMENT: '//' ~('\r' | '\n')* -> skip ;    /* https://stackoverflow.com/questions/7070763/parse-comment-line   and    https://tomassetti.me/antlr-mega-tutorial/#chapter58 */
+
+BLOCK_COMMENT: '/*' .*? '*/' -> skip ;    /* https://stackoverflow.com/questions/12898052/antlr-how-to-skip-multiline-comments */
 

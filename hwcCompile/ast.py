@@ -149,6 +149,50 @@ class g_PartOrPlugDecl(ASTNode):
 
 
 
+class g_BlockStmt(ASTNode):
+    def __init__(self, ns_pub,ns_pri, stmts):
+        self.pub_nameScope = ns_pub
+        self.pri_nameScope = ns_pri
+        self.stmts         = stmts
+        self.decl_bitSize  = None
+
+    def deliver_if_conditions(self, cond):
+        for s in self.stmts:
+            s.deliver_if_conditions(cond)
+
+    def resolve_name_lookups(self):
+        for s in self.stmts:
+            s.resolve_name_lookups()
+
+    def convert_exprs_to_metatypes(self):
+        for s in self.stmts:
+            s.convert_exprs_to_metatypes()
+
+    def calc_sizes(self):
+        for s in self.stmts:
+            s.calc_sizes()
+        self.decl_bitSize = sum(s.decl_bitSize for s in self.stmts)
+
+    def calc_top_down_offsets(self, offset):
+        running_offset = offset
+        for s in self.stmts:
+            s.calc_top_down_offsets(running_offset)
+            running_offset += s.decl_bitSize
+
+    def calc_bottom_up_offsets(self):
+        for s in self.stmts:
+            s.calc_bottom_up_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        for s in self.stmts:
+            s.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        for s in self.stmts:
+            s.print_wiring_diagram(start_bit)
+
+
+
 class g_DeclStmt(ASTNode):
     def __init__(self, ns_pub,ns_pri, prefix, isMem, typ_, name, initVal):
         assert                   type(ns_pub) == NameScope
@@ -587,6 +631,7 @@ class g_RuntimeIfStmt(ASTNode):
         fals_cond = g_UnaryExpr("!", self.cond)
 
         if cond is not None:
+            # TODO: put the old condition ('cond') on the left side
             true_cond = g_BinaryExpr(true_cond, "&", cond)
             fals_cond = g_BinaryExpr(fals_cond, "&", cond)
 

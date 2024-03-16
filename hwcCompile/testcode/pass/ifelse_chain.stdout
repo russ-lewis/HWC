@@ -1,0 +1,73 @@
+#      0      4 main.control
+#      4      9 main.in
+#      9        main.out
+#     10        main._EQ_10
+#     11        main._AND_11
+#     12        main._EQ_12
+#     41        main._EQ_41
+#     13        main._NOT_13
+#     15        main._AND_15
+#     16        main._EQ_16
+#     17        main._AND_17
+#     28        main._EQ_28
+#     29        main._AND_29
+#     39        main._EQ_39
+#     38        main._NOT_38
+#     41        main._EQ_41
+#     40        main._NOT_40
+#     24        main._AND_24
+#     26        main._EQ_26
+#     25        main._NOT_25
+#     27        main._AND_27
+#     28        main._EQ_28
+#     29        main._AND_29
+#     39        main._EQ_39
+#     38        main._NOT_38
+#     41        main._EQ_41
+#     40        main._NOT_40
+#     34        main._AND_34
+#     36        main._EQ_36
+#     35        main._NOT_35
+#     37        main._AND_37
+#     39        main._EQ_39
+#     38        main._NOT_38
+#     41        main._EQ_41
+#     40        main._NOT_40
+
+logic 10 <= 0 EQ int(1) size 1    # TODO: line number
+conn 9 <= 4 size 1 cond 10    # TODO: line number
+logic 12 <= 1 EQ int(1) size 1    # TODO: line number
+logic 41 <= 0 EQ int(1) size 1    # TODO: line number
+logic 13 <= NOT 41 size 1    # TODO: line number
+logic 11 <= 12 AND 13 size 1    # TODO: line number
+conn 9 <= 5 size 1 cond 11    # TODO: line number
+logic 16 <= 3 EQ int(1) size 1    # TODO: line number
+logic 28 <= 2 EQ int(1) size 1    # TODO: line number
+logic 39 <= 1 EQ int(1) size 1    # TODO: line number
+logic 38 <= NOT 39 size 1    # TODO: line number
+logic 41 <= 0 EQ int(1) size 1    # TODO: line number
+logic 40 <= NOT 41 size 1    # TODO: line number
+logic 29 <= 38 AND 40 size 1    # TODO: line number
+logic 17 <= 28 AND 29 size 1    # TODO: line number
+logic 15 <= 16 AND 17 size 1    # TODO: line number
+conn 9 <= 6 size 1 cond 15    # TODO: line number
+logic 26 <= 3 EQ int(1) size 1    # TODO: line number
+logic 25 <= NOT 26 size 1    # TODO: line number
+logic 28 <= 2 EQ int(1) size 1    # TODO: line number
+logic 39 <= 1 EQ int(1) size 1    # TODO: line number
+logic 38 <= NOT 39 size 1    # TODO: line number
+logic 41 <= 0 EQ int(1) size 1    # TODO: line number
+logic 40 <= NOT 41 size 1    # TODO: line number
+logic 29 <= 38 AND 40 size 1    # TODO: line number
+logic 27 <= 28 AND 29 size 1    # TODO: line number
+logic 24 <= 25 AND 27 size 1    # TODO: line number
+conn 9 <= 7 size 1 cond 24    # TODO: line number
+logic 36 <= 2 EQ int(1) size 1    # TODO: line number
+logic 35 <= NOT 36 size 1    # TODO: line number
+logic 39 <= 1 EQ int(1) size 1    # TODO: line number
+logic 38 <= NOT 39 size 1    # TODO: line number
+logic 41 <= 0 EQ int(1) size 1    # TODO: line number
+logic 40 <= NOT 41 size 1    # TODO: line number
+logic 37 <= 38 AND 40 size 1    # TODO: line number
+logic 34 <= 35 AND 37 size 1    # TODO: line number
+conn 9 <= 8 size 1 cond 34    # TODO: line number
