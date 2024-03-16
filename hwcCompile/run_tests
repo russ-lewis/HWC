@@ -3,7 +3,7 @@
 
 if [[ $* == "" ]]
 then
-  search=testcode/
+  search=testcode/pass/
 else
   search=$*
 fi
