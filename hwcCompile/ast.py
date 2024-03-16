@@ -429,12 +429,37 @@ class g_ConnStmt(ASTNode):
         if self.cond is not None:
             self.cond.calc_sizes()
 
+        if isinstance(self.rhs, mt_StaticExpr):
+            self.rhs = self.rhs.resolve_static_expr()
+
         self.lhs.calc_sizes()
-        self.rhs.calc_sizes()
+
+        # handle "assign integer to bit or bit[]" cases.  This code is
+        # copy-pasted from the initVal handling in DeclStmt.
+        #
+        # TODO: unify the two with a common function or type
+
+        if type(self.rhs) == int and self.lhs.typ_ == plugType_bit:
+            if self.rhs not in [0,1]:
+                TODO()    # report syntax error, cannot assign anything to a bit except 0,1
+            self.rhs = mt_PlugExpr_Bit(self.rhs)
+
+        if type(self.rhs)          == int                 and \
+           type(self.lhs.typ_)     == mt_PlugDecl_ArrayOf and \
+                self.lhs.typ_.base ==    plugType_bit:
+
+            assert type(self.lhs.typ_.len_) == int
+            dest_wid = self.lhs.typ_.len_
+
+            if self.rhs < 0 or (self.rhs >> dest_wid) != 0:
+                TODO()    # report syntax error, value doesn't fit
+            self.rhs = mt_PlugExpr_BitArray(dest_wid, self.rhs)
 
         if isinstance(self.lhs, mt_PlugExpr) == False or \
            isinstance(self.rhs, mt_PlugExpr) == False:
             assert False    # TODO: implement other variants
+
+        self.rhs.calc_sizes()
 
         # if the type of the var doesn't match the type of the expression, then
         # we need to build a converter.  I haven't thought about how to do
@@ -518,7 +543,12 @@ class g_ConnStmt(ASTNode):
         else:
             cond = ""
 
-        print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}{cond}    # TODO: line number")
+        if   type(self.rhs) in [mt_PlugExpr_Bit, mt_PlugExpr_BitArray]:
+            fromStr = f"int({self.rhs.val})"
+        else:
+            fromStr = f"{start_bit+self.rhs.offset}"
+
+        print(f"conn {start_bit+self.lhs.offset} <= {fromStr} size {self.lhs.typ_.decl_bitSize}{cond}    # TODO: line number")
 
 
 
@@ -553,11 +583,15 @@ class g_RuntimeIfStmt(ASTNode):
         self.fals_ = fals_
 
     def deliver_if_conditions(self, cond):
-        if cond is not None:
-            self.cond = g_BinaryExpr(cond, "&", self.cond)
+        true_cond = self.cond
+        fals_cond = g_UnaryExpr("!", self.cond)
 
-        self.tru_ .deliver_if_conditions(self.cond)
-        self.fals_.deliver_if_conditions(g_UnaryExpr("!", self.cond))
+        if cond is not None:
+            true_cond = g_BinaryExpr(true_cond, "&", cond)
+            fals_cond = g_BinaryExpr(fals_cond, "&", cond)
+
+        self.tru_ .deliver_if_conditions(true_cond)
+        self.fals_.deliver_if_conditions(fals_cond)
 
         self.cond = "delivered down the tree, do not use here anymore"
 
@@ -634,6 +668,9 @@ class g_AssertStmt(ASTNode):
 
 class g_BinaryExpr(ASTNode):
     def __init__(self, lft, op, rgt):
+        assert not isinstance(lft, mt_PlugExpr)
+        assert not isinstance(rgt, mt_PlugExpr)
+
         assert type(op) == str
         self.lft = lft
         self.op  = op
@@ -656,7 +693,9 @@ class g_BinaryExpr(ASTNode):
 
         if   self.op == "==":
             return mt_PlugExpr_EQ(self.lft, self.rgt)
-        elif self.op == "|":
+        elif self.op in ["&", "&&"]:
+            return mt_PlugExpr_AND(self.lft, self.rgt)
+        elif self.op in ["|", "||"]:
             return mt_PlugExpr_OR(self.lft, self.rgt)
         elif self.op == ":":
             return mt_PlugExpr_CONCAT(self.lft, self.rgt)

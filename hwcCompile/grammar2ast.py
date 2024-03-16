@@ -131,6 +131,9 @@ class HWCAstGenerator(hwcListener):
             assert False, "TODO-implement-chain-assignment"    # maybe generate n-1 connection statements in a block?
         ctx.ast = ast.g_ConnStmt(ctx.lhs[0].ast, ctx.rhs.ast)
 
+        # if() statements that wrap this statement will want to know this
+        ctx.uncovered_else = False
+
 
     enterStmt_If = default_enter_stmt
     def exitStmt_If(self, ctx):
@@ -149,6 +152,10 @@ class HWCAstGenerator(hwcListener):
             #   - Have a check for "in this case, nothing is declared?"
             TODO()
 
+        ctx.uncovered_else = (ctx.fals_ is not None)
+        if not ctx.uncovered_else and ctx.tru_.uncovered_else:
+            TODO()    # report syntax error
+
         cond  = ctx.cond.ast
         tru_  = ctx.tru_ .ast if ctx.tru_  is not None else None
         fals_ = ctx.fals_.ast if ctx.fals_ is not None else ast.g_NullStmt()
@@ -158,6 +165,9 @@ class HWCAstGenerator(hwcListener):
     enterStmt_Assert = default_enter_stmt
     def exitStmt_Assert(self, ctx):
         ctx.ast = ast.g_AssertStmt(ctx.exp_.ast)
+
+        # if() statements that wrap this statement will want to know this
+        ctx.uncovered_else = False
 
 
     def default_enter_expr(self, ctx):

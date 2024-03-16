@@ -1,4 +1,4 @@
-part nested_if
+part main
 {
 	public bit a,b,c,d;
 	public bit[4] out;
@@ -8,5 +8,7 @@ part nested_if
 			out = 0;
 		else
 			out = 1;
+	else
+		out = 2;
 }
 
