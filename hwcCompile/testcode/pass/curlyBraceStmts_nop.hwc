@@ -1,10 +1,11 @@
-part Test
+part main
 {
 	public bit asdf;
+
+	{ /* NOP */ }
+
 	public bit jkl;
 
-	{
-		asdf = jkl;
-	}
+	asdf = jkl;
 }
 

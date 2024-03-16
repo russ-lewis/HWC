@@ -1,4 +1,4 @@
-part operator_chain
+part main
 {
 	public bit a;
 	public bit b;

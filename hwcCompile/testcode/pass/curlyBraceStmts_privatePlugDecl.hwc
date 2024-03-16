@@ -1,4 +1,4 @@
-part Test
+part main
 {
 	public bit asdf;
 	public bit jkl;
