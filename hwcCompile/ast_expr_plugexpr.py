@@ -345,6 +345,7 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         self.lft.print_tree(prefix+"    ")
         print(f"{prefix}  rgt:")
         self.rgt.print_tree(prefix+"    ")
+        print(f"{prefix}  offset: {self.offfset}")
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
@@ -357,12 +358,12 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         self.rgt.calc_sizes()
 
         # 1 bit for the answer
-        self.decl_bitSize = 1 + self.lft.decl_bitSize + self.rgt.decl_bitSize
+        self.decl_bitSize = self.lft.decl_bitSize + self.rgt.decl_bitSize + 1
 
     def calc_top_down_offsets(self, offset):
-        self.offset = offset
-        self.lft.calc_top_down_offsets(offset + 1)
-        self.rgt.calc_top_down_offsets(offset + 1 + self.lft.decl_bitSize)
+        self.lft.calc_top_down_offsets(offset)
+        self.rgt.calc_top_down_offsets(offset + self.lft.decl_bitSize)
+        self.offset = offset + self.lft.decl_bitSize + self.rgt.decl_bitSize
 
     def calc_bottom_up_offsets(self):
         self.lft.calc_bottom_up_offsets()
@@ -372,13 +373,12 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         self.lft.print_bit_descriptions(name, start_bit)
         self.rgt.print_bit_descriptions(name, start_bit)
 
-        assert start_bit == 0   # I think that I'm supposed to add start_bit into the offset on the left side, right???
-
-        print(f"# {self.offset:6d} {' ':6s} {name}._EQ_{self.offset}")
+        print(f"# {start_bit+self.offset:6d} {' ':6s} {name}._EQ_{self.offset}")
 
     def print_wiring_diagram(self, start_bit):
         self.lft.print_wiring_diagram(start_bit)
-        self.rgt.print_wiring_diagram(start_bit + self.lft.decl_bitSize)
+        self.rgt.print_wiring_diagram(start_bit)
+
         print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} EQ {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
 
 

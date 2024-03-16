@@ -1,0 +1,24 @@
+#      0        main.a
+#      1        main.b
+#      2        main.c
+#      3        main.d
+#      4        main._EQ_4
+#      5        main._EQ_5
+#      6        main._EQ_6
+#      7        main._EQ_7
+#      8        main._EQ_8
+#      9        main._EQ_9
+#     10        main._EQ_10
+#     11        main._EQ_11
+#     12        main._EQ_12
+
+logic 4 <= 2 EQ 0 size 1    # TODO: line number
+logic 5 <= 4 EQ 1 size 1    # TODO: line number
+logic 6 <= 0 EQ 5 size 1    # TODO: line number
+logic 7 <= 2 EQ 0 size 1    # TODO: line number
+logic 8 <= 7 EQ 1 size 1    # TODO: line number
+logic 9 <= 1 EQ 8 size 1    # TODO: line number
+logic 10 <= 0 EQ 2 size 1    # TODO: line number
+logic 11 <= 9 EQ 10 size 1    # TODO: line number
+logic 12 <= 6 EQ 11 size 1    # TODO: line number
+conn 3 <= 0 size 1 cond 12    # TODO: line number
