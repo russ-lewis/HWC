@@ -1,1 +1,0 @@
-part partOneLine { public bit a, b; private bit[2] c; if(a == c[0]) b = c[0]; else b = c[1]; } plug plugOneLine { bit x, y, z; } // Very good style.
