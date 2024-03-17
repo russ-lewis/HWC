@@ -22,8 +22,8 @@ do
 
   if [[ ! -f $base.stdout ]]
   then
-    echo "Testcase $TESTCASE failed: $base.stdout not found" | tee $base.FAIL
-    no_stdout=$((no_stdout+1))
+    no_stdout="$no_stdout
+$TESTCASE"
     continue
   fi
 
@@ -64,7 +64,8 @@ echo
 echo "$0: Testing completed. $attempted testcases attempted, $passed passed, $((passed*100/attempted))%"
 if [[ $no_stdout != 0 ]]
 then
-  echo "*** WARNING ***   No .stdout file found for $no_stdout testcases."
+  echo
+  echo "*** NO .stdout FOUND FOR SOME TESTCASES ***$no_stdout"
 fi
 
 if [[ $passed == $attempted ]]
