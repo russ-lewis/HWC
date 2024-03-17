@@ -12,10 +12,10 @@ fi
 attempted=0
 passed=0
 
+no_stdout=0
+
 for TESTCASE in $(find $search -name \*.hwc 2>/dev/null)
 do
-  attempted=$((attempted+1))
-
   base=$(echo $TESTCASE | rev | cut -f2- -d'.' | rev)
 
   rm $base.actual_stdout $base.FAIL $base.PASS 2>/dev/null
@@ -23,8 +23,11 @@ do
   if [[ ! -f $base.stdout ]]
   then
     echo "Testcase $TESTCASE failed: $base.stdout not found" | tee $base.FAIL
+    no_stdout=$((no_stdout+1))
     continue
   fi
+
+  attempted=$((attempted+1))
 
   {
     ./hwcCompile.py < $TESTCASE
@@ -59,6 +62,10 @@ fi
 
 echo
 echo "$0: Testing completed. $attempted testcases attempted, $passed passed, $((passed*100/attempted))%"
+if [[ $no_stdout != 0 ]]
+then
+  echo "*** WARNING ***   No .stdout file found for $no_stdout testcases."
+fi
 
 if [[ $passed == $attempted ]]
 then
