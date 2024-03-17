@@ -1,4 +1,4 @@
-part unresolvable
+part main
 {
 	public bit foo,bar;
 	public bit a,b;

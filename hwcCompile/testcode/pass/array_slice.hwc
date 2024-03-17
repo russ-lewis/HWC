@@ -1,4 +1,4 @@
-part array_slice
+part main
 {
 	public bit[16] in;
 	public bit[32] out;

@@ -1,4 +1,4 @@
-part Cache_DirectMapped
+part main
 {
 	// hardcoded to 1024 cache lines, each 32 bytes in size
 	//

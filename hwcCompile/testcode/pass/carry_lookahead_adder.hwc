@@ -174,3 +174,10 @@ part CAR
 	               p[2] & p[1] & p[0] & carryIn;
 }
 
+part main
+{
+    Adder4_CLA adder4;
+    Adder16_CLA adder16;
+    Adder64_CLA adder64;
+}
+

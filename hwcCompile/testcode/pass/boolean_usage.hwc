@@ -1,4 +1,4 @@
-part boolean_usage
+part main
 {
 	public bit a;
 	public bit b;
