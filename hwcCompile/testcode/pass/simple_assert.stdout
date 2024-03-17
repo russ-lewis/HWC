@@ -2,5 +2,5 @@
 #      1        main.b
 #      2        main._EQ_2
 
-logic 2 <= 0 EQ 1 size 1    # TODO: line number
-assert 2    # TODO: line number
+logic 2 <= 0 EQ 1 size 1    # FILE:4:11
+assert 2    # FILE:4

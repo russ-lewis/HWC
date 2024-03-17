@@ -344,7 +344,9 @@ class mt_PlugExpr_Bit(mt_PlugExpr):
 class mt_PlugExpr_EQ(mt_PlugExpr):
     is_lhs = False
 
-    def __init__(self, lft,rgt):
+    def __init__(self, lineInfo, lft,rgt):
+        self.lineInfo = lineInfo
+
         assert isinstance(lft, mt_PlugExpr)
         assert isinstance(rgt, mt_PlugExpr) or isinstance(rgt, mt_StaticExpr)
 
@@ -427,7 +429,7 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         else:
             rgtStr = f"int({self.rgt})"
 
-        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} EQ {rgtStr} size {self.typ_.decl_bitSize}    # TODO: line number")
+        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} EQ {rgtStr} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
 
 
 

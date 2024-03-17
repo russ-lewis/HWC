@@ -6,8 +6,8 @@
 #      6        main._EQ_6
 #      5        main._NOT_5
 
-logic 4 <= 0 EQ 1 size 1    # TODO: line number
+logic 4 <= 0 EQ 1 size 1    # FILE:5:7
 conn 2 <= int(0) size 1 cond 4    # TODO: line number
-logic 6 <= 0 EQ 1 size 1    # TODO: line number
+logic 6 <= 0 EQ 1 size 1    # FILE:8:7
 logic 5 <= NOT 6 size 1    # TODO: line number
 conn 3 <= int(0) size 1 cond 5    # TODO: line number

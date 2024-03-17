@@ -32,6 +32,11 @@ def build_line_info(root):
     root_len  = len(root.text)
     return ast.LineInfo(root_line,root_col,root_len)
 
+def build_line_range(ctx):
+    start = ctx.start
+    stop  = ctx.stop
+    return ast.LineRange(start.line, stop.line)
+
 
 
 # HELPER FUNCTION
@@ -188,7 +193,8 @@ class HWCAstGenerator(hwcListener):
 
     enterStmt_Assert = default_enter_stmt
     def exitStmt_Assert(self, ctx):
-        ctx.ast = ast.g_AssertStmt(ctx.exp_.ast)
+        lineInfo = build_line_range(ctx)
+        ctx.ast = ast.g_AssertStmt(lineInfo, ctx.exp_.ast)
 
         # if() statements that wrap this statement will want to know this
         ctx.uncovered_else = False

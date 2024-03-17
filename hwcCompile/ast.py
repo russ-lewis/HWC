@@ -30,9 +30,18 @@ class LineInfo:
         self.line  = line
         self.col   = col
         self.len_  = len_
-
     def __str__(self):
         return f"FILE:{self.line}:{self.col}"
+
+class LineRange:
+    def __init__(self, start,endIncl):
+        self.start   = start
+        self.endIncl = endIncl
+    def __str__(self):
+        if self.start == self.endIncl:
+            return f"FILE:{self.start}"
+        else:
+            return f"FILE:{self.start}-{self.endIncl}"
 
 
 
@@ -692,12 +701,13 @@ class g_RuntimeIfStmt(ASTNode):
 
 
 class g_AssertStmt(ASTNode):
-    def __init__(self, expr):
+    def __init__(self, lineRange, expr):
+        self.lineRange = lineRange
         self.expr = expr
 
     def deliver_if_conditions(self, cond):
         if cond is not None:
-            self.expr = g_BinaryExpr( "TODO (assert)",
+            self.expr = g_BinaryExpr( self.lineRange,
                                       g_UnaryExpr("!", cond),
                                       "|",
                                       self.expr )
@@ -726,7 +736,7 @@ class g_AssertStmt(ASTNode):
 
     def print_wiring_diagram(self, start_bit):
         self.expr.print_wiring_diagram(start_bit)
-        print(f"assert {start_bit + self.expr.offset}    # TODO: line number")
+        print(f"assert {start_bit + self.expr.offset}    # {self.lineRange}")
 
 
 
@@ -758,9 +768,9 @@ class g_BinaryExpr(ASTNode):
         self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op == "==":
-            return                 mt_PlugExpr_EQ(self.lft, self.rgt)
+            return                 mt_PlugExpr_EQ(self.lineInfo, self.lft, self.rgt)
         elif self.op == "!=":
-            return mt_PlugExpr_NOT(mt_PlugExpr_EQ(self.lft, self.rgt))
+            return mt_PlugExpr_NOT(mt_PlugExpr_EQ(self.lineInfo, self.lft, self.rgt))
 
         elif self.op in ["&", "&&"]:
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "AND", self.rgt)
