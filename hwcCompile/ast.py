@@ -25,6 +25,17 @@ class ASTNode:
 
 
 
+class LineInfo:
+    def __init__(self, line,col,len_):
+        self.line  = line
+        self.col   = col
+        self.len_  = len_
+
+    def __str__(self):
+        return f"FILE:{self.line}:{self.col}"
+
+
+
 from ast_expr_metatypes import *;
 
 
@@ -639,8 +650,8 @@ class g_RuntimeIfStmt(ASTNode):
 
         if cond is not None:
             # TODO: put the old condition ('cond') on the left side
-            true_cond = g_BinaryExpr(true_cond, "&", cond)
-            fals_cond = g_BinaryExpr(fals_cond, "&", cond)
+            true_cond = g_BinaryExpr("TODO (runtime if, true)", true_cond, "&", cond)
+            fals_cond = g_BinaryExpr("TODO (runtime if, false)", fals_cond, "&", cond)
 
         self.tru_ .deliver_if_conditions(true_cond)
         self.fals_.deliver_if_conditions(fals_cond)
@@ -686,7 +697,8 @@ class g_AssertStmt(ASTNode):
 
     def deliver_if_conditions(self, cond):
         if cond is not None:
-            self.expr = g_BinaryExpr( g_UnaryExpr("!", cond),
+            self.expr = g_BinaryExpr( "TODO (assert)",
+                                      g_UnaryExpr("!", cond),
                                       "|",
                                       self.expr )
 
@@ -719,7 +731,9 @@ class g_AssertStmt(ASTNode):
 
 
 class g_BinaryExpr(ASTNode):
-    def __init__(self, lft, op, rgt):
+    def __init__(self, lineInfo, lft, op, rgt):
+        self.lineInfo = lineInfo
+
         assert not isinstance(lft, mt_PlugExpr)
         assert not isinstance(rgt, mt_PlugExpr)
 
@@ -749,11 +763,11 @@ class g_BinaryExpr(ASTNode):
             return mt_PlugExpr_NOT(mt_PlugExpr_EQ(self.lft, self.rgt))
 
         elif self.op in ["&", "&&"]:
-            return mt_PlugExpr_Logic(self.lft, "AND", self.rgt)
+            return mt_PlugExpr_Logic(self.lineInfo, self.lft, "AND", self.rgt)
         elif self.op in ["|", "||"]:
-            return mt_PlugExpr_Logic(self.lft, "OR",  self.rgt)
+            return mt_PlugExpr_Logic(self.lineInfo, self.lft, "OR",  self.rgt)
         elif self.op in ["^"]:
-            return mt_PlugExpr_Logic(self.lft, "XOR", self.rgt)
+            return mt_PlugExpr_Logic(self.lineInfo, self.lft, "XOR", self.rgt)
 
         elif self.op == ":":
             return mt_PlugExpr_CONCAT(self.lft, self.rgt)

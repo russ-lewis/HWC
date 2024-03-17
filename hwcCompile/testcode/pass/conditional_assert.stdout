@@ -4,5 +4,5 @@
 #      3        main._NOT_3
 
 logic 3 <= NOT 0 size 1    # TODO: line number
-logic 2 <= 3 OR 1 size 1    # TODO: line number
+logic 2 <= 3 OR 1 size 1    # TODO (assert)
 assert 2    # TODO: line number

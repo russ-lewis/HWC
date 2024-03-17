@@ -26,6 +26,14 @@ def grammar2ast():
 
 
 
+def build_line_info(root):
+    root_line = root.line
+    root_col  = root.column+1
+    root_len  = len(root.text)
+    return ast.LineInfo(root_line,root_col,root_len)
+
+
+
 # HELPER FUNCTION
 def flatten(stmts):
     retval = []
@@ -196,7 +204,8 @@ class HWCAstGenerator(hwcListener):
         if   len(ctx.right) == 0:
             ctx.ast = ctx.left.ast
         elif len(ctx.right) == 1:
-            ctx.ast = ast.g_BinaryExpr(ctx.left.ast, ctx.op.text, ctx.right[0].ast)
+            lineInfo = build_line_info(ctx.op)
+            ctx.ast = ast.g_BinaryExpr(lineInfo, ctx.left.ast, ctx.op.text, ctx.right[0].ast)
         else:
             TODO()    # implement me, chain of more operations
 

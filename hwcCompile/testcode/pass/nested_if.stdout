@@ -15,12 +15,12 @@
 
 logic 9 <= 2 EQ 3 size 1    # TODO: line number
 logic 10 <= 0 EQ 1 size 1    # TODO: line number
-logic 8 <= 9 AND 10 size 1    # TODO: line number
+logic 8 <= 9 AND 10 size 1    # TODO (runtime if, true)
 conn 4 <= int(0) size 4 cond 8    # TODO: line number
 logic 13 <= 2 EQ 3 size 1    # TODO: line number
 logic 12 <= NOT 13 size 1    # TODO: line number
 logic 14 <= 0 EQ 1 size 1    # TODO: line number
-logic 11 <= 12 AND 14 size 1    # TODO: line number
+logic 11 <= 12 AND 14 size 1    # TODO (runtime if, false)
 conn 4 <= int(1) size 4 cond 11    # TODO: line number
 logic 16 <= 0 EQ 1 size 1    # TODO: line number
 logic 15 <= NOT 16 size 1    # TODO: line number

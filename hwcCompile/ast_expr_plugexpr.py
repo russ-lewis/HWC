@@ -434,7 +434,9 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
 class mt_PlugExpr_Logic(mt_PlugExpr):
     is_lhs = False
 
-    def __init__(self, lft,op,rgt):
+    def __init__(self, lineInfo, lft,op,rgt):
+        self.lineInfo = lineInfo
+
         assert isinstance(lft, mt_PlugExpr)
         assert isinstance(rgt, mt_PlugExpr)
 
@@ -495,7 +497,7 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
         self.lft.print_wiring_diagram(start_bit)
         self.rgt.print_wiring_diagram(start_bit)
 
-        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
+        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
 
 
 
