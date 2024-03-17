@@ -1,0 +1,6 @@
+#      0        main.asdf
+#      1        main.jkl
+#      2        main.tmp
+
+conn 0 <= 2 size 1    # TODO: line number
+conn 2 <= 1 size 1    # TODO: line number

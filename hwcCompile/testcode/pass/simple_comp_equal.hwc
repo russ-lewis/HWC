@@ -1,10 +1,10 @@
-part main   // this will short circuit every time, intentionally!
+part main
 {
-	public bit a, b;
+	public bit a, b, c, d;
 
 	if(a == b)
-		a = 0;
+		c = 0;
 
 	if(a != b)
-		b = 0;
+		d = 0;
 }

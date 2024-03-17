@@ -160,6 +160,10 @@ class g_BlockStmt(ASTNode):
         for s in self.stmts:
             s.deliver_if_conditions(cond)
 
+    def populate_name_scopes(self):
+        for s in self.stmts:
+            s.populate_name_scopes()
+
     def resolve_name_lookups(self):
         for s in self.stmts:
             s.resolve_name_lookups()
@@ -195,8 +199,8 @@ class g_BlockStmt(ASTNode):
 
 class g_DeclStmt(ASTNode):
     def __init__(self, ns_pub,ns_pri, prefix, isMem, typ_, name, initVal):
-        assert                   type(ns_pub) == NameScope
-        assert ns_pri is None or type(ns_pri) == NameScope
+        assert ns_pub is None or type(ns_pub) == NameScope
+        assert                   type(ns_pri) == NameScope
         self.pub_nameScope = ns_pub
         self.pri_nameScope = ns_pri
         self.prefix        = prefix
@@ -242,7 +246,10 @@ class g_DeclStmt(ASTNode):
 
         if self.prefix == "public":
             if self.pub_nameScope is None:
-                TODO()    # report syntax error
+                print()
+                self.print_tree("")
+                print()
+                TODO()    # report syntax error: can only declare public field at top scope
             self.pub_nameScope.add(self.name, self)
 
     def resolve_name_lookups(self):
@@ -737,7 +744,9 @@ class g_BinaryExpr(ASTNode):
         self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op == "==":
-            return mt_PlugExpr_EQ(self.lft, self.rgt)
+            return                 mt_PlugExpr_EQ(self.lft, self.rgt)
+        elif self.op == "!=":
+            return mt_PlugExpr_NOT(mt_PlugExpr_EQ(self.lft, self.rgt))
         elif self.op in ["&", "&&"]:
             return mt_PlugExpr_AND(self.lft, self.rgt)
         elif self.op in ["|", "||"]:

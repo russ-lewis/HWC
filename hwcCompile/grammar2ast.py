@@ -92,7 +92,9 @@ class HWCAstGenerator(hwcListener):
 
 
     def default_enter_stmt(self, ctx):
-        ctx.pub_nameScope = ctx.parentCtx.pub_nameScope
+        # for every statement type except DeclStmt, public field declarations
+        # nested inside it are illegal.
+        ctx.pub_nameScope = None
         ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
 
 
@@ -114,7 +116,10 @@ class HWCAstGenerator(hwcListener):
         ctx.ast = ast.g_BlockStmt(ns_pub,ns_pri, flatten(ctx.stmts))
 
 
-    enterStmt_Decl = default_enter_stmt
+    def enterStmt_Decl(self, ctx):
+        # decl statements are allowed to post public names
+        ctx.pub_nameScope = ctx.parentCtx.pub_nameScope
+        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
     def exitStmt_Decl(self, ctx):
         ns_pub =  ctx.pub_nameScope
         ns_pri =  ctx.pri_nameScope

@@ -1,0 +1,10 @@
+#      0        main.asdf
+#      1        main.jkl
+#      2        main.foo
+#      3        main.bar
+#      4        main.baz
+
+conn 0 <= 1 size 1    # TODO: line number
+conn 2 <= 3 size 1    # TODO: line number
+conn 3 <= 4 size 1    # TODO: line number
+conn 1 <= 2 size 1    # TODO: line number
