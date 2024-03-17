@@ -431,11 +431,10 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
 
 
 
-# TODO: make AND,OR the same class
-class mt_PlugExpr_AND(mt_PlugExpr):
+class mt_PlugExpr_Logic(mt_PlugExpr):
     is_lhs = False
 
-    def __init__(self, lft,rgt):
+    def __init__(self, lft,op,rgt):
         assert isinstance(lft, mt_PlugExpr)
         assert isinstance(rgt, mt_PlugExpr)
 
@@ -443,13 +442,15 @@ class mt_PlugExpr_AND(mt_PlugExpr):
             TODO()     # report syntax error
 
         self.lft  = lft
+        self.op   = op
         self.rgt  = rgt
+
         self.typ_ = lft.typ_
         self.decl_bitSize = None
         self.offset       = None
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_PlugExpr_AND:")
+        print(f"{prefix}mt_PlugExpr_Logic:   op: {self.op}")
         print(f"{prefix}  lft:")
         self.lft.print_tree(prefix+"    ")
         print(f"{prefix}  rgt:")
@@ -485,7 +486,7 @@ class mt_PlugExpr_AND(mt_PlugExpr):
             endStr = ""
         else:
             endStr = f"{start_bit+self.offset+self.typ_.decl_bitSize}"
-        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._AND_{self.offset}")
+        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{self.offset}")
 
         self.lft.print_bit_descriptions(name, start_bit)
         self.rgt.print_bit_descriptions(name, start_bit)
@@ -494,73 +495,7 @@ class mt_PlugExpr_AND(mt_PlugExpr):
         self.lft.print_wiring_diagram(start_bit)
         self.rgt.print_wiring_diagram(start_bit)
 
-        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} AND {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
-
-
-
-class mt_PlugExpr_OR(mt_PlugExpr):
-    is_lhs = False
-
-    def __init__(self, lft,rgt):
-        assert isinstance(lft, mt_PlugExpr)
-        assert isinstance(rgt, mt_PlugExpr)
-
-        if lft.typ_ != rgt.typ_:
-            TODO()     # report syntax error
-
-        self.lft  = lft
-        self.rgt  = rgt
-        self.typ_ = lft.typ_
-        self.decl_bitSize = None
-        self.offset       = None
-
-    def print_tree(self, prefix):
-        print(f"{prefix}mt_PlugExpr_OR:")
-        print(f"{prefix}  lft:")
-        self.lft.print_tree(prefix+"    ")
-        print(f"{prefix}  rgt:")
-        self.rgt.print_tree(prefix+"    ")
-
-    def convert_to_metatype(self, side):
-        return self
-
-    def calc_sizes(self):
-        if self.decl_bitSize == "in progress":
-            assert False    # TODO: report cyclic declaration
-        if self.decl_bitSize is not None:
-            return
-        self.decl_bitSize = "in progress"
-
-        self.lft.calc_sizes()
-        self.rgt.calc_sizes()
-
-        # answer is the same size as the expression typ
-        self.decl_bitSize = self.typ_.decl_bitSize + self.lft.decl_bitSize + self.rgt.decl_bitSize
-
-    def calc_top_down_offsets(self, offset):
-        self.offset = offset
-        self.lft.calc_top_down_offsets(offset + self.typ_.decl_bitSize)
-        self.rgt.calc_top_down_offsets(offset + self.typ_.decl_bitSize + self.lft.decl_bitSize)
-
-    def calc_bottom_up_offsets(self):
-        self.lft.calc_bottom_up_offsets()
-        self.rgt.calc_bottom_up_offsets()
-
-    def print_bit_descriptions(self, name, start_bit):
-        if self.typ_.decl_bitSize == 1:
-            endStr = ""
-        else:
-            endStr = f"{start_bit+self.offset+self.typ_.decl_bitSize}"
-        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._OR_{self.offset}")
-
-        self.lft.print_bit_descriptions(name, start_bit)
-        self.rgt.print_bit_descriptions(name, start_bit)
-
-    def print_wiring_diagram(self, start_bit):
-        self.lft.print_wiring_diagram(start_bit)
-        self.rgt.print_wiring_diagram(start_bit)
-
-        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} OR {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
+        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
 
 
 

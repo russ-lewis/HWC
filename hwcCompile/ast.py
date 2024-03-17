@@ -747,13 +747,19 @@ class g_BinaryExpr(ASTNode):
             return                 mt_PlugExpr_EQ(self.lft, self.rgt)
         elif self.op == "!=":
             return mt_PlugExpr_NOT(mt_PlugExpr_EQ(self.lft, self.rgt))
+
         elif self.op in ["&", "&&"]:
-            return mt_PlugExpr_AND(self.lft, self.rgt)
+            return mt_PlugExpr_Logic(self.lft, "AND", self.rgt)
         elif self.op in ["|", "||"]:
-            return mt_PlugExpr_OR(self.lft, self.rgt)
+            return mt_PlugExpr_Logic(self.lft, "OR",  self.rgt)
+        elif self.op in ["^"]:
+            return mt_PlugExpr_Logic(self.lft, "XOR", self.rgt)
+
         elif self.op == ":":
             return mt_PlugExpr_CONCAT(self.lft, self.rgt)
+
         else:
+            print("failed op: "+self.op)
             TODO()      # add support for more operators
 
 
