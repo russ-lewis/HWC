@@ -3,13 +3,13 @@
 #      2        main.c
 #      3        main.d
 #      4      8 main.out
-#      8        main._AND_8
 #      9        main._EQ_9
 #     10        main._EQ_10
-#     11        main._AND_11
+#      8        main._AND_8
 #     13        main._EQ_13
 #     12        main._NOT_12
 #     14        main._EQ_14
+#     11        main._AND_11
 #     16        main._EQ_16
 #     15        main._NOT_15
 

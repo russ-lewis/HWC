@@ -344,15 +344,21 @@ class mt_PlugExpr_Bit(mt_PlugExpr):
 class mt_PlugExpr_EQ(mt_PlugExpr):
     is_lhs = False
 
-    def __init__(self, lineInfo, lft,rgt):
+    def __init__(self, lineInfo, lft,op,rgt, single_bit_result=False):
         self.lineInfo = lineInfo
 
         assert isinstance(lft, mt_PlugExpr)
         assert isinstance(rgt, mt_PlugExpr) or isinstance(rgt, mt_StaticExpr)
 
         self.lft  = lft
+        self.op   = op
         self.rgt  = rgt
-        self.typ_ = plugType_bit
+
+        if single_bit_result:
+            self.typ_ = plugType_bit
+        else:
+            self.typ_ = lft.typ_
+
         self.decl_bitSize = None
         self.offset       = None
 
@@ -393,8 +399,8 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         else:
             rgtSize = self.rgt.decl_bitSize
 
-        # 1 bit for the answer
-        self.decl_bitSize = self.lft.decl_bitSize + rgtSize + 1
+        # answer can be 1 bit (single_bit_result=True) or same as input exprs
+        self.decl_bitSize = self.lft.decl_bitSize + rgtSize + self.typ_.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
         self.lft.calc_top_down_offsets(offset)
@@ -418,7 +424,11 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.print_bit_descriptions(name, start_bit)
 
-        print(f"# {start_bit+self.offset:6d} {' ':6s} {name}._EQ_{self.offset}")
+        if self.typ_.decl_bitSize == 1:
+            endStr = ""
+        else:
+            assert False    # can't happen in the _EQ class
+        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{self.offset}")
 
     def print_wiring_diagram(self, start_bit):
         self.lft.print_wiring_diagram(start_bit)
@@ -436,20 +446,21 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
 class mt_PlugExpr_Logic(mt_PlugExpr):
     is_lhs = False
 
-    def __init__(self, lineInfo, lft,op,rgt):
+    def __init__(self, lineInfo, lft,op,rgt, single_bit_result=False):
         self.lineInfo = lineInfo
 
         assert isinstance(lft, mt_PlugExpr)
-        assert isinstance(rgt, mt_PlugExpr)
-
-        if lft.typ_ != rgt.typ_:
-            TODO()     # report syntax error
+        assert isinstance(rgt, mt_PlugExpr) or isinstance(rgt, mt_StaticExpr)
 
         self.lft  = lft
         self.op   = op
         self.rgt  = rgt
 
-        self.typ_ = lft.typ_
+        if single_bit_result:
+            self.typ_ = plugType_bit
+        else:
+            self.typ_ = lft.typ_
+
         self.decl_bitSize = None
         self.offset       = None
 
@@ -459,6 +470,7 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
         self.lft.print_tree(prefix+"    ")
         print(f"{prefix}  rgt:")
         self.rgt.print_tree(prefix+"    ")
+        print(f"{prefix}  offset: {self.offset}")
 
     def convert_to_metatype(self, side):
         return self
@@ -473,31 +485,61 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
         self.lft.calc_sizes()
         self.rgt.calc_sizes()
 
-        # answer is the same size as the expression typ
-        self.decl_bitSize = self.typ_.decl_bitSize + self.lft.decl_bitSize + self.rgt.decl_bitSize
+        if isinstance(self.rgt, mt_StaticExpr):
+            self.rgt = self.rgt.resolve_static_expr()
+
+            if type(self.rgt) != int:
+                TODO()    # report syntax error
+            if self.rgt < 0 or (self.rgt >> self.lft.typ_.decl_bitSize) != 0:
+                TODO()    # report syntax error
+
+        elif self.lft.typ_ != self.rgt.typ_:
+            TODO()     # report syntax error
+
+        if type(self.rgt) == int:
+            rgtSize = 0
+        else:
+            rgtSize = self.rgt.decl_bitSize
+
+        # answer can be 1 bit (single_bit_result=True) or same as input exprs
+        self.decl_bitSize = self.lft.decl_bitSize + rgtSize + self.typ_.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
-        self.offset = offset
         self.lft.calc_top_down_offsets(offset + self.typ_.decl_bitSize)
-        self.rgt.calc_top_down_offsets(offset + self.typ_.decl_bitSize + self.lft.decl_bitSize)
+        if isinstance(self.rgt, mt_PlugExpr):
+            self.rgt.calc_top_down_offsets(offset + self.typ_.decl_bitSize + self.lft.decl_bitSize)
+
+        if type(self.rgt) == int:
+            rgtSize = 0
+        else:
+            rgtSize = self.rgt.decl_bitSize
+
+        self.offset = offset
 
     def calc_bottom_up_offsets(self):
         self.lft.calc_bottom_up_offsets()
-        self.rgt.calc_bottom_up_offsets()
+        if isinstance(self.rgt, mt_PlugExpr):
+            self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        self.lft.print_bit_descriptions(name, start_bit)
+        if isinstance(self.rgt, mt_PlugExpr):
+            self.rgt.print_bit_descriptions(name, start_bit)
+
         if self.typ_.decl_bitSize == 1:
             endStr = ""
         else:
             endStr = f"{start_bit+self.offset+self.typ_.decl_bitSize}"
         print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{self.offset}")
 
-        self.lft.print_bit_descriptions(name, start_bit)
-        self.rgt.print_bit_descriptions(name, start_bit)
-
     def print_wiring_diagram(self, start_bit):
         self.lft.print_wiring_diagram(start_bit)
-        self.rgt.print_wiring_diagram(start_bit)
+
+        if isinstance(self.rgt, mt_PlugExpr):
+            self.rgt.print_wiring_diagram(start_bit)
+            rgtStr = f"{start_bit + self.rgt.offset}"
+        else:
+            rgtStr = f"int({self.rgt})"
 
         print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
 

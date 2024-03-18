@@ -768,9 +768,11 @@ class g_BinaryExpr(ASTNode):
         self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op == "==":
-            return                 mt_PlugExpr_EQ(self.lineInfo, self.lft, self.rgt)
+            return                 mt_PlugExpr_EQ(self.lineInfo,
+                                                  self.lft, "EQ", self.rgt, single_bit_result=True)
         elif self.op == "!=":
-            return mt_PlugExpr_NOT(mt_PlugExpr_EQ(self.lineInfo, self.lft, self.rgt))
+            return mt_PlugExpr_NOT(mt_PlugExpr_EQ(self.lineInfo,
+                                                  self.lft, "EQ", self.rgt, single_bit_result=True))
 
         elif self.op in ["&", "&&"]:
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "AND", self.rgt)

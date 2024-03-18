@@ -2,37 +2,37 @@
 #      4      9 main.in
 #      9        main.out
 #     10        main._EQ_10
-#     11        main._AND_11
 #     12        main._EQ_12
 #     41        main._EQ_41
 #     13        main._NOT_13
-#     15        main._AND_15
+#     11        main._AND_11
 #     16        main._EQ_16
-#     17        main._AND_17
 #     28        main._EQ_28
-#     29        main._AND_29
 #     39        main._EQ_39
 #     38        main._NOT_38
 #     41        main._EQ_41
 #     40        main._NOT_40
-#     24        main._AND_24
+#     29        main._AND_29
+#     17        main._AND_17
+#     15        main._AND_15
 #     26        main._EQ_26
 #     25        main._NOT_25
-#     27        main._AND_27
 #     28        main._EQ_28
-#     29        main._AND_29
 #     39        main._EQ_39
 #     38        main._NOT_38
 #     41        main._EQ_41
 #     40        main._NOT_40
-#     34        main._AND_34
+#     29        main._AND_29
+#     27        main._AND_27
+#     24        main._AND_24
 #     36        main._EQ_36
 #     35        main._NOT_35
-#     37        main._AND_37
 #     39        main._EQ_39
 #     38        main._NOT_38
 #     41        main._EQ_41
 #     40        main._NOT_40
+#     37        main._AND_37
+#     34        main._AND_34
 
 logic 10 <= 0 EQ int(1) size 1    # FILE:8:17
 conn 9 <= 4 size 1 cond 10    # TODO: line number

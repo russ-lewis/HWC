@@ -1,15 +1,15 @@
 #      0        main.a
 #      1        main.b
 #      2        main.c
-#      3        main._AND_3
 #      4        main._OR_4
-#      5        main._AND_5
 #      6        main._AND_6
-#      7        main._AND_7
 #      8        main._XOR_8
-#      9        main._AND_9
 #     10        main._OR_10
 #     11        main._AND_11
+#      9        main._AND_9
+#      7        main._AND_7
+#      5        main._AND_5
+#      3        main._AND_3
 
 logic 4 <= 0 OR 1 size 1    # FILE:11:11
 logic 6 <= 0 AND 1 size 1    # FILE:10:10
