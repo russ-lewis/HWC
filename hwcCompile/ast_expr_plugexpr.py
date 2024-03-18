@@ -362,6 +362,9 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         self.decl_bitSize = None
         self.offset       = None
 
+        self.bit_desc_printed = False
+        self.  wiring_printed = False
+
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_EQ:")
         print(f"{prefix}  lft:")
@@ -420,6 +423,10 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
             self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        if self.bit_desc_printed:
+            return   # sometimes, an expression is reachable through multiple tree paths
+        self.bit_desc_printed = True
+
         self.lft.print_bit_descriptions(name, start_bit)
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.print_bit_descriptions(name, start_bit)
@@ -431,6 +438,10 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{self.offset}")
 
     def print_wiring_diagram(self, start_bit):
+        if self.wiring_printed:
+            return   # sometimes, an expression is reachable through multiple tree paths
+        self.wiring_printed = True
+
         self.lft.print_wiring_diagram(start_bit)
 
         if isinstance(self.rgt, mt_PlugExpr):
@@ -463,6 +474,9 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
 
         self.decl_bitSize = None
         self.offset       = None
+
+        self.bit_desc_printed = False
+        self.  wiring_printed = False
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_Logic:   op: {self.op}")
@@ -522,6 +536,10 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
             self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        if self.bit_desc_printed:
+            return   # sometimes, an expression is reachable through multiple tree paths
+        self.bit_desc_printed = True
+
         self.lft.print_bit_descriptions(name, start_bit)
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.print_bit_descriptions(name, start_bit)
@@ -533,6 +551,10 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
         print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{self.offset}")
 
     def print_wiring_diagram(self, start_bit):
+        if self.wiring_printed:
+            return   # sometimes, an expression is reachable through multiple tree paths
+        self.wiring_printed = True
+
         self.lft.print_wiring_diagram(start_bit)
 
         if isinstance(self.rgt, mt_PlugExpr):
@@ -565,6 +587,9 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
 
         self.decl_bitSize = None
         self.offset       = None
+
+        self.bit_desc_printed = False
+        self.  wiring_printed = False
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_CONCAT:")
@@ -619,6 +644,10 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
         self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        if self.bit_desc_printed:
+            return   # sometimes, an expression is reachable through multiple tree paths
+        self.bit_desc_printed = True
+
         start = self.offset
         end   = self.offset + self.typ_.decl_bitSize
         print(f"# {start:6d} {end:6d} {name}._CONCAT_{start}")
@@ -627,6 +656,10 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
         self.rgt.print_bit_descriptions(name, start_bit)
 
     def print_wiring_diagram(self, start_bit):
+        if self.wiring_printed:
+            return   # sometimes, an expression is reachable through multiple tree paths
+        self.wiring_printed = True
+
         self.lft.print_wiring_diagram(start_bit)
         self.rgt.print_wiring_diagram(start_bit)
 
@@ -644,6 +677,9 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
         self.typ_ = rgt.typ_
         self.decl_bitSize = None
         self.offset       = None
+
+        self.bit_desc_printed = False
+        self.  wiring_printed = False
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_NOT:")
@@ -671,6 +707,10 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
         self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        if self.bit_desc_printed:
+            return   # sometimes, an expression is reachable through multiple tree paths
+        self.bit_desc_printed = True
+
         self.rgt.print_bit_descriptions(name, start_bit)
 
         assert self.typ_.decl_bitSize >= 1
@@ -681,6 +721,10 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
         print(f"# {self.offset:6d} {end:>6s} {name}._NOT_{self.offset}")
 
     def print_wiring_diagram(self, start_bit):
+        if self.wiring_printed:
+            return   # sometimes, an expression is reachable through multiple tree paths
+        self.wiring_printed = True
+
         self.rgt.print_wiring_diagram(start_bit)
         print(f"logic {start_bit+self.offset} <= NOT {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
 
