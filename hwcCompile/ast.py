@@ -753,6 +753,8 @@ class g_BinaryExpr(ASTNode):
         self.op  = op
         self.rgt = rgt
 
+        self.saved_metatype = None
+
     def print_tree(self, prefix):
         print(f"{prefix}g_BinaryExpr:  op: {self.op}")
         print(f"{prefix}  lft:")
@@ -765,6 +767,20 @@ class g_BinaryExpr(ASTNode):
         self.rgt.resolve_name_lookups()
 
     def convert_to_metatype(self, side):
+        # sometimes, the same tree node is used at multiple places in
+        # the tree.  We don't want to generate duplicate mt_ objects, if
+        # we can avoid it!
+
+        # TODO: when the same expression is used multiple times (and the
+        #       expression has a nonzero decl_bitSize), we end up allocating
+        #       bit space for every use, even though we only need a single
+        #       one.  We need to get rid of that waste, someday.
+
+        if self.saved_metatype is None:
+            self.saved_metatype = self._convert_to_metatype(side)
+        return self.saved_metatype
+
+    def _convert_to_metatype(self, side):
         self.lft = self.lft.convert_to_metatype("right")
         self.rgt = self.rgt.convert_to_metatype("right")
 
@@ -796,6 +812,8 @@ class g_UnaryExpr(ASTNode):
         self.op  = op
         self.rgt = rgt
 
+        self.saved_metatype = None
+
     def print_tree(self, prefix):
         print(f"{prefix}g_UnaryExpr:   op: {repr(self.op)}")
         print(f"{prefix}  rgt:")
@@ -805,6 +823,11 @@ class g_UnaryExpr(ASTNode):
         self.rgt.resolve_name_lookups()
 
     def convert_to_metatype(self, side):
+        if self.saved_metatype is None:
+            self.saved_metatype = self._convert_to_metatype(side)
+        return self.saved_metatype
+
+    def _convert_to_metatype(self, side):
         self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op == "!":
@@ -859,6 +882,9 @@ class g_IdentExpr(ASTNode):
         self.nameScope = nameScope
         self.name   = name
         self.target = None
+
+        self.saved_metatype = None
+
     def __repr__(self):
         if self.target is None:
             return f"IDENT={self.name} target=None"
@@ -873,6 +899,11 @@ class g_IdentExpr(ASTNode):
             assert False, "report syntax error"
 
     def convert_to_metatype(self, side):
+        if self.saved_metatype is None:
+            self.saved_metatype = self._convert_to_metatype(side)
+        return self.saved_metatype
+
+    def _convert_to_metatype(self, side):
         # an IDENT (as a primary expression, not the right-hand side of a
         # dot-expr) can refer to:
         #   1) The first part of a file name (maybe all of it)
@@ -944,6 +975,8 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         self.base      = base
         self.indx      = indx
 
+        self.saved_metatype = None
+
     def print_tree(self, prefix):
         print(f"{prefix}URSIE:")
 
@@ -965,6 +998,11 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         self.indx.resolve_name_lookups()
 
     def convert_to_metatype(self, side):
+        if self.saved_metatype is None:
+            self.saved_metatype = self._convert_to_metatype(side)
+        return self.saved_metatype
+
+    def _convert_to_metatype(self, side):
         base         = self.base.convert_to_metatype(side)
         len_or_index = self.indx.convert_to_metatype("right")
 
@@ -997,6 +1035,8 @@ class g_ArraySlice(ASTNode):
         self.start = start
         self.end   = end
 
+        self.saved_metatype = None
+
     def print_tree(self, prefix):
         print(f"{prefix}g_ArraySlice:")
 
@@ -1019,6 +1059,11 @@ class g_ArraySlice(ASTNode):
             self.end  .resolve_name_lookups()
 
     def convert_to_metatype(self, side):
+        if self.saved_metatype is None:
+            self.saved_metatype = self._convert_to_metatype(side)
+        return self.saved_metatype
+
+    def _convert_to_metatype(self, side):
         base  = self.base .convert_to_metatype("right")
         start = self.start.convert_to_metatype("right")
         end   = self.end  .convert_to_metatype("right") if self.end is not None else None
