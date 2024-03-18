@@ -12,10 +12,10 @@
 
 logic 13 <= 2 EQ 3 size 1    # FILE:7:9
 logic 16 <= 0 EQ 1 size 1    # FILE:6:8
-logic 8 <= 13 AND 16 size 1    # TODO (runtime if, true)
+logic 8 <= 13 AND 16 size 1    # FILE:7-10
 conn 4 <= int(0) size 4 cond 8    FILE:8
-logic 12 <= NOT 13 size 1    # TODO: line number
-logic 11 <= 12 AND 16 size 1    # TODO (runtime if, false)
+logic 12 <= NOT 13 size 1    # FILE:9:3
+logic 11 <= 12 AND 16 size 1    # FILE:9:3
 conn 4 <= int(1) size 4 cond 11    FILE:10
-logic 15 <= NOT 16 size 1    # TODO: line number
+logic 15 <= NOT 16 size 1    # FILE:11:2
 conn 4 <= int(2) size 4 cond 15    FILE:12

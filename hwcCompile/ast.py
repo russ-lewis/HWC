@@ -649,19 +649,24 @@ class g_NullStmt(ASTNode):
 
 
 class g_RuntimeIfStmt(ASTNode):
-    def __init__(self, cond, tru_, fals_):
+    def __init__(self, lineInfo_whole, lineInfo_else,
+                       cond, tru_, fals_):
+
+        self.lineRange_whole = lineInfo_whole
+        self. lineInfo_else  = lineInfo_else
+
         self.cond  = cond
         self.tru_  = tru_
         self.fals_ = fals_
 
     def deliver_if_conditions(self, cond):
         true_cond = self.cond
-        fals_cond = g_UnaryExpr("!", self.cond)
+        fals_cond = g_UnaryExpr(self.lineInfo_else, "!", self.cond)
 
         if cond is not None:
             # TODO: put the old condition ('cond') on the left side
-            true_cond = g_BinaryExpr("TODO (runtime if, true)", true_cond, "&", cond)
-            fals_cond = g_BinaryExpr("TODO (runtime if, false)", fals_cond, "&", cond)
+            true_cond = g_BinaryExpr(self.lineRange_whole, true_cond, "&", cond)
+            fals_cond = g_BinaryExpr(self. lineInfo_else,  fals_cond, "&", cond)
 
         self.tru_ .deliver_if_conditions(true_cond)
         self.fals_.deliver_if_conditions(fals_cond)
@@ -709,7 +714,7 @@ class g_AssertStmt(ASTNode):
     def deliver_if_conditions(self, cond):
         if cond is not None:
             self.expr = g_BinaryExpr( self.lineRange,
-                                      g_UnaryExpr("!", cond),
+                                      g_UnaryExpr(self.lineRange, "!", cond),
                                       "|",
                                       self.expr )
 
@@ -784,12 +789,14 @@ class g_BinaryExpr(ASTNode):
         self.lft = self.lft.convert_to_metatype("right")
         self.rgt = self.rgt.convert_to_metatype("right")
 
-        if   self.op == "==":
-            return                 mt_PlugExpr_EQ(self.lineInfo,
-                                                  self.lft, "EQ", self.rgt, single_bit_result=True)
-        elif self.op == "!=":
-            return mt_PlugExpr_NOT(mt_PlugExpr_EQ(self.lineInfo,
-                                                  self.lft, "EQ", self.rgt, single_bit_result=True))
+        if   self.op in ["==","!="]:
+            eq = mt_PlugExpr_EQ(self.lineInfo,
+                                self.lft, "EQ", self.rgt, single_bit_result=True)
+
+            if self.op == "==":
+                return eq
+            else:
+                return mt_PlugExpr_NOT(self.lineInfo, eq);
 
         elif self.op in ["&", "&&"]:
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "AND", self.rgt)
@@ -808,7 +815,9 @@ class g_BinaryExpr(ASTNode):
 
 
 class g_UnaryExpr(ASTNode):
-    def __init__(self, op, rgt):
+    def __init__(self, lineInfo, op, rgt):
+        self.lineInfo = lineInfo
+
         self.op  = op
         self.rgt = rgt
 
@@ -831,7 +840,7 @@ class g_UnaryExpr(ASTNode):
         self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op == "!":
-            return mt_PlugExpr_NOT(self.rgt)
+            return mt_PlugExpr_NOT(self.lineInfo, self.rgt)
         else:
             TODO()      # add support for more operators
 

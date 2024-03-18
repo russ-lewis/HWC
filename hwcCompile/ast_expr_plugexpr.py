@@ -673,7 +673,9 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
 class mt_PlugExpr_NOT(mt_PlugExpr):
     is_lhs = False
 
-    def __init__(self, rgt):
+    def __init__(self, lineInfo, rgt):
+        self.lineInfo = lineInfo
+
         assert isinstance(rgt, mt_PlugExpr)
         self.rgt  = rgt
         self.typ_ = rgt.typ_
@@ -728,5 +730,5 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
         self.wiring_printed = True
 
         self.rgt.print_wiring_diagram(start_bit)
-        print(f"logic {start_bit+self.offset} <= NOT {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # TODO: line number")
+        print(f"logic {start_bit+self.offset} <= NOT {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
 
