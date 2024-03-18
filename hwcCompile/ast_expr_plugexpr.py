@@ -427,7 +427,7 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         if self.typ_.decl_bitSize == 1:
             endStr = ""
         else:
-            assert False    # can't happen in the _EQ class
+            endStr = f"{start_bit+self.offset+self.typ_.decl_bitSize}"
         print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{self.offset}")
 
     def print_wiring_diagram(self, start_bit):
@@ -439,7 +439,7 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         else:
             rgtStr = f"int({self.rgt})"
 
-        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} EQ {rgtStr} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
+        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {rgtStr} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
 
 
 
@@ -541,7 +541,7 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
         else:
             rgtStr = f"int({self.rgt})"
 
-        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
+        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {rgtStr} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
 
 
 
