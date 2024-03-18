@@ -23,7 +23,7 @@
 #     74        main.the_things(w).d.foo
 #     75     83 main.the_things(w).d.bar
 
-conn 1 <= 0 size 1    # TODO: line number
+conn 1 <= 0 size 1    FILE:4
 conn 3 <= int(1) size 1    # TODO: line number
 conn 5 <= int(0) size 1    # TODO: line number
 conn 6 <= int(1) size 1    # TODO: line number

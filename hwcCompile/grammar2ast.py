@@ -158,7 +158,8 @@ class HWCAstGenerator(hwcListener):
         if len(ctx.lhs) > 1:
             assert False, "TODO-implement-chain-assignment"    # maybe generate n-1 connection statements in a block?
 
-        ctx.ast = ast.g_ConnStmt(ctx.lhs[0].ast, ctx.rhs.ast)
+        lineInfo = build_line_range(ctx)
+        ctx.ast = ast.g_ConnStmt(lineInfo, ctx.lhs[0].ast, ctx.rhs.ast)
 
         # if() statements that wrap this statement will want to know this
         ctx.uncovered_else = False

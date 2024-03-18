@@ -21,4 +21,4 @@ logic 9 <= 1 EQ 8 size 1    # FILE:9:35
 logic 10 <= 0 EQ 2 size 1    # FILE:9:61
 logic 11 <= 9 EQ 10 size 1    # FILE:9:55
 logic 12 <= 6 EQ 11 size 1    # FILE:9:28
-conn 3 <= 0 size 1 cond 12    # TODO: line number
+conn 3 <= 0 size 1 cond 12    FILE:10

@@ -432,11 +432,12 @@ class g_DeclStmt(ASTNode):
 
 
 class g_ConnStmt(ASTNode):
-    def __init__(self, lhs,rhs):
+    def __init__(self, lineRange, lhs,rhs):
         self.cond         = "not delivered yet"
         self.lhs          = lhs
         self.rhs          = rhs
         self.decl_bitSize = None
+        self.lineRange = lineRange
     def __repr__(self):
         return f"ast.ConnStmt({self.lhs}, {self.rhs})"
 
@@ -619,7 +620,7 @@ class g_ConnStmt(ASTNode):
         else:
             fromStr = f"{start_bit+self.rhs.offset}"
 
-        print(f"conn {start_bit+self.lhs.offset} <= {fromStr} size {self.lhs.typ_.decl_bitSize}{cond}    # TODO: line number")
+        print(f"conn {start_bit+self.lhs.offset} <= {fromStr} size {self.lhs.typ_.decl_bitSize}{cond}    {self.lineRange}")
 
 
 
@@ -782,7 +783,7 @@ class g_BinaryExpr(ASTNode):
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "XOR", self.rgt)
 
         elif self.op == ":":
-            return mt_PlugExpr_CONCAT(self.lft, self.rgt)
+            return mt_PlugExpr_CONCAT(self.lineInfo, self.lft, self.rgt)
 
         else:
             print("failed op: "+self.op)

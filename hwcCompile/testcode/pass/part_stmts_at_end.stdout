@@ -2,4 +2,4 @@
 #      1        main.b
 #      2        main.c
 
-conn 0 <= 1 size 1    # TODO: line number
+conn 0 <= 1 size 1    FILE:6

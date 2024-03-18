@@ -20,4 +20,4 @@ logic 9 <= 10 AND 11 size 1    # TODO (runtime if, true)
 logic 7 <= 8 AND 9 size 1    # TODO (runtime if, true)
 logic 5 <= 6 AND 7 size 1    # TODO (runtime if, true)
 logic 3 <= 4 AND 5 size 1    # TODO (runtime if, true)
-conn 2 <= int(1) size 1 cond 3    # TODO: line number
+conn 2 <= int(1) size 1 cond 3    FILE:12
