@@ -188,7 +188,7 @@ class HWCAstGenerator(hwcListener):
 
         cond  = ctx.cond.ast
         tru_  = ctx.tru_ .ast if ctx.tru_  is not None else None
-        fals_ = ctx.fals_.ast if ctx.fals_ is not None else ast.g_NullStmt()
+        fals_ = ctx.fals_.ast if ctx.fals_ is not None else None
 
         lineInfo_whole = build_line_range(ctx)
         lineInfo_else  = build_line_info (ctx.els_) if ctx.fals_ is not None else None

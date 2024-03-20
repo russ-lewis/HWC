@@ -1,10 +1,10 @@
 #      0        main.a
 #      1        main.b
 #      2      4 main.c
-#      6        main._EQ_6
+#      4        main._EQ_4
 #      5        main._NOT_5
 
-logic 6 <= 0 EQ 2 size 1    # FILE:1:53
-conn 1 <= 2 size 1 cond 6    FILE:1
-logic 5 <= NOT 6 size 1    # FILE:1:72
+logic 4 <= 0 EQ 2 size 1    # FILE:1:53
+conn 1 <= 2 size 1 cond 4    FILE:1
+logic 5 <= NOT 4 size 1    # FILE:1:72
 conn 1 <= 3 size 1 cond 5    FILE:1

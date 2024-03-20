@@ -1,23 +1,23 @@
 #      0        main.a
 #      1        main.b
 #      2        main.c
+#      3        main._AND_3
 #      4        main._OR_4
-#      6        main._AND_6
-#      8        main._XOR_8
+#      5        main._AND_5
+#      6        main._XOR_6
+#      7        main._AND_7
+#      8        main._AND_8
+#      9        main._AND_9
 #     10        main._OR_10
 #     11        main._AND_11
-#      9        main._AND_9
-#      7        main._AND_7
-#      5        main._AND_5
-#      3        main._AND_3
 
-logic 4 <= 0 OR 1 size 1    # FILE:11:11
-logic 6 <= 0 AND 1 size 1    # FILE:10:10
-logic 8 <= 0 XOR 1 size 1    # FILE:9:9
-logic 10 <= 0 OR 1 size 1    # FILE:8:8
-logic 11 <= 0 AND 1 size 1    # FILE:7:7
-logic 9 <= 10 AND 11 size 1    # FILE:8-12
-logic 7 <= 8 AND 9 size 1    # FILE:9-12
-logic 5 <= 6 AND 7 size 1    # FILE:10-12
-logic 3 <= 4 AND 5 size 1    # FILE:11-12
-conn 2 <= int(1) size 1 cond 3    FILE:12
+logic 3 <= 0 AND 1 size 1    # FILE:7:7
+logic 4 <= 0 OR 1 size 1    # FILE:8:8
+logic 5 <= 3 AND 4 size 1    # FILE:8-12
+logic 6 <= 0 XOR 1 size 1    # FILE:9:9
+logic 7 <= 5 AND 6 size 1    # FILE:9-12
+logic 8 <= 0 AND 1 size 1    # FILE:10:10
+logic 9 <= 7 AND 8 size 1    # FILE:10-12
+logic 10 <= 0 OR 1 size 1    # FILE:11:11
+logic 11 <= 9 AND 10 size 1    # FILE:11-12
+conn 2 <= int(1) size 1 cond 11    FILE:12

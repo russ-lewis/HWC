@@ -504,8 +504,6 @@ class g_ConnStmt(ASTNode):
         if isinstance(self.rhs, mt_StaticExpr):
             self.rhs = self.rhs.resolve_static_expr()
 
-        self.lhs.calc_sizes()
-
         # handle "assign integer to bit or bit[]" cases.  This code is
         # copy-pasted from the initVal handling in DeclStmt.
         #
@@ -531,6 +529,7 @@ class g_ConnStmt(ASTNode):
            isinstance(self.rhs, mt_PlugExpr) == False:
             assert False    # TODO: implement other variants
 
+        self.lhs.calc_sizes()
         self.rhs.calc_sizes()
 
         # if the type of the var doesn't match the type of the expression, then
@@ -650,59 +649,173 @@ class g_NullStmt(ASTNode):
 
 class g_RuntimeIfStmt(ASTNode):
     def __init__(self, lineInfo_whole, lineInfo_else,
-                       cond, tru_, fals_):
+                       cond, true_stmt, fals_stmt):
 
         self.lineRange_whole = lineInfo_whole
         self. lineInfo_else  = lineInfo_else
 
-        self.cond  = cond
-        self.tru_  = tru_
-        self.fals_ = fals_
+        self.cond      = cond
+        self.true_stmt = true_stmt
+        self.fals_stmt = fals_stmt     # could be None
 
     def deliver_if_conditions(self, cond):
-        true_cond = self.cond
-        fals_cond = g_UnaryExpr(self.lineInfo_else, "!", self.cond)
+        # we must build two conditions, which are sent recursively down through
+        # the sub-statements: one for true, and its negation for false.
+        #
+        # Our original design simply treated the true expression as a simple
+        # expression that we could evaluate, and the NOT as the negation of
+        # same.  But this caused duplicate bits in our tree because we would
+        # traverse through the same sub-expression multiple times (one for
+        # true, another for false).  So we tried to implement once-only
+        # expression evaluation - but we still were *consuming bit space* for
+        # all of the copies.
+        #
+        # We then considered using an mt_PlugExpr_Alias class, which would
+        # simply mirror an existing expression; it basically would be the
+        # equivalent for mt_PlugExpr_Var, but for temporary expressions.  The
+        # original expression would allocate space and would generate bits, and
+        # multiple users could read the result.  (The idea was that the false
+        # copy of the expression would be the alias, and the true would be the
+        # actual expression.)
+        #
+        # But then I realized that, inside a single side of the if(), we are
+        # likely to have multiple connection statements or assertions that must
+        # use the same expression, which would cause this design to fail.  I
+        # thought about using Alias on *both* sides, but how then would we
+        # ensure that there was a non-Alias version of the expression somewhere
+        # in the tree?
+        #
+        # In the end, I decided to use the double-Alias strategy, but to then
+        # hang both of those conditions on this object; then, it would be the
+        # if() statement itself which was responsible for ensuring that the
+        # conditions allocate real space in the bit-space and have the proper
+        # entries in the wiring diagram; both sides would have Alias objects,
+        # which could read those bits but not allocate space for them.
+        #
+        # Is this wasteful?  Will we sometimes generate condition bits which
+        # are never used?  Possibly.  But this should be rare.  How many HWC
+        # programs will include if() statements that have no connections inside
+        # them?  I'm willing to generate sub-optimal wiring diagrams for such
+        # oddballs.  And you'll see that, if the else doesn't exist, we will
+        # not even generate the false condition, so that's harmless, too.
 
-        if cond is not None:
-            # TODO: put the old condition ('cond') on the left side
-            true_cond = g_BinaryExpr(self.lineRange_whole, true_cond, "&", cond)
-            fals_cond = g_BinaryExpr(self. lineInfo_else,  fals_cond, "&", cond)
 
-        self.tru_ .deliver_if_conditions(true_cond)
-        self.fals_.deliver_if_conditions(fals_cond)
+        # the condition that was given for this if() statement, in the grammar,
+        # is at self.cond.  We need to create a false version of that; this
+        # will do a NOT of the condition, but before we fork the condition into
+        # two pieces, we must wrap an Alias around it.  Note that we keep an
+        # original, non-Alias-ed version of the condition around.
+        true_cond_base = self.cond
+        if self.fals_stmt is not None:
+            fals_cond_base = g_UnaryExpr(self.lineInfo_else, "!", mt_PlugExpr_Alias(self.cond))
 
+        # next, if an incoming condition was given, then we update those two
+        # conditions to AND in the incoming condition.  These are saved into
+        # the object for later inclusion in the wiring diagram
+        if cond is None:
+            self.true_cond = true_cond_base
+            if self.fals_stmt is not None:
+                self.fals_cond = fals_cond_base
+        else:
+            self.true_cond = g_BinaryExpr(self.lineRange_whole, cond, "&", true_cond_base)
+            if self.fals_stmt is not None:
+                self.fals_cond = g_BinaryExpr(self.lineRange_whole, cond, "&", fals_cond_base)
+
+        # each of the two conditions is wrapped in an Alias before it is sent
+        # down, into the statement below.
+        true_cond_alias = mt_PlugExpr_Alias(self.true_cond)
+        if self.fals_stmt is not None:
+            fals_cond_alias = mt_PlugExpr_Alias(self.fals_cond)
+        
+        # forget the original, un-joined, un-Alias-ed condition expression.
         self.cond = "delivered down the tree, do not use here anymore"
+
+        # now that we have built 2 versions of each condition, we can push
+        # those versions down the tree
+        self.true_stmt.deliver_if_conditions(true_cond_alias)
+        if self.fals_stmt is not None:
+            self.fals_stmt.deliver_if_conditions(fals_cond_alias)
 
     def populate_name_scopes(self):
         pass
     def resolve_name_lookups(self):
-        self.tru_ .resolve_name_lookups()
-        self.fals_.resolve_name_lookups()
+        self.true_cond.resolve_name_lookups()
+        self.true_stmt.resolve_name_lookups()
+
+        if self.fals_stmt is not None:
+            self.fals_cond.resolve_name_lookups()
+            self.fals_stmt.resolve_name_lookups()
 
     def convert_exprs_to_metatypes(self):
-        self.tru_ .convert_exprs_to_metatypes()
-        self.fals_.convert_exprs_to_metatypes()
+        self.true_cond = self.true_cond.convert_to_metatype("right")
+        self.true_stmt.convert_exprs_to_metatypes()
+
+        if self.fals_stmt is not None:
+            self.fals_cond = self.fals_cond.convert_to_metatype("right")
+            self.fals_stmt.convert_exprs_to_metatypes()
 
     def calc_sizes(self):
-        self.tru_ .calc_sizes()
-        self.fals_.calc_sizes()
-        self.decl_bitSize = self.tru_.decl_bitSize + self.fals_.decl_bitSize
+        self.true_cond.calc_sizes()
+        self.true_stmt.calc_sizes()
+        true_size = self.true_cond.decl_bitSize + self.true_stmt.decl_bitSize
+
+        if self.fals_stmt is not None:
+            self.fals_cond.calc_sizes()
+            self.fals_stmt.calc_sizes()
+            fals_size = self.fals_cond.decl_bitSize + self.fals_stmt.decl_bitSize
+        else:
+            fals_size = 0
+
+        self.decl_bitSize = true_size + fals_size
+
+#        print(f"SIZES {self.true_cond.decl_bitSize} {self.true_stmt.decl_bitSize} {self.fals_cond.decl_bitSize} {self.fals_stmt.decl_bitSize}")
 
     def calc_top_down_offsets(self, offset):
-        self.tru_ .calc_top_down_offsets(offset)
-        self.fals_.calc_top_down_offsets(offset + self.tru_.decl_bitSize)
+        running_offset = offset
+
+        self.true_cond.calc_top_down_offsets(running_offset)
+        running_offset += self.true_cond.decl_bitSize
+
+        self.true_stmt.calc_top_down_offsets(running_offset)
+        running_offset += self.true_stmt.decl_bitSize
+
+        if self.fals_stmt is not None:
+            self.fals_cond.calc_top_down_offsets(running_offset)
+            running_offset += self.fals_cond.decl_bitSize
+
+            self.fals_stmt.calc_top_down_offsets(running_offset)
+
+#        print(f"TOP-DOWN OFFSETS {offset} : sizes {self.true_cond.decl_bitSize} {self.true_stmt.decl_bitSize} {self.fals_cond.decl_bitSize} {self.fals_stmt.decl_bitSize} : {self.true_cond.offset} {self.fals_cond.offset}")
 
     def calc_bottom_up_offsets(self):
-        self.tru_ .calc_bottom_up_offsets()
-        self.fals_.calc_bottom_up_offsets()
+        self.true_cond.calc_bottom_up_offsets()
+        self.true_stmt.calc_bottom_up_offsets()
+
+        if self.fals_stmt is not None:
+            self.fals_cond.calc_bottom_up_offsets()
+            self.fals_stmt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
-        self.tru_ .print_bit_descriptions(name, start_bit)
-        self.fals_.print_bit_descriptions(name, start_bit)
+        self.true_cond.print_bit_descriptions(name, start_bit)
+        self.true_stmt.print_bit_descriptions(name, start_bit)
+
+        if self.fals_stmt is not None:
+            self.fals_cond.print_bit_descriptions(name, start_bit)
+            self.fals_stmt.print_bit_descriptions(name, start_bit)
 
     def print_wiring_diagram(self, start_bit):
-        self.tru_ .print_wiring_diagram(start_bit)
-        self.fals_.print_wiring_diagram(start_bit)
+#        print(f"A     id={self.true_cond.offset}")
+        self.true_cond.print_wiring_diagram(start_bit)
+#        print(f"B     id={self.true_cond.offset}")
+        self.true_stmt.print_wiring_diagram(start_bit)
+
+        if self.fals_stmt is not None:
+#            print(f"C     id={self.true_cond.offset}")
+            self.fals_cond.print_wiring_diagram(start_bit)
+#            print(f"D     id={self.true_cond.offset}")
+            self.fals_stmt.print_wiring_diagram(start_bit)
+
+#        print(f"E     id={self.true_cond.offset}")
 
 
 
@@ -749,9 +862,6 @@ class g_AssertStmt(ASTNode):
 class g_BinaryExpr(ASTNode):
     def __init__(self, lineInfo, lft, op, rgt):
         self.lineInfo = lineInfo
-
-        assert not isinstance(lft, mt_PlugExpr)
-        assert not isinstance(rgt, mt_PlugExpr)
 
         assert type(op) == str
         self.lft = lft

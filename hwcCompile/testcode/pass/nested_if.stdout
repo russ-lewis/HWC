@@ -3,19 +3,19 @@
 #      2        main.c
 #      3        main.d
 #      4      8 main.out
-#     13        main._EQ_13
-#     16        main._EQ_16
-#      8        main._AND_8
-#     12        main._NOT_12
-#     11        main._AND_11
-#     15        main._NOT_15
+#      8        main._EQ_8
+#      9        main._EQ_9
+#     10        main._AND_10
+#     11        main._NOT_11
+#     12        main._AND_12
+#     13        main._NOT_13
 
-logic 13 <= 2 EQ 3 size 1    # FILE:7:9
-logic 16 <= 0 EQ 1 size 1    # FILE:6:8
-logic 8 <= 13 AND 16 size 1    # FILE:7-10
-conn 4 <= int(0) size 4 cond 8    FILE:8
-logic 12 <= NOT 13 size 1    # FILE:9:3
-logic 11 <= 12 AND 16 size 1    # FILE:9:3
-conn 4 <= int(1) size 4 cond 11    FILE:10
-logic 15 <= NOT 16 size 1    # FILE:11:2
-conn 4 <= int(2) size 4 cond 15    FILE:12
+logic 8 <= 0 EQ 1 size 1    # FILE:6:8
+logic 9 <= 2 EQ 3 size 1    # FILE:7:9
+logic 10 <= 8 AND 9 size 1    # FILE:7-10
+conn 4 <= int(0) size 4 cond 10    FILE:8
+logic 11 <= NOT 9 size 1    # FILE:9:3
+logic 12 <= 8 AND 11 size 1    # FILE:7-10
+conn 4 <= int(1) size 4 cond 12    FILE:10
+logic 13 <= NOT 8 size 1    # FILE:11:2
+conn 4 <= int(2) size 4 cond 13    FILE:12

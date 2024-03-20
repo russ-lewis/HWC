@@ -1,7 +1,7 @@
 #      0      4 main.dummy.state(r)
 #      4      8 main.dummy.state(w)
 #      8     12 main.dummy.out
-#     12     16 main.dummy._NOT_12
+#     12 16     main.dummy._NOT_12
 
 mem r 0 w 4 size 4    # TODO: line number
 conn 8 <= 0 size 4    FILE:7
