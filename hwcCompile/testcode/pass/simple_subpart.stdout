@@ -5,11 +5,11 @@
 #      4        main.b.output
 #      5        main._EQ_5
 
-conn 1 <= 0 size 1    FILE:5
-conn 0 <= int(0) size 1    FILE:11
+conn 1 <= 0 size 1    # FILE:5
+conn 0 <= int(0) size 1    # FILE:11
 logic 2 <= 1 EQ int(0) size 1    # FILE:12:20
 assert 2    # FILE:12
-conn 4 <= 3 size 1    FILE:5
-conn 3 <= int(1) size 1    FILE:15
+conn 4 <= 3 size 1    # FILE:5
+conn 3 <= int(1) size 1    # FILE:15
 logic 5 <= 4 EQ int(1) size 1    # FILE:16:20
 assert 5    # FILE:16

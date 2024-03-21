@@ -619,7 +619,7 @@ class g_ConnStmt(ASTNode):
         else:
             fromStr = f"{start_bit+self.rhs.offset}"
 
-        print(f"conn {start_bit+self.lhs.offset} <= {fromStr} size {self.lhs.typ_.decl_bitSize}{cond}    {self.lineRange}")
+        print(f"conn {start_bit+self.lhs.offset} <= {fromStr} size {self.lhs.typ_.decl_bitSize}{cond}    # {self.lineRange}")
 
 
 

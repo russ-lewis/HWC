@@ -1,4 +1,4 @@
 #      0        main.input
 #      1        main.output
 
-conn 1 <= 0 size 1    FILE:5
+conn 1 <= 0 size 1    # FILE:5

@@ -4,7 +4,7 @@
 #      3        main.bar
 #      4        main.baz
 
-conn 0 <= 1 size 1    FILE:10
-conn 2 <= 3 size 1    FILE:11
-conn 3 <= 4 size 1    FILE:12
-conn 1 <= 2 size 1    FILE:13
+conn 0 <= 1 size 1    # FILE:10
+conn 2 <= 3 size 1    # FILE:11
+conn 3 <= 4 size 1    # FILE:12
+conn 1 <= 2 size 1    # FILE:13

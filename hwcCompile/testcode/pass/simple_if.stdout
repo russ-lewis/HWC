@@ -48,74 +48,74 @@
 #     55        main._EQ_55
 
 logic 4 <= 0 EQ int(0) size 1    # FILE:7:14
-conn 3 <= 1 size 1 cond 4    FILE:8
+conn 3 <= 1 size 1 cond 4    # FILE:8
 logic 5 <= NOT 4 size 1    # FILE:9:2
-conn 3 <= 2 size 1 cond 5    FILE:10
-conn 1 <= int(0) size 1    FILE:16
-conn 2 <= int(0) size 1    FILE:17
-conn 0 <= int(0) size 1    FILE:18
+conn 3 <= 2 size 1 cond 5    # FILE:10
+conn 1 <= int(0) size 1    # FILE:16
+conn 2 <= int(0) size 1    # FILE:17
+conn 0 <= int(0) size 1    # FILE:18
 logic 6 <= 3 EQ int(0) size 1    # FILE:19:17
 assert 6    # FILE:19
 logic 11 <= 7 EQ int(0) size 1    # FILE:7:14
-conn 10 <= 8 size 1 cond 4    FILE:8
+conn 10 <= 8 size 1 cond 4    # FILE:8
 logic 12 <= NOT 11 size 1    # FILE:9:2
-conn 10 <= 9 size 1 cond 5    FILE:10
-conn 8 <= int(0) size 1    FILE:22
-conn 9 <= int(0) size 1    FILE:23
-conn 7 <= int(1) size 1    FILE:24
+conn 10 <= 9 size 1 cond 5    # FILE:10
+conn 8 <= int(0) size 1    # FILE:22
+conn 9 <= int(0) size 1    # FILE:23
+conn 7 <= int(1) size 1    # FILE:24
 logic 13 <= 10 EQ int(0) size 1    # FILE:25:17
 assert 13    # FILE:25
 logic 18 <= 14 EQ int(0) size 1    # FILE:7:14
-conn 17 <= 15 size 1 cond 4    FILE:8
+conn 17 <= 15 size 1 cond 4    # FILE:8
 logic 19 <= NOT 18 size 1    # FILE:9:2
-conn 17 <= 16 size 1 cond 5    FILE:10
-conn 15 <= int(0) size 1    FILE:28
-conn 16 <= int(1) size 1    FILE:29
-conn 14 <= int(0) size 1    FILE:30
+conn 17 <= 16 size 1 cond 5    # FILE:10
+conn 15 <= int(0) size 1    # FILE:28
+conn 16 <= int(1) size 1    # FILE:29
+conn 14 <= int(0) size 1    # FILE:30
 logic 20 <= 17 EQ int(0) size 1    # FILE:31:17
 assert 20    # FILE:31
 logic 25 <= 21 EQ int(0) size 1    # FILE:7:14
-conn 24 <= 22 size 1 cond 4    FILE:8
+conn 24 <= 22 size 1 cond 4    # FILE:8
 logic 26 <= NOT 25 size 1    # FILE:9:2
-conn 24 <= 23 size 1 cond 5    FILE:10
-conn 22 <= int(0) size 1    FILE:34
-conn 23 <= int(1) size 1    FILE:35
-conn 21 <= int(1) size 1    FILE:36
+conn 24 <= 23 size 1 cond 5    # FILE:10
+conn 22 <= int(0) size 1    # FILE:34
+conn 23 <= int(1) size 1    # FILE:35
+conn 21 <= int(1) size 1    # FILE:36
 logic 27 <= 10 EQ int(1) size 1    # FILE:37:17
 assert 27    # FILE:37
 logic 32 <= 28 EQ int(0) size 1    # FILE:7:14
-conn 31 <= 29 size 1 cond 4    FILE:8
+conn 31 <= 29 size 1 cond 4    # FILE:8
 logic 33 <= NOT 32 size 1    # FILE:9:2
-conn 31 <= 30 size 1 cond 5    FILE:10
-conn 29 <= int(1) size 1    FILE:40
-conn 30 <= int(0) size 1    FILE:41
-conn 28 <= int(0) size 1    FILE:42
+conn 31 <= 30 size 1 cond 5    # FILE:10
+conn 29 <= int(1) size 1    # FILE:40
+conn 30 <= int(0) size 1    # FILE:41
+conn 28 <= int(0) size 1    # FILE:42
 logic 34 <= 31 EQ int(1) size 1    # FILE:43:17
 assert 34    # FILE:43
 logic 39 <= 35 EQ int(0) size 1    # FILE:7:14
-conn 38 <= 36 size 1 cond 4    FILE:8
+conn 38 <= 36 size 1 cond 4    # FILE:8
 logic 40 <= NOT 39 size 1    # FILE:9:2
-conn 38 <= 37 size 1 cond 5    FILE:10
-conn 36 <= int(1) size 1    FILE:46
-conn 37 <= int(0) size 1    FILE:47
-conn 35 <= int(1) size 1    FILE:48
+conn 38 <= 37 size 1 cond 5    # FILE:10
+conn 36 <= int(1) size 1    # FILE:46
+conn 37 <= int(0) size 1    # FILE:47
+conn 35 <= int(1) size 1    # FILE:48
 logic 41 <= 38 EQ int(0) size 1    # FILE:49:17
 assert 41    # FILE:49
 logic 46 <= 42 EQ int(0) size 1    # FILE:7:14
-conn 45 <= 43 size 1 cond 4    FILE:8
+conn 45 <= 43 size 1 cond 4    # FILE:8
 logic 47 <= NOT 46 size 1    # FILE:9:2
-conn 45 <= 44 size 1 cond 5    FILE:10
-conn 43 <= int(1) size 1    FILE:52
-conn 44 <= int(1) size 1    FILE:53
-conn 42 <= int(0) size 1    FILE:54
+conn 45 <= 44 size 1 cond 5    # FILE:10
+conn 43 <= int(1) size 1    # FILE:52
+conn 44 <= int(1) size 1    # FILE:53
+conn 42 <= int(0) size 1    # FILE:54
 logic 48 <= 45 EQ int(1) size 1    # FILE:55:17
 assert 48    # FILE:55
 logic 53 <= 49 EQ int(0) size 1    # FILE:7:14
-conn 52 <= 50 size 1 cond 4    FILE:8
+conn 52 <= 50 size 1 cond 4    # FILE:8
 logic 54 <= NOT 53 size 1    # FILE:9:2
-conn 52 <= 51 size 1 cond 5    FILE:10
-conn 50 <= int(1) size 1    FILE:58
-conn 51 <= int(1) size 1    FILE:59
-conn 49 <= int(1) size 1    FILE:60
+conn 52 <= 51 size 1 cond 5    # FILE:10
+conn 50 <= int(1) size 1    # FILE:58
+conn 51 <= int(1) size 1    # FILE:59
+conn 49 <= int(1) size 1    # FILE:60
 logic 55 <= 52 EQ int(1) size 1    # FILE:61:17
 assert 55    # FILE:61

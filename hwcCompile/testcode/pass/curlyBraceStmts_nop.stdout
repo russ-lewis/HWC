@@ -1,4 +1,4 @@
 #      0        main.asdf
 #      1        main.jkl
 
-conn 0 <= 1 size 1    FILE:9
+conn 0 <= 1 size 1    # FILE:9
