@@ -34,6 +34,8 @@ class mt_PlugExpr_Var(mt_PlugExpr):
         assert self.offset is None    # we'll resolve this later
 
     def calc_bottom_up_offsets(self):
+        assert self.offset is None
+
         assert type(self.decl.offset) == int and self.decl.offset >= 0
         self.offset = self.decl.offset
 
@@ -85,6 +87,8 @@ class mt_PlugExpr_Dot(mt_PlugExpr):
         self.base.calc_top_down_offsets(offset)
 
     def calc_bottom_up_offsets(self):
+        assert self.offset is None
+
         self.base.calc_bottom_up_offsets()
 
         self.offset = self.base.offset + self.target.offset
@@ -128,7 +132,22 @@ class mt_PlugExpr_Alias(mt_PlugExpr):
         pass
 
     def calc_bottom_up_offsets(self):
-        self.base.calc_bottom_up_offsets()
+        # NOTE: unlike all other Expr objects, we do *NOT* assert that we've
+        #       never calculated our own offset, since (by definition) the
+        #       point of Alias is that it's something that can be used in
+        #       multiple places in the tree.
+
+        # I don't have a great solution for the base here.  If I recurse into
+        # the base, then I end up calculating the offset twice, which triggers
+        # asserts elsewhere.  But if I don't do it, then, depending on the
+        # order in which things are evaluated, I might need the offset before
+        # it's ready.
+        #
+        # I've decided to risk it.  At time of writing, Alias is only used in
+        # RuntimeIf, and RuntimeIf will always evaluate the true before the
+        # false, so it's safe.  I think.  TODO: fix this!
+
+        #self.base.calc_bottom_up_offsets()
 
         assert type(self.base.offset) == int
         assert      self.base.offset  >= 0
@@ -186,6 +205,8 @@ class mt_PlugExpr_SubsetOf(mt_PlugExpr):
         assert self.offset is None    # we'll resolve this later
 
     def calc_bottom_up_offsets(self):
+        assert self.offset is None
+
         self.base.calc_bottom_up_offsets()
         assert type(self.base.offset) == int
         self.offset = self.base.offset + self.offset_cb()
@@ -253,6 +274,8 @@ class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
         self.base.calc_top_down_offsets(offset)
 
     def calc_bottom_up_offsets(self):
+        assert self.offset is None
+
         self.base.calc_bottom_up_offsets()
         self.offset = self.base.offset + self.typ_.decl_bitSize * self.indx
 
@@ -355,6 +378,8 @@ class mt_PlugExpr_ArraySlice(mt_PlugExpr):
         self.base.calc_top_down_offsets(offset)
 
     def calc_bottom_up_offsets(self):
+        assert self.offset is None
+
         self.base.calc_bottom_up_offsets()
         self.offset = self.base.offset + self.typ_.base.decl_bitSize * self.start
 
@@ -502,6 +527,8 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         self.decl_bitSize = self.lft.decl_bitSize + rgtSize + self.typ_.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
+        assert self.offset is None
+
         self.lft.calc_top_down_offsets(offset)
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.calc_top_down_offsets(offset + self.lft.decl_bitSize)
@@ -606,6 +633,8 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
         self.decl_bitSize = self.lft.decl_bitSize + rgtSize + self.typ_.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
+        assert self.offset is None
+
         self.lft.calc_top_down_offsets(offset)
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.calc_top_down_offsets(offset + self.lft.decl_bitSize)
@@ -715,6 +744,8 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
         self.typ_.len_ = self.lft.typ_.len_ + self.rgt.typ_.len_
 
     def calc_top_down_offsets(self, offset):
+        assert self.offset is None
+
         self.offset = offset
         self.lft.calc_top_down_offsets(offset + self.typ_.decl_bitSize)
         self.rgt.calc_top_down_offsets(offset + self.typ_.decl_bitSize + self.lft.decl_bitSize)
@@ -771,6 +802,8 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
         self.decl_bitSize = self.typ_.decl_bitSize + self.rgt.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
+        assert self.offset is None
+
         self.offset = offset
         self.rgt.calc_top_down_offsets(offset + self.typ_.decl_bitSize)
 
