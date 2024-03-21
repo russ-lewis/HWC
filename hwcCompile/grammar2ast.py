@@ -259,7 +259,7 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ctx.base.ast
 
         elif ctx.field is not None:
-            ctx.ast = TODO()
+            ctx.ast = ast.g_DotExpr(ctx.left.ast, ctx.field.text)
 
         elif ctx.a is not None and ctx.colon is None:
             # either declaration of an array type, if the underlying expression

@@ -48,12 +48,66 @@ class mt_PlugExpr_Var(mt_PlugExpr):
 
 
 
+class mt_PlugExpr_Dot(mt_PlugExpr):
+    def __init__(self, base, target):
+        self.base   = base
+        self.target = target
+
+        self.typ_ = self.target.typ_
+
+        self.is_lhs = self.base.is_lhs
+
+        self.decl_bitSize = None
+        self.offset       = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_PlugExpr_Dot:")
+        print(f"{prefix}  base:")
+        self.base.print_tree(prefix+"    ")
+        print(f"{prefix}  target:")
+        self.target.print_tree(prefix+"    ")
+
+    def calc_sizes(self):
+        self.base.calc_sizes()
+
+        # our 'target' field doesn't need to do calc_sizes because it's a
+        # declaration; sizes are handled where it was declared, not where
+        # it gets used.
+
+        # a reference to a field never requires its own bits declared, but it's
+        # possible that the underlying expression might.  It's rare, but one
+        # could imagine someting like a CONCAT that joined two arrays, or even
+        # something like
+        #      (plugVarA & plugVarB).foo
+        self.decl_bitSize = self.base.decl_bitSize
+
+    def calc_top_down_offsets(self, offset):
+        self.base.calc_top_down_offsets(offset)
+
+    def calc_bottom_up_offsets(self):
+        self.base.calc_bottom_up_offsets()
+
+        self.offset = self.base.offset + self.target.offset
+
+    def print_bit_descriptions(self, name, start_bit):
+        self.base.print_bit_descriptions(name, self.base)
+
+    def print_wiring_diagram(self, start_bit):
+        self.base.print_wiring_diagram(start_bit)
+
+
+
 # see long comment in class RuntimeIfStmt
 class mt_PlugExpr_Alias(mt_PlugExpr):
     def __init__(self, base):
         self.base = base
         self.decl_bitSize = None
         self.offset       = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_PlugExpr_Alias:")
+        print(f"{prefix}base:")
+        self.base.print_tree(prefix+"    ")
 
     def resolve_name_lookups(self):
         pass
@@ -402,14 +456,17 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         self.decl_bitSize = None
         self.offset       = None
 
-        self.bit_desc_printed = False
-
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_EQ:")
         print(f"{prefix}  lft:")
         self.lft.print_tree(prefix+"    ")
-        print(f"{prefix}  rgt:")
-        self.rgt.print_tree(prefix+"    ")
+
+        if type(self.rgt) == int:
+            print(f"{prefix}  rgt: {self.rgt}")
+        else:
+            print(f"{prefix}  rgt:")
+            self.rgt.print_tree(prefix+"    ")
+
         print(f"{prefix}  offset: {self.offset}")
 
     def convert_to_metatype(self, side):
@@ -464,11 +521,6 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
             self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
-        # it should be illegal for the same Expr to be used at two places in
-        # the tree.  Use a mt_PlugDecl_Alias if you need to do this.
-        assert not self.bit_desc_printed
-        self.bit_desc_printed = True
-
         self.lft.print_bit_descriptions(name, start_bit)
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.print_bit_descriptions(name, start_bit)
@@ -512,8 +564,6 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
 
         self.decl_bitSize = None
         self.offset       = None
-
-        self.bit_desc_printed = False
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_Logic:   op: {self.op}")
@@ -575,9 +625,6 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
             self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
-        assert not self.bit_desc_printed
-        self.bit_desc_printed = True
-
         self.lft.print_bit_descriptions(name, start_bit)
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.print_bit_descriptions(name, start_bit)
@@ -623,8 +670,6 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
 
         self.decl_bitSize = None
         self.offset       = None
-
-        self.bit_desc_printed = False
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_CONCAT:")
@@ -679,9 +724,6 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
         self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
-        assert not self.bit_desc_printed
-        self.bit_desc_printed = True
-
         start = self.offset
         end   = self.offset + self.typ_.decl_bitSize
         print(f"# {start:6d} {end:6d} {name}._CONCAT_{start}")
@@ -710,8 +752,6 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
         self.decl_bitSize = None
         self.offset       = None
 
-        self.bit_desc_printed = False
-
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_NOT:")
         self.rgt.print_tree(prefix+"  ")
@@ -738,9 +778,6 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
         self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
-        assert not self.bit_desc_printed
-        self.bit_desc_printed = True
-
         self.rgt.print_bit_descriptions(name, start_bit)
 
         start = start_bit + self.offset

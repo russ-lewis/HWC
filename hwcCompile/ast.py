@@ -658,6 +658,28 @@ class g_RuntimeIfStmt(ASTNode):
         self.true_stmt = true_stmt
         self.fals_stmt = fals_stmt     # could be None
 
+    def print_tree(self, prefix):
+        print(f"{prefix}g_RuntimeIfStmt:")
+
+        if type(self.cond) != str:
+            print(f"{prefix}  cond:")
+            self.cond.print_tree(prefix+"    ")
+        else:
+            print(f"{prefix}  true_cond:")
+            self.true_cond.print_tree(prefix+"    ")
+
+            if self.fals_cond is not None:
+                print(f"{prefix}  fals_cond:")
+                self.fals_cond.print_tree(prefix+"    ")
+
+
+        print(f"{prefix}  true_stmt:")
+        self.true_stmt.print_tree(prefix+"    ")
+
+        if self.fals_stmt is not None:
+            print(f"{prefix}  fals_stmt:")
+            self.fals_stmt.print_tree(prefix+"    ")
+
     def deliver_if_conditions(self, cond):
         # we must build two conditions, which are sent recursively down through
         # the sub-statements: one for true, and its negation for false.
@@ -1085,6 +1107,40 @@ class g_NumExpr(ASTNode):
 
     def convert_to_metatype(self, side):
         return mt_StaticExpr_NumExpr(self.num)
+
+
+
+class g_DotExpr(ASTNode):
+    def __init__(self, base, fieldName):
+        self.base      = base
+        self.fieldName = fieldName
+
+        self.offset = None
+
+    def resolve_name_lookups(self):
+        self.base.resolve_name_lookups()
+
+    def convert_to_metatype(self, side):
+        self.base = self.base.convert_to_metatype(side)
+        assert type(self.base) in [mt_PlugExpr_Var, mt_PartExpr_Var]
+
+        self.target = self.base.typ_.code.pub_nameScope.search(self.fieldName)
+        if self.target is None:
+            TODO()    # report syntax error
+        assert(type(self.target) == g_DeclStmt)
+
+
+        # dot expressions can only look up plug fields, because (currently)
+        # only plug fields can be public.
+        assert(           self.target.prefix in ["", "public"])
+        assert(isinstance(self.target.typ_, mt_PlugDecl))
+
+        # we don't (yet) support public memory fields.  Should we add it?
+        assert(self.target.isMem == False)
+
+        # build an Expr object which represents the reference to the field.
+        # It will calculate its offset later.
+        return mt_PlugExpr_Dot(self.base, self.target)
 
 
 
