@@ -1,0 +1,11 @@
+#      0        main.foo
+#      1        main.bar
+#      2        main.a
+#      3        main.b
+#      4        main._EQ_4
+#      5        main._EQ_5
+
+logic 4 <= 0 EQ 1 size 1    # FILE:6:10
+conn 2 <= 3 size 1 cond 4    FILE:7
+logic 5 <= 2 EQ 3 size 1    # FILE:8:8
+conn 0 <= 1 size 1 cond 5    FILE:9

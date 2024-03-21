@@ -1,0 +1,15 @@
+#      0        main.test.input
+#      1        main.test.output
+#      2        main._EQ_2
+#      3        main.test.input
+#      4        main.test.output
+#      5        main._EQ_5
+
+conn 1 <= 0 size 1    FILE:5
+conn 0 <= int(0) size 1    FILE:12
+logic 2 <= 1 EQ int(0) size 1    # FILE:13:24
+assert 2    # FILE:13
+conn 4 <= 3 size 1    FILE:5
+conn 3 <= int(1) size 1    FILE:18
+logic 5 <= 4 EQ int(1) size 1    # FILE:19:24
+assert 5    # FILE:19
