@@ -984,6 +984,18 @@ class NameScope:
         self.parent    = parent
         self.directory = {}
 
+    def dump(self):
+        if self.parent is None:
+            prefix = ""
+        else:
+            prefix = self.parent.dump()
+
+        print(f"{prefix}---- {id(self)}")
+        for n in self.directory:
+            print(f"{prefix}{n}")
+
+        return prefix+"  "
+
     def add(self, name, obj):
         assert obj is not None
         if self.search(name) is not None:
