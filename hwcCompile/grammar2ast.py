@@ -101,7 +101,7 @@ class HWCAstGenerator(hwcListener):
         #       will use the AST object for the Plug/Part for name lookups
         #       *except* for field lookups.
 
-        ctx.ast = ast.g_PartOrPlugDecl(isPart, ns_pub, name, flatten(ctx.stmts))
+        ctx.ast = ast.g_PartOrPlugDecl(isPart, ns_pub,ns_pri, name, flatten(ctx.stmts))
 
 
     def default_enter_stmt(self, ctx):
@@ -120,8 +120,8 @@ class HWCAstGenerator(hwcListener):
     def enterStmt_Block(self, ctx):
         # a {} block creates a new scope for declaring private fields, but
         # we don't support public declarations inside such a scope.
-        ctx.pri_nameScope = ast.NameScope(ctx.parentCtx.pri_nameScope)
         ctx.pub_nameScope = None
+        ctx.pri_nameScope = ast.NameScope(ctx.parentCtx.pri_nameScope)
 
     def exitStmt_Block(self, ctx):
         ns_pub =  ctx.pub_nameScope
@@ -193,7 +193,9 @@ class HWCAstGenerator(hwcListener):
         lineInfo_whole = build_line_range(ctx)
         lineInfo_else  = build_line_info (ctx.els_) if ctx.fals_ is not None else None
 
+        ns_pri_DEP = ctx.pri_nameScope
         ctx.ast = ast.g_RuntimeIfStmt(lineInfo_whole, lineInfo_else,
+                                      ns_pri_DEP,
                                       cond, tru_, fals_)
 
 
