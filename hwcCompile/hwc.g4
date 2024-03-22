@@ -29,7 +29,7 @@ stmt:
 
     | static='static'? 'if' '(' cond=expr ')' tru_=stmt (els_='else' fals_=stmt)?    # stmt_If
 
-    | 'for' '(' IDENT ';' expr '..' expr ')' stmt       # stmt_For
+    | 'for' '(' var=IDENT ';' start=expr '..' end=expr ')' body=stmt ('as' tuple_name=IDENT)?       # stmt_For
 
     | 'assert' '(' exp_=expr ')' ';'    # stmt_Assert
 
