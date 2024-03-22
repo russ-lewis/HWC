@@ -1,3 +1,25 @@
+RETHINK
+
+I originally wrote the text at the bottom of this document, but I realized
+in time that it was a bad idea.  Too much code (including my own habits)
+use len() as a function to find the last index of an array...having nonzero
+starting indices is just going to lead to bugs.
+
+Not to mention, what happens when you slice an array?  Does the slice start
+with index 0 or not?  What if the original array didn't start with zero?
+
+So I have an ugly (?) but simple solution: ban named for() loops, if the
+starting index is nonzero.  That is, you have for() loops which start at
+nonzero, but you cannot name them.  So problem solved!
+
+And if a user *really* insists on a nonzero start index, tell them to do
+the following:
+  for (i; 0..256) as this_is_ugly
+    if (i >= 128)
+    {  ... code ... }
+
+-----------------
+
 When I added the named for() loop syntax
     for (int i; 0..32) as adder_loop { ... }
 I very quickly realized that I would have to implement array expressions where
