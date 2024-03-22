@@ -65,12 +65,13 @@ class g_File(ASTNode):
 
     def deliver_if_conditions(self):
         for d in self.decls:
-            d.deliver_if_conditions()
+            d.deliver_if_conditions(None)
 
     def populate_name_scopes(self):
         for d in self.decls:
             assert type(d) == g_PartOrPlugDecl    # TODO: someday, support functions and static constants
 
+            assert d.name is not None     # name is none iff part was generic instantiation, which doesn't happen here (yet!)
             self.nameScope.add(d.name, d)
             d.populate_name_scopes()
 
@@ -107,7 +108,7 @@ class g_PartOrPlugDecl(ASTNode):
         assert type(ns_pub) == NameScope
         self.pub_nameScope = ns_pub
         self.isPart        = isPart
-        self.name          = name
+        self.name          = name      # is None iff this is a generic instantiation
         self.stmts         = stmts
         self.decl_bitSize  = None
     def __repr__(self):
@@ -119,7 +120,11 @@ class g_PartOrPlugDecl(ASTNode):
             d.print_tree(prefix+"  ")
 
 
-    def deliver_if_conditions(self):
+    def deliver_if_conditions(self, cond):
+        # if() conditions into a part do not exist except for instantiated generic parts
+        if cond is not None:
+            TODO()    # implement me
+
         for s in self.stmts:
             s.deliver_if_conditions(None)
 
@@ -748,7 +753,7 @@ class g_RuntimeIfStmt(ASTNode):
         true_cond_alias = mt_PlugExpr_Alias(self.true_cond)
         if self.fals_stmt is not None:
             fals_cond_alias = mt_PlugExpr_Alias(self.fals_cond)
-        
+
         # forget the original, un-joined, un-Alias-ed condition expression.
         self.cond = "delivered down the tree, do not use here anymore"
 
@@ -985,6 +990,7 @@ class NameScope:
         self.directory = {}
 
     def add(self, name, obj):
+        assert type(name) == str
         assert obj is not None
         if self.search(name) is not None:
             assert False, "report syntax error"
@@ -997,6 +1003,18 @@ class NameScope:
             return None
         else:
             return self.parent.search(name)
+
+    def dump(self):
+        if self.parent is not None:
+            prefix = self.parent.dump()
+        else:
+            prefix = ""
+
+        print(f"{prefix}---- id {id(self)} ----")
+        for n in self.directory:
+            print(f"{prefix}{n}")    # -> {self.directory[n]}")
+
+        return prefix+"  "
 
 
 
@@ -1037,7 +1055,9 @@ class g_IdentExpr(ASTNode):
     def resolve_name_lookups(self):
         self.target = self.nameScope.search(self.name)
         if self.target is None:
-            assert False, "report syntax error"
+            self.nameScope.dump()
+            print()
+            assert False, ("report syntax error", self.name)
 
     def convert_to_metatype(self, side):
         if self.saved_metatype is None:
@@ -1247,4 +1267,135 @@ class g_ArraySlice(ASTNode):
             return mt_PlugExpr_ArraySlice(base, start,end)
         else:
             TODO()
+
+
+
+class g_Generic_PartOrPlugDecl(ASTNode):
+    def __init__(self, arg_decls, isPart, ns_pub, stmts):
+        for k in arg_decls:
+            assert type(k) == str
+            if ns_pub.search(k) is not None:
+                TODO()    # the argument name shadows an existing name
+
+        self.arg_decls = arg_decls
+        self.isPart    = isPart
+        self.ns_pub    = ns_pub
+        self.stmts     = stmts
+
+    def instantiate(self, arg_vals):
+        assert len(arg_vals) == len(self.arg_decls), (len(arg_vals), len(self.arg_decls))
+
+        ns_to_send = NameScope(self.ns_pub)
+
+        args = {}
+        for k in arg_vals:
+            assert type(k) == str
+
+            if k not in self.arg_decls:
+                TODO()    # mismatched key name
+            d = self.arg_decls[k]
+            v =      arg_vals [k]
+
+            # TODO: support more general argument types!
+            if d != "int":    # TODO: use the 'int' type from static_types.py
+                TODO()
+            if type(v) != int:
+                TODO()
+
+            ns_to_send.add(k,v)
+
+        return g_PartOrPlugDecl(self.isPart, ns_to_send, None, self.stmts)
+
+
+
+class g_Tuple(ASTNode):
+    def __init__(self, vals):
+        assert len(vals) > 0
+        self.vals = vals
+
+    def deliver_if_conditions(self, cond):
+        for v in self.vals:
+            v.deliver_if_conditions(cond)
+
+    def populate_name_scopes(self):
+        for v in self.vals:
+            v.populate_name_scopes()
+
+    def resolve_name_lookups(self):
+        for v in self.vals:
+            v.resolve_name_lookups()
+
+
+
+class g_ForStmt(ASTNode):
+    def __init__(self, nameScope, var_name, start,end, body, tuple_name):
+        # our constructor strategy:
+        #
+        #   1) build a generic part, which represents a single pass of this
+        #      for() loop.  Its name scope will be derived from the private
+        #      name scope of this statement, and thus have access to private
+        #      fields in this context.
+        #
+        #   2) build a Tuple object, whose elements are instances of that
+        #      generic part.  Save this as the only 'self' of this class.
+        #
+        #   3) if tuple_name is not None, then create a name in the enclosing
+        #      private name scope which refers to the tuple.
+
+        # ---- STEP 1 - GENERIC PART ----
+
+        assert type(var_name) == str
+        if nameScope.search(var_name) is not None:
+            TODO()    # report syntax error
+
+        generic_args = {var_name:"int"}
+
+        generic_partDecl = g_Generic_PartOrPlugDecl(generic_args,
+                                                    True,    # isPart
+                                                    nameScope,
+                                                    [body])
+
+        # ---- STEP 2 - INSTANTIATION, TUPLE BUILD ----
+
+        # how do we handle start,end values that are not NumExpr?  I think
+        # that, to get this right, we actually have to defer all of these
+        # instantiations until after calc_sizes(), right?  Can we get that
+        # done, somehow???
+        if type(start) != g_NumExpr or type(end) != g_NumExpr:
+            TODO()
+
+        start = start.num
+        end   = end  .num
+        if start > end:
+            TODO()    # syntax error
+        if start == end:
+            TODO()    # syntax error, for now.  Will I allow it later???
+
+        passes = []
+        for i in range(start, end):
+            passes.append( generic_partDecl.instantiate( {var_name:i} ))
+        self.tupl_ = g_Tuple(passes)
+
+        # ---- STEP 3 - TUPLE_NAME ----
+
+        if tuple_name is not None:
+            TODO()    # same as decl_stmt ???
+
+
+    def deliver_if_conditions(self, cond):
+        if cond is not None:
+            TODO()    # implement me.  I think the best way to communicate if() into a for() loop would be to add a runtime variable as a public, anonymous field.  But I need to give that field a name, and devise the name such that nested for() loops are not having the same name.  I haven't figured that out, yet.
+
+        self.tupl_.deliver_if_conditions(None)
+
+    def populate_name_scopes(self):
+        # we have already saved our index name into the name scope of the
+        # generic type we built.  So we don't need to do this work.  But
+        # we need to let the statements inside us do their declarations,
+        # if any.
+
+        self.tupl_.populate_name_scopes()
+
+    def resolve_name_lookups(self):
+        self.tupl_.resolve_name_lookups()
 

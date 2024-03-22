@@ -106,7 +106,23 @@ class HWCAstGenerator(hwcListener):
 
     def default_enter_stmt(self, ctx):
         # for every statement type except DeclStmt, public field declarations
-        # nested inside it are illegal.
+        # nested inside it are illegal.  (You can declare public fields inside
+        # a for() loop, but they are public only in the sense that they are
+        # visible outside the for() loop.  They are not visible outside the
+        # part that declares the for() loop.
+        #
+        # What about double for() loops?  Should the enclosing part be able to
+        # see inside the 2nd-level for() loop?  That seems reasonable.  So
+        # maybe we'll make a distinction about that in the future.  TODO
+        # But remember to think about cases where the for() loops are not
+        # contiguous.  What about the nasty case of:
+        #      for (i; ...) as outer
+        #          if (x)
+        #              for (j; ...) as inner;
+        #          else
+        #              for (j; ...) as inner;
+        # Big difficult TODO, it turns out!
+
         ctx.pub_nameScope = None
         ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
 
@@ -204,6 +220,52 @@ class HWCAstGenerator(hwcListener):
 
         # if() statements that wrap this statement will want to know this
         ctx.uncovered_else = False
+
+
+    def enterStmt_For(self, ctx):
+        # see the long comment in default_enter_stmt() to understand the basics
+        # here.  But then come back, and read about generics.
+        #
+        # A for() statement is implemented as a generic Part declaration, which
+        # is then instantiated many times - once for each pass of the loop.
+        # This makes it easy to handle the iterator variable, since it is
+        # simply the one and only parameter of the generic type.
+        #
+        # But generic types are nastier than I realized at first, because all
+        # of the expressions inside them have parameters (specifically, size
+        # offset, but maybe more), which can vary from instantiation to
+        # instantiation.
+        #
+        # The only solution, really, is to DUPLICATE THE AST for each
+        # instantiation.  And each duplicate will need a different set of
+        # name scopes, becuase at least the iterator variable will be different
+        # in each expression.  But the NameScope tree is built early, in the
+        # enter() functions - even though we won't be able to instantiate many
+        # parts until the calc_sizes() phase!!!
+        #
+        # My solution is to create a *DUMMY NAMESCOPE* here.  A NameScope will
+        # have a parent which is a *string* instead of a real NameScope; when
+        # we instantiate the generic, we will, in each duplicate, replace the
+        # string with a true parent object, which has as its own parent the
+        # private name scope that enclosed the for() loop, and which has a
+        # single name of its own: the value of the iterator variable.  As we
+        # recurse through the AST, duplicating it, we will replace each 
+TODO: we can use a class, with stub functions, and handle this in the ForStmt code.  And perhaps we can *defer* delivering any NameScope objects until later?  Maybe this becomes a post-processing recursion step (like deliver_if_condition()) instead of something that we figure out in the enter functions?  Time for a branch, I think!
+
+        ctx.pub_nameScope = None
+        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
+
+    def exitStmt_For(self, ctx):
+        ns_pri = ctx.pri_nameScope
+
+        var   = ctx.var.text
+        start = ctx.start.ast
+        end   = ctx.end  .ast
+        body  = ctx.body .ast
+
+        tuple_name = ctx.tuple_name.text if ctx.tuple_name is not None else None
+
+        ctx.ast = ast.g_ForStmt(ns_pri, var, start,end, body, tuple_name)
 
 
     def default_enter_expr(self, ctx):
