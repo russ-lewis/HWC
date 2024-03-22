@@ -50,8 +50,8 @@ from ast_expr_metatypes import *;
 
 
 class g_File(ASTNode):
-    def __init__(self, nameScope, decls):
-        self.nameScope = nameScope
+    def __init__(self, decls):
+        self.nameScope = NameScope(None)
         self.decls     = decls
     def __repr__(self):
         return f"ast.File({self.decls})"
@@ -101,13 +101,14 @@ class g_File(ASTNode):
 
 
 class g_PartOrPlugDecl(ASTNode):
-    def __init__(self, isPart, ns_pub,ns_pri, name, stmts):
-        self.pub_nameScope = ns_pub
-        self.pri_nameScope_DEP = ns_pri
+    def __init__(self, isPart, name, stmts):
+        self.pub_nameScope = None      # for external lookup of our fields
+        self.pri_nameScope = None      # for passing to statements in resolve_name_lookups()
         self.isPart        = isPart
         self.name          = name
         self.stmts         = stmts
         self.decl_bitSize  = None
+
     def __repr__(self):
         return f"ast.g_PartDecl({self.name}, {self.stmts})"
 
@@ -121,18 +122,41 @@ class g_PartOrPlugDecl(ASTNode):
         for s in self.stmts:
             s.deliver_if_conditions(None)
 
-    def populate_name_scopes(self, ns_pub):    # POPDecl has only 1 parmeter, since it inherits only the public scope.
-        assert ns_pub == self.pri_nameScope_DEP.parent
-        assert self.pub_nameScope.parent is None
+    def populate_name_scopes(self, ns_pri):
+        # a part or plug declaration has *TWO* nameScope objects.  The "public"
+        # nameScope is for use by external code, which is attempting to access
+        # the fields of the part.  This will *only* include fields that are
+        # declared public, which cannot (currently) include static variables
+        # and subparts.  (Note that in a plug, *all* declarations are assumed
+        # to be public.)
+        #
+        # The "private" nameScope is for use by internal code, to access the
+        # fields and subparts declared inside this part.  Or rather, this is
+        # the nameScope used for *all* lookups by code inside this part (or
+        # plug).  It has the public fields, of course, and the private fields -
+        # but also includes a parent pointer to the enclosing scope.
+        #
+        # (Why do plugs have a private nameScope for lookup, when they can't
+        # have any statements other than declarations?  Because those
+        # declarations have expressions inside them, and the expressions might
+        # do name lookups for the fields of the plug, such as "typeof(fieldX)".
+        # Plus, we're planning ahead for the future, when plugs might include
+        # static-if statements.)
+        #
+        # When we build a new nameScope inside a part or plug (as part of an
+        # if() or curly-brace statement), it is always a child of the "private"
+        # nameScope.
+
+        self.pub_nameScope = NameScope(None)      # for others, to find our fields
+        self.pri_nameScope = NameScope(ns_pri)    # for our own stmts
 
         for s in self.stmts:
-            s.populate_name_scopes(self.pub_nameScope, self.pri_nameScope_DEP)
+            s.populate_name_scopes(self.pub_nameScope, self.pri_nameScope)
 
     def resolve_name_lookups(self, ns_pri):
-        assert ns_pri == self.pri_nameScope_DEP.parent
-
+        assert ns_pri == self.pri_nameScope.parent
         for s in self.stmts:
-            s.resolve_name_lookups(self.pri_nameScope_DEP)
+            s.resolve_name_lookups(self.pri_nameScope)
 
     def convert_exprs_to_metatypes(self):
         for d in self.stmts:
@@ -173,10 +197,8 @@ class g_PartOrPlugDecl(ASTNode):
 
 
 class g_BlockStmt(ASTNode):
-    def __init__(self, ns_pub,ns_pri, stmts):
-        assert ns_pub is None
-        self.pri_nameScope = ns_pri
-
+    def __init__(self, stmts):
+        self.pri_nameScope = None
         self.stmts         = stmts
         self.decl_bitSize  = None
 
@@ -185,14 +207,17 @@ class g_BlockStmt(ASTNode):
             s.deliver_if_conditions(cond)
 
     def populate_name_scopes(self, ns_pub,ns_pri):
-        assert ns_pri == self.pri_nameScope.parent
+        # we do *NOT* pass the public NameScope along, because we don't allow
+        # public fields inside block statements.  And we wrap the existing
+        # private NameScope in another because block statements create new
+        # name scopes.
 
+        self.pri_nameScope = NameScope(ns_pri)
         for s in self.stmts:
             s.populate_name_scopes(None, self.pri_nameScope)
 
     def resolve_name_lookups(self, ns_pri):
         assert ns_pri == self.pri_nameScope.parent
-
         for s in self.stmts:
             s.resolve_name_lookups(self.pri_nameScope)
 
@@ -226,11 +251,7 @@ class g_BlockStmt(ASTNode):
 
 
 class g_DeclStmt(ASTNode):
-    def __init__(self, ns_pub,ns_pri, prefix, isMem, typ_, name, initVal):
-        assert ns_pub is None or type(ns_pub) == NameScope
-        assert                   type(ns_pri) == NameScope
-        self.pub_nameScope_DEP = ns_pub
-        self.pri_nameScope_DEP = ns_pri
+    def __init__(self, prefix, isMem, typ_, name, initVal):
         self.prefix        = prefix
         self.isMem         = isMem
         self.typ_          = typ_
@@ -266,26 +287,21 @@ class g_DeclStmt(ASTNode):
         pass
 
     def populate_name_scopes(self, ns_pub,ns_pri):
-        assert ns_pub == self.pub_nameScope_DEP
-        assert ns_pri == self.pri_nameScope_DEP
-
         # declarations always add to the private nameScope.  But we only add to
         # the public nameScope if this is a public declaration.  (Note that
         # public declarations are not legal inside block statements.)
 
-        self.pri_nameScope_DEP.add(self.name, self)
+        ns_pri.add(self.name, self)
 
         if self.prefix == "public":
-            if self.pub_nameScope_DEP is None:
+            if ns_pub is None:
                 print()
                 self.print_tree("")
                 print()
                 TODO()    # report syntax error: can only declare public field at top scope
-            self.pub_nameScope_DEP.add(self.name, self)
+            ns_pub.add(self.name, self)
 
     def resolve_name_lookups(self, ns_pri):
-        assert ns_pri == self.pri_nameScope_DEP
-
         self.typ_.resolve_name_lookups(ns_pri)
         if self.initVal is not None:
             self.initVal.resolve_name_lookups(ns_pri)
@@ -663,10 +679,7 @@ class g_NullStmt(ASTNode):
 
 class g_RuntimeIfStmt(ASTNode):
     def __init__(self, lineInfo_whole, lineInfo_else,
-                       pri_nameScope,
                        cond, true_stmt, fals_stmt):
-
-        self.pri_nameScope_DEP = pri_nameScope
 
         self.lineRange_whole = lineInfo_whole
         self. lineInfo_else  = lineInfo_else
@@ -776,10 +789,12 @@ class g_RuntimeIfStmt(ASTNode):
             self.fals_stmt.deliver_if_conditions(fals_cond_alias)
 
     def populate_name_scopes(self, ns_pub,ns_pri):
-        pass
-    def resolve_name_lookups(self, ns_pri):
-        assert ns_pri == self.pri_nameScope_DEP
+        self.true_stmt.populate_name_scopes(ns_pub,ns_pri)
 
+        if self.fals_stmt is not None:
+            self.fals_stmt.populate_name_scopes(ns_pub,ns_pri)
+
+    def resolve_name_lookups(self, ns_pri):
         self.true_cond.resolve_name_lookups(ns_pri)
         self.true_stmt.resolve_name_lookups(ns_pri)
 
@@ -1050,8 +1065,7 @@ def IntType():
 class g_IdentExpr(ASTNode):
     leafNode  = True
 
-    def __init__(self, nameScope, name):
-        self.nameScope_DEP = nameScope
+    def __init__(self, name):
         self.name   = name
         self.target = None
 
@@ -1066,8 +1080,6 @@ class g_IdentExpr(ASTNode):
         print(f"{prefix}{self}")
 
     def resolve_name_lookups(self, ns_pri):
-        assert ns_pri == self.nameScope_DEP
-
         self.target = ns_pri.search(self.name)
         if self.target is None:
             assert False, "report syntax error"
@@ -1178,8 +1190,7 @@ class g_DotExpr(ASTNode):
 
 
 class g_Unresolved_Single_Index_Expr(ASTNode):
-    def __init__(self, nameScope, base, indx):
-        self.nameScope_DEP = nameScope
+    def __init__(self, base, indx):
         self.base      = base
         self.indx      = indx
 
@@ -1202,8 +1213,6 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
 
 
     def resolve_name_lookups(self, ns_pri):
-        assert ns_pri == self.nameScope_DEP
-
         self.base.resolve_name_lookups(ns_pri)
         self.indx.resolve_name_lookups(ns_pri)
 
