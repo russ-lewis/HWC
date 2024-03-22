@@ -77,3 +77,14 @@ part Sim1_SUB
 	out = adder.sum;
 }
 
+part main
+{
+    subpart Sim1_AND and;
+    subpart Sim1_OR  or;
+    subpart Sim1_NOT not;
+    subpart Sim1_XOR xor;
+    subpart Sim1_ADD add;
+    subpart Sim1_2sComplement twosComp;
+    subpart Sim1_SUB sub;
+}
+

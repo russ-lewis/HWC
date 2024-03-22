@@ -1,4 +1,4 @@
-part safe_loop_connections
+part main
 {
 	public bit[6]  breakAt;
 	public bit[64] points;
