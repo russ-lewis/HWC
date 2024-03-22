@@ -794,18 +794,25 @@ class g_RuntimeIfStmt(ASTNode):
             self.fals_stmt.deliver_if_conditions(fals_cond_alias)
 
     def populate_name_scopes(self, ns_pub,ns_pri):
-        self.true_stmt.populate_name_scopes(ns_pub,ns_pri)
+        # see comments in BlockStmt about why we change the NameScope objs
+
+        self.true_ns = NameScope(ns_pri)
+        self.true_stmt.populate_name_scopes(None, self.true_ns)
 
         if self.fals_stmt is not None:
-            self.fals_stmt.populate_name_scopes(ns_pub,ns_pri)
+            self.fals_ns = NameScope(ns_pri)
+            self.fals_stmt.populate_name_scopes(None, self.fals_ns)
 
     def resolve_name_lookups(self, ns_pri):
+        # the *condition* expressions should use the enclosing name scope.
+        # But the statements need the interior ones.
+
         self.true_cond.resolve_name_lookups(ns_pri)
-        self.true_stmt.resolve_name_lookups(ns_pri)
+        self.true_stmt.resolve_name_lookups(self.true_ns)
 
         if self.fals_stmt is not None:
             self.fals_cond.resolve_name_lookups(ns_pri)
-            self.fals_stmt.resolve_name_lookups(ns_pri)
+            self.fals_stmt.resolve_name_lookups(self.fals_ns)
 
     def convert_exprs_to_metatypes(self):
         self.true_cond = self.true_cond.convert_to_metatype("right")
