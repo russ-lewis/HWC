@@ -6,9 +6,9 @@ class ASTNode:
     # default value for the base class
     leafNode = False
 
-    def populate_name_scopes(self):
+    def populate_name_scopes(self, ns_pub,ns_pri):
         assert False, f"Need to override this in the child class: {type(self)}"
-    def resolve_name_lookups(self):
+    def resolve_name_lookups(self, ns_pri):
         assert False, f"Need to override this in the child class: {type(self)}"
     def convert_exprs_to_metatypes(self):
         assert False, f"Need to override this in the child class: {type(self)}"
@@ -50,10 +50,8 @@ from ast_expr_metatypes import *;
 
 
 class g_File(ASTNode):
-    def __init__(self, nameScope, decls):
-        assert type(nameScope) == NameScope
-        super().__init__()
-        self.nameScope = nameScope
+    def __init__(self, decls):
+        self.nameScope = NameScope(None)
         self.decls     = decls
     def __repr__(self):
         return f"ast.File({self.decls})"
@@ -67,17 +65,17 @@ class g_File(ASTNode):
         for d in self.decls:
             d.deliver_if_conditions(None)
 
-    def populate_name_scopes(self):
+    def populate_name_scopes(self):      # File has 0 parameters, since it inherits no name scopes.
         for d in self.decls:
             assert type(d) == g_PartOrPlugDecl    # TODO: someday, support functions and static constants
 
             assert d.name is not None     # name is none iff part was generic instantiation, which doesn't happen here (yet!)
             self.nameScope.add(d.name, d)
-            d.populate_name_scopes()
+            d.populate_name_scopes(self.nameScope)    # POPDecl has only 1 parmeter, since it inherits only the public scope.
 
-    def resolve_name_lookups(self):
+    def resolve_name_lookups(self):      # File has 0 paramters
         for d in self.decls:
-            d.resolve_name_lookups()
+            d.resolve_name_lookups(self.nameScope)
 
     def convert_exprs_to_metatypes(self):
         for d in self.decls:
@@ -104,13 +102,14 @@ class g_File(ASTNode):
 
 
 class g_PartOrPlugDecl(ASTNode):
-    def __init__(self, isPart, ns_pub, name, stmts):
-        assert type(ns_pub) == NameScope
-        self.pub_nameScope = ns_pub
+    def __init__(self, isPart, name, stmts):
+        self.pub_nameScope = None      # for external lookup of our fields
+        self.pri_nameScope = None      # for passing to statements in resolve_name_lookups()
         self.isPart        = isPart
         self.name          = name      # is None iff this is a generic instantiation
         self.stmts         = stmts
         self.decl_bitSize  = None
+
     def __repr__(self):
         return f"ast.g_PartDecl({self.name}, {self.stmts})"
 
@@ -128,13 +127,41 @@ class g_PartOrPlugDecl(ASTNode):
         for s in self.stmts:
             s.deliver_if_conditions(None)
 
-    def populate_name_scopes(self):
-        for s in self.stmts:
-            s.populate_name_scopes()
+    def populate_name_scopes(self, ns_pri):
+        # a part or plug declaration has *TWO* nameScope objects.  The "public"
+        # nameScope is for use by external code, which is attempting to access
+        # the fields of the part.  This will *only* include fields that are
+        # declared public, which cannot (currently) include static variables
+        # and subparts.  (Note that in a plug, *all* declarations are assumed
+        # to be public.)
+        #
+        # The "private" nameScope is for use by internal code, to access the
+        # fields and subparts declared inside this part.  Or rather, this is
+        # the nameScope used for *all* lookups by code inside this part (or
+        # plug).  It has the public fields, of course, and the private fields -
+        # but also includes a parent pointer to the enclosing scope.
+        #
+        # (Why do plugs have a private nameScope for lookup, when they can't
+        # have any statements other than declarations?  Because those
+        # declarations have expressions inside them, and the expressions might
+        # do name lookups for the fields of the plug, such as "typeof(fieldX)".
+        # Plus, we're planning ahead for the future, when plugs might include
+        # static-if statements.)
+        #
+        # When we build a new nameScope inside a part or plug (as part of an
+        # if() or curly-brace statement), it is always a child of the "private"
+        # nameScope.
 
-    def resolve_name_lookups(self):
+        self.pub_nameScope = NameScope(None)      # for others, to find our fields
+        self.pri_nameScope = NameScope(ns_pri)    # for our own stmts
+
         for s in self.stmts:
-            s.resolve_name_lookups()
+            s.populate_name_scopes(self.pub_nameScope, self.pri_nameScope)
+
+    def resolve_name_lookups(self, ns_pri):
+        assert ns_pri == self.pri_nameScope.parent
+        for s in self.stmts:
+            s.resolve_name_lookups(self.pri_nameScope)
 
     def convert_exprs_to_metatypes(self):
         for d in self.stmts:
@@ -175,9 +202,8 @@ class g_PartOrPlugDecl(ASTNode):
 
 
 class g_BlockStmt(ASTNode):
-    def __init__(self, ns_pub,ns_pri, stmts):
-        self.pub_nameScope = ns_pub
-        self.pri_nameScope = ns_pri
+    def __init__(self, stmts):
+        self.pri_nameScope = None
         self.stmts         = stmts
         self.decl_bitSize  = None
 
@@ -185,13 +211,20 @@ class g_BlockStmt(ASTNode):
         for s in self.stmts:
             s.deliver_if_conditions(cond)
 
-    def populate_name_scopes(self):
-        for s in self.stmts:
-            s.populate_name_scopes()
+    def populate_name_scopes(self, ns_pub,ns_pri):
+        # we do *NOT* pass the public NameScope along, because we don't allow
+        # public fields inside block statements.  And we wrap the existing
+        # private NameScope in another because block statements create new
+        # name scopes.
 
-    def resolve_name_lookups(self):
+        self.pri_nameScope = NameScope(ns_pri)
         for s in self.stmts:
-            s.resolve_name_lookups()
+            s.populate_name_scopes(None, self.pri_nameScope)
+
+    def resolve_name_lookups(self, ns_pri):
+        assert ns_pri == self.pri_nameScope.parent
+        for s in self.stmts:
+            s.resolve_name_lookups(self.pri_nameScope)
 
     def convert_exprs_to_metatypes(self):
         for s in self.stmts:
@@ -223,11 +256,7 @@ class g_BlockStmt(ASTNode):
 
 
 class g_DeclStmt(ASTNode):
-    def __init__(self, ns_pub,ns_pri, prefix, isMem, typ_, name, initVal):
-        assert ns_pub is None or type(ns_pub) == NameScope
-        assert                   type(ns_pri) == NameScope
-        self.pub_nameScope = ns_pub
-        self.pri_nameScope = ns_pri
+    def __init__(self, prefix, isMem, typ_, name, initVal):
         self.prefix        = prefix
         self.isMem         = isMem
         self.typ_          = typ_
@@ -262,25 +291,25 @@ class g_DeclStmt(ASTNode):
     def deliver_if_conditions(self, cond):
         pass
 
-    def populate_name_scopes(self):
+    def populate_name_scopes(self, ns_pub,ns_pri):
         # declarations always add to the private nameScope.  But we only add to
         # the public nameScope if this is a public declaration.  (Note that
         # public declarations are not legal inside block statements.)
 
-        self.pri_nameScope.add(self.name, self)
+        ns_pri.add(self.name, self)
 
         if self.prefix == "public":
-            if self.pub_nameScope is None:
+            if ns_pub is None:
                 print()
                 self.print_tree("")
                 print()
                 TODO()    # report syntax error: can only declare public field at top scope
-            self.pub_nameScope.add(self.name, self)
+            ns_pub.add(self.name, self)
 
-    def resolve_name_lookups(self):
-        self.typ_.resolve_name_lookups()
+    def resolve_name_lookups(self, ns_pri):
+        self.typ_.resolve_name_lookups(ns_pri)
         if self.initVal is not None:
-            self.initVal.resolve_name_lookups()
+            self.initVal.resolve_name_lookups(ns_pri)
 
     def convert_exprs_to_metatypes(self):
         self.typ_ = self.typ_.convert_to_metatype("right")
@@ -470,14 +499,15 @@ class g_ConnStmt(ASTNode):
             print(f"{prefix}  rhs:")
             self.rhs.print_tree(prefix+"    ")
 
-    def populate_name_scopes(self):
+    def populate_name_scopes(self, ns_pub,ns_pri):
         pass    # this statement does not have any declarations inside it
-    def resolve_name_lookups(self):
-        if self.cond is not None:
-            self.cond.resolve_name_lookups()
 
-        self.lhs .resolve_name_lookups()
-        self.rhs .resolve_name_lookups()
+    def resolve_name_lookups(self, ns_pri):
+        if self.cond is not None:
+            self.cond.resolve_name_lookups(ns_pri)
+
+        self.lhs.resolve_name_lookups(ns_pri)
+        self.rhs.resolve_name_lookups(ns_pri)
 
     def convert_exprs_to_metatypes(self):
         if self.cond is not None:
@@ -763,15 +793,19 @@ class g_RuntimeIfStmt(ASTNode):
         if self.fals_stmt is not None:
             self.fals_stmt.deliver_if_conditions(fals_cond_alias)
 
-    def populate_name_scopes(self):
-        pass
-    def resolve_name_lookups(self):
-        self.true_cond.resolve_name_lookups()
-        self.true_stmt.resolve_name_lookups()
+    def populate_name_scopes(self, ns_pub,ns_pri):
+        self.true_stmt.populate_name_scopes(ns_pub,ns_pri)
 
         if self.fals_stmt is not None:
-            self.fals_cond.resolve_name_lookups()
-            self.fals_stmt.resolve_name_lookups()
+            self.fals_stmt.populate_name_scopes(ns_pub,ns_pri)
+
+    def resolve_name_lookups(self, ns_pri):
+        self.true_cond.resolve_name_lookups(ns_pri)
+        self.true_stmt.resolve_name_lookups(ns_pri)
+
+        if self.fals_stmt is not None:
+            self.fals_cond.resolve_name_lookups(ns_pri)
+            self.fals_stmt.resolve_name_lookups(ns_pri)
 
     def convert_exprs_to_metatypes(self):
         self.true_cond = self.true_cond.convert_to_metatype("right")
@@ -858,11 +892,11 @@ class g_AssertStmt(ASTNode):
                                       "|",
                                       self.expr )
 
-    def populate_name_scopes(self):
+    def populate_name_scopes(self, ns_pub,ns_pri):
         pass
 
-    def resolve_name_lookups(self):
-        self.expr.resolve_name_lookups()
+    def resolve_name_lookups(self, ns_pri):
+        self.expr.resolve_name_lookups(ns_pri)
 
     def convert_exprs_to_metatypes(self):
         self.expr = self.expr.convert_to_metatype("right")
@@ -904,9 +938,9 @@ class g_BinaryExpr(ASTNode):
         print(f"{prefix}  rgt:")
         self.rgt.print_tree(prefix+"    ")
 
-    def resolve_name_lookups(self):
-        self.lft.resolve_name_lookups()
-        self.rgt.resolve_name_lookups()
+    def resolve_name_lookups(self, ns_pri):
+        self.lft.resolve_name_lookups(ns_pri)
+        self.rgt.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
         # sometimes, the same tree node is used at multiple places in
@@ -965,8 +999,8 @@ class g_UnaryExpr(ASTNode):
         print(f"{prefix}  rgt:")
         self.rgt.print_tree(prefix+"    ")
 
-    def resolve_name_lookups(self):
-        self.rgt.resolve_name_lookups()
+    def resolve_name_lookups(self, ns_pri):
+        self.rgt.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
         if self.saved_metatype is None:
@@ -988,6 +1022,18 @@ class NameScope:
         super().__init__()
         self.parent    = parent
         self.directory = {}
+
+    def dump(self):
+        if self.parent is None:
+            prefix = ""
+        else:
+            prefix = self.parent.dump()
+
+        print(f"{prefix}---- {id(self)}")
+        for n in self.directory:
+            print(f"{prefix}{n}")
+
+        return prefix+"  "
 
     def add(self, name, obj):
         assert type(name) == str
@@ -1037,8 +1083,7 @@ def IntType():
 class g_IdentExpr(ASTNode):
     leafNode  = True
 
-    def __init__(self, nameScope, name):
-        self.nameScope = nameScope
+    def __init__(self, name):
         self.name   = name
         self.target = None
 
@@ -1052,8 +1097,8 @@ class g_IdentExpr(ASTNode):
     def print_tree(self, prefix):
         print(f"{prefix}{self}")
 
-    def resolve_name_lookups(self):
-        self.target = self.nameScope.search(self.name)
+    def resolve_name_lookups(self, ns_pri):
+        self.target = ns_pri.search(self.name)
         if self.target is None:
             self.nameScope.dump()
             print()
@@ -1122,7 +1167,7 @@ class g_NumExpr(ASTNode):
     def print_tree(self, prefix):
         print(f"{prefix}{self}")
 
-    def resolve_name_lookups(self):
+    def resolve_name_lookups(self, ns_pri):
         pass
 
     def convert_to_metatype(self, side):
@@ -1137,8 +1182,8 @@ class g_DotExpr(ASTNode):
 
         self.offset = None
 
-    def resolve_name_lookups(self):
-        self.base.resolve_name_lookups()
+    def resolve_name_lookups(self, ns_pri):
+        self.base.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
         self.base = self.base.convert_to_metatype(side)
@@ -1165,8 +1210,7 @@ class g_DotExpr(ASTNode):
 
 
 class g_Unresolved_Single_Index_Expr(ASTNode):
-    def __init__(self, nameScope, base, indx):
-        self.nameScope = nameScope
+    def __init__(self, base, indx):
         self.base      = base
         self.indx      = indx
 
@@ -1188,9 +1232,9 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
             self.indx.print_tree(prefix+"    ")
 
 
-    def resolve_name_lookups(self):
-        self.base.resolve_name_lookups()
-        self.indx.resolve_name_lookups()
+    def resolve_name_lookups(self, ns_pri):
+        self.base.resolve_name_lookups(ns_pri)
+        self.indx.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
         if self.saved_metatype is None:
@@ -1247,11 +1291,11 @@ class g_ArraySlice(ASTNode):
             print(f"{prefix}  end:")
             self.end.print_tree(prefix+"    ")
 
-    def resolve_name_lookups(self):
-        self.base .resolve_name_lookups()
-        self.start.resolve_name_lookups()
+    def resolve_name_lookups(self, ns_pri):
+        self.base .resolve_name_lookups(ns_pri)
+        self.start.resolve_name_lookups(ns_pri)
         if self.end is not None:
-            self.end  .resolve_name_lookups()
+            self.end  .resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
         if self.saved_metatype is None:

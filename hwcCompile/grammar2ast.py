@@ -51,108 +51,25 @@ def flatten(stmts):
 
 
 class HWCAstGenerator(hwcListener):
-    def enterFile(self, ctx):
-        ctx.nameScope = ast.NameScope(None)
     def exitFile(self, ctx):
-        ctx.ast = ast.g_File(ctx.nameScope, [c.ast for c in ctx.decls])
+        ctx.ast = ast.g_File([c.ast for c in ctx.decls])
 
-
-    def enterPartOrPlugDecl(self, ctx):
-        # a part or plug declaration has *TWO* nameScope objects.  The "public"
-        # nameScope is for use by external code, which is attempting to access
-        # the fields of the part.  This will *only* include fields that are
-        # declared public, which cannot (currently) include static variables
-        # and subparts.  (Note that in a plug, *all* declarations are assumed
-        # to be public.)
-        #
-        # The "private" nameScope is for use by internal code, to access the
-        # fields and subparts declared inside this part.  Or rather, this is
-        # the nameScope used for *all* lookups by code inside this part (or
-        # plug).  It has the public fields, of course, and the private fields -
-        # but also includes a parent pointer to the enclosing scope.
-        #
-        # (Why do plugs have a private nameScope for lookup, when they can't
-        # have any statements other than declarations?  Because those
-        # declarations have expressions inside them, and the expressions might
-        # do name lookups for the fields of the plug, such as "typeof(fieldX)".
-        # Plus, we're planning ahead for the future, when plugs might include
-        # static-if statements.)
-        #
-        # When we build a new nameScope inside a part or plug (as part of an
-        # if() or curly-brace statement), it is always a child of the "private"
-        # nameScope.
-        ctx.pub_nameScope = ast.NameScope(None)
-        ctx.pri_nameScope = ast.NameScope(ctx.parentCtx.nameScope)
 
     def exitPartOrPlugDecl(self, ctx):
-        ns_pub     = ctx.pub_nameScope
-        ns_pri     = ctx.pri_nameScope
         partOrPlug = ctx.isPart.text
         name       = ctx.name.text
 
         assert partOrPlug in ["part","plug"]
         isPart = (partOrPlug == "part")
 
-        # NOTE: While we needed both the public and private nameScope's to
-        #       build our AST (because our children in the grammar will need
-        #       access to the private nameScope for their own lookups,
-        #       eventually), the AST object which represents this part doesn't
-        #       need both; it only needs the public.  This is because no one
-        #       will use the AST object for the Plug/Part for name lookups
-        #       *except* for field lookups.
+        ctx.ast = ast.g_PartOrPlugDecl(isPart, name, flatten(ctx.stmts))
 
-        ctx.ast = ast.g_PartOrPlugDecl(isPart, ns_pub, name, flatten(ctx.stmts))
-
-
-    def default_enter_stmt(self, ctx):
-        # for every statement type except DeclStmt, public field declarations
-        # nested inside it are illegal.  (You can declare public fields inside
-        # a for() loop, but they are public only in the sense that they are
-        # visible outside the for() loop.  They are not visible outside the
-        # part that declares the for() loop.
-        #
-        # What about double for() loops?  Should the enclosing part be able to
-        # see inside the 2nd-level for() loop?  That seems reasonable.  So
-        # maybe we'll make a distinction about that in the future.  TODO
-        # But remember to think about cases where the for() loops are not
-        # contiguous.  What about the nasty case of:
-        #      for (i; ...) as outer
-        #          if (x)
-        #              for (j; ...) as inner;
-        #          else
-        #              for (j; ...) as inner;
-        # Big difficult TODO, it turns out!
-
-        ctx.pub_nameScope = None
-        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
-
-
-    def enterDeclNameInit(self, ctx):
-        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
-    def exitDeclNameInit(self, ctx):
-        pass
-
-
-    def enterStmt_Block(self, ctx):
-        # a {} block creates a new scope for declaring private fields, but
-        # we don't support public declarations inside such a scope.
-        ctx.pri_nameScope = ast.NameScope(ctx.parentCtx.pri_nameScope)
-        ctx.pub_nameScope = None
 
     def exitStmt_Block(self, ctx):
-        ns_pub =  ctx.pub_nameScope
-        ns_pri =  ctx.pri_nameScope
-        ctx.ast = ast.g_BlockStmt(ns_pub,ns_pri, flatten(ctx.stmts))
+        ctx.ast = ast.g_BlockStmt(flatten(ctx.stmts))
 
 
-    def enterStmt_Decl(self, ctx):
-        # decl statements are allowed to post public names
-        ctx.pub_nameScope = ctx.parentCtx.pub_nameScope
-        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
     def exitStmt_Decl(self, ctx):
-        ns_pub =  ctx.pub_nameScope
-        ns_pri =  ctx.pri_nameScope
-
         prefix =  ctx.prefix.text if ctx.prefix is not None else None
         mem    = (ctx.mem is not None)
         typ_   =  ctx.t.ast
@@ -161,14 +78,13 @@ class HWCAstGenerator(hwcListener):
         for d in ctx.decls:
             name    = d.name.text
             initVal = d.val.ast if d.val is not None else None
-            stmt = ast.g_DeclStmt(ns_pub,ns_pri, prefix,mem,typ_, name,initVal)
+            stmt = ast.g_DeclStmt(prefix,mem,typ_, name,initVal)
             decls.append(stmt)
 
         assert len(decls) >= 1
         ctx.ast_arr = decls
 
 
-    enterStmt_Connection = default_enter_stmt
     def exitStmt_Connection(self, ctx):
         assert len(ctx.lhs) >= 1
         if len(ctx.lhs) > 1:
@@ -181,7 +97,6 @@ class HWCAstGenerator(hwcListener):
         ctx.uncovered_else = False
 
 
-    enterStmt_If = default_enter_stmt
     def exitStmt_If(self, ctx):
         if ctx.static != None:
             # VERSION 1 OF STATIC IF() DECLARATIONS
@@ -213,7 +128,6 @@ class HWCAstGenerator(hwcListener):
                                       cond, tru_, fals_)
 
 
-    enterStmt_Assert = default_enter_stmt
     def exitStmt_Assert(self, ctx):
         lineInfo = build_line_range(ctx)
         ctx.ast = ast.g_AssertStmt(lineInfo, ctx.exp_.ast)
@@ -222,42 +136,7 @@ class HWCAstGenerator(hwcListener):
         ctx.uncovered_else = False
 
 
-    def enterStmt_For(self, ctx):
-        # see the long comment in default_enter_stmt() to understand the basics
-        # here.  But then come back, and read about generics.
-        #
-        # A for() statement is implemented as a generic Part declaration, which
-        # is then instantiated many times - once for each pass of the loop.
-        # This makes it easy to handle the iterator variable, since it is
-        # simply the one and only parameter of the generic type.
-        #
-        # But generic types are nastier than I realized at first, because all
-        # of the expressions inside them have parameters (specifically, size
-        # offset, but maybe more), which can vary from instantiation to
-        # instantiation.
-        #
-        # The only solution, really, is to DUPLICATE THE AST for each
-        # instantiation.  And each duplicate will need a different set of
-        # name scopes, becuase at least the iterator variable will be different
-        # in each expression.  But the NameScope tree is built early, in the
-        # enter() functions - even though we won't be able to instantiate many
-        # parts until the calc_sizes() phase!!!
-        #
-        # My solution is to create a *DUMMY NAMESCOPE* here.  A NameScope will
-        # have a parent which is a *string* instead of a real NameScope; when
-        # we instantiate the generic, we will, in each duplicate, replace the
-        # string with a true parent object, which has as its own parent the
-        # private name scope that enclosed the for() loop, and which has a
-        # single name of its own: the value of the iterator variable.  As we
-        # recurse through the AST, duplicating it, we will replace each 
-TODO: we can use a class, with stub functions, and handle this in the ForStmt code.  And perhaps we can *defer* delivering any NameScope objects until later?  Maybe this becomes a post-processing recursion step (like deliver_if_condition()) instead of something that we figure out in the enter functions?  Time for a branch, I think!
-
-        ctx.pub_nameScope = None
-        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
-
     def exitStmt_For(self, ctx):
-        ns_pri = ctx.pri_nameScope
-
         var   = ctx.var.text
         start = ctx.start.ast
         end   = ctx.end  .ast
@@ -265,14 +144,9 @@ TODO: we can use a class, with stub functions, and handle this in the ForStmt co
 
         tuple_name = ctx.tuple_name.text if ctx.tuple_name is not None else None
 
-        ctx.ast = ast.g_ForStmt(ns_pri, var, start,end, body, tuple_name)
+        ctx.ast = ast.g_ForStmt(var, start,end, body, tuple_name)
 
 
-    def default_enter_expr(self, ctx):
-        ctx.pri_nameScope = ctx.parentCtx.pri_nameScope
-
-
-    enterExpr = default_enter_expr
     def exitExpr(self, ctx):
         assert ctx.left is not None
         if   len(ctx.right) == 0:
@@ -287,19 +161,13 @@ TODO: we can use a class, with stub functions, and handle this in the ForStmt co
     # all binary operators have the same implementation in the AST.  We use
     # different rules to enforce associativity, but once it's established,
     # we just use the tree structure to maintain the associations.
-    enterExpr2 = enterExpr
-    exitExpr2  = exitExpr
-    enterExpr3 = enterExpr
-    exitExpr3  = exitExpr
-    enterExpr4 = enterExpr
-    exitExpr4  = exitExpr
-    enterExpr5 = enterExpr
-    exitExpr5  = exitExpr
-    enterExpr6 = enterExpr
-    exitExpr6  = exitExpr
+    exitExpr2 = exitExpr
+    exitExpr3 = exitExpr
+    exitExpr4 = exitExpr
+    exitExpr5 = exitExpr
+    exitExpr6 = exitExpr
 
 
-    enterExpr7 = default_enter_expr
     def exitExpr7(self, ctx):
         assert (ctx.base is not None) != (ctx.right is not None)
 
@@ -313,7 +181,6 @@ TODO: we can use a class, with stub functions, and handle this in the ForStmt co
             ctx.ast = ast.g_UnaryExpr(lineInfo, op, ctx.right.ast)
 
 
-    enterExpr8 = default_enter_expr
     def exitExpr8(self, ctx):
         assert (ctx.base is not None) != (ctx.left is not None)
 
@@ -331,7 +198,7 @@ TODO: we can use a class, with stub functions, and handle this in the ForStmt co
             # We must defer the resolution of what it is until later, when we
             # have resolved the names; then we will replace this object with
             # one of the proper type.
-            ctx.ast = ast.g_Unresolved_Single_Index_Expr(ctx.pri_nameScope, ctx.left.ast, ctx.a.ast)
+            ctx.ast = ast.g_Unresolved_Single_Index_Expr(ctx.left.ast, ctx.a.ast)
 
         elif ctx.a is not None and ctx.colon is not None:
             # slice of a runtime value, which goes to the end of the array
@@ -355,13 +222,12 @@ TODO: we can use a class, with stub functions, and handle this in the ForStmt co
             assert False, "Unrecognized expression"
 
 
-    enterExpr9 = default_enter_expr
     def exitExpr9(self, ctx):
         if ctx.subexpr is not None:
             ctx.ast = ctx.subexpr.ast
 
         elif ctx.name is not None:
-            ctx.ast = ast.g_IdentExpr(ctx.pri_nameScope, ctx.name.text)
+            ctx.ast = ast.g_IdentExpr(ctx.name.text)
         elif ctx.num is not None:
             ctx.ast = ast.g_NumExpr(ctx.num.text)
 

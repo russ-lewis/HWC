@@ -32,7 +32,7 @@ class mt_PlugDecl_Bit(mt_PlugDecl):
     def calc_bottom_up_offsets(self):
         pass
 
-    def resolve_name_lookups(self):
+    def resolve_name_lookups(self, ns_pri):
         pass
     def convert_to_metatype(self, side):
         return self
@@ -90,7 +90,7 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
                self.base  == other.base  and \
                self.len_  == other.len_
 
-    def resolve_name_lookups(self):
+    def resolve_name_lookups(self, ns_pri):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
     def calc_sizes(self):

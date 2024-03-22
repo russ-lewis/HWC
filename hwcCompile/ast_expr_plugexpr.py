@@ -113,7 +113,7 @@ class mt_PlugExpr_Alias(mt_PlugExpr):
         print(f"{prefix}base:")
         self.base.print_tree(prefix+"    ")
 
-    def resolve_name_lookups(self):
+    def resolve_name_lookups(self, ns_pri):
         pass
 
     def convert_to_metatype(self, side):
