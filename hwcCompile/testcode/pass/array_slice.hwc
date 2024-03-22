@@ -2,7 +2,7 @@ part main
 {
 	public bit[16] in;
 	public bit[32] out;
-	public bit[16] shiftLeft4;
+	public bit[32] shiftLeft4;
 
 	out[:16] = in;
 	for (i; 16..32)

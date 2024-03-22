@@ -1,0 +1,23 @@
+#      0     16 main.in
+#     16     48 main.out
+#     48     80 main.shiftLeft4
+
+conn 16 <= 0 size 16    # FILE:7
+conn 32 <= 15 size 1    # FILE:9
+conn 33 <= 15 size 1    # FILE:9
+conn 34 <= 15 size 1    # FILE:9
+conn 35 <= 15 size 1    # FILE:9
+conn 36 <= 15 size 1    # FILE:9
+conn 37 <= 15 size 1    # FILE:9
+conn 38 <= 15 size 1    # FILE:9
+conn 39 <= 15 size 1    # FILE:9
+conn 40 <= 15 size 1    # FILE:9
+conn 41 <= 15 size 1    # FILE:9
+conn 42 <= 15 size 1    # FILE:9
+conn 43 <= 15 size 1    # FILE:9
+conn 44 <= 15 size 1    # FILE:9
+conn 45 <= 15 size 1    # FILE:9
+conn 46 <= 15 size 1    # FILE:9
+conn 47 <= 15 size 1    # FILE:9
+conn 52 <= 16 size 28    # FILE:11
+conn 48 <= int(0) size 4    # FILE:12
