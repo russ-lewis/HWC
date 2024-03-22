@@ -63,8 +63,7 @@ expr3:
 
 expr4:
       left=expr5 (op=('+' |
-                      '-' |
-                      ':')   right+=expr5)*
+                      '-')   right+=expr5)*
 ;
 
 expr5:
@@ -119,8 +118,10 @@ expr9:
        #           bit[] the_bits = expr;
        */
 
-    | 'typeof' '(' typeof_expr=expr ')'
-    | 'len'    '('    len_expr=expr ')'
+    | funcName='concat' '(' concatLeft=expr ',' concatRight=expr ')'
+
+    | funcName='typeof' '(' typeof_expr=expr ')'
+    | funcName='len'    '('    len_expr=expr ')'
 
     | 'cast' '(' castType=expr ',' castVal=expr ')'
 

@@ -13,8 +13,8 @@
 #    424        main._NOT_424
 #    425        main._NOT_425
 
-conn 132 <= 0 size 32    # FILE:8:20
-conn 164 <= 0 size 31    # FILE:8:20
+conn 132 <= 0 size 32    # FILE:8:17
+conn 164 <= 0 size 31    # FILE:8:17
 conn 69 <= 132 size 63    # TODO: line number
 conn 195 <= 69 size 62 cond 32    # FILE:17
 logic 421 <= NOT 32 size 1    # FILE:18:2
