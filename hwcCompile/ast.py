@@ -575,32 +575,37 @@ class g_ConnStmt(ASTNode):
         if isinstance(self.rhs, mt_StaticExpr):
             self.rhs = self.rhs.resolve_static_expr()
 
-        # handle "assign integer to bit or bit[]" cases.  This code is
-        # copy-pasted from the initVal handling in DeclStmt.
+        # we are about to handle implicit casting of integers to bit and
+        # bit-array types.  But before this is possible, we need to clearly
+        # understand what the left-hand type is.
+        self.lhs.calc_sizes()
+
+
+        # if the rhs is an integer, then look for ways to make the conversion
         #
-        # TODO: unify the two with a common function or type
+        # TODO: unify this code with similar code in DeclStmt->iniVal
 
-        if type(self.rhs) == int and self.lhs.typ_ == plugType_bit:
-            if self.rhs not in [0,1]:
-                TODO()    # report syntax error, cannot assign anything to a bit except 0,1
-            self.rhs = mt_PlugExpr_Bit(self.rhs)
+        if type(self.rhs) == int:
+            if self.lhs.typ_ == plugType_bit:
+                if self.rhs not in [0,1]:
+                    TODO()    # report syntax error, cannot assign anything to a bit except 0,1
+                self.rhs = mt_PlugExpr_Bit(self.rhs)
 
-        if type(self.rhs)          == int                 and \
-           type(self.lhs.typ_)     == mt_PlugDecl_ArrayOf and \
-                self.lhs.typ_.base ==    plugType_bit:
+            elif type(self.lhs.typ_) == mt_PlugDecl_ArrayOf and self.lhs.typ_.base == plugType_bit:
+                assert type(self.lhs.typ_.len_) == int, type(self.lhs.typ_.len_)
+                dest_wid = self.lhs.typ_.len_
 
-            assert type(self.lhs.typ_.len_) == int
-            dest_wid = self.lhs.typ_.len_
+                if self.rhs < 0 or (self.rhs >> dest_wid) != 0:
+                    TODO()    # report syntax error, value doesn't fit
+                self.rhs = mt_PlugExpr_BitArray(dest_wid, self.rhs)
 
-            if self.rhs < 0 or (self.rhs >> dest_wid) != 0:
-                TODO()    # report syntax error, value doesn't fit
-            self.rhs = mt_PlugExpr_BitArray(dest_wid, self.rhs)
+            else:
+                TODO()    # report syntax error
 
         if isinstance(self.lhs, mt_PlugExpr) == False or \
            isinstance(self.rhs, mt_PlugExpr) == False:
             assert False    # TODO: implement other variants
 
-        self.lhs.calc_sizes()
         self.rhs.calc_sizes()
 
         # if the type of the var doesn't match the type of the expression, then
@@ -1033,7 +1038,7 @@ class g_BinaryExpr(ASTNode):
         elif self.op in ["^"]:
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "XOR", self.rgt)
 
-        elif self.op == ":":
+        elif self.op == "concat":
             return mt_PlugExpr_CONCAT(self.lineInfo, self.lft, self.rgt)
 
         else:
@@ -1213,8 +1218,11 @@ class g_IdentExpr(ASTNode):
             else:
                 TODO()
 
+        elif isinstance(self.target, mt_StaticExpr):
+            return self.target
+
         else:
-            assert False    # unexpected type
+            assert False, (self.name, type(self.target))    # unexpected type
 
     def calc_sizes(self):
         assert False    # will never get here, is replaced by a metatype
@@ -1344,10 +1352,9 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
 
 class g_ArraySlice(ASTNode):
     def __init__(self, base, start,end):
-        # NOTE: no nameScope required, since we have already resolved names
         self.base  = base
         self.start = start
-        self.end   = end
+        self.end   = end      # could be None
 
         self.saved_metatype = None
 
@@ -1376,7 +1383,7 @@ class g_ArraySlice(ASTNode):
         self.base .resolve_name_lookups(ns_pri)
         self.start.resolve_name_lookups(ns_pri)
         if self.end is not None:
-            self.end  .resolve_name_lookups(ns_pri)
+            self.end.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
         if self.saved_metatype is None:
@@ -1396,43 +1403,31 @@ class g_ArraySlice(ASTNode):
 
 
 class g_Generic_PartOrPlugDecl(ASTNode):
-    def __init__(self, arg_decls, isPart, ns_pub, stmts):
-        for k in arg_decls:
-            assert type(k) == str
-            if ns_pub.search(k) is not None:
-                TODO()    # the argument name shadows an existing name
-
+    def __init__(self, arg_decls, isPart, stmts):
         self.arg_decls = arg_decls
-        self.isPart    = isPart
-        self.ns_pub    = ns_pub
-        self.stmts     = stmts
+        self.generic   = g_PartOrPlugDecl(isPart, None, stmts)
 
     def dup(self):
         TODO()
 
-    def instantiate(self, arg_vals):
-        assert len(arg_vals) == len(self.arg_decls), (len(arg_vals), len(self.arg_decls))
+    def instantiate(self, cond, ns_pri):
+        retval = self.generic.dup()
 
-        ns_to_send = NameScope(self.ns_pub)
+        # drive the instantiated part through the phases that it missed
+        #
+        # TODO: this is imperfect, when we have a for() loop, because
+        #       we might make a forward reference to pass of the loop
+        #       which hasn't been initialized yet.  It may be necessary
+        #       to move this code into the ForStmt class, so that we can
+        #       to each phase in parallel, across *ALL* instances, before
+        #       starting the next phase.  TBD
+        retval.deliver_if_conditions(cond)
+        retval.populate_name_scopes(ns_pri)
+        retval.resolve_name_lookups(ns_pri)
+        retval.convert_exprs_to_metatypes()
+        retval.calc_sizes()
 
-        args = {}
-        for k in arg_vals:
-            assert type(k) == str
-
-            if k not in self.arg_decls:
-                TODO()    # mismatched key name
-            d = self.arg_decls[k]
-            v =      arg_vals [k]
-
-            # TODO: support more general argument types!
-            if d != "int":    # TODO: use the 'int' type from static_types.py
-                TODO()
-            if type(v) != int:
-                TODO()
-
-            ns_to_send.add(k,v)
-
-        return g_PartOrPlugDecl(self.isPart, ns_to_send, None, self.stmts)
+        return retval
 
 
 
@@ -1456,74 +1451,144 @@ class g_Tuple(ASTNode):
 
 
 class g_ForStmt(ASTNode):
-    def __init__(self, nameScope, var_name, start,end, body, tuple_name):
-        # our constructor strategy:
-        #
-        #   1) build a generic part, which represents a single pass of this
-        #      for() loop.  Its name scope will be derived from the private
-        #      name scope of this statement, and thus have access to private
-        #      fields in this context.
-        #
-        #   2) build a Tuple object, whose elements are instances of that
-        #      generic part.  Save this as the only 'self' of this class.
-        #
-        #   3) if tuple_name is not None, then create a name in the enclosing
-        #      private name scope which refers to the tuple.
+    def __init__(self, lineInfo, var_name, start,end, body, tuple_name):
+        self.lineInfo = lineInfo
 
-        # ---- STEP 1 - GENERIC PART ----
+        # we cannot do most of our work until calc_sizes(), because we won't
+        # be able to resolve start and end until then.  However, we can build
+        # the "generic part" right now, and save that.
 
-        assert type(var_name) == str
-        if nameScope.search(var_name) is not None:
-            TODO()    # report syntax error
+        self.var_name   = var_name      # iterator variable, for inside
+        self.start      = start
+        self.end        = end
+        self.tuple_name = tuple_name    # name to access the tuple, from outside
 
         generic_args = {var_name:"int"}
 
-        generic_partDecl = g_Generic_PartOrPlugDecl(generic_args,
-                                                    True,    # isPart
-                                                    nameScope,
-                                                    [body])
+        self.generic_partDecl = g_Generic_PartOrPlugDecl(generic_args,
+                                                         True,    # isPart
+                                                         [body])
 
-        # ---- STEP 2 - INSTANTIATION, TUPLE BUILD ----
+        self.if_conditions = None
+        self.pri_nameScope = None
 
-        # how do we handle start,end values that are not NumExpr?  I think
-        # that, to get this right, we actually have to defer all of these
-        # instantiations until after calc_sizes(), right?  Can we get that
-        # done, somehow???
-        if type(start) != g_NumExpr or type(end) != g_NumExpr:
-            TODO()
-
-        start = start.num
-        end   = end  .num
-        if start > end:
-            TODO()    # syntax error
-        if start == end:
-            TODO()    # syntax error, for now.  Will I allow it later???
-
-        passes = []
-        for i in range(start, end):
-            passes.append( generic_partDecl.instantiate( {var_name:i} ))
-        self.tupl_ = g_Tuple(passes)
-
-        # ---- STEP 3 - TUPLE_NAME ----
-
-        if tuple_name is not None:
-            TODO()    # same as decl_stmt ???
+        self.decl_bitSize = None
 
 
     def deliver_if_conditions(self, cond):
-        if cond is not None:
-            TODO()    # implement me.  I think the best way to communicate if() into a for() loop would be to add a runtime variable as a public, anonymous field.  But I need to give that field a name, and devise the name such that nested for() loops are not having the same name.  I haven't figured that out, yet.
+        assert self.if_conditions is None
+        self.if_conditions = cond
 
-        self.tupl_.deliver_if_conditions(None)
+    def populate_name_scopes(self, ns_pub,ns_pri):
+        # all for() loops are private, automatically.  So we'll ignore the
+        # public NameScope, even if we are given one.
+        ns_pub = None
 
-    def populate_name_scopes(self):
-        # we have already saved our index name into the name scope of the
-        # generic type we built.  So we don't need to do this work.  But
-        # we need to let the statements inside us do their declarations,
-        # if any.
+        assert type(self.var_name) == str
+        if ns_pri.search(self.var_name) is not None:
+            TODO()    # report syntax error
 
-        self.tupl_.populate_name_scopes()
+        # Even if tuple_name is not None, we cannot create the entry in the
+        # NameScope object to look up the name yet, since we don't know how
+        # large the tuple will be.  But in order to do that, we will need to be
+        # able to resolve the (static) values start,end.
+        #
+        # So, from here through the beginning of calc_sizes(), we will do all
+        # of the normal work (as if we were not generic), to *ONLY* start,end.
+        # They will resolve once we get to calc_sizes().  Then, once we know
+        # their values, we will create the array and will do the instantiations
 
-    def resolve_name_lookups(self):
-        self.tupl_.resolve_name_lookups()
+# silly me, expressions don't need to have me call this.
+#        self.start.populate_name_scopes(None, ns_pri)
+#        self.end  .populate_name_scopes(None, ns_pri)
+
+        # We save the private name scope, so that it can be used for each of
+        # the instantiated passes, later.
+        self.pri_nameScope = ns_pri
+
+    def resolve_name_lookups(self, ns_pri):
+        assert ns_pri == self.pri_nameScope
+
+        # see the comments in populate_name_scopes().  Note that we don't have
+        # anything to save in this function for the future, that we hadn't
+        # already saved.
+        self.start.resolve_name_lookups(ns_pri)
+        self.end  .resolve_name_lookups(ns_pri)
+
+    def convert_exprs_to_metatypes(self):
+        # see the comments in populate_name_scopes()
+        self.start = self.start.convert_to_metatype("right")
+        self.end   = self.end  .convert_to_metatype("right")
+
+    def calc_sizes(self):
+        if self.decl_bitSize == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bitSize is not None:
+            return
+        self.decl_bitSize = "in progress"
+
+        # at last!  We can now call calc_sizes() on our start,end expressions,
+        # extract the (hopefully static, int) values, and then use them to
+        # figure out the length of our array of passes.  Then we instantiate
+        # the generic part many times.
+
+        self.start.calc_sizes()
+        self.end  .calc_sizes()
+        if not isinstance(self.start, mt_StaticExpr):
+            TODO()    # syntax error
+        if not isinstance(self.end  , mt_StaticExpr):
+            TODO()    # syntax error
+
+        self.start = self.start.resolve_static_expr()
+        self.end   = self.end  .resolve_static_expr()
+        if type(self.start) != int:
+            TODO()    # syntax error
+        if type(self.start) != int:
+            TODO()    # syntax error
+
+        if self.start > self.end:
+            TODO()    # syntax error
+        if self.start == self.end:
+            TODO()    # syntax error, for now.  Should I allow it in the future???
+
+        self.passes = [None]*(self.end - self.start)
+
+        # since the body of the for() loop might contain references to its own
+        # name, we need to add the tuple name (if requested) to the name scope
+        # that encloses us
+        if self.tuple_name is not None:
+            TODO()    # probably, just post the g_ForStmt there.  Simple.
+
+        # build the instantiated parts
+        for i in range(self.start, self.end):
+            # create a private name scope for the instance we're about to
+            # build, and populate it with a value for the iterator
+            # variable.  That is, each instantiation has its own private
+            # name scope; they are identical except for this one variable.
+            ns_for_inst = NameScope(self.pri_nameScope)
+            ns_for_inst.add(self.var_name, mt_StaticExpr_NumExpr(i))
+
+            inst = self.generic_partDecl.instantiate(self.if_conditions, ns_for_inst)
+            self.passes[i-self.start] = inst
+
+            # the instantiate() function will call populate_name_scopes(),
+            # resolve_name_lookups(), and convert_exprs_to_metatypes(), and
+            # calc_sizes() on each new instance
+
+        self.decl_bitSize = sum(inst.decl_bitSize for inst in self.passes)
+
+    def calc_top_down_offsets(self, offset):
+        TODO()
+
+    def calc_bottom_up_offsets(self):
+        for inst in self.passes:
+            inst.calc_bottom_up_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        for i in range(len(self.passes)):
+            self.passes[i].print_bit_descriptions(f"{name}.__for_{self.lineInfo.line}_{self.lineInfo.col}_{self.start+i}__", start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        for i in range(len(self.passes)):
+            self.passes[i].print_wiring_diagram(start_bit)
 

@@ -22,6 +22,9 @@ class mt_PlugExpr_Var(mt_PlugExpr):
         print(f"{prefix}  decl_bitSize: {self.decl_bitSize}")
         print(f"{prefix}  offset      : {self.offset}")
 
+    def resolve_name_lookups(self, ns_pri):
+        pass
+
     def convert_to_metatype(self, side):
         return self
 
@@ -227,7 +230,7 @@ class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
 
         # TODO: I need a version of this class (maybe integrated into this?)
         # that can handle a runtime index.
-        assert isinstance(self.indx, mt_StaticExpr)
+        assert isinstance(self.indx, mt_StaticExpr), (self.indx, type(self.indx))
 
         assert type(base.typ_) == mt_PlugDecl_ArrayOf
         self.typ_ = base.typ_.base
@@ -248,6 +251,10 @@ class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
 
         print(f"{prefix}  typ_:")
         self.typ_.print_tree(prefix+"    ")
+
+    def resolve_name_lookups(self, ns_pri):
+        self.base.resolve_name_lookups(ns_pri)
+        self.indx.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
         return self
@@ -323,9 +330,9 @@ class mt_PlugExpr_ArraySlice(mt_PlugExpr):
             self.start.print_tree(prefix+"    ")
 
         if self.end is None or type(self.end) == int or self.end.is_leaf:
-            print(f"{prefix}  end  : {self.end}")
+            print(f"{prefix}  end: {self.end}")
         else:
-            print(f"{prefix}  end  :")
+            print(f"{prefix}  end:")
             self.end.print_tree(prefix+"    ")
 
     def convert_to_metatype(self, side):
@@ -365,9 +372,9 @@ class mt_PlugExpr_ArraySlice(mt_PlugExpr):
                 print(self.end)
                 TODO()    # resolve static expr
 
-        if self.end > self.base.typ_.len_:
-            self.print_tree("")
-            TODO()    # report syntax error
+            if self.end > self.base.typ_.len_:
+                self.print_tree("")
+                TODO()    # report syntax error
 
         self.typ_.len_ = self.end - self.start
         self.typ_.calc_sizes()

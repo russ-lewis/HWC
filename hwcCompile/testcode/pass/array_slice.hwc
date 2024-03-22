@@ -9,6 +9,6 @@ part main
 		out[i] = in[15];
 
 	shiftLeft4[4:]  = out[:28];   // high bits
-	shiftLeft4[0:3] = 0;          // low bits
+	shiftLeft4[0:4] = 0;          // low bits
 }
 

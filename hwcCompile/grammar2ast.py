@@ -144,7 +144,8 @@ class HWCAstGenerator(hwcListener):
 
         tuple_name = ctx.tuple_name.text if ctx.tuple_name is not None else None
 
-        ctx.ast = ast.g_ForStmt(var, start,end, body, tuple_name)
+        lineInfo = build_line_info(ctx.var)
+        ctx.ast = ast.g_ForStmt(lineInfo, var, start,end, body, tuple_name)
 
 
     def exitExpr(self, ctx):
@@ -200,7 +201,7 @@ class HWCAstGenerator(hwcListener):
             # one of the proper type.
             ctx.ast = ast.g_Unresolved_Single_Index_Expr(ctx.left.ast, ctx.a.ast)
 
-        elif ctx.a is not None and ctx.colon is not None:
+        elif ctx.a is not None and ctx.colon is not None and ctx.b is None:
             # slice of a runtime value, which goes to the end of the array
             ctx.ast = ast.g_ArraySlice(ctx.left.ast,
                                        ctx.a.ast,
@@ -214,6 +215,7 @@ class HWCAstGenerator(hwcListener):
 
         elif ctx.a is not None and ctx.colon is not None and ctx.b is not None:
             # slice of a runtime value
+            assert ctx.b.ast is not None
             ctx.ast = ast.g_ArraySlice(ctx.left.ast,
                                        ctx.a.ast,
                                        ctx.b.ast)
@@ -235,6 +237,10 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = TODO()
         elif ctx.children[0].getText() == "false":
             ctx.ast = TODO()
+
+        elif ctx.children[0].getText() == "concat":
+            lineInfo = build_line_info(ctx.funcName)
+            ctx.ast = ast.g_BinaryExpr(lineInfo, ctx.concatLeft.ast, "concat", ctx.concatRight.ast)
 
         elif ctx.children[0].getText() == "bit":
             ctx.ast = ast_expr_metatypes.plugType_bit
