@@ -19,6 +19,8 @@ class mt_PlugDecl_Bit(mt_PlugDecl):
 
     def __init__(self):
         pass
+    def dup(self):
+        return self
     def __repr__(self):
         return f"mt_PlugDecl_Bit"
     def print_tree(self, prefix):

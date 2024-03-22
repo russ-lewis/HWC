@@ -1,5 +1,8 @@
 
 class ASTNode:
+    def dup(self):
+        assert False, f"Need to override this in the child class: {type(self)}"
+
     def print_tree(self, prefix):
         assert False, f"Need to override this in the child class: {type(self)}"
 
@@ -53,9 +56,11 @@ class g_File(ASTNode):
     def __init__(self, decls):
         self.nameScope = NameScope(None)
         self.decls     = decls
+    def dup(self):
+        return g_File([d.dup() for d in self.decls])
+
     def __repr__(self):
         return f"ast.File({self.decls})"
-
     def print_tree(self, prefix):
         print(f"{prefix}FILE:")
         for d in self.decls:
@@ -109,6 +114,14 @@ class g_PartOrPlugDecl(ASTNode):
         self.name          = name      # is None iff this is a generic instantiation
         self.stmts         = stmts
         self.decl_bitSize  = None
+
+    def dup(self):
+        assert self.pub_nameScope is None
+        assert self.pri_nameScope is None
+        assert self.decl_bitSize  is None
+
+        dup_stmts = [s.dup() for s in self.stmts]
+        return g_PartOrPlugDecl(self.isPart, self.name, dup_stmts)
 
     def __repr__(self):
         return f"ast.g_PartDecl({self.name}, {self.stmts})"
@@ -207,6 +220,11 @@ class g_BlockStmt(ASTNode):
         self.stmts         = stmts
         self.decl_bitSize  = None
 
+    def dup(self):
+        assert self.pri_nameScope is None
+        assert self.decl_bitSize  is None
+        return g_BlockStmt([s.dup() for s in self.stmts])
+
     def deliver_if_conditions(self, cond):
         for s in self.stmts:
             s.deliver_if_conditions(cond)
@@ -264,6 +282,18 @@ class g_DeclStmt(ASTNode):
         self.initVal       = initVal
         self.decl_bitSize  = None
         self.offset        = None
+
+    def dup(self):
+        assert self.decl_bitSize is None
+        assert self.offset       is None
+
+        dup_typ  = self.typ_.dup()
+        dup_init = self.initVal.dup() if self.initVal is not None else None
+        return g_DeclStmt(self.prefix, self.isMem,
+                          dup_typ,
+                          self.name,
+                          dup_init)
+
     def __repr__(self):
         return f"ast.DeclStmt({self.prefix}, mem={self.isMem}, {self.typ_}, {self.name}, init={self.initVal})"
 
@@ -472,6 +502,12 @@ class g_ConnStmt(ASTNode):
         self.rhs          = rhs
         self.decl_bitSize = None
         self.lineRange = lineRange
+
+    def dup(self):
+        assert self.cond == "not delivered yet"
+        assert self.decl_bitSize is None
+        return g_ConnStmt(self.lineRange, self.lhs.dup(), self.rhs.dup())
+
     def __repr__(self):
         return f"ast.ConnStmt({self.lhs}, {self.rhs})"
 
@@ -693,6 +729,13 @@ class g_RuntimeIfStmt(ASTNode):
         self.true_stmt = true_stmt
         self.fals_stmt = fals_stmt     # could be None
 
+    def dup(self):
+        dup_cond = self.cond.dup()
+        dup_true = self.true_stmt.dup()
+        dup_fals = self.fals_stmt.dup() if self.fals_stmt is not None else None
+        return g_RuntimeIfStmt(self.lineRange_whole, self.lineInfo_else,
+                               dup_cond, dup_true, dup_fals)
+
     def print_tree(self, prefix):
         print(f"{prefix}g_RuntimeIfStmt:")
 
@@ -892,6 +935,9 @@ class g_AssertStmt(ASTNode):
         self.lineRange = lineRange
         self.expr = expr
 
+    def dup(self):
+        return g_AssertStmt(self.lineRange, self.expr.dup())
+
     def deliver_if_conditions(self, cond):
         if cond is not None:
             self.expr = g_BinaryExpr( self.lineRange,
@@ -938,6 +984,10 @@ class g_BinaryExpr(ASTNode):
 
         self.saved_metatype = None
 
+    def dup(self):
+        return g_BinaryExpr(self.lineInfo,
+                            self.lft.dup(), self.op, self.rgt.dup())
+
     def print_tree(self, prefix):
         print(f"{prefix}g_BinaryExpr:  op: {self.op}")
         print(f"{prefix}  lft:")
@@ -952,7 +1002,7 @@ class g_BinaryExpr(ASTNode):
     def convert_to_metatype(self, side):
         # sometimes, the same tree node is used at multiple places in
         # the tree.  We don't want to generate duplicate mt_ objects, if
-        # we can avoid it!
+        # we can avoid it!    TODO: is this true anymore???
 
         # TODO: when the same expression is used multiple times (and the
         #       expression has a nonzero decl_bitSize), we end up allocating
@@ -1000,6 +1050,9 @@ class g_UnaryExpr(ASTNode):
         self.rgt = rgt
 
         self.saved_metatype = None
+
+    def dup(self):
+        return g_UnaryExpr(self.lineInfo, self.op, self.rgt.dup())
 
     def print_tree(self, prefix):
         print(f"{prefix}g_UnaryExpr:   op: {repr(self.op)}")
@@ -1096,6 +1149,10 @@ class g_IdentExpr(ASTNode):
 
         self.saved_metatype = None
 
+    def dup(self):
+        assert self.target is None
+        return g_IdentExpr(self.name)
+
     def __repr__(self):
         if self.target is None:
             return f"IDENT={self.name} target=None"
@@ -1169,6 +1226,8 @@ class g_NumExpr(ASTNode):
 
     def __init__(self, num_txt):
         self.num = int(num_txt)
+    def dup(self):
+        return self
     def __repr__(self):
         return f"NUM={self.num}"
     def print_tree(self, prefix):
@@ -1187,7 +1246,14 @@ class g_DotExpr(ASTNode):
         self.base      = base
         self.fieldName = fieldName
 
+        self.target = None
+
         self.offset = None
+
+    def dup(self):
+        assert self.target is None
+        assert self.offset is None
+        return g_DotExpr(self.base.dup(), self.fieldName)
 
     def resolve_name_lookups(self, ns_pri):
         self.base.resolve_name_lookups(ns_pri)
@@ -1218,10 +1284,13 @@ class g_DotExpr(ASTNode):
 
 class g_Unresolved_Single_Index_Expr(ASTNode):
     def __init__(self, base, indx):
-        self.base      = base
-        self.indx      = indx
+        self.base = base
+        self.indx = indx
 
         self.saved_metatype = None
+
+    def dup(self):
+        return g_Unresolved_Single_Index_Expr(self.base.dup(), self.indx.dup())
 
     def print_tree(self, prefix):
         print(f"{prefix}URSIE:")
@@ -1237,7 +1306,6 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         else:
             print(f"{prefix}  indx:")
             self.indx.print_tree(prefix+"    ")
-
 
     def resolve_name_lookups(self, ns_pri):
         self.base.resolve_name_lookups(ns_pri)
@@ -1282,6 +1350,12 @@ class g_ArraySlice(ASTNode):
         self.end   = end
 
         self.saved_metatype = None
+
+    def dup(self):
+        base_dup  = self.base .dup()
+        start_dup = self.start.dup()
+        end_dup   = self.end  .dup() if self.end is not None else None
+        return g_ArraySlice(base_dup, start_dup, end_dup)
 
     def print_tree(self, prefix):
         print(f"{prefix}g_ArraySlice:")
@@ -1332,6 +1406,9 @@ class g_Generic_PartOrPlugDecl(ASTNode):
         self.isPart    = isPart
         self.ns_pub    = ns_pub
         self.stmts     = stmts
+
+    def dup(self):
+        TODO()
 
     def instantiate(self, arg_vals):
         assert len(arg_vals) == len(self.arg_decls), (len(arg_vals), len(self.arg_decls))
