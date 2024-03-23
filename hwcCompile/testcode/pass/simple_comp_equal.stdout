@@ -3,11 +3,11 @@
 #      2        main.c
 #      3        main.d
 #      4        main._EQ_4
-#      6        main._EQ_6
-#      5        main._NOT_5
+#      5        main._EQ_5
+#      6        main._NOT_6
 
 logic 4 <= 0 EQ 1 size 1    # FILE:5:7
 conn 2 <= int(0) size 1 cond 4    # FILE:6
-logic 6 <= 0 EQ 1 size 1    # FILE:8:7
-logic 5 <= NOT 6 size 1    # FILE:8:7
-conn 3 <= int(0) size 1 cond 5    # FILE:9
+logic 5 <= 0 EQ 1 size 1    # FILE:8:7
+logic 6 <= NOT 5 size 1    # FILE:8:7
+conn 3 <= int(0) size 1 cond 6    # FILE:9

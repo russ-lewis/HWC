@@ -602,6 +602,15 @@ class g_ConnStmt(ASTNode):
             else:
                 TODO()    # report syntax error
 
+        if type(self.rhs) == bool:
+            if self.lhs.typ_ == plugType_bit:
+               if self.rhs:
+                   self.rhs = mt_PlugExpr_Bit(1)
+               else:
+                   self.rhs = mt_PlugExpr_Bit(0)
+            else:
+                TODO()    # report syntax error.  Can't assign true/false to bit[]
+
         if isinstance(self.lhs, mt_PlugExpr) == False or \
            isinstance(self.rhs, mt_PlugExpr) == False:
             assert False    # TODO: implement other variants
@@ -1591,4 +1600,16 @@ class g_ForStmt(ASTNode):
     def print_wiring_diagram(self, start_bit):
         for i in range(len(self.passes)):
             self.passes[i].print_wiring_diagram(start_bit)
+
+
+
+class g_BoolExpr(ASTNode):
+    def __init__(self, val):
+        assert val in ["true","false"]
+        self.val = val
+
+    def resolve_name_lookups(self, ns_pri):
+        pass
+    def convert_to_metatype(self, side):
+        return mt_StaticExpr_Bool(self.val)
 

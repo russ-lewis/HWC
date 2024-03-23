@@ -234,9 +234,9 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ast.g_NumExpr(ctx.num.text)
 
         elif ctx.children[0].getText() == "true":
-            ctx.ast = TODO()
+            ctx.ast = ast.g_BoolExpr("true")
         elif ctx.children[0].getText() == "false":
-            ctx.ast = TODO()
+            ctx.ast = ast.g_BoolExpr("false")
 
         elif ctx.children[0].getText() == "concat":
             lineInfo = build_line_info(ctx.funcName)

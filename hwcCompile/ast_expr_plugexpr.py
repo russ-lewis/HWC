@@ -517,15 +517,21 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         if isinstance(self.rgt, mt_StaticExpr):
             self.rgt = self.rgt.resolve_static_expr()
 
-            if type(self.rgt) != int:
+            if type(self.rgt) not in [int,bool]:
                 TODO()    # report syntax error
-            if self.rgt < 0 or (self.rgt >> self.lft.typ_.decl_bitSize) != 0:
-                TODO()    # report syntax error
+            if type(self.rgt) == int:
+                if self.rgt < 0 or (self.rgt >> self.lft.typ_.decl_bitSize) != 0:
+                    TODO()    # report syntax error
+
+            if type(self.rgt) == bool:
+                self.rgt = 1 if self.rgt else 0
+
+            # TODO: do better type checking when the rhs was a StaticExpr.  See ConnStmt for reference
 
         elif self.lft.typ_ != self.rgt.typ_:
             TODO()     # report syntax error
 
-        if type(self.rgt) == int:
+        if type(self.rgt) in [int,bool]:
             rgtSize = 0
         else:
             rgtSize = self.rgt.decl_bitSize
@@ -540,7 +546,7 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.calc_top_down_offsets(offset + self.lft.decl_bitSize)
 
-        if type(self.rgt) == int:
+        if type(self.rgt) in [int,bool]:
             rgtSize = 0
         else:
             rgtSize = self.rgt.decl_bitSize
@@ -806,13 +812,12 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
 
         self.typ_.decl_bitSize
         self.rgt.calc_sizes()
-        self.decl_bitSize = self.typ_.decl_bitSize + self.rgt.decl_bitSize
+        self.decl_bitSize = self.rgt.decl_bitSize + self.typ_.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
         assert self.offset is None
-
-        self.offset = offset
-        self.rgt.calc_top_down_offsets(offset + self.typ_.decl_bitSize)
+        self.rgt.calc_top_down_offsets(offset)
+        self.offset = offset + self.rgt.decl_bitSize
 
     def calc_bottom_up_offsets(self):
         self.rgt.calc_bottom_up_offsets()

@@ -1,0 +1,10 @@
+#      0        main.a
+#      1        main.b
+#      2        main._EQ_2
+#      3        main._NOT_3
+
+conn 0 <= int(1) size 1    # FILE:6
+conn 1 <= int(0) size 1    # FILE:7
+logic 2 <= 0 EQ int(1) size 1    # FILE:9:7
+logic 3 <= NOT 2 size 1    # FILE:9:7
+conn 1 <= int(1) size 1 cond 3    # FILE:10
