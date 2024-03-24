@@ -1,0 +1,323 @@
+#      0      6 main.breakAt
+#      6     70 main.points
+#     70        main.__for_6_7_0__._EQ_70
+#     71        main.__for_6_7_0__._NOT_71
+#     72        main.__for_6_7_1__._EQ_72
+#     73        main.__for_6_7_1__._NOT_73
+#     74        main.__for_6_7_2__._EQ_74
+#     75        main.__for_6_7_2__._NOT_75
+#     76        main.__for_6_7_3__._EQ_76
+#     77        main.__for_6_7_3__._NOT_77
+#     78        main.__for_6_7_4__._EQ_78
+#     79        main.__for_6_7_4__._NOT_79
+#     80        main.__for_6_7_5__._EQ_80
+#     81        main.__for_6_7_5__._NOT_81
+#     82        main.__for_6_7_6__._EQ_82
+#     83        main.__for_6_7_6__._NOT_83
+#     84        main.__for_6_7_7__._EQ_84
+#     85        main.__for_6_7_7__._NOT_85
+#     86        main.__for_6_7_8__._EQ_86
+#     87        main.__for_6_7_8__._NOT_87
+#     88        main.__for_6_7_9__._EQ_88
+#     89        main.__for_6_7_9__._NOT_89
+#     90        main.__for_6_7_10__._EQ_90
+#     91        main.__for_6_7_10__._NOT_91
+#     92        main.__for_6_7_11__._EQ_92
+#     93        main.__for_6_7_11__._NOT_93
+#     94        main.__for_6_7_12__._EQ_94
+#     95        main.__for_6_7_12__._NOT_95
+#     96        main.__for_6_7_13__._EQ_96
+#     97        main.__for_6_7_13__._NOT_97
+#     98        main.__for_6_7_14__._EQ_98
+#     99        main.__for_6_7_14__._NOT_99
+#    100        main.__for_6_7_15__._EQ_100
+#    101        main.__for_6_7_15__._NOT_101
+#    102        main.__for_6_7_16__._EQ_102
+#    103        main.__for_6_7_16__._NOT_103
+#    104        main.__for_6_7_17__._EQ_104
+#    105        main.__for_6_7_17__._NOT_105
+#    106        main.__for_6_7_18__._EQ_106
+#    107        main.__for_6_7_18__._NOT_107
+#    108        main.__for_6_7_19__._EQ_108
+#    109        main.__for_6_7_19__._NOT_109
+#    110        main.__for_6_7_20__._EQ_110
+#    111        main.__for_6_7_20__._NOT_111
+#    112        main.__for_6_7_21__._EQ_112
+#    113        main.__for_6_7_21__._NOT_113
+#    114        main.__for_6_7_22__._EQ_114
+#    115        main.__for_6_7_22__._NOT_115
+#    116        main.__for_6_7_23__._EQ_116
+#    117        main.__for_6_7_23__._NOT_117
+#    118        main.__for_6_7_24__._EQ_118
+#    119        main.__for_6_7_24__._NOT_119
+#    120        main.__for_6_7_25__._EQ_120
+#    121        main.__for_6_7_25__._NOT_121
+#    122        main.__for_6_7_26__._EQ_122
+#    123        main.__for_6_7_26__._NOT_123
+#    124        main.__for_6_7_27__._EQ_124
+#    125        main.__for_6_7_27__._NOT_125
+#    126        main.__for_6_7_28__._EQ_126
+#    127        main.__for_6_7_28__._NOT_127
+#    128        main.__for_6_7_29__._EQ_128
+#    129        main.__for_6_7_29__._NOT_129
+#    130        main.__for_6_7_30__._EQ_130
+#    131        main.__for_6_7_30__._NOT_131
+#    132        main.__for_6_7_31__._EQ_132
+#    133        main.__for_6_7_31__._NOT_133
+#    134        main.__for_6_7_32__._EQ_134
+#    135        main.__for_6_7_32__._NOT_135
+#    136        main.__for_6_7_33__._EQ_136
+#    137        main.__for_6_7_33__._NOT_137
+#    138        main.__for_6_7_34__._EQ_138
+#    139        main.__for_6_7_34__._NOT_139
+#    140        main.__for_6_7_35__._EQ_140
+#    141        main.__for_6_7_35__._NOT_141
+#    142        main.__for_6_7_36__._EQ_142
+#    143        main.__for_6_7_36__._NOT_143
+#    144        main.__for_6_7_37__._EQ_144
+#    145        main.__for_6_7_37__._NOT_145
+#    146        main.__for_6_7_38__._EQ_146
+#    147        main.__for_6_7_38__._NOT_147
+#    148        main.__for_6_7_39__._EQ_148
+#    149        main.__for_6_7_39__._NOT_149
+#    150        main.__for_6_7_40__._EQ_150
+#    151        main.__for_6_7_40__._NOT_151
+#    152        main.__for_6_7_41__._EQ_152
+#    153        main.__for_6_7_41__._NOT_153
+#    154        main.__for_6_7_42__._EQ_154
+#    155        main.__for_6_7_42__._NOT_155
+#    156        main.__for_6_7_43__._EQ_156
+#    157        main.__for_6_7_43__._NOT_157
+#    158        main.__for_6_7_44__._EQ_158
+#    159        main.__for_6_7_44__._NOT_159
+#    160        main.__for_6_7_45__._EQ_160
+#    161        main.__for_6_7_45__._NOT_161
+#    162        main.__for_6_7_46__._EQ_162
+#    163        main.__for_6_7_46__._NOT_163
+#    164        main.__for_6_7_47__._EQ_164
+#    165        main.__for_6_7_47__._NOT_165
+#    166        main.__for_6_7_48__._EQ_166
+#    167        main.__for_6_7_48__._NOT_167
+#    168        main.__for_6_7_49__._EQ_168
+#    169        main.__for_6_7_49__._NOT_169
+#    170        main.__for_6_7_50__._EQ_170
+#    171        main.__for_6_7_50__._NOT_171
+#    172        main.__for_6_7_51__._EQ_172
+#    173        main.__for_6_7_51__._NOT_173
+#    174        main.__for_6_7_52__._EQ_174
+#    175        main.__for_6_7_52__._NOT_175
+#    176        main.__for_6_7_53__._EQ_176
+#    177        main.__for_6_7_53__._NOT_177
+#    178        main.__for_6_7_54__._EQ_178
+#    179        main.__for_6_7_54__._NOT_179
+#    180        main.__for_6_7_55__._EQ_180
+#    181        main.__for_6_7_55__._NOT_181
+#    182        main.__for_6_7_56__._EQ_182
+#    183        main.__for_6_7_56__._NOT_183
+#    184        main.__for_6_7_57__._EQ_184
+#    185        main.__for_6_7_57__._NOT_185
+#    186        main.__for_6_7_58__._EQ_186
+#    187        main.__for_6_7_58__._NOT_187
+#    188        main.__for_6_7_59__._EQ_188
+#    189        main.__for_6_7_59__._NOT_189
+#    190        main.__for_6_7_60__._EQ_190
+#    191        main.__for_6_7_60__._NOT_191
+#    192        main.__for_6_7_61__._EQ_192
+#    193        main.__for_6_7_61__._NOT_193
+#    194        main.__for_6_7_62__._EQ_194
+#    195        main.__for_6_7_62__._NOT_195
+#    196        main.__for_6_7_63__._EQ_196
+#    197        main.__for_6_7_63__._NOT_197
+
+logic 70 <= 0 EQ int(0) size 1    # FILE:8:15
+logic 71 <= NOT 70 size 1    # FILE:8:15
+conn 7 <= 6 size 1 cond 71    # FILE:9
+logic 72 <= 0 EQ int(1) size 1    # FILE:8:15
+logic 73 <= NOT 72 size 1    # FILE:8:15
+conn 8 <= 7 size 1 cond 73    # FILE:9
+logic 74 <= 0 EQ int(2) size 1    # FILE:8:15
+logic 75 <= NOT 74 size 1    # FILE:8:15
+conn 9 <= 8 size 1 cond 75    # FILE:9
+logic 76 <= 0 EQ int(3) size 1    # FILE:8:15
+logic 77 <= NOT 76 size 1    # FILE:8:15
+conn 10 <= 9 size 1 cond 77    # FILE:9
+logic 78 <= 0 EQ int(4) size 1    # FILE:8:15
+logic 79 <= NOT 78 size 1    # FILE:8:15
+conn 11 <= 10 size 1 cond 79    # FILE:9
+logic 80 <= 0 EQ int(5) size 1    # FILE:8:15
+logic 81 <= NOT 80 size 1    # FILE:8:15
+conn 12 <= 11 size 1 cond 81    # FILE:9
+logic 82 <= 0 EQ int(6) size 1    # FILE:8:15
+logic 83 <= NOT 82 size 1    # FILE:8:15
+conn 13 <= 12 size 1 cond 83    # FILE:9
+logic 84 <= 0 EQ int(7) size 1    # FILE:8:15
+logic 85 <= NOT 84 size 1    # FILE:8:15
+conn 14 <= 13 size 1 cond 85    # FILE:9
+logic 86 <= 0 EQ int(8) size 1    # FILE:8:15
+logic 87 <= NOT 86 size 1    # FILE:8:15
+conn 15 <= 14 size 1 cond 87    # FILE:9
+logic 88 <= 0 EQ int(9) size 1    # FILE:8:15
+logic 89 <= NOT 88 size 1    # FILE:8:15
+conn 16 <= 15 size 1 cond 89    # FILE:9
+logic 90 <= 0 EQ int(10) size 1    # FILE:8:15
+logic 91 <= NOT 90 size 1    # FILE:8:15
+conn 17 <= 16 size 1 cond 91    # FILE:9
+logic 92 <= 0 EQ int(11) size 1    # FILE:8:15
+logic 93 <= NOT 92 size 1    # FILE:8:15
+conn 18 <= 17 size 1 cond 93    # FILE:9
+logic 94 <= 0 EQ int(12) size 1    # FILE:8:15
+logic 95 <= NOT 94 size 1    # FILE:8:15
+conn 19 <= 18 size 1 cond 95    # FILE:9
+logic 96 <= 0 EQ int(13) size 1    # FILE:8:15
+logic 97 <= NOT 96 size 1    # FILE:8:15
+conn 20 <= 19 size 1 cond 97    # FILE:9
+logic 98 <= 0 EQ int(14) size 1    # FILE:8:15
+logic 99 <= NOT 98 size 1    # FILE:8:15
+conn 21 <= 20 size 1 cond 99    # FILE:9
+logic 100 <= 0 EQ int(15) size 1    # FILE:8:15
+logic 101 <= NOT 100 size 1    # FILE:8:15
+conn 22 <= 21 size 1 cond 101    # FILE:9
+logic 102 <= 0 EQ int(16) size 1    # FILE:8:15
+logic 103 <= NOT 102 size 1    # FILE:8:15
+conn 23 <= 22 size 1 cond 103    # FILE:9
+logic 104 <= 0 EQ int(17) size 1    # FILE:8:15
+logic 105 <= NOT 104 size 1    # FILE:8:15
+conn 24 <= 23 size 1 cond 105    # FILE:9
+logic 106 <= 0 EQ int(18) size 1    # FILE:8:15
+logic 107 <= NOT 106 size 1    # FILE:8:15
+conn 25 <= 24 size 1 cond 107    # FILE:9
+logic 108 <= 0 EQ int(19) size 1    # FILE:8:15
+logic 109 <= NOT 108 size 1    # FILE:8:15
+conn 26 <= 25 size 1 cond 109    # FILE:9
+logic 110 <= 0 EQ int(20) size 1    # FILE:8:15
+logic 111 <= NOT 110 size 1    # FILE:8:15
+conn 27 <= 26 size 1 cond 111    # FILE:9
+logic 112 <= 0 EQ int(21) size 1    # FILE:8:15
+logic 113 <= NOT 112 size 1    # FILE:8:15
+conn 28 <= 27 size 1 cond 113    # FILE:9
+logic 114 <= 0 EQ int(22) size 1    # FILE:8:15
+logic 115 <= NOT 114 size 1    # FILE:8:15
+conn 29 <= 28 size 1 cond 115    # FILE:9
+logic 116 <= 0 EQ int(23) size 1    # FILE:8:15
+logic 117 <= NOT 116 size 1    # FILE:8:15
+conn 30 <= 29 size 1 cond 117    # FILE:9
+logic 118 <= 0 EQ int(24) size 1    # FILE:8:15
+logic 119 <= NOT 118 size 1    # FILE:8:15
+conn 31 <= 30 size 1 cond 119    # FILE:9
+logic 120 <= 0 EQ int(25) size 1    # FILE:8:15
+logic 121 <= NOT 120 size 1    # FILE:8:15
+conn 32 <= 31 size 1 cond 121    # FILE:9
+logic 122 <= 0 EQ int(26) size 1    # FILE:8:15
+logic 123 <= NOT 122 size 1    # FILE:8:15
+conn 33 <= 32 size 1 cond 123    # FILE:9
+logic 124 <= 0 EQ int(27) size 1    # FILE:8:15
+logic 125 <= NOT 124 size 1    # FILE:8:15
+conn 34 <= 33 size 1 cond 125    # FILE:9
+logic 126 <= 0 EQ int(28) size 1    # FILE:8:15
+logic 127 <= NOT 126 size 1    # FILE:8:15
+conn 35 <= 34 size 1 cond 127    # FILE:9
+logic 128 <= 0 EQ int(29) size 1    # FILE:8:15
+logic 129 <= NOT 128 size 1    # FILE:8:15
+conn 36 <= 35 size 1 cond 129    # FILE:9
+logic 130 <= 0 EQ int(30) size 1    # FILE:8:15
+logic 131 <= NOT 130 size 1    # FILE:8:15
+conn 37 <= 36 size 1 cond 131    # FILE:9
+logic 132 <= 0 EQ int(31) size 1    # FILE:8:15
+logic 133 <= NOT 132 size 1    # FILE:8:15
+conn 38 <= 37 size 1 cond 133    # FILE:9
+logic 134 <= 0 EQ int(32) size 1    # FILE:8:15
+logic 135 <= NOT 134 size 1    # FILE:8:15
+conn 39 <= 38 size 1 cond 135    # FILE:9
+logic 136 <= 0 EQ int(33) size 1    # FILE:8:15
+logic 137 <= NOT 136 size 1    # FILE:8:15
+conn 40 <= 39 size 1 cond 137    # FILE:9
+logic 138 <= 0 EQ int(34) size 1    # FILE:8:15
+logic 139 <= NOT 138 size 1    # FILE:8:15
+conn 41 <= 40 size 1 cond 139    # FILE:9
+logic 140 <= 0 EQ int(35) size 1    # FILE:8:15
+logic 141 <= NOT 140 size 1    # FILE:8:15
+conn 42 <= 41 size 1 cond 141    # FILE:9
+logic 142 <= 0 EQ int(36) size 1    # FILE:8:15
+logic 143 <= NOT 142 size 1    # FILE:8:15
+conn 43 <= 42 size 1 cond 143    # FILE:9
+logic 144 <= 0 EQ int(37) size 1    # FILE:8:15
+logic 145 <= NOT 144 size 1    # FILE:8:15
+conn 44 <= 43 size 1 cond 145    # FILE:9
+logic 146 <= 0 EQ int(38) size 1    # FILE:8:15
+logic 147 <= NOT 146 size 1    # FILE:8:15
+conn 45 <= 44 size 1 cond 147    # FILE:9
+logic 148 <= 0 EQ int(39) size 1    # FILE:8:15
+logic 149 <= NOT 148 size 1    # FILE:8:15
+conn 46 <= 45 size 1 cond 149    # FILE:9
+logic 150 <= 0 EQ int(40) size 1    # FILE:8:15
+logic 151 <= NOT 150 size 1    # FILE:8:15
+conn 47 <= 46 size 1 cond 151    # FILE:9
+logic 152 <= 0 EQ int(41) size 1    # FILE:8:15
+logic 153 <= NOT 152 size 1    # FILE:8:15
+conn 48 <= 47 size 1 cond 153    # FILE:9
+logic 154 <= 0 EQ int(42) size 1    # FILE:8:15
+logic 155 <= NOT 154 size 1    # FILE:8:15
+conn 49 <= 48 size 1 cond 155    # FILE:9
+logic 156 <= 0 EQ int(43) size 1    # FILE:8:15
+logic 157 <= NOT 156 size 1    # FILE:8:15
+conn 50 <= 49 size 1 cond 157    # FILE:9
+logic 158 <= 0 EQ int(44) size 1    # FILE:8:15
+logic 159 <= NOT 158 size 1    # FILE:8:15
+conn 51 <= 50 size 1 cond 159    # FILE:9
+logic 160 <= 0 EQ int(45) size 1    # FILE:8:15
+logic 161 <= NOT 160 size 1    # FILE:8:15
+conn 52 <= 51 size 1 cond 161    # FILE:9
+logic 162 <= 0 EQ int(46) size 1    # FILE:8:15
+logic 163 <= NOT 162 size 1    # FILE:8:15
+conn 53 <= 52 size 1 cond 163    # FILE:9
+logic 164 <= 0 EQ int(47) size 1    # FILE:8:15
+logic 165 <= NOT 164 size 1    # FILE:8:15
+conn 54 <= 53 size 1 cond 165    # FILE:9
+logic 166 <= 0 EQ int(48) size 1    # FILE:8:15
+logic 167 <= NOT 166 size 1    # FILE:8:15
+conn 55 <= 54 size 1 cond 167    # FILE:9
+logic 168 <= 0 EQ int(49) size 1    # FILE:8:15
+logic 169 <= NOT 168 size 1    # FILE:8:15
+conn 56 <= 55 size 1 cond 169    # FILE:9
+logic 170 <= 0 EQ int(50) size 1    # FILE:8:15
+logic 171 <= NOT 170 size 1    # FILE:8:15
+conn 57 <= 56 size 1 cond 171    # FILE:9
+logic 172 <= 0 EQ int(51) size 1    # FILE:8:15
+logic 173 <= NOT 172 size 1    # FILE:8:15
+conn 58 <= 57 size 1 cond 173    # FILE:9
+logic 174 <= 0 EQ int(52) size 1    # FILE:8:15
+logic 175 <= NOT 174 size 1    # FILE:8:15
+conn 59 <= 58 size 1 cond 175    # FILE:9
+logic 176 <= 0 EQ int(53) size 1    # FILE:8:15
+logic 177 <= NOT 176 size 1    # FILE:8:15
+conn 60 <= 59 size 1 cond 177    # FILE:9
+logic 178 <= 0 EQ int(54) size 1    # FILE:8:15
+logic 179 <= NOT 178 size 1    # FILE:8:15
+conn 61 <= 60 size 1 cond 179    # FILE:9
+logic 180 <= 0 EQ int(55) size 1    # FILE:8:15
+logic 181 <= NOT 180 size 1    # FILE:8:15
+conn 62 <= 61 size 1 cond 181    # FILE:9
+logic 182 <= 0 EQ int(56) size 1    # FILE:8:15
+logic 183 <= NOT 182 size 1    # FILE:8:15
+conn 63 <= 62 size 1 cond 183    # FILE:9
+logic 184 <= 0 EQ int(57) size 1    # FILE:8:15
+logic 185 <= NOT 184 size 1    # FILE:8:15
+conn 64 <= 63 size 1 cond 185    # FILE:9
+logic 186 <= 0 EQ int(58) size 1    # FILE:8:15
+logic 187 <= NOT 186 size 1    # FILE:8:15
+conn 65 <= 64 size 1 cond 187    # FILE:9
+logic 188 <= 0 EQ int(59) size 1    # FILE:8:15
+logic 189 <= NOT 188 size 1    # FILE:8:15
+conn 66 <= 65 size 1 cond 189    # FILE:9
+logic 190 <= 0 EQ int(60) size 1    # FILE:8:15
+logic 191 <= NOT 190 size 1    # FILE:8:15
+conn 67 <= 66 size 1 cond 191    # FILE:9
+logic 192 <= 0 EQ int(61) size 1    # FILE:8:15
+logic 193 <= NOT 192 size 1    # FILE:8:15
+conn 68 <= 67 size 1 cond 193    # FILE:9
+logic 194 <= 0 EQ int(62) size 1    # FILE:8:15
+logic 195 <= NOT 194 size 1    # FILE:8:15
+conn 69 <= 68 size 1 cond 195    # FILE:9
+logic 196 <= 0 EQ int(63) size 1    # FILE:8:15
+logic 197 <= NOT 196 size 1    # FILE:8:15
+conn 6 <= 69 size 1 cond 197    # FILE:9

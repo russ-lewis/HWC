@@ -569,7 +569,7 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
             endStr = ""
         else:
             endStr = f"{start_bit+self.offset+self.typ_.decl_bitSize}"
-        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{self.offset}")
+        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{start_bit + self.offset}")
 
     def print_wiring_diagram(self, start_bit):
         self.lft.print_wiring_diagram(start_bit)

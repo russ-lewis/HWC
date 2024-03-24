@@ -7,43 +7,43 @@
 #      7        main.b.control
 #      8     10 main.b.in
 #     10        main.b.out
-#     11        main.b._EQ_4
+#     11        main.b._EQ_11
 #     12        main.b._NOT_12
 #     13        main._EQ_13
 #     14        main.c.control
 #     15     17 main.c.in
 #     17        main.c.out
-#     18        main.c._EQ_4
+#     18        main.c._EQ_18
 #     19        main.c._NOT_19
 #     20        main._EQ_20
 #     21        main.d.control
 #     22     24 main.d.in
 #     24        main.d.out
-#     25        main.d._EQ_4
+#     25        main.d._EQ_25
 #     26        main.d._NOT_26
 #     27        main._EQ_27
 #     28        main.e.control
 #     29     31 main.e.in
 #     31        main.e.out
-#     32        main.e._EQ_4
+#     32        main.e._EQ_32
 #     33        main.e._NOT_33
 #     34        main._EQ_34
 #     35        main.f.control
 #     36     38 main.f.in
 #     38        main.f.out
-#     39        main.f._EQ_4
+#     39        main.f._EQ_39
 #     40        main.f._NOT_40
 #     41        main._EQ_41
 #     42        main.g.control
 #     43     45 main.g.in
 #     45        main.g.out
-#     46        main.g._EQ_4
+#     46        main.g._EQ_46
 #     47        main.g._NOT_47
 #     48        main._EQ_48
 #     49        main.h.control
 #     50     52 main.h.in
 #     52        main.h.out
-#     53        main.h._EQ_4
+#     53        main.h._EQ_53
 #     54        main.h._NOT_54
 #     55        main._EQ_55
 

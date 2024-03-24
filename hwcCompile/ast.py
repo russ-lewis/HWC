@@ -114,6 +114,7 @@ class g_PartOrPlugDecl(ASTNode):
         self.name          = name      # is None iff this is a generic instantiation
         self.stmts         = stmts
         self.decl_bitSize  = None
+        self.offset        = None
 
     def dup(self):
         assert self.pub_nameScope is None
@@ -191,14 +192,46 @@ class g_PartOrPlugDecl(ASTNode):
             s.calc_sizes()
         self.decl_bitSize = sum(s.decl_bitSize for s in self.stmts)
 
-    def calc_top_down_offsets(self, offset):
-        assert offset is None
+    def calc_top_down_offsets(self, offset, forLoop_instOffset=None):
+        # we use offsets in our parts, instead of absolute bit addresses,
+        # because a part can be instantiated multiple times.  So when we lay
+        # out our bits, it's always as *offsets* from the start of the part.
+        #
+        # For this reason (with one exception we'll talk about below), we
+        # always start at offset 0 when we are recursing into a g_PartOrPlugDecl;
+        # and to sanity check that our calling code isn't (accidentally) doing
+        # the wrong thing (or the right thing in a fragile way), we expect them
+        # to pass None to us
+        #
+        # But the instantiated generic parts that we use to represent the passes
+        # of our for() loops are weird.  First, (unlike all other parts!)
+        # they have the ability to access fields outside their own physical
+        # range - both before and after.  Second, (unlike other instantiated
+        # generics), each of these will only be used exactly ONCE.  (The part
+        # that encloses us might be used multiple times, but that's a different
+        # question.)
+        #
+        # After struglling with how to handle offsets to get to the fields of
+        # this part which are outside the loop, I finally stumbled on the simple
+        # solution:
+        #    1) All of the for() loops will use the same offset-space as the
+        #       fields of the enclosing part.  So nonzero starting offsets will
+        #       be routine, and different instantiations of the same generic
+        #       will typically have different starting offsets.
+        #    2) When we generate the wiring diagram, we will use the same
+        #       start_bit as the enclosing part.
+        #
+        # We didn't want to give up our error checking, and so we added a
+        # (normally omitted) parameter, which will *only* be used in ForStmt:
+        # the forLoop_instOffset.  This is just the offset, but named funny so
+        # that we don't give up our sanity-checking for all the other code.
 
-        running_offset = 0
+        assert offset is None, offset
+        running_offset = 0 if forLoop_instOffset is None else forLoop_instOffset
+
         for s in self.stmts:
-            if s.decl_bitSize > 0:
-                s.calc_top_down_offsets(running_offset)
-                running_offset += s.decl_bitSize
+            s.calc_top_down_offsets(running_offset)
+            running_offset += s.decl_bitSize
 
     def calc_bottom_up_offsets(self):
         for s in self.stmts:
@@ -1050,6 +1083,17 @@ class g_BinaryExpr(ASTNode):
         elif self.op == "concat":
             return mt_PlugExpr_CONCAT(self.lineInfo, self.lft, self.rgt)
 
+        elif self.op == "+":
+            return mt_StaticExpr_ADD(self.lineInfo, self.lft, self.rgt)
+        elif self.op == "-":
+            return mt_StaticExpr_SUB(self.lineInfo, self.lft, self.rgt)
+        elif self.op == "*":
+            return mt_StaticExpr_MUL(self.lineInfo, self.lft, self.rgt)
+        elif self.op == "/":
+            return mt_StaticExpr_DIV(self.lineInfo, self.lft, self.rgt)
+        elif self.op == "%":
+            return mt_StaticExpr_MOD(self.lineInfo, self.lft, self.rgt)
+
         else:
             print("failed op: "+self.op)
             TODO()      # add support for more operators
@@ -1506,10 +1550,9 @@ class g_ForStmt(ASTNode):
         # of the normal work (as if we were not generic), to *ONLY* start,end.
         # They will resolve once we get to calc_sizes().  Then, once we know
         # their values, we will create the array and will do the instantiations
-
-# silly me, expressions don't need to have me call this.
-#        self.start.populate_name_scopes(None, ns_pri)
-#        self.end  .populate_name_scopes(None, ns_pri)
+        #
+        # remember, we don't call p_n_s() on expressions.  So we "did" the step
+        # for start,end - but it was a NOP!
 
         # We save the private name scope, so that it can be used for each of
         # the instantiated passes, later.
@@ -1587,7 +1630,10 @@ class g_ForStmt(ASTNode):
         self.decl_bitSize = sum(inst.decl_bitSize for inst in self.passes)
 
     def calc_top_down_offsets(self, offset):
-        TODO()
+        running_offset = offset
+        for inst in self.passes:
+            inst.calc_top_down_offsets(None, forLoop_instOffset=running_offset)
+            running_offset += inst.decl_bitSize
 
     def calc_bottom_up_offsets(self):
         for inst in self.passes:
