@@ -92,6 +92,12 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
                self.base  == other.base  and \
                self.len_  == other.len_
 
+    def get_multidim_base(self):
+        if type(self.base) == mt_PlugDecl_ArrayOf:
+            return self.base.get_multidim_base()
+        else:
+            return self.base
+
     def resolve_name_lookups(self, ns_pri):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
@@ -121,8 +127,8 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         self.decl_bitSize = self.base.decl_bitSize * self.len_
 
     def print_bit_descriptions(self, name, start_bit):
-        if type(self.base) == mt_PlugDecl_Bit:
-            print(f"# {start_bit:6d} {start_bit+self.len_:6d} {name}")
+        if type(self.get_multidim_base()) == mt_PlugDecl_Bit:
+            print(f"# {start_bit:6d} {start_bit+self.decl_bitSize:6d} {name}")
         else:
             for i in range(self.len_):
                 self.base.print_bit_descriptions(f"{name}[{i}]", start_bit + i*self.base.decl_bitSize)

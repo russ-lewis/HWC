@@ -1,0 +1,16 @@
+#      0    128 main.in
+#    128    160 main.out
+#    160    162 main.control
+#    162        main.__for_7_7_0__._EQ_162
+#    163        main.__for_7_7_1__._EQ_163
+#    164        main.__for_7_7_2__._EQ_164
+#    165        main.__for_7_7_3__._EQ_165
+
+logic 162 <= 160 EQ int(0) size 1    # FILE:9:15
+conn 128 <= 0 size 32 cond 162    # FILE:11
+logic 163 <= 160 EQ int(1) size 1    # FILE:9:15
+conn 128 <= 32 size 32 cond 163    # FILE:11
+logic 164 <= 160 EQ int(2) size 1    # FILE:9:15
+conn 128 <= 64 size 32 cond 164    # FILE:11
+logic 165 <= 160 EQ int(3) size 1    # FILE:9:15
+conn 128 <= 96 size 32 cond 165    # FILE:11

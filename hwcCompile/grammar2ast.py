@@ -66,6 +66,9 @@ class HWCAstGenerator(hwcListener):
 
 
     def exitStmt_Block(self, ctx):
+        # if() statements that wrap this statement will want to know this
+        ctx.uncovered_else = False
+
         ctx.ast = ast.g_BlockStmt(flatten(ctx.stmts))
 
 
@@ -143,6 +146,19 @@ class HWCAstGenerator(hwcListener):
         body  = ctx.body .ast
 
         tuple_name = ctx.tuple_name.text if ctx.tuple_name is not None else None
+
+        # most non-trivial for() loops will have {}, which means that uncovered
+        # else's inside them are harmless.  However, we already have code that
+        # handles {}.  But not all for() loops are harmless.  Consider this code,
+        # which definitely has an uncovered else problem:
+        #    if (foo)
+        #        for (i; 0..32)
+        #            if (bar)
+        #                x == y;
+        #
+        # Thus, for() loops must *inherit* their uncovered-else property from
+        # their body statement.
+        ctx.uncovered_else = ctx.body.uncovered_else
 
         lineInfo = build_line_info(ctx.var)
         ctx.ast = ast.g_ForStmt(lineInfo, var, start,end, body, tuple_name)
