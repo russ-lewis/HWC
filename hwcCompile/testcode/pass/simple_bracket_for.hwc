@@ -1,4 +1,4 @@
-part simple_for
+part main
 {
 	public bit[32] in;
 	public bit[32] out;
