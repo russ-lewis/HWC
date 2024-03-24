@@ -1,6 +1,16 @@
 #! /bin/bash
 
 
+make
+rc=$?
+
+if [[ $rc != 0 ]]
+then
+  echo "ERROR: make failed!" 1>&2
+  exit $rc
+fi
+
+
 if [[ $* == "" ]]
 then
   search=testcode/pass/
