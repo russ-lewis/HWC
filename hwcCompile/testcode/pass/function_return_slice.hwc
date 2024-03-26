@@ -1,0 +1,49 @@
+
+  // TODO: I THINK I NEED TO CHANGE THIS SYNTAX
+  //
+  // "plug function" is an ambiguous expression.  Does it mean "function that
+  // returns a plug type" (something I definitely want to support) or "function
+  // that returns a plug value" (which is what this code is doing) ?
+
+plug function var_offset_slice(plug[] data, bit[] start, int OUT_LEN)
+{
+    static int IN_LEN   = len(data);
+    static int MAX_INDX = IN_LEN - OUT_LEN;
+    static assert MAX_INDX > 0;
+
+    // in this function, I use an explicitly declared 'retval' variable.  This
+    // makes it possible to impose the restriction that the function has
+    // exactly one return statement, and that it not be conditional - which
+    // simplifies the compiler.  But I'd like to someday add flexibility to
+    // HWC, such that you could have many return statements, so long as
+    // (a) they all return the same type; and (b) exactly one of them
+    // returns on every clock tick.  But that's for the future.
+    private typeof(data[0])[LEN] retval;
+
+    private flag OK;
+    for (i; 0 .. MAX_INDX+1)
+        if (start == i) {
+            retval = data[i : i+OUT_LEN);
+            OK = 1;
+        }
+    assert OK;    // validate that we actually returned *something*
+
+    return retval;
+}
+
+
+
+part main
+{
+    public bit[64] input;
+
+    public bit[6]  a_where;
+    public bit[12] a = var_offset_slice(input, a_where, 12);
+
+    public bit[6]  b_where;
+    public bit[24] b = var_offset_slice(input, b_where, 24);
+
+    public bit[6]  c_where;
+    public bit[7]  c = var_offset_slice(input, c_where,  7);
+}
+

@@ -13,3 +13,7 @@ args can be:
 
   ??? plug function / part function / static function ???
 
+
+
+TODO: how to distinguish between "function that returns a plug type" and "function that returns a plug value" ???
+
