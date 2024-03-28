@@ -1068,7 +1068,7 @@ class g_BinaryExpr(ASTNode):
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "XOR", self.rgt)
 
         elif self.op == "concat":
-            return mt_PlugExpr_CONCAT(self.lineInfo, self.lft, self.rgt)
+            return mt_PlugExpr_Discontig([self.lft, self.rgt])
 
         elif self.op == "+":
             return mt_StaticExpr_ADD(self.lineInfo, self.lft, self.rgt)

@@ -122,6 +122,8 @@ class mt_PlugExpr_Alias(mt_PlugExpr):
     def convert_to_metatype(self, side):
         self.base = self.base.convert_to_metatype("right")
 
+        self.is_lhs = self.base.is_lhs
+
         assert self.base.typ_ is not None
         assert isinstance(self.base.typ_, mt_PlugDecl)
         self.typ_ = self.base.typ_
@@ -690,41 +692,77 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
 
 
 
-class mt_PlugExpr_CONCAT(mt_PlugExpr):
-    is_lhs = False
+# this type represnts something very much like an array, except that it is not
+# expected to be physically contiguous in memory.  So it's a lot like ArrayOf,
+# except that it doesn't have an offset in the traditional sense.  Instead, it
+# has an array (with at least two elements), which are both ArrayOf using
+# compatible types (but probably not the same length).
+#
+# Indexing into this type indexes into exactly one of the underlying ArrayOf
+# types, resulting in an expression which is of the base type.
+#
+# Slicing this type chops through the various ArrayOf elements; sometimes, the
+# entire slice will land inside a single underlying ArrayOf, and thus this
+# essentially becomes slicing into that ArrayOf - but other times, the slice
+# may cross multiple ArrayOf's, and thus the result will also be Discontig.
+#
+# Discontig expressions can be used in connections, on either side; the
+# connection must be subdivided into multiple sub-connections, such that
+# neither end is discontiguous.  Similarly, discontig expressions can be used
+# in Unary and Binary expressions; the various operations are broken up into
+# contiguous sub-sections.
+#
+# ----
+#
+# So, why does this expression type exist?  First, for concatenation
+# expressions.  The first implementation of concatenation required creation
+# of a temporary buffer; we read the various sub-arrays into the big, joined
+# buffer.  This was not ideal, but it worked well.  But when we added
+# Discontig, we dispensed with the temporary buffer; we can use a Discontig
+# as the rhs (someday: lhs) of a connection, and send the bits directly to
+# their destination.
+#
+# But the real reason that we created this type was for arrays of flags.  When
+# we have arrays of flag variables, we need to be able to build an expression
+# which represents "the right side of all the flags" or "the left side of all
+# the flags".  This is conceptually an array of bits, but physically is not.
+# Thus, the 'typ_' field of a Discontig will be an mt_PlugDecl_ArrayOf, but
+# the Discontig object will *NOT* ever have an 'offset' field (so that we
+# don't accidentally use it as if it was a contiguous range).
 
-    def __init__(self, lineInfo, lft,rgt):
-        self.lineInfo = lineInfo
+class mt_PlugExpr_Discontig(mt_PlugExpr):
+    def __init__(self, pieces):
+        assert type(pieces) == list and len(pieces) > 1
 
-        if not isinstance(lft, mt_PlugExpr):
-            TODO()    # report syntax error
-        if not isinstance(rgt, mt_PlugExpr):
-            TODO()    # report syntax error
+        # all of the pieces should have the same side, and they must all be
+        # arrays of some base type
+        for p in pieces:
+            assert isinstance(p, mt_PlugExpr)
+            assert p.is_lhs == pieces[0].is_lhs
+            assert type(p.typ_) == mt_PlugDecl_ArrayOf
+            assert p.typ_.base == pieces[0].typ_.base
 
-        assert type(lft.typ_) == mt_PlugDecl_ArrayOf
-        assert type(rgt.typ_) == mt_PlugDecl_ArrayOf
-        if lft.typ_.base != rgt.typ_.base:
-            TODO()    # report syntax error
+        # inherit the lhs and typ_ fields from the pieces
+        self.is_lhs = pieces[0].is_lhs
+        self.typ_   = mt_PlugDecl_ArrayOf(pieces[0].typ_.base, None)    # we will set the length later, when we know it
 
-        self.lft  = lft
-        self.rgt  = rgt
-        self.typ_ = mt_PlugDecl_ArrayOf(lft.typ_.base, None)    # we will set the length later, when we know it
+        self.pieces = pieces
 
+        # WARNING: Do *not* set the 'offset' field!
         self.decl_bitSize = None
-        self.offset       = None
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_PlugExpr_CONCAT:")
-        print(f"{prefix}  lft:")
-        self.lft.print_tree(prefix+"    ")
-        print(f"{prefix}  rgt:")
-        self.rgt.print_tree(prefix+"    ")
+        print(f"{prefix}mt_PlugExpr_Discontig:")
+
         print(f"{prefix}  typ_:")
         self.typ_.print_tree(prefix+"    ")
-        print(f"{prefix}  offset: {self.offset}")
+
+        for i in range(len(self.pieces)):
+            print(f"{prefix}  pieces: [{i}] of {len(self.pieces)}:")
+            self.pieces[i].print_tree(prefix+"    ")
 
     def convert_to_metatype(self, side):
-        return self
+        return self    # the sub-expressions were already metatypes in the constructor
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
@@ -733,54 +771,39 @@ class mt_PlugExpr_CONCAT(mt_PlugExpr):
             return
         self.decl_bitSize = "in progress"
 
-        self.lft.calc_sizes()
-        self.rgt.calc_sizes()
+        for p in self.pieces:
+            p.calc_sizes()
+            assert type(p.typ_.len_) == int and p.typ_.len_ >0
 
-        assert type(self.lft.typ_.len_) == int and self.lft.typ_.len_ >0
-        assert type(self.rgt.typ_.len_) == int and self.rgt.typ_.len_ >0
-        self.typ_.len_ = self.lft.typ_.len_ + self.rgt.typ_.len_
+        self.typ_.len_ = sum(p.typ_.len_ for p in self.pieces)
         self.typ_.calc_sizes()
 
         # decl_bitSize is however much we need to evaluate the two
         # sub-expressions (could be as little as 0 each), plus the size of
         # the destination buffer to hold the concatenated data (definitely
         # not zero!)
-        self.decl_bitSize = self.typ_.decl_bitSize + self.lft.decl_bitSize + self.rgt.decl_bitSize
+        self.decl_bitSize = sum(p.decl_bitSize for p in self.pieces)
 
-        # this was also confirmed in the constructor
-        assert type(self.lft.typ_) == mt_PlugDecl_ArrayOf
-        assert type(self.rgt.typ_) == mt_PlugDecl_ArrayOf
-
-        # this is new, should be a side effect of calc_sizes() calls above
-        assert type(self.lft.typ_.len_) == int and self.lft.typ_.len_ > 0
-        assert type(self.rgt.typ_.len_) == int and self.rgt.typ_.len_ > 0
-        self.typ_.len_ = self.lft.typ_.len_ + self.rgt.typ_.len_
+        for p in self.pieces:
+            assert type(p.typ_) == mt_PlugDecl_ArrayOf
 
     def calc_top_down_offsets(self, offset):
-        assert self.offset is None
-
-        self.offset = offset
-        self.lft.calc_top_down_offsets(offset + self.typ_.decl_bitSize)
-        self.rgt.calc_top_down_offsets(offset + self.typ_.decl_bitSize + self.lft.decl_bitSize)
+        running_offset = offset
+        for p in self.pieces:
+            p.calc_top_down_offsets(running_offset)
+            running_offset += p.decl_bitSize
 
     def calc_bottom_up_offsets(self):
-        self.lft.calc_bottom_up_offsets()
-        self.rgt.calc_bottom_up_offsets()
+        for p in self.pieces:
+            p.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
-        start = self.offset
-        end   = self.offset + self.typ_.decl_bitSize
-        print(f"# {start:6d} {end:6d} {name}._CONCAT_{start}")
-
-        self.lft.print_bit_descriptions(name, start_bit)
-        self.rgt.print_bit_descriptions(name, start_bit)
+        for p in self.pieces:
+            p.print_bit_descriptions(name, start_bit)
 
     def print_wiring_diagram(self, start_bit):
-        self.lft.print_wiring_diagram(start_bit)
-        self.rgt.print_wiring_diagram(start_bit)
-
-        print(f"conn {start_bit+self.offset} <= {start_bit+self.lft.offset} size {self.lft.typ_.decl_bitSize}    # {self.lineInfo}")
-        print(f"conn {start_bit+self.offset+self.lft.typ_.decl_bitSize} <= {start_bit+self.rgt.offset} size {self.rgt.typ_.decl_bitSize}    # {self.lineInfo}")
+        for p in self.pieces:
+            p.print_wiring_diagram(start_bit)
 
 
 
