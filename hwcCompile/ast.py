@@ -696,30 +696,17 @@ class g_ConnStmt(ASTNode):
         self.rhs .calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
-        running_start_bit = start_bit
-
-        if self.cond is not None and self.cond.decl_bitSize > 0:
-            self.cond.print_bit_descriptions(name, running_start_bit)
-            running_start_bit += self.cond.decl_bitSize
-
-        if self.lhs.decl_bitSize > 0:
-            self.lhs.print_bit_descriptions(name, running_start_bit)
-            running_start_bit += self.lhs.decl_bitSize
-
-        if self.rhs.decl_bitSize > 0:
-            self.rhs.print_bit_descriptions(name, running_start_bit)
+        if self.cond is not None:
+            self.cond.print_bit_descriptions(name, start_bit)
+        self.lhs.print_bit_descriptions(name, start_bit)
+        self.rhs.print_bit_descriptions(name, start_bit)
 
     def print_wiring_diagram(self, start_bit):
-        running_start_bit = start_bit
-
         if self.cond is not None:
-            self.cond.print_wiring_diagram(running_start_bit)
-            running_start_bit += self.cond.decl_bitSize
+            self.cond.print_wiring_diagram(start_bit)
 
-        self.lhs.print_wiring_diagram(running_start_bit)
-        running_start_bit += self.lhs.decl_bitSize
-
-        self.rhs.print_wiring_diagram(running_start_bit)
+        self.lhs.print_wiring_diagram(start_bit)
+        self.rhs.print_wiring_diagram(start_bit)
 
         assert isinstance(self.lhs, mt_PlugExpr)
         assert isinstance(self.rhs, mt_PlugExpr)
