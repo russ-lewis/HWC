@@ -2,42 +2,32 @@
 #     32     37 main.shamt
 #     37     69 main.out
 #     69    101 main.step1
-#    101    133 main._CONCAT_101
-#    133        main._NOT_133
-#    134    166 main.step2
-#    166    198 main._CONCAT_166
-#    198        main._NOT_198
-#    199    231 main.step3
-#    231    263 main._CONCAT_231
-#    263        main._NOT_263
-#    264    296 main.step4
-#    296    328 main._CONCAT_296
-#    328        main._NOT_328
-#    329    361 main._CONCAT_329
-#    361        main._NOT_361
+#    101        main._NOT_101
+#    102    134 main.step2
+#    134        main._NOT_134
+#    135    167 main.step3
+#    167        main._NOT_167
+#    168    200 main.step4
+#    200        main._NOT_200
+#    201        main._NOT_201
 
-conn 101 <= 31 size 1    # FILE:9:11
-conn 102 <= 0 size 31    # FILE:9:11
-conn 69 <= 101 size 32 cond 32    # FILE:9
-logic 133 <= NOT 32 size 1    # FILE:10:2
-conn 69 <= 0 size 32 cond 133    # FILE:11
-conn 166 <= 99 size 2    # FILE:15:11
-conn 168 <= 69 size 30    # FILE:15:11
-conn 134 <= 166 size 32 cond 33    # FILE:15
-logic 198 <= NOT 33 size 1    # FILE:16:2
-conn 134 <= 69 size 32 cond 198    # FILE:17
-conn 231 <= 162 size 4    # FILE:21:11
-conn 235 <= 134 size 28    # FILE:21:11
-conn 199 <= 231 size 32 cond 34    # FILE:21
-logic 263 <= NOT 34 size 1    # FILE:22:2
-conn 199 <= 134 size 32 cond 263    # FILE:23
-conn 296 <= 223 size 8    # FILE:27:11
-conn 304 <= 199 size 24    # FILE:27:11
-conn 264 <= 296 size 32 cond 35    # FILE:27
-logic 328 <= NOT 35 size 1    # FILE:28:2
-conn 264 <= 199 size 32 cond 328    # FILE:29
-conn 329 <= 280 size 16    # FILE:32:9
-conn 345 <= 264 size 16    # FILE:32:9
-conn 37 <= 329 size 32 cond 36    # FILE:32
-logic 361 <= NOT 36 size 1    # FILE:33:2
-conn 37 <= 264 size 32 cond 361    # FILE:34
+conn 69 <= 31 size 1 cond 32    # FILE:9
+conn 70 <= 0 size 31 cond 32    # FILE:9
+logic 101 <= NOT 32 size 1    # FILE:10:2
+conn 69 <= 0 size 32 cond 101    # FILE:11
+conn 102 <= 99 size 2 cond 33    # FILE:15
+conn 104 <= 69 size 30 cond 33    # FILE:15
+logic 134 <= NOT 33 size 1    # FILE:16:2
+conn 102 <= 69 size 32 cond 134    # FILE:17
+conn 135 <= 130 size 4 cond 34    # FILE:21
+conn 139 <= 102 size 28 cond 34    # FILE:21
+logic 167 <= NOT 34 size 1    # FILE:22:2
+conn 135 <= 102 size 32 cond 167    # FILE:23
+conn 168 <= 159 size 8 cond 35    # FILE:27
+conn 176 <= 135 size 24 cond 35    # FILE:27
+logic 200 <= NOT 35 size 1    # FILE:28:2
+conn 168 <= 135 size 32 cond 200    # FILE:29
+conn 37 <= 184 size 16 cond 36    # FILE:32
+conn 53 <= 168 size 16 cond 36    # FILE:32
+logic 201 <= NOT 36 size 1    # FILE:33:2
+conn 37 <= 168 size 32 cond 201    # FILE:34

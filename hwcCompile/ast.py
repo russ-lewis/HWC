@@ -502,29 +502,50 @@ class g_DeclStmt(ASTNode):
             print(f"mem r {start_bit + self.offset} w {start_bit + self.offset + self.typ_.decl_bitSize} size {self.typ_.decl_bitSize}    # TODO: line number")
 
         if self.initVal is not None:
+            def print_init_conn(lhs_offset, initStr, size):
+                print(f"conn {start_bit + lhs_offset} <= {initStr} size {size}    # TODO: line number")
+
             if type(self.initVal) == mt_PlugExpr_Bit:
                 assert self.typ_ == plugType_bit
-                initStr = f"int({self.initVal.val})"
-                size    = 1
+                print_init_conn(self.offset,
+                                f"int({self.initVal.val})",
+                                1)
 
             elif type(self.initVal) == mt_PlugExpr_BitArray:
                 assert type(self.typ_)                == mt_PlugDecl_ArrayOf
                 assert      self.typ_.base            == plugType_bit
                 assert self.initVal.typ_.decl_bitSize == self.typ_.len_
-                initStr = f"int({self.initVal.val})"
-                size    = self.typ_.len_
+                print_init_conn(self.offset,
+                                f"int({self.initVal.val})",
+                                self.typ_.len_)
 
             elif isinstance(self.initVal, mt_PlugExpr):
                 self.initVal.print_wiring_diagram(start_bit)
 
                 assert self.initVal.typ_ == self.typ_
-                initStr = f"{self.initVal.offset}"
-                size    = self.typ_.decl_bitSize
+
+                if type(self.initVal.offset) == int:
+                    print_init_conn(self.offset,
+                                    f"{start_bit + self.initVal.offset}",
+                                    self.typ_.decl_bitSize)
+
+                else:
+                    assert self.initVal.offset == "discontig"
+                    assert type(self.initVal.typ_) == mt_PlugDecl_ArrayOf
+
+                    # see also the similar code in ConnStmt
+                    cur_indx = 0
+                    while cur_indx < self.initVal.typ_.len_:
+                        offset,len_ = self.initVal.get_wiring_offset_and_len_from_indx(cur_indx)
+                        assert cur_indx + len_ <= self.initVal.typ_.len_
+
+                        print_init_conn(self.offset + cur_indx * self.initVal.typ_.base.decl_bitSize,
+                                        f"{offset}",
+                                        len_ * self.initVal.typ_.base.decl_bitSize)
+                        cur_indx += len_
 
             else:
                 assert False
-
-            print(f"conn {start_bit + self.offset} <= {initStr} size {size}    # TODO: line number")
 
 
 
@@ -720,11 +741,43 @@ class g_ConnStmt(ASTNode):
             cond = ""
 
         if   type(self.rhs) in [mt_PlugExpr_Bit, mt_PlugExpr_BitArray]:
-            fromStr = f"int({self.rhs.val})"
-        else:
-            fromStr = f"{start_bit+self.rhs.offset}"
+            print(f"conn {start_bit+self.lhs.offset} <= int({self.rhs.val}) size {self.lhs.typ_.decl_bitSize}{cond}    # {self.lineRange}")
 
-        print(f"conn {start_bit+self.lhs.offset} <= {fromStr} size {self.lhs.typ_.decl_bitSize}{cond}    # {self.lineRange}")
+        elif self.lhs.offset != "discontig" and self.rhs.offset != "discontig":
+            assert type(self.lhs.offset) == int
+            assert type(self.rhs.offset) == int
+            print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}{cond}    # {self.lineRange}")
+
+        else:
+            # one or both sides are discontig.  If only one side is, then we'll
+            # convert the other to a trivial (1-piece) discontig.
+
+            total_len = self.lhs.typ_.len_
+
+            if self.lhs.offset != "discontig":
+                self.lhs = mt_PlugExpr_Discontig([self.lhs])
+            if self.rhs.offset != "discontig":
+                self.rhs = mt_PlugExpr_Discontig([self.rhs])
+
+            cur_indx = 0
+            while cur_indx < total_len:
+
+                # this function call returns two values with DIFFERENT
+                # SEMANTICS.  The 'offset' is the bit-space offset of the
+                # beginning of the contiguous range (of whatever size) that
+                # starts with the index we provide.  The length is given in
+                # ENTRIES NOT BITS.  We will ask both sides what their values
+                # are, at the current index, and use the shorter length.
+
+                offset_lhs,len_lhs = self.lhs.get_wiring_offset_and_len_from_indx(cur_indx)
+                offset_rhs,len_rhs = self.rhs.get_wiring_offset_and_len_from_indx(cur_indx)
+                assert cur_indx + len_lhs <= total_len
+                assert cur_indx + len_rhs <= total_len
+                len_ = min(len_lhs, len_rhs)
+
+                print(f"conn {start_bit+offset_lhs} <= {start_bit+offset_rhs} size {self.lhs.typ_.base.decl_bitSize * len_}{cond}    # {self.lineRange}")
+
+                cur_indx += len_
 
 
 

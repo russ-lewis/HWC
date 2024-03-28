@@ -51,6 +51,16 @@ class mt_PlugExpr_Var(mt_PlugExpr):
     def print_wiring_diagram(self, start_bit):
         assert not self.decl.isMem
 
+    def get_wiring_offset_and_len_from_indx(self, indx):
+        # should only be called on array-type variables.
+        assert type(self.typ_) == mt_PlugDecl_ArrayOf
+        assert indx >= 0
+        assert indx <  self.typ_.len_
+
+        retval_offset = self.offset + indx * self.typ_.base.decl_bitSize
+        retval_len    = self.typ_.len_ - indx
+        return (retval_offset, retval_len)
+
 
 
 class mt_PlugExpr_Dot(mt_PlugExpr):
@@ -398,6 +408,14 @@ class mt_PlugExpr_ArraySlice(mt_PlugExpr):
     def print_wiring_diagram(self, start_bit):
         self.base.print_wiring_diagram(start_bit)
 
+    def get_wiring_offset_and_len_from_indx(self, indx):
+        assert indx >= 0
+        assert indx <  self.typ_.len_
+
+        retval_offset = self.offset + indx * self.typ_.base.decl_bitSize
+        retval_len    = self.typ_.len_ - indx
+        return (retval_offset, retval_len)
+
 
 
 class mt_PlugExpr_BitArray(mt_PlugExpr):
@@ -732,7 +750,7 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
 
 class mt_PlugExpr_Discontig(mt_PlugExpr):
     def __init__(self, pieces):
-        assert type(pieces) == list and len(pieces) > 1
+        assert type(pieces) == list and len(pieces) > 0
 
         # all of the pieces should have the same side, and they must all be
         # arrays of some base type
@@ -748,7 +766,7 @@ class mt_PlugExpr_Discontig(mt_PlugExpr):
 
         self.pieces = pieces
 
-        # WARNING: Do *not* set the 'offset' field!
+        self.offset       = "discontig"    # we will never change it from this
         self.decl_bitSize = None
 
     def print_tree(self, prefix):
@@ -804,6 +822,22 @@ class mt_PlugExpr_Discontig(mt_PlugExpr):
     def print_wiring_diagram(self, start_bit):
         for p in self.pieces:
             p.print_wiring_diagram(start_bit)
+
+    def get_wiring_offset_and_len_from_indx(self, indx):
+        indx_soFar = 0
+        for p in self.pieces:
+            assert indx_soFar <= indx
+
+            if indx_soFar + p.typ_.len_ <= indx:
+                indx_soFar += p.typ_.len_
+                continue
+
+            # found it!
+            delta_indx = indx-indx_soFar
+            return p.get_wiring_offset_and_len_from_indx(delta_indx)
+
+        # should be impossible to get here
+        assert False
 
 
 

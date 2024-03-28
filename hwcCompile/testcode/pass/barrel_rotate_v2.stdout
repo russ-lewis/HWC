@@ -2,32 +2,30 @@
 #     32     37 main.shamt
 #     37     69 main.out
 #     69    132 main.tmp0
-#    132    195 main._CONCAT_132
-#    195    257 main.tmp1
-#    257    317 main.tmp2
-#    317    373 main.tmp3
-#    373    421 main.tmp4
-#    421        main._NOT_421
-#    422        main._NOT_422
-#    423        main._NOT_423
-#    424        main._NOT_424
-#    425        main._NOT_425
+#    132    194 main.tmp1
+#    194    254 main.tmp2
+#    254    310 main.tmp3
+#    310    358 main.tmp4
+#    358        main._NOT_358
+#    359        main._NOT_359
+#    360        main._NOT_360
+#    361        main._NOT_361
+#    362        main._NOT_362
 
-conn 132 <= 0 size 32    # FILE:8:17
-conn 164 <= 0 size 31    # FILE:8:17
-conn 69 <= 132 size 63    # TODO: line number
-conn 195 <= 69 size 62 cond 32    # FILE:17
-logic 421 <= NOT 32 size 1    # FILE:18:2
-conn 195 <= 70 size 62 cond 421    # FILE:19
-conn 257 <= 195 size 60 cond 33    # FILE:22
-logic 422 <= NOT 33 size 1    # FILE:23:2
-conn 257 <= 197 size 60 cond 422    # FILE:24
-conn 317 <= 257 size 56 cond 34    # FILE:27
-logic 423 <= NOT 34 size 1    # FILE:28:2
-conn 317 <= 261 size 56 cond 423    # FILE:29
-conn 373 <= 317 size 48 cond 35    # FILE:32
-logic 424 <= NOT 35 size 1    # FILE:33:2
-conn 373 <= 325 size 48 cond 424    # FILE:34
-conn 37 <= 373 size 32 cond 36    # FILE:37
-logic 425 <= NOT 36 size 1    # FILE:38:2
-conn 37 <= 389 size 32 cond 425    # FILE:39
+conn 69 <= 0 size 32    # TODO: line number
+conn 101 <= 0 size 31    # TODO: line number
+conn 132 <= 69 size 62 cond 32    # FILE:17
+logic 358 <= NOT 32 size 1    # FILE:18:2
+conn 132 <= 70 size 62 cond 358    # FILE:19
+conn 194 <= 132 size 60 cond 33    # FILE:22
+logic 359 <= NOT 33 size 1    # FILE:23:2
+conn 194 <= 134 size 60 cond 359    # FILE:24
+conn 254 <= 194 size 56 cond 34    # FILE:27
+logic 360 <= NOT 34 size 1    # FILE:28:2
+conn 254 <= 198 size 56 cond 360    # FILE:29
+conn 310 <= 254 size 48 cond 35    # FILE:32
+logic 361 <= NOT 35 size 1    # FILE:33:2
+conn 310 <= 262 size 48 cond 361    # FILE:34
+conn 37 <= 310 size 32 cond 36    # FILE:37
+logic 362 <= NOT 36 size 1    # FILE:38:2
+conn 37 <= 326 size 32 cond 362    # FILE:39
