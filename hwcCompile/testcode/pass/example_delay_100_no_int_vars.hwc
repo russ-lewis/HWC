@@ -21,6 +21,7 @@ part main
 	public flag _data_out_valid;
 
 	memory(bit[8]) c;
+
 	memory(bit) data_temp;
 	memory(bit) next_s;
 
@@ -32,7 +33,7 @@ part main
 	{
 		if (valid_data)
 		{
-			next_s = c;
+			next_s = 1;
 			data_temp = data_in;
 			c = 1;
 		}
@@ -65,9 +66,12 @@ part Adder8
 	carries[0] = 0;
 	for (i; 0..8)
 	{
-		private bit c = carries[i];
-		sum  [ i ] = a ^ b ^ c;
-		carry[i+1] = (a & b) | (a & c) | (b & c);
+		private bit aVal = a[i];
+		private bit bVal = b[i];
+		private bit cVal = carries[i];
+
+		sum    [ i ] = aVal ^ bVal ^ cVal;
+		carries[i+1] = (aVal & bVal) | (aVal & cVal) | (bVal & cVal);
 	}
 }
 
