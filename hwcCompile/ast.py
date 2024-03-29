@@ -391,7 +391,7 @@ class g_DeclStmt(ASTNode):
         if   isinstance(self.typ_, mt_PlugDecl):
             pass
         elif isinstance(self.typ_, mt_PartDecl):
-            assert     self.prefix == "subpart"
+            assert     self.prefix == "subpart", self
             assert not self.isMem
         elif isinstance(self.typ_, mt_StaticType):
             pass
@@ -1470,7 +1470,10 @@ class g_DotExpr(ASTNode):
 
         self.target = self.base.typ_.code.pub_nameScope.search(self.fieldName)
         if self.target is None:
-            print(self.lineInfo)
+            print(self.lineInfo, self.fieldName)
+            print()
+            self.base.typ_.code.pub_nameScope.dump()
+            print()
             TODO()    # report syntax error
         assert(type(self.target) == g_DeclStmt)
 
@@ -1542,6 +1545,10 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
             if type(base.typ_) == mt_PlugDecl_ArrayOf:
                 return mt_PlugExpr_ArrayIndex(base, len_or_index)
             else:
+                base.print_tree("")
+                print()
+                print(self.lineInfo)
+                print()
                 TODO()    # report syntax error
 
         elif isinstance(base, mt_PartExpr):

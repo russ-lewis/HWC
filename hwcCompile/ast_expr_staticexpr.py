@@ -71,6 +71,26 @@ class mt_StaticExpr_ADD(mt_StaticExpr):
 
 
 
+class mt_StaticExpr_MUL(mt_StaticExpr):
+    def __init__(self, lineInfo, lft,rgt):
+        self.lineInfo = lineInfo
+        self.lft      = lft
+        self.rgt      = rgt
+
+    def calc_sizes(self):
+        self.lft.calc_sizes()
+        self.rgt.calc_sizes()
+
+    def resolve_static_expr(self):
+        lft = self.lft.resolve_static_expr()
+        rgt = self.rgt.resolve_static_expr()
+        assert type(lft) == int
+        assert type(rgt) == int
+
+        return lft * rgt
+
+
+
 class mt_StaticExpr_MOD(mt_StaticExpr):
     def __init__(self, lineInfo, lft,rgt):
         self.lineInfo = lineInfo

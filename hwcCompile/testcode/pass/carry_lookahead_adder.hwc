@@ -8,12 +8,12 @@ part Adder4_CLA
 	bit[4] g = a & b;
 	bit[4] p = a | b;
 
-	CAR car0;
+	subpart CAR car0;
 	car0.g = g;
 	car0.p = p;
 	car0.carryIn = carryIn;
 
-	bit[4] c = car0.c;
+	bit[4] c = car0.carryBits;
 
 	// do the same XOR operation on all bits, now that we have the
 	// carry bits figured out.
@@ -28,7 +28,7 @@ part Adder16_CLA
 {
 	public bit[16] a,b;
 	public bit carryIn;
-	public bit[64] out;
+	public bit[16] out;
 	public bit carryOut;
 
 	bit[16] g = a & b;
@@ -37,27 +37,27 @@ part Adder16_CLA
 	bit[4] G,P;
 	for (i; 0..4)          // TODO: maybe change the semicolon into a colon in the syntax definition???
 	{
-		SGP super;
+		subpart SGP super;
 		super.g = g[i*4 : i*4+4];
 		super.p = p[i*4 : i*4+4];
 		G[i] = super.G;
 		P[i] = super.P;
 	}
 
-	CAR car1;
+	subpart CAR car1;
 	car1.g = G;
 	car1.p = P;
 	car1.carryIn = carryIn;
-	bit[4] C = car1.c;
+	bit[4] C = car1.carryBits;
 
 	bit[16] c;
 	for (i; 0..4)
 	{
-		CAR car0;
+		subpart CAR car0;
 		car0.g = g[i*4 : i*4+4];
 		car0.p = p[i*4 : i*4+4];
 		car0.carryIn = C[i];
-		c[i*4 : i*4+4] = car0.c;
+		c[i*4 : i*4+4] = car0.carryBits;
 	}
 
 	// see comments above
@@ -79,7 +79,7 @@ part Adder64_CLA
 	bit[16] P;    // super-propagate bits, relate to nibbles
 	for (i; 0..16)
 	{
-		SGP super;
+		subpart SGP super;
 		super.g = g[4*i : 4*i+4];
 		super.p = p[4*i : 4*i+4];
 		G[i] = super.G;
@@ -90,7 +90,7 @@ part Adder64_CLA
 	bit[4] PP;     // super2-propagate bits, relate to halfwords
 	for (i; 0..4)
 	{
-		SGP super;
+		subpart SGP super;
 		super.g = G[4*i : 4*i+4];
 		super.p = P[4*i : 4*i+4];
 		GG[i] = super.G;
@@ -98,7 +98,7 @@ part Adder64_CLA
 	}
 
 	bit[4] CC;     // halfword carry-in bits
-	CAR car2;
+	subpart CAR car2;
 	car2.g = GG;
 	car2.p = PP;
 	car2.carryIn = carryIn;
@@ -107,7 +107,7 @@ part Adder64_CLA
 	bit[16] C;     // nibble carry-in bits
 	for (i; 0..4)
 	{
-		CAR car1;
+		subpart CAR car1;
 		car1.g = G[i*4 : i*4+4];
 		car1.p = P[i*4 : i*4+4];
 		car1.carryIn = CC[i];
@@ -117,7 +117,7 @@ part Adder64_CLA
 	bit[64] c;     // bitwise carry-in bits
 	for (i; 0..16)
 	{
-		CAR car0;
+		subpart CAR car0;
 		car0.g = g[i*4 : i*4+4];
 		car0.p = g[i*4 : i*4+4];
 		car0.carryIn = C[i];
@@ -141,10 +141,10 @@ part SGP
 
 	P = p[0] & p[1] & p[2] & p[3];
 
-	G = G[3] |
-	    P[3] & G[2] |
-	    P[3] & P[2] & G[1] |
-	    P[3] & P[2] & P[1] & G[0];
+	G = g[3] |
+	    p[3] & g[2] |
+	    p[3] & p[2] & g[1] |
+	    p[3] & p[2] & p[1] & g[0];
 }
 
 
@@ -176,8 +176,8 @@ part CAR
 
 part main
 {
-    Adder4_CLA adder4;
-    Adder16_CLA adder16;
-    Adder64_CLA adder64;
+    subpart Adder4_CLA adder4;
+    subpart Adder16_CLA adder16;
+    subpart Adder64_CLA adder64;
 }
 
