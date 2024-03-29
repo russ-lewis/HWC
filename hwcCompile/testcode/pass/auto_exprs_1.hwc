@@ -1,0 +1,21 @@
+part main {
+    bit[32][64] a;
+
+    auto b = a;
+    auto c = a[0];
+    auto d = a[1:3];
+    auto e = a[2][0];
+    auto f = a[3][32:];
+
+    auto g = b;
+    auto h = e;
+
+    auto i = concat(b,b,b);
+
+    auto j = concat(
+                concat(b,b),
+                concat(b,b));
+
+    auto k = concat( a[:16], a[16:] );
+}
+
