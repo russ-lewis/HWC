@@ -54,7 +54,7 @@ class LineRange:
 
 
 
-class SyntaxError(Exception):
+class HWC_SyntaxError(Exception):
     def __init__(self, lineInfo, message):
         self.lineInfo = lineInfo
         self.message  = message
@@ -1249,7 +1249,7 @@ class NameScope:
         assert type(name) == str
         assert obj is not None
         if self.search(name) is not None:
-            assert False, "report syntax error"
+            raise HWC_SyntaxError(None, f"The symbol '{name}' already exists")
         self.directory[name] = obj
 
     def search(self, name):

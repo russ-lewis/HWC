@@ -3,7 +3,7 @@
 import sys   # for stderr
 
 from grammar2ast import grammar2ast;
-from ast import g_PartOrPlugDecl,SyntaxError
+from ast import g_PartOrPlugDecl, HWC_SyntaxError
 
 
 
@@ -74,6 +74,6 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except SyntaxError as e:
+    except HWC_SyntaxError as e:
         print(f"{e.lineInfo}: {e.message}", file=sys.stderr)
 
