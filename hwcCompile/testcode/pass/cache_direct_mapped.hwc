@@ -10,7 +10,7 @@ part main
 	//         students to have to do.
 
 
-	memory(Line_data_32bytes_tag_17bits)[1024] lines;
+	memory(Line_data_32bytes_tag_17bits[1024]) lines;
 
 	public bit[32] addrIn;
 	public bit     hit;
@@ -19,14 +19,14 @@ part main
 	// this is our access to main memory.  In a more advanced system,
 	// this would probably be an *interface*, with an external component
 	// linking the two pieces together.
-	subcomp MainMemory mem;
+	subpart MainMemory mem;
 
 
 
 	// split the address into its fields
-	private bit[ 5] byteOffset = addrIn[ 0.. 5];
-	private bit[10]   index    = addrIn[10..15];
-	private bit[17]    tag     = addrIn[  ..15];
+	private bit[ 5] byteOffset = addrIn[ 0: 5];
+	private bit[10]   index    = addrIn[10:15];
+	private bit[17]    tag     = addrIn[  :15];
 
 	assert(byteOffset & 0x3 == 0);
 	private bit[3] wordOffset = byteOffset >> 2;
@@ -59,7 +59,7 @@ part main
 
 		data = mem.data;
 
-		for (i: 0..1024)
+		for (i; 0..1024)
 		if (index == i)
 		{
 			lines[i].tag   = tag;
@@ -72,18 +72,25 @@ part main
 	// read the actual word from the cache line.
 
 	private bit[8][32] words;
-	for (i: 0..8)
-		words[i] = data[32*i .. 32*i+32];
+	for (i; 0..8)
+		words[i] = data[32*i : 32*i+32];
 	dataIO = words[wordOffset];
 }
 
 
 
-interface Line_data_32bytes_tag_17bits
+plug Line_data_32bytes_tag_17bits
 {
 	public bit      valid;
 	public bit[17]  tag;
 
 	public bit[256] data;
+}
+
+
+
+part MainMemory
+{
+	// TODO
 }
 

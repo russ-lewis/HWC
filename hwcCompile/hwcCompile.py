@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from grammar2ast import grammar2ast;
-from ast import g_PartOrPlugDecl
+from ast import g_PartOrPlugDecl,SyntaxError
 
 
 
@@ -70,5 +70,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SyntaxError as e:
+        print(f"{e.lineInfo}: {e.message}")
 

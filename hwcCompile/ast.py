@@ -29,26 +29,35 @@ class ASTNode:
 
 
 class LineInfo:
-    def __init__(self, line,col,len_):
+    def __init__(self, fil_, line,col,len_):
+        self.fil_  = fil_
         self.line  = line
         self.col   = col
         self.len_  = len_
     def __str__(self):
-        return f"FILE:{self.line}:{self.col}"
+        return f"{self.fil_}:{self.line}:{self.col}"
     def __repr__(self):
         return f"LineInfo({self})"
 
 class LineRange:
-    def __init__(self, start,endIncl):
+    def __init__(self, fil_, start,endIncl):
+        self.fil_    = fil_
         self.start   = start
         self.endIncl = endIncl
     def __str__(self):
         if self.start == self.endIncl:
-            return f"FILE:{self.start}"
+            return f"{self.fil_}:{self.start}"
         else:
-            return f"FILE:{self.start}-{self.endIncl}"
+            return f"{self.fil_}:{self.start}-{self.endIncl}"
     def __repr__(self):
         return f"LineRange({self})"
+
+
+
+class SyntaxError(Exception):
+    def __init__(self, lineInfo, message):
+        self.lineInfo = lineInfo
+        self.message  = message
 
 
 
@@ -1307,9 +1316,7 @@ class g_IdentExpr(ASTNode):
     def resolve_name_lookups(self, ns_pri):
         self.target = ns_pri.search(self.name)
         if self.target is None:
-            ns_pri.dump()
-            print()
-            assert False, ("report syntax error", self.name, self.lineInfo)
+            raise SyntaxError(self.lineInfo, f"Symbol '{self.name}' not found")
 
     def convert_to_metatype(self, side):
         if self.saved_metatype is None:
@@ -1424,7 +1431,8 @@ class g_NumExpr(ASTNode):
     leafNode = True
 
     def __init__(self, num_txt):
-        self.num = int(num_txt)
+        self.num = int(num_txt, base=0)
+
     def dup(self):
         return self
     def __repr__(self):

@@ -19,23 +19,10 @@ def grammar2ast():
     parser = hwcParser(CommonTokenStream(lexer))
     tree   = parser.file_()      # trailing underscore is because file is a Python type
 
-    printer = HWCAstGenerator()
+    printer = HWCAstGenerator("stdin")
     ParseTreeWalker().walk(printer,tree)
 
     return tree.ast
-
-
-
-def build_line_info(root):
-    root_line = root.line
-    root_col  = root.column+1
-    root_len  = len(root.text)
-    return ast.LineInfo(root_line,root_col,root_len)
-
-def build_line_range(ctx):
-    start = ctx.start
-    stop  = ctx.stop
-    return ast.LineRange(start.line, stop.line)
 
 
 
@@ -51,6 +38,22 @@ def flatten(stmts):
 
 
 class HWCAstGenerator(hwcListener):
+    def __init__(self, filename):
+        self.filename = filename
+
+
+    def build_line_info(self, root):
+        root_line = root.line
+        root_col  = root.column+1
+        root_len  = len(root.text)
+        return ast.LineInfo(self.filename, root_line,root_col,root_len)
+
+    def build_line_range(self, ctx):
+        start = ctx.start
+        stop  = ctx.stop
+        return ast.LineRange(self.filename, start.line, stop.line)
+
+
     def exitFile(self, ctx):
         ctx.ast = ast.g_File([c.ast for c in ctx.decls])
 
@@ -93,7 +96,7 @@ class HWCAstGenerator(hwcListener):
         if len(ctx.lhs) > 1:
             assert False, "TODO-implement-chain-assignment"    # maybe generate n-1 connection statements in a block?
 
-        lineInfo = build_line_range(ctx)
+        lineInfo = self.build_line_range(ctx)
         ctx.ast = ast.g_ConnStmt(lineInfo, ctx.lhs[0].ast, ctx.rhs.ast)
 
         # if() statements that wrap this statement will want to know this
@@ -124,15 +127,15 @@ class HWCAstGenerator(hwcListener):
         tru_  = ctx.tru_ .ast if ctx.tru_  is not None else None
         fals_ = ctx.fals_.ast if ctx.fals_ is not None else None
 
-        lineInfo_whole = build_line_range(ctx)
-        lineInfo_else  = build_line_info (ctx.els_) if ctx.fals_ is not None else None
+        lineInfo_whole = self.build_line_range(ctx)
+        lineInfo_else  = self.build_line_info (ctx.els_) if ctx.fals_ is not None else None
 
         ctx.ast = ast.g_RuntimeIfStmt(lineInfo_whole, lineInfo_else,
                                       cond, tru_, fals_)
 
 
     def exitStmt_Assert(self, ctx):
-        lineInfo = build_line_range(ctx)
+        lineInfo = self.build_line_range(ctx)
         ctx.ast = ast.g_AssertStmt(lineInfo, ctx.exp_.ast)
 
         # if() statements that wrap this statement will want to know this
@@ -160,7 +163,7 @@ class HWCAstGenerator(hwcListener):
         # their body statement.
         ctx.uncovered_else = ctx.body.uncovered_else
 
-        lineInfo = build_line_info(ctx.var)
+        lineInfo = self.build_line_info(ctx.var)
         ctx.ast = ast.g_ForStmt(lineInfo, var, start,end, body, tuple_name)
 
 
@@ -170,11 +173,11 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ctx.left.ast
 
         elif len(ctx.right) == 1:
-            lineInfo = build_line_info(ctx.op)
+            lineInfo = self.build_line_info(ctx.op)
             ctx.ast = ast.g_BinaryExpr(lineInfo, ctx.left.ast, ctx.op.text, ctx.right[0].ast)
 
         else:
-            lineInfo = build_line_info(ctx.op)
+            lineInfo = self.build_line_info(ctx.op)
 
             soFar = ctx.left.ast
             for r in ctx.right:
@@ -187,7 +190,8 @@ class HWCAstGenerator(hwcListener):
     # different rules to enforce associativity, but once it's established,
     # we just use the tree structure to maintain the associations.
     exitExpr2 = exitExpr
-    exitExpr3 = exitExpr
+    exitExpr3a = exitExpr
+    exitExpr3b = exitExpr
     exitExpr4 = exitExpr
     exitExpr5 = exitExpr
     exitExpr6 = exitExpr
@@ -202,7 +206,7 @@ class HWCAstGenerator(hwcListener):
         else:
             op = ctx.op.text
             assert op in ["!", "-", "~"]
-            lineInfo = build_line_info(ctx.op)
+            lineInfo = self.build_line_info(ctx.op)
             ctx.ast = ast.g_UnaryExpr(lineInfo, op, ctx.right.ast)
 
 
@@ -213,7 +217,7 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ctx.base.ast
 
         elif ctx.field is not None:
-            lineInfo = build_line_info(ctx.field)
+            lineInfo = self.build_line_info(ctx.field)
             ctx.ast = ast.g_DotExpr(lineInfo, ctx.left.ast, ctx.field.text)
 
         elif ctx.a is not None and ctx.colon is None:
@@ -224,7 +228,7 @@ class HWCAstGenerator(hwcListener):
             # We must defer the resolution of what it is until later, when we
             # have resolved the names; then we will replace this object with
             # one of the proper type.
-            lineInfo = build_line_range(ctx.a)
+            lineInfo = self.build_line_range(ctx.a)
             ctx.ast = ast.g_Unresolved_Single_Index_Expr(lineInfo, ctx.left.ast, ctx.a.ast)
 
         elif ctx.a is not None and ctx.colon is not None and ctx.b is None:
@@ -255,7 +259,7 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ctx.subexpr.ast
 
         elif ctx.name is not None:
-            lineInfo = build_line_info(ctx.name)
+            lineInfo = self.build_line_info(ctx.name)
             ctx.ast = ast.g_IdentExpr(lineInfo, ctx.name.text)
         elif ctx.num is not None:
             ctx.ast = ast.g_NumExpr(ctx.num.text)
@@ -266,7 +270,7 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ast.g_BoolExpr("false")
 
         elif ctx.children[0].getText() == "concat":
-            lineInfo = build_line_info(ctx.funcName)
+            lineInfo = self.build_line_info(ctx.funcName)
             ctx.ast = ast.g_BinaryExpr(lineInfo, ctx.concatLeft.ast, "concat", ctx.concatRight.ast)
 
         elif ctx.children[0].getText() == "bit":

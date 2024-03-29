@@ -51,14 +51,19 @@ expr:
 ;
 
 expr2:
-      left=expr3 (op=('|'  |
-                      '||' |
-                      '^')   right+=expr3)*
+      left=expr3a (op=('|'  |
+                       '||' |
+                       '^')   right+=expr3a)*
 ;
 
-expr3:
-      left=expr4 (op=('&'  |
-                      '&&')  right+=expr4)*
+expr3a:      // TODO: re-number the expressions to get rid of the [ab] suffix
+      left=expr3b (op=('&'  |
+                       '&&')  right+=expr3b)*
+;
+
+expr3b:
+      left=expr4 (op=('<<' |
+                      '>>')  right+=expr4)*
 ;
 
 expr4:
