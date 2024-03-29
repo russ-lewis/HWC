@@ -20,7 +20,7 @@ part main
 	memory(bit[8]) c;
 	int d = 100;
 	memory(bit) data_temp;
-	memory(bit) next_s;   int idle = 0; // int delay_c = 1;
+	memory(bit) next_s;   int idle = 0; int delay_c = 1;
 
 	// in HWC, I would remove next_s,idle,delay, and simply use a
 	// 'busy' memory bit.  Just as easy to read.  But I'm retaining the
@@ -47,11 +47,28 @@ part main
 		else
 		{
 			// let's assume that we've imported an 8-bit adder
-			Adder8 adder;
+			subpart Adder8 adder;
 			adder.a = c;
 			adder.b = 1;
 			c = adder.sum;
 		}
+	}
+}
+
+part Adder8
+{
+	public bit[8] a,b,sum;
+
+	private bit[9] carries;
+	carries[0] = 0;
+	for (i; 0..8)
+	{
+		private bit aVal = a[i];
+		private bit bVal = b[i];
+		private bit cVal = carries[i];
+
+		sum    [ i ] = aVal ^ bVal ^ cVal;
+		carries[i+1] = (aVal & bVal) | (aVal & cVal) | (bVal & cVal);
 	}
 }
 
