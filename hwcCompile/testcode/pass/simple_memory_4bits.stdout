@@ -4,6 +4,6 @@
 #     12 16     main.dummy._NOT_12
 
 mem r 0 w 4 size 4    # TODO: line number
-conn 8 <= 0 size 4    # FILE:7
-logic 12 <= NOT 0 size 4    # FILE:8:10
-conn 4 <= 12 size 4    # FILE:8
+conn 8 <= 0 size 4    # stdin:7
+logic 12 <= NOT 0 size 4    # stdin:8:10
+conn 4 <= 12 size 4    # stdin:8

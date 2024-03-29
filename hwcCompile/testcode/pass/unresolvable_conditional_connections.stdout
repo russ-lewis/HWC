@@ -5,7 +5,7 @@
 #      4        main._EQ_4
 #      5        main._EQ_5
 
-logic 4 <= 0 EQ 1 size 1    # FILE:6:10
-conn 2 <= 3 size 1 cond 4    # FILE:7
-logic 5 <= 2 EQ 3 size 1    # FILE:8:8
-conn 0 <= 1 size 1 cond 5    # FILE:9
+logic 4 <= 0 EQ 1 size 1    # stdin:6:10
+conn 2 <= 3 size 1 cond 4    # stdin:7
+logic 5 <= 2 EQ 3 size 1    # stdin:8:8
+conn 0 <= 1 size 1 cond 5    # stdin:9

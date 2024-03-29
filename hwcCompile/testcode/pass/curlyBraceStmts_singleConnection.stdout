@@ -1,4 +1,4 @@
 #      0        main.asdf
 #      1        main.jkl
 
-conn 0 <= 1 size 1    # FILE:7
+conn 0 <= 1 size 1    # stdin:7

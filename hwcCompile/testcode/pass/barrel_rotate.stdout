@@ -11,23 +11,23 @@
 #    200        main._NOT_200
 #    201        main._NOT_201
 
-conn 69 <= 31 size 1 cond 32    # FILE:9
-conn 70 <= 0 size 31 cond 32    # FILE:9
-logic 101 <= NOT 32 size 1    # FILE:10:2
-conn 69 <= 0 size 32 cond 101    # FILE:11
-conn 102 <= 99 size 2 cond 33    # FILE:15
-conn 104 <= 69 size 30 cond 33    # FILE:15
-logic 134 <= NOT 33 size 1    # FILE:16:2
-conn 102 <= 69 size 32 cond 134    # FILE:17
-conn 135 <= 130 size 4 cond 34    # FILE:21
-conn 139 <= 102 size 28 cond 34    # FILE:21
-logic 167 <= NOT 34 size 1    # FILE:22:2
-conn 135 <= 102 size 32 cond 167    # FILE:23
-conn 168 <= 159 size 8 cond 35    # FILE:27
-conn 176 <= 135 size 24 cond 35    # FILE:27
-logic 200 <= NOT 35 size 1    # FILE:28:2
-conn 168 <= 135 size 32 cond 200    # FILE:29
-conn 37 <= 184 size 16 cond 36    # FILE:32
-conn 53 <= 168 size 16 cond 36    # FILE:32
-logic 201 <= NOT 36 size 1    # FILE:33:2
-conn 37 <= 168 size 32 cond 201    # FILE:34
+conn 69 <= 31 size 1 cond 32    # stdin:9
+conn 70 <= 0 size 31 cond 32    # stdin:9
+logic 101 <= NOT 32 size 1    # stdin:10:2
+conn 69 <= 0 size 32 cond 101    # stdin:11
+conn 102 <= 99 size 2 cond 33    # stdin:15
+conn 104 <= 69 size 30 cond 33    # stdin:15
+logic 134 <= NOT 33 size 1    # stdin:16:2
+conn 102 <= 69 size 32 cond 134    # stdin:17
+conn 135 <= 130 size 4 cond 34    # stdin:21
+conn 139 <= 102 size 28 cond 34    # stdin:21
+logic 167 <= NOT 34 size 1    # stdin:22:2
+conn 135 <= 102 size 32 cond 167    # stdin:23
+conn 168 <= 159 size 8 cond 35    # stdin:27
+conn 176 <= 135 size 24 cond 35    # stdin:27
+logic 200 <= NOT 35 size 1    # stdin:28:2
+conn 168 <= 135 size 32 cond 200    # stdin:29
+conn 37 <= 184 size 16 cond 36    # stdin:32
+conn 53 <= 168 size 16 cond 36    # stdin:32
+logic 201 <= NOT 36 size 1    # stdin:33:2
+conn 37 <= 168 size 32 cond 201    # stdin:34

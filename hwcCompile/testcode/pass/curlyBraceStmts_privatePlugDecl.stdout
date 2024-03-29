@@ -2,5 +2,5 @@
 #      1        main.jkl
 #      2        main.tmp
 
-conn 0 <= 2 size 1    # FILE:8
-conn 2 <= 1 size 1    # FILE:9
+conn 0 <= 2 size 1    # stdin:8
+conn 2 <= 1 size 1    # stdin:9

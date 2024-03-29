@@ -3,6 +3,6 @@
 #      2        main._NOT_2
 #      3        main._OR_3
 
-logic 2 <= NOT 0 size 1    # FILE:7
-logic 3 <= 2 OR 1 size 1    # FILE:7
-assert 3    # FILE:7
+logic 2 <= NOT 0 size 1    # stdin:7
+logic 3 <= 2 OR 1 size 1    # stdin:7
+assert 3    # stdin:7

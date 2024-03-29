@@ -6,8 +6,8 @@
 #      5        main._EQ_5
 #      6        main._NOT_6
 
-logic 4 <= 0 EQ 1 size 1    # FILE:5:7
-conn 2 <= int(0) size 1 cond 4    # FILE:6
-logic 5 <= 0 EQ 1 size 1    # FILE:8:7
-logic 6 <= NOT 5 size 1    # FILE:8:7
-conn 3 <= int(0) size 1 cond 6    # FILE:9
+logic 4 <= 0 EQ 1 size 1    # stdin:5:7
+conn 2 <= int(0) size 1 cond 4    # stdin:6
+logic 5 <= 0 EQ 1 size 1    # stdin:8:7
+logic 6 <= NOT 5 size 1    # stdin:8:7
+conn 3 <= int(0) size 1 cond 6    # stdin:9

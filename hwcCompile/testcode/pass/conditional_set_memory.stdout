@@ -6,5 +6,5 @@
 #     98    130 main.data(w)
 
 mem r 66 w 98 size 32    # TODO: line number
-conn 1 <= 66 size 32 cond 0    # FILE:12
-conn 98 <= 34 size 32 cond 33    # FILE:14
+conn 1 <= 66 size 32 cond 0    # stdin:12
+conn 98 <= 34 size 32 cond 33    # stdin:14

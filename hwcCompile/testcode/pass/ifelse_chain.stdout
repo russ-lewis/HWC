@@ -16,22 +16,22 @@
 #     22        main._NOT_22
 #     23        main._AND_23
 
-logic 10 <= 0 EQ int(1) size 1    # FILE:8:17
-conn 9 <= 4 size 1 cond 10    # FILE:9
-logic 11 <= NOT 10 size 1    # FILE:10:2
-logic 12 <= 1 EQ int(1) size 1    # FILE:10:22
-logic 13 <= 11 AND 12 size 1    # FILE:10-20
-conn 9 <= 5 size 1 cond 13    # FILE:12
-logic 14 <= NOT 12 size 1    # FILE:14:2
-logic 15 <= 11 AND 14 size 1    # FILE:10-20
-logic 16 <= 2 EQ int(1) size 1    # FILE:14:22
-logic 17 <= 15 AND 16 size 1    # FILE:14-20
-logic 18 <= 3 EQ int(1) size 1    # FILE:15:18
-logic 19 <= 17 AND 18 size 1    # FILE:15-18
-conn 9 <= 6 size 1 cond 19    # FILE:16
-logic 20 <= NOT 18 size 1    # FILE:17:3
-logic 21 <= 17 AND 20 size 1    # FILE:15-18
-conn 9 <= 7 size 1 cond 21    # FILE:18
-logic 22 <= NOT 16 size 1    # FILE:19:2
-logic 23 <= 15 AND 22 size 1    # FILE:14-20
-conn 9 <= 8 size 1 cond 23    # FILE:20
+logic 10 <= 0 EQ int(1) size 1    # stdin:8:17
+conn 9 <= 4 size 1 cond 10    # stdin:9
+logic 11 <= NOT 10 size 1    # stdin:10:2
+logic 12 <= 1 EQ int(1) size 1    # stdin:10:22
+logic 13 <= 11 AND 12 size 1    # stdin:10-20
+conn 9 <= 5 size 1 cond 13    # stdin:12
+logic 14 <= NOT 12 size 1    # stdin:14:2
+logic 15 <= 11 AND 14 size 1    # stdin:10-20
+logic 16 <= 2 EQ int(1) size 1    # stdin:14:22
+logic 17 <= 15 AND 16 size 1    # stdin:14-20
+logic 18 <= 3 EQ int(1) size 1    # stdin:15:18
+logic 19 <= 17 AND 18 size 1    # stdin:15-18
+conn 9 <= 6 size 1 cond 19    # stdin:16
+logic 20 <= NOT 18 size 1    # stdin:17:3
+logic 21 <= 17 AND 20 size 1    # stdin:15-18
+conn 9 <= 7 size 1 cond 21    # stdin:18
+logic 22 <= NOT 16 size 1    # stdin:19:2
+logic 23 <= 15 AND 22 size 1    # stdin:14-20
+conn 9 <= 8 size 1 cond 23    # stdin:20
