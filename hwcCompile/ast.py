@@ -35,6 +35,8 @@ class LineInfo:
         self.len_  = len_
     def __str__(self):
         return f"FILE:{self.line}:{self.col}"
+    def __repr__(self):
+        return f"LineInfo({self})"
 
 class LineRange:
     def __init__(self, start,endIncl):
@@ -45,6 +47,8 @@ class LineRange:
             return f"FILE:{self.start}"
         else:
             return f"FILE:{self.start}-{self.endIncl}"
+    def __repr__(self):
+        return f"LineRange({self})"
 
 
 
@@ -1241,7 +1245,9 @@ def IntType():
 class g_IdentExpr(ASTNode):
     leafNode  = True
 
-    def __init__(self, name):
+    def __init__(self, lineInfo, name):
+        self.lineInfo = lineInfo
+
         self.name   = name
         self.target = None
 
@@ -1249,7 +1255,7 @@ class g_IdentExpr(ASTNode):
 
     def dup(self):
         assert self.target is None
-        return g_IdentExpr(self.name)
+        return g_IdentExpr(self.lineInfo, self.name)
 
     def __repr__(self):
         if self.target is None:
@@ -1262,9 +1268,9 @@ class g_IdentExpr(ASTNode):
     def resolve_name_lookups(self, ns_pri):
         self.target = ns_pri.search(self.name)
         if self.target is None:
-            self.nameScope.dump()
+            ns_pri.dump()
             print()
-            assert False, ("report syntax error", self.name)
+            assert False, ("report syntax error", self.name, self.lineInfo)
 
     def convert_to_metatype(self, side):
         if self.saved_metatype is None:
@@ -1343,7 +1349,9 @@ class g_NumExpr(ASTNode):
 
 
 class g_DotExpr(ASTNode):
-    def __init__(self, base, fieldName):
+    def __init__(self, lineInfo, base, fieldName):
+        self.lineInfo = lineInfo
+
         self.base      = base
         self.fieldName = fieldName
 
@@ -1354,7 +1362,7 @@ class g_DotExpr(ASTNode):
     def dup(self):
         assert self.target is None
         assert self.offset is None
-        return g_DotExpr(self.base.dup(), self.fieldName)
+        return g_DotExpr(self.lineInfo, self.base.dup(), self.fieldName)
 
     def resolve_name_lookups(self, ns_pri):
         self.base.resolve_name_lookups(ns_pri)

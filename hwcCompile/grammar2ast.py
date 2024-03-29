@@ -205,7 +205,8 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ctx.base.ast
 
         elif ctx.field is not None:
-            ctx.ast = ast.g_DotExpr(ctx.left.ast, ctx.field.text)
+            lineInfo = build_line_info(ctx.field)
+            ctx.ast = ast.g_DotExpr(lineInfo, ctx.left.ast, ctx.field.text)
 
         elif ctx.a is not None and ctx.colon is None:
             # either declaration of an array type, if the underlying expression
@@ -245,7 +246,8 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ctx.subexpr.ast
 
         elif ctx.name is not None:
-            ctx.ast = ast.g_IdentExpr(ctx.name.text)
+            lineInfo = build_line_info(ctx.name)
+            ctx.ast = ast.g_IdentExpr(lineInfo, ctx.name.text)
         elif ctx.num is not None:
             ctx.ast = ast.g_NumExpr(ctx.num.text)
 
