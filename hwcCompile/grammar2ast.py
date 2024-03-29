@@ -172,7 +172,13 @@ class HWCAstGenerator(hwcListener):
             lineInfo = build_line_info(ctx.op)
             ctx.ast = ast.g_BinaryExpr(lineInfo, ctx.left.ast, ctx.op.text, ctx.right[0].ast)
         else:
-            TODO()    # implement me, chain of more operations
+            lineInfo = build_line_info(ctx.op)
+
+            soFar = ctx.left.ast
+            for r in ctx.right:
+                soFar = ast.g_BinaryExpr(lineInfo, soFar, ctx.op.text, r.ast)
+
+            ctx.ast = soFar
 
 
     # all binary operators have the same implementation in the AST.  We use
@@ -193,7 +199,7 @@ class HWCAstGenerator(hwcListener):
 
         else:
             op = ctx.op.text
-            assert op in ["!", "-"]
+            assert op in ["!", "-", "~"]
             lineInfo = build_line_info(ctx.op)
             ctx.ast = ast.g_UnaryExpr(lineInfo, op, ctx.right.ast)
 

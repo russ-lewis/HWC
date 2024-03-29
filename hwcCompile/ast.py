@@ -1172,8 +1172,14 @@ class g_UnaryExpr(ASTNode):
     def _convert_to_metatype(self, side):
         self.rgt = self.rgt.convert_to_metatype("right")
 
-        if   self.op == "!":
+        if self.op == "!":
+            if self.rgt.typ_ != plugType_bit:
+                TODO()    # report syntax error: ! is only valid on 'bit' or 'bool' types
             return mt_PlugExpr_NOT(self.lineInfo, self.rgt)
+
+        elif self.op == "~":
+            return mt_PlugExpr_NOT(self.lineInfo, self.rgt)
+
         else:
             TODO()      # add support for more operators
 
@@ -1296,13 +1302,11 @@ class g_IdentExpr(ASTNode):
         elif type(self.target) == g_DeclStmt:      # case 3
             if   isinstance(self.target.typ_, mt_PartDecl):
                 return mt_PartExpr_Var(self.target)
+
             elif isinstance(self.target.typ_, mt_PlugDecl):
                 var = mt_PlugExpr_Var(self.target)
 
-                if self.target.isMem == False:
-                    return var
-
-                else:
+                if self.target.isMem:
                     if side == "right":
                         offset_cb = lambda: 0
                     else:
@@ -1310,6 +1314,9 @@ class g_IdentExpr(ASTNode):
                         offset_cb = lambda: var.typ_.decl_bitSize
 
                     return mt_PlugExpr_SubsetOf(var, offset_cb, self.target.typ_)
+
+                else:
+                    return var
 
             elif type(self.target.typ_) == g_PartOrPlugDecl:
                 TODO()   # handle IDENTs that come before their declarations
@@ -1373,14 +1380,15 @@ class g_DotExpr(ASTNode):
 
         self.target = self.base.typ_.code.pub_nameScope.search(self.fieldName)
         if self.target is None:
+            print(self.lineInfo)
             TODO()    # report syntax error
         assert(type(self.target) == g_DeclStmt)
 
 
         # dot expressions can only look up plug fields, because (currently)
         # only plug fields can be public.
-        assert(           self.target.prefix in ["", "public"])
-        assert(isinstance(self.target.typ_, mt_PlugDecl))
+        assert            self.target.prefix in ["", "public"]
+        assert isinstance(self.target.typ_, mt_PlugDecl)
 
         # we don't (yet) support public memory fields.  Should we add it?
         assert(self.target.isMem == False)

@@ -80,7 +80,7 @@ expr6:
 
 expr7:
       base=expr8
-    | op=('!' | '-')  right=expr7
+    | op=('!' | '-' | '~')  right=expr7
 ;
 
 expr8:
