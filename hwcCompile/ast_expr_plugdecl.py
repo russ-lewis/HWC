@@ -135,6 +135,9 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
     def resolve_name_lookups(self, ns_pri):
         assert False, "You should never create this object until you have passed the name-lookup phase and then called resolve()"
 
+    def convert_to_metatype(self, side):
+        return self
+
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
             assert False    # TODO: report cyclic declaration

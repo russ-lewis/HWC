@@ -65,6 +65,9 @@ class mt_PlugExpr_Var(mt_PlugExpr):
 
 class mt_PlugExpr_Dot(mt_PlugExpr):
     def __init__(self, base, target):
+        assert isinstance(base, mt_PlugExpr) or isinstance(base, mt_PartExpr), base
+        assert isinstance(target.typ_, mt_PlugDecl), target.typ_
+
         self.base   = base
         self.target = target
 
@@ -82,12 +85,23 @@ class mt_PlugExpr_Dot(mt_PlugExpr):
         print(f"{prefix}  target:")
         self.target.print_tree(prefix+"    ")
 
+    def convert_to_metatype(self, side):
+        self.base = self.base.convert_to_metatype(side)
+
+        print("DOT DOT DOT")
+        print(self.typ_)
+        self.typ_ = self.typ_.convert_to_metatype(side)
+        print(self.typ_)
+        print()
+        return self
+
     def calc_sizes(self):
         self.base.calc_sizes()
 
         # our 'target' field doesn't need to do calc_sizes because it's a
         # declaration; sizes are handled where it was declared, not where
         # it gets used.
+        self.target.calc_sizes()
 
         # a reference to a field never requires its own bits declared, but it's
         # possible that the underlying expression might.  It's rare, but one
@@ -653,6 +667,7 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
                 TODO()    # report syntax error
 
         elif self.lft.typ_ != self.rgt.typ_:
+            print(self.lft.typ_, self.rgt.typ_, self.lineInfo)
             TODO()     # report syntax error
 
         if type(self.rgt) == int:

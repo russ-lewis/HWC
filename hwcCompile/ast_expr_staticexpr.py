@@ -50,6 +50,13 @@ class mt_StaticExpr_ADD(mt_StaticExpr):
         self.lft      = lft
         self.rgt      = rgt
 
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_StaticExpr_ADD:    {self.lineInfo}")
+        print(f"{prefix}  lft:")
+        self.lft.print_tree(prefix+"    ")
+        print(f"{prefix}  rgt:")
+        self.rgt.print_tree(prefix+"    ")
+
     def calc_sizes(self):
         self.lft.calc_sizes()
         self.rgt.calc_sizes()

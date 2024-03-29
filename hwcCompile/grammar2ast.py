@@ -224,7 +224,8 @@ class HWCAstGenerator(hwcListener):
             # We must defer the resolution of what it is until later, when we
             # have resolved the names; then we will replace this object with
             # one of the proper type.
-            ctx.ast = ast.g_Unresolved_Single_Index_Expr(ctx.left.ast, ctx.a.ast)
+            lineInfo = build_line_range(ctx.a)
+            ctx.ast = ast.g_Unresolved_Single_Index_Expr(lineInfo, ctx.left.ast, ctx.a.ast)
 
         elif ctx.a is not None and ctx.colon is not None and ctx.b is None:
             # slice of a runtime value, which goes to the end of the array
@@ -277,7 +278,7 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = TODO()
 
         elif ctx.children[0].getText() == "int":
-            ctx.ast = TODO()
+            ctx.ast = ast_expr_metatypes.staticType_int
         elif ctx.children[0].getText() == "bool":
             ctx.ast = TODO()
 

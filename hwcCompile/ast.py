@@ -262,6 +262,13 @@ class g_BlockStmt(ASTNode):
         assert self.decl_bitSize  is None
         return g_BlockStmt([s.dup() for s in self.stmts])
 
+    def print_tree(self, prefix):
+        print(f"{prefix}g_BlockStmt:")
+
+        for i in range(len(self.stmts)):
+            print(f"{prefix}  stmts[{i}] of {len(self.stmts)}:")
+            self.stmts[i].print_tree(prefix+"    ")
+
     def deliver_if_conditions(self, cond):
         for s in self.stmts:
             s.deliver_if_conditions(cond)
@@ -386,6 +393,8 @@ class g_DeclStmt(ASTNode):
         elif isinstance(self.typ_, mt_PartDecl):
             assert     self.prefix == "subpart"
             assert not self.isMem
+        elif isinstance(self.typ_, mt_StaticType):
+            pass
         else:
             TODO()    # report syntax error
 
@@ -419,6 +428,15 @@ class g_DeclStmt(ASTNode):
         if self.initVal is not None and isinstance(self.initVal, mt_StaticExpr):
             self.initVal = self.initVal.resolve_static_expr()
 
+        elif isinstance(self.initVal, mt_PlugExpr):
+            self.initVal.calc_sizes()
+
+        elif self.initVal is None:
+            pass
+
+        else:
+            assert False   # TODO: are there any more cases to cover?
+
         # if there is a type mismatch between the initVal and the
         # declaration, we need to build a converter for that.  So far,
         # I only support NUM->bit and NUM->bit[].  Are there any other
@@ -429,7 +447,7 @@ class g_DeclStmt(ASTNode):
                     TODO()    # report syntax error, cannot assign anything to a bit except 0,1
                 self.initVal = mt_PlugExpr_Bit(self.initVal)
 
-            if type(self.initVal)  == int                 and \
+            elif type(self.initVal)  == int                 and \
                type(self.typ_)     == mt_PlugDecl_ArrayOf and \
                     self.typ_.base ==    plugType_bit:
 
@@ -439,6 +457,13 @@ class g_DeclStmt(ASTNode):
                 if self.initVal < 0 or (self.initVal >> dest_wid) != 0:
                     TODO()    # report syntax error, value doesn't fit
                 self.initVal = mt_PlugExpr_BitArray(dest_wid, self.initVal)
+
+            elif type(self.initVal) == int and self.typ_ == staticType_int:
+                self.static_val = self.initVal
+                self.initVal    = None
+
+            else:
+                assert False, (self.typ_.len_, self.initVal.typ_.len_)    # some other weird case.  Maybe a syntax error???
 
         if self.initVal is not None:
             self.initVal.calc_sizes()
@@ -456,15 +481,20 @@ class g_DeclStmt(ASTNode):
 
             assert False    # TODO
 
-        if self.initVal is None:
-            initSize = 0
-        else:
-            initSize = self.initVal.decl_bitSize
+        if isinstance(self.typ_, mt_StaticType):
+            # a static variable declaration takes no bit-space
+            self.decl_bitSize = 0
 
-        if self.isMem == False:
-            self.decl_bitSize = initSize + self.typ_.decl_bitSize
         else:
-            self.decl_bitSize = initSize + self.typ_.decl_bitSize*2
+            if self.initVal is None:
+                initSize = 0
+            else:
+                initSize = self.initVal.decl_bitSize
+
+            if self.isMem == False:
+                self.decl_bitSize = initSize + self.typ_.decl_bitSize
+            else:
+                self.decl_bitSize = initSize + self.typ_.decl_bitSize*2
 
     def calc_top_down_offsets(self, offset):
         assert type(offset) == int and offset >= 0
@@ -474,7 +504,6 @@ class g_DeclStmt(ASTNode):
         # but it cannot possibly have any *runtime* expressions.  So I don't
         # need to assign any offsets to any of its expressions; they are all
         # decls.
-        assert isinstance(self.typ_, mt_PlugDecl) or isinstance(self.typ_, mt_PartDecl)
 
         if self.initVal is not None:
             soFar = self.typ_.decl_bitSize
@@ -575,8 +604,8 @@ class g_ConnStmt(ASTNode):
     def print_tree(self, prefix):
         print(f"{prefix}CONN STATEMENT:")
 
-        if self.cond is None:
-            print(f"{prefix}  cond: None")
+        if self.cond is None or type(self.cond) == str:
+            print(f"{prefix}  cond: {repr(self.cond)}")
         else:
             print(f"{prefix}  cond:")
             self.cond.print_tree(prefix+"    ")
@@ -686,6 +715,10 @@ class g_ConnStmt(ASTNode):
                 self.lhs.typ_.print_tree("")
                 print()
                 self.rhs.typ_.print_tree("")
+                print()
+                print(type(self.lhs), type(self.rhs))
+                print()
+                print(self.lineRange)
                 print()
                 TODO()    # report syntax error
 
@@ -1300,7 +1333,10 @@ class g_IdentExpr(ASTNode):
                 return mt_PlugDecl_Code(self.target)
 
         elif type(self.target) == g_DeclStmt:      # case 3
-            if   isinstance(self.target.typ_, mt_PartDecl):
+            if type(self.target.typ_) == mt_StaticType_Int:
+                return mt_StaticExpr_Var(self.target)
+
+            elif isinstance(self.target.typ_, mt_PartDecl):
                 return mt_PartExpr_Var(self.target)
 
             elif isinstance(self.target.typ_, mt_PlugDecl):
@@ -1349,7 +1385,7 @@ class g_IdentExpr(ASTNode):
                     else:
                         offset_cb = lambda: 1
 
-                    return mt_PlugExpr_SubsetOf(var, offset_cb, self.target.typ_)
+                    return mt_PlugExpr_SubsetOf(var, offset_cb, plugType_bit)
 
                 elif type(self.target.typ_) == mt_PlugDecl_ArrayOf and \
                    self.target.typ_.get_multidim_base() == plugType_flag:
@@ -1441,7 +1477,12 @@ class g_DotExpr(ASTNode):
         # dot expressions can only look up plug fields, because (currently)
         # only plug fields can be public.
         assert            self.target.prefix in ["", "public"]
-        assert isinstance(self.target.typ_, mt_PlugDecl), type(self.target)
+
+        # if we reference a type that is later in the file, its declarations
+        # will not have been converted to metatypes, yet.
+        if not isinstance(self.target.typ_, mt_PlugDecl):
+            self.target.typ_ = self.target.typ_.convert_to_metatype("left")
+            assert isinstance(self.target.typ_, mt_PlugDecl)
 
         # we don't (yet) support public memory fields.  Should we add it?
         assert(self.target.isMem == False)
@@ -1453,14 +1494,16 @@ class g_DotExpr(ASTNode):
 
 
 class g_Unresolved_Single_Index_Expr(ASTNode):
-    def __init__(self, base, indx):
+    def __init__(self, lineInfo, base, indx):
+        self.lineInfo = lineInfo
+
         self.base = base
         self.indx = indx
 
         self.saved_metatype = None
 
     def dup(self):
-        return g_Unresolved_Single_Index_Expr(self.base.dup(), self.indx.dup())
+        return g_Unresolved_Single_Index_Expr(self.lineInfo, self.base.dup(), self.indx.dup())
 
     def print_tree(self, prefix):
         print(f"{prefix}URSIE:")
@@ -1572,6 +1615,12 @@ class g_Generic_PartOrPlugDecl(ASTNode):
     def dup(self):
         TODO()
 
+    def print_tree(self, prefix):
+        print(f"{prefix}g_GenericPartOrPlugDecl:")
+        print(f"{prefix}  arg_decls: {self.arg_decls}")
+        print(f"{prefix}  generic:")
+        self.generic.print_tree(prefix+"    ")
+
     def instantiate(self, cond, ns_pri):
         retval = self.generic.dup()
 
@@ -1635,6 +1684,24 @@ class g_ForStmt(ASTNode):
         self.pri_nameScope = None
 
         self.decl_bitSize = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}ForStmt: var_name: {self.var_name}      {self.lineInfo}")
+
+        if type(self.start) == int:
+            print(f"{prefix}  start: {self.start}")
+        else:
+            print(f"{prefix}  start:")
+            self.start.print_tree(prefix+"    ")
+
+        if type(self.end) == int:
+            print(f"{prefix}  end: {self.end}")
+        else:
+            print(f"{prefix}  end:")
+            self.end.print_tree(prefix+"    ")
+
+        print(f"{prefix}  bodY:")
+        self.generic_partDecl.print_tree(prefix+"    ")
 
 
     def deliver_if_conditions(self, cond):
