@@ -168,9 +168,11 @@ class HWCAstGenerator(hwcListener):
         assert ctx.left is not None
         if   len(ctx.right) == 0:
             ctx.ast = ctx.left.ast
+
         elif len(ctx.right) == 1:
             lineInfo = build_line_info(ctx.op)
             ctx.ast = ast.g_BinaryExpr(lineInfo, ctx.left.ast, ctx.op.text, ctx.right[0].ast)
+
         else:
             lineInfo = build_line_info(ctx.op)
 
@@ -269,7 +271,7 @@ class HWCAstGenerator(hwcListener):
         elif ctx.children[0].getText() == "bit":
             ctx.ast = ast_expr_metatypes.plugType_bit
         elif ctx.children[0].getText() == "flag":
-            ctx.ast = TODO()
+            ctx.ast = ast_expr_metatypes.plugType_flag
 
         elif ctx.children[0].getText() == "typeof":
             ctx.ast = TODO()

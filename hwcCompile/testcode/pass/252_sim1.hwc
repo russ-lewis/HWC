@@ -27,7 +27,8 @@ part Sim1_XOR
 	public bit a,b;
 	public bit out;
 
-	out = a & ~b | ~a & b;
+	out = (a & ~b) | (~a & b);
+	assert(out == a^b);
 }
 
 part Sim1_ADD

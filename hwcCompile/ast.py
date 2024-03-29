@@ -1306,7 +1306,56 @@ class g_IdentExpr(ASTNode):
             elif isinstance(self.target.typ_, mt_PlugDecl):
                 var = mt_PlugExpr_Var(self.target)
 
-                if self.target.isMem:
+                # memory variables, and flag variables, are both weird, but in
+                # different ways.  Memory variables are declared as a special
+                # type that *wraps around* another type, like this:
+                #    memory(bit[2]) foo;
+                # which means that the bits are arranged like this:
+                #    r[0] r[1] w[0] w[1]
+                # Thus, the decision of "read or write" must happen at a high
+                # level, *before* we (perhaps) index into the bits of the type
+                # itself.  We do not know the exact offset to the write bits
+                # yet (because calc_sizes() has not run yet), but once we know
+                # that, we'll apply it.
+                #
+                # That's annoying, but it works OK: by the time that the
+                # offsets have resolved, we have a PlugExpr which has a type
+                # which is equal to the underlying type of the memory cell,
+                # and the offset points to the read (or write) bits.  So from
+                # there, things are pretty much like any other variable.
+                #
+                # ---
+                #
+                # On the other hand, flags are a native type of the language,
+                # and have no flexibility about size: each flag is *exactly
+                # one* two-part bit.  You can declare arrays of flags, but
+                # each flag must be handled individually.  So the declaration
+                #    flag[2] example;
+                # produces the following bit pattern:
+                #    [0].r [0].w [1].r [1].w
+                # and thus the read/write question must be resolved at the
+                # *bottom* of the expression.  This is harder!  Because an
+                # an array of flags is *NOT* the same binary layout as an
+                # array of bits (even if we know which side we are on),
+                #
+                # This is what motivated the creation of a "discontig" PlugExpr
+                # class; we need a way to express "an array of bits, which are
+                # not physically adjacent to each other."
+
+                if self.target.typ_ == plugType_flag:
+                    assert self.target.typ_.decl_bitSize == 2
+                    if side == "right":
+                        offset_cb = lambda: 0
+                    else:
+                        offset_cb = lambda: 1
+
+                    return mt_PlugExpr_SubsetOf(var, offset_cb, self.target.typ_)
+
+                elif type(self.target.typ_) == mt_PlugDecl_ArrayOf and \
+                   self.target.typ_.get_multidim_base() == plugType_flag:
+                    TODO()
+
+                elif self.target.isMem:
                     if side == "right":
                         offset_cb = lambda: 0
                     else:
@@ -1371,6 +1420,11 @@ class g_DotExpr(ASTNode):
         assert self.offset is None
         return g_DotExpr(self.lineInfo, self.base.dup(), self.fieldName)
 
+    def print_tree(self, prefix):
+        print(f"{prefix}g_DotExpr:    fieldName: {self.fieldName}    lineInfo: {self.lineInfo}")
+        print(f"{prefix}  base:")
+        self.base.print_tree("    ")
+
     def resolve_name_lookups(self, ns_pri):
         self.base.resolve_name_lookups(ns_pri)
 
@@ -1384,11 +1438,10 @@ class g_DotExpr(ASTNode):
             TODO()    # report syntax error
         assert(type(self.target) == g_DeclStmt)
 
-
         # dot expressions can only look up plug fields, because (currently)
         # only plug fields can be public.
         assert            self.target.prefix in ["", "public"]
-        assert isinstance(self.target.typ_, mt_PlugDecl)
+        assert isinstance(self.target.typ_, mt_PlugDecl), type(self.target)
 
         # we don't (yet) support public memory fields.  Should we add it?
         assert(self.target.isMem == False)

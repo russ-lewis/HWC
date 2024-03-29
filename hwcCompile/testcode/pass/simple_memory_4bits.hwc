@@ -5,7 +5,7 @@ part tick_tock
 	public bit[4] out;
 
 	out = state;
-	state = !state;
+	state = ~state;
 }
 
 part main

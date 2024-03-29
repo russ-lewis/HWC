@@ -196,8 +196,6 @@ class mt_PlugExpr_SubsetOf(mt_PlugExpr):
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_SubsetOf:")
-        print(f"{prefix}  offset_from: {self.offset_from}")
-        print(f"{prefix}  subset_size: {self.subset_size}")
         print(f"{prefix}  base:")
         self.base.print_tree(prefix+"    ")
 
