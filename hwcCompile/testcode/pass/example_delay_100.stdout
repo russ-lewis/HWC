@@ -1,0 +1,220 @@
+#      0        main.valid_data
+#      1        main.data_in
+#      2        main.data_out
+#      3        main._data_out_valid(r)
+#      4        main._data_out_valid(w)
+#      5     13 main.c(r)
+#     13     21 main.c(w)
+#     21        main.data_temp(r)
+#     22        main.data_temp(w)
+#     23        main.next_s(r)
+#     24        main.next_s(w)
+#     25        main._EQ_25
+#     26        main._AND_26
+#     27        main._NOT_27
+#     28        main._EQ_28
+#     29        main._AND_29
+#     30        main._NOT_30
+#     31        main._AND_31
+#     32     40 main.adder.a
+#     40     48 main.adder.b
+#     48     56 main.adder.sum
+#     56     65 main.adder.carries
+#     65        main.adder.__for_64_7_0__.aVal
+#     66        main.adder.__for_64_7_0__.bVal
+#     67        main.adder.__for_64_7_0__.cVal
+#     68        main.adder.__for_64_7_0__._XOR_36
+#     69        main.adder.__for_64_7_0__._XOR_37
+#     70        main.adder.__for_64_7_0__._AND_38
+#     71        main.adder.__for_64_7_0__._AND_39
+#     72        main.adder.__for_64_7_0__._OR_40
+#     73        main.adder.__for_64_7_0__._AND_41
+#     74        main.adder.__for_64_7_0__._OR_42
+#     75        main.adder.__for_64_7_1__.aVal
+#     76        main.adder.__for_64_7_1__.bVal
+#     77        main.adder.__for_64_7_1__.cVal
+#     78        main.adder.__for_64_7_1__._XOR_46
+#     79        main.adder.__for_64_7_1__._XOR_47
+#     80        main.adder.__for_64_7_1__._AND_48
+#     81        main.adder.__for_64_7_1__._AND_49
+#     82        main.adder.__for_64_7_1__._OR_50
+#     83        main.adder.__for_64_7_1__._AND_51
+#     84        main.adder.__for_64_7_1__._OR_52
+#     85        main.adder.__for_64_7_2__.aVal
+#     86        main.adder.__for_64_7_2__.bVal
+#     87        main.adder.__for_64_7_2__.cVal
+#     88        main.adder.__for_64_7_2__._XOR_56
+#     89        main.adder.__for_64_7_2__._XOR_57
+#     90        main.adder.__for_64_7_2__._AND_58
+#     91        main.adder.__for_64_7_2__._AND_59
+#     92        main.adder.__for_64_7_2__._OR_60
+#     93        main.adder.__for_64_7_2__._AND_61
+#     94        main.adder.__for_64_7_2__._OR_62
+#     95        main.adder.__for_64_7_3__.aVal
+#     96        main.adder.__for_64_7_3__.bVal
+#     97        main.adder.__for_64_7_3__.cVal
+#     98        main.adder.__for_64_7_3__._XOR_66
+#     99        main.adder.__for_64_7_3__._XOR_67
+#    100        main.adder.__for_64_7_3__._AND_68
+#    101        main.adder.__for_64_7_3__._AND_69
+#    102        main.adder.__for_64_7_3__._OR_70
+#    103        main.adder.__for_64_7_3__._AND_71
+#    104        main.adder.__for_64_7_3__._OR_72
+#    105        main.adder.__for_64_7_4__.aVal
+#    106        main.adder.__for_64_7_4__.bVal
+#    107        main.adder.__for_64_7_4__.cVal
+#    108        main.adder.__for_64_7_4__._XOR_76
+#    109        main.adder.__for_64_7_4__._XOR_77
+#    110        main.adder.__for_64_7_4__._AND_78
+#    111        main.adder.__for_64_7_4__._AND_79
+#    112        main.adder.__for_64_7_4__._OR_80
+#    113        main.adder.__for_64_7_4__._AND_81
+#    114        main.adder.__for_64_7_4__._OR_82
+#    115        main.adder.__for_64_7_5__.aVal
+#    116        main.adder.__for_64_7_5__.bVal
+#    117        main.adder.__for_64_7_5__.cVal
+#    118        main.adder.__for_64_7_5__._XOR_86
+#    119        main.adder.__for_64_7_5__._XOR_87
+#    120        main.adder.__for_64_7_5__._AND_88
+#    121        main.adder.__for_64_7_5__._AND_89
+#    122        main.adder.__for_64_7_5__._OR_90
+#    123        main.adder.__for_64_7_5__._AND_91
+#    124        main.adder.__for_64_7_5__._OR_92
+#    125        main.adder.__for_64_7_6__.aVal
+#    126        main.adder.__for_64_7_6__.bVal
+#    127        main.adder.__for_64_7_6__.cVal
+#    128        main.adder.__for_64_7_6__._XOR_96
+#    129        main.adder.__for_64_7_6__._XOR_97
+#    130        main.adder.__for_64_7_6__._AND_98
+#    131        main.adder.__for_64_7_6__._AND_99
+#    132        main.adder.__for_64_7_6__._OR_100
+#    133        main.adder.__for_64_7_6__._AND_101
+#    134        main.adder.__for_64_7_6__._OR_102
+#    135        main.adder.__for_64_7_7__.aVal
+#    136        main.adder.__for_64_7_7__.bVal
+#    137        main.adder.__for_64_7_7__.cVal
+#    138        main.adder.__for_64_7_7__._XOR_106
+#    139        main.adder.__for_64_7_7__._XOR_107
+#    140        main.adder.__for_64_7_7__._AND_108
+#    141        main.adder.__for_64_7_7__._AND_109
+#    142        main.adder.__for_64_7_7__._OR_110
+#    143        main.adder.__for_64_7_7__._AND_111
+#    144        main.adder.__for_64_7_7__._OR_112
+
+mem r 5 w 13 size 8    # TODO: line number
+mem r 21 w 22 size 1    # TODO: line number
+mem r 23 w 24 size 1    # TODO: line number
+logic 25 <= 23 EQ int(0) size 1    # FILE:29:13
+logic 26 <= 25 AND 0 size 1    # FILE:31-36
+conn 24 <= int(1) size 1 cond 26    # FILE:33
+conn 22 <= 1 size 1 cond 26    # FILE:34
+conn 13 <= int(1) size 8 cond 26    # FILE:35
+logic 27 <= NOT 25 size 1    # FILE:38:2
+logic 28 <= 5 EQ int(100) size 1    # FILE:40:9
+logic 29 <= 27 AND 28 size 1    # FILE:40-54
+conn 13 <= int(1) size 8 cond 29    # FILE:42
+conn 2 <= 21 size 1 cond 29    # FILE:43
+conn 4 <= int(1) size 1 cond 29    # FILE:44
+conn 24 <= int(0) size 1 cond 29    # FILE:45
+logic 30 <= NOT 28 size 1    # FILE:47:3
+logic 31 <= 27 AND 30 size 1    # FILE:40-54
+conn 56 <= int(0) size 1    # FILE:63
+conn 65 <= 32 size 1    # TODO: line number
+conn 66 <= 40 size 1    # TODO: line number
+conn 67 <= 56 size 1    # TODO: line number
+logic 68 <= 65 XOR 66 size 1    # FILE:70:30
+logic 69 <= 68 XOR 67 size 1    # FILE:70:30
+conn 48 <= 69 size 1    # FILE:70
+logic 70 <= 65 AND 66 size 1    # FILE:71:24
+logic 71 <= 65 AND 67 size 1    # FILE:71:40
+logic 72 <= 70 OR 71 size 1    # FILE:71:48
+logic 73 <= 66 AND 67 size 1    # FILE:71:56
+logic 74 <= 72 OR 73 size 1    # FILE:71:48
+conn 57 <= 74 size 1    # FILE:71
+conn 75 <= 33 size 1    # TODO: line number
+conn 76 <= 41 size 1    # TODO: line number
+conn 77 <= 57 size 1    # TODO: line number
+logic 78 <= 75 XOR 76 size 1    # FILE:70:30
+logic 79 <= 78 XOR 77 size 1    # FILE:70:30
+conn 49 <= 79 size 1    # FILE:70
+logic 80 <= 75 AND 76 size 1    # FILE:71:24
+logic 81 <= 75 AND 77 size 1    # FILE:71:40
+logic 82 <= 80 OR 81 size 1    # FILE:71:48
+logic 83 <= 76 AND 77 size 1    # FILE:71:56
+logic 84 <= 82 OR 83 size 1    # FILE:71:48
+conn 58 <= 84 size 1    # FILE:71
+conn 85 <= 34 size 1    # TODO: line number
+conn 86 <= 42 size 1    # TODO: line number
+conn 87 <= 58 size 1    # TODO: line number
+logic 88 <= 85 XOR 86 size 1    # FILE:70:30
+logic 89 <= 88 XOR 87 size 1    # FILE:70:30
+conn 50 <= 89 size 1    # FILE:70
+logic 90 <= 85 AND 86 size 1    # FILE:71:24
+logic 91 <= 85 AND 87 size 1    # FILE:71:40
+logic 92 <= 90 OR 91 size 1    # FILE:71:48
+logic 93 <= 86 AND 87 size 1    # FILE:71:56
+logic 94 <= 92 OR 93 size 1    # FILE:71:48
+conn 59 <= 94 size 1    # FILE:71
+conn 95 <= 35 size 1    # TODO: line number
+conn 96 <= 43 size 1    # TODO: line number
+conn 97 <= 59 size 1    # TODO: line number
+logic 98 <= 95 XOR 96 size 1    # FILE:70:30
+logic 99 <= 98 XOR 97 size 1    # FILE:70:30
+conn 51 <= 99 size 1    # FILE:70
+logic 100 <= 95 AND 96 size 1    # FILE:71:24
+logic 101 <= 95 AND 97 size 1    # FILE:71:40
+logic 102 <= 100 OR 101 size 1    # FILE:71:48
+logic 103 <= 96 AND 97 size 1    # FILE:71:56
+logic 104 <= 102 OR 103 size 1    # FILE:71:48
+conn 60 <= 104 size 1    # FILE:71
+conn 105 <= 36 size 1    # TODO: line number
+conn 106 <= 44 size 1    # TODO: line number
+conn 107 <= 60 size 1    # TODO: line number
+logic 108 <= 105 XOR 106 size 1    # FILE:70:30
+logic 109 <= 108 XOR 107 size 1    # FILE:70:30
+conn 52 <= 109 size 1    # FILE:70
+logic 110 <= 105 AND 106 size 1    # FILE:71:24
+logic 111 <= 105 AND 107 size 1    # FILE:71:40
+logic 112 <= 110 OR 111 size 1    # FILE:71:48
+logic 113 <= 106 AND 107 size 1    # FILE:71:56
+logic 114 <= 112 OR 113 size 1    # FILE:71:48
+conn 61 <= 114 size 1    # FILE:71
+conn 115 <= 37 size 1    # TODO: line number
+conn 116 <= 45 size 1    # TODO: line number
+conn 117 <= 61 size 1    # TODO: line number
+logic 118 <= 115 XOR 116 size 1    # FILE:70:30
+logic 119 <= 118 XOR 117 size 1    # FILE:70:30
+conn 53 <= 119 size 1    # FILE:70
+logic 120 <= 115 AND 116 size 1    # FILE:71:24
+logic 121 <= 115 AND 117 size 1    # FILE:71:40
+logic 122 <= 120 OR 121 size 1    # FILE:71:48
+logic 123 <= 116 AND 117 size 1    # FILE:71:56
+logic 124 <= 122 OR 123 size 1    # FILE:71:48
+conn 62 <= 124 size 1    # FILE:71
+conn 125 <= 38 size 1    # TODO: line number
+conn 126 <= 46 size 1    # TODO: line number
+conn 127 <= 62 size 1    # TODO: line number
+logic 128 <= 125 XOR 126 size 1    # FILE:70:30
+logic 129 <= 128 XOR 127 size 1    # FILE:70:30
+conn 54 <= 129 size 1    # FILE:70
+logic 130 <= 125 AND 126 size 1    # FILE:71:24
+logic 131 <= 125 AND 127 size 1    # FILE:71:40
+logic 132 <= 130 OR 131 size 1    # FILE:71:48
+logic 133 <= 126 AND 127 size 1    # FILE:71:56
+logic 134 <= 132 OR 133 size 1    # FILE:71:48
+conn 63 <= 134 size 1    # FILE:71
+conn 135 <= 39 size 1    # TODO: line number
+conn 136 <= 47 size 1    # TODO: line number
+conn 137 <= 63 size 1    # TODO: line number
+logic 138 <= 135 XOR 136 size 1    # FILE:70:30
+logic 139 <= 138 XOR 137 size 1    # FILE:70:30
+conn 55 <= 139 size 1    # FILE:70
+logic 140 <= 135 AND 136 size 1    # FILE:71:24
+logic 141 <= 135 AND 137 size 1    # FILE:71:40
+logic 142 <= 140 OR 141 size 1    # FILE:71:48
+logic 143 <= 136 AND 137 size 1    # FILE:71:56
+logic 144 <= 142 OR 143 size 1    # FILE:71:48
+conn 64 <= 144 size 1    # FILE:71
+conn 32 <= 5 size 8 cond 31    # FILE:51
+conn 40 <= int(1) size 8 cond 31    # FILE:52
+conn 13 <= 48 size 8 cond 31    # FILE:53
