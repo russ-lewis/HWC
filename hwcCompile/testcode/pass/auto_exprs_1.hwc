@@ -10,11 +10,9 @@ part main {
     auto g = b;
     auto h = e;
 
-    auto i = concat(b,b,b);
+    auto i = concat(b,b);
 
-    auto j = concat(
-                concat(b,b),
-                concat(b,b));
+    auto j = concat(concat(b,b), concat(b,b));
 
     auto k = concat( a[:16], a[16:] );
 }
