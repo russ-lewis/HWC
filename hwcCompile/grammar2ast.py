@@ -5,6 +5,7 @@
 # https://medium.com/@raguiar2/building-a-working-calculator-in-python-with-antlr-d879e2ea9058
 
 from antlr4 import *
+
 from hwcLexer    import hwcLexer
 from hwcParser   import hwcParser
 from hwcListener import hwcListener
@@ -16,13 +17,26 @@ import ast_expr_metatypes;
 
 def grammar2ast():
     lexer  = hwcLexer(StdinStream())
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(HWCErrorListener())
+
     parser = hwcParser(CommonTokenStream(lexer))
+    parser.removeErrorListeners()
+    parser.addErrorListener(HWCErrorListener())
+
     tree   = parser.file_()      # trailing underscore is because file is a Python type
 
     printer = HWCAstGenerator("stdin")
     ParseTreeWalker().walk(printer,tree)
 
     return tree.ast
+
+
+
+class HWCErrorListener(error.ErrorListener.ErrorListener):    # https://snyk.io/advisor/npm-package/antlr4/functions/antlr4.error
+    def syntaxError(self, recognizer, offending_symbol, line,col, msg, e):   # what is the 'e' param???
+        lineInfo = ast.LineInfo("<TODO_filename>", line,col+1, 1)
+        raise ast.HWC_SyntaxError(lineInfo, msg)
 
 
 
