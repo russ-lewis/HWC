@@ -1,5 +1,7 @@
 #! /usr/bin/python3
 
+import sys   # for stderr
+
 from grammar2ast import grammar2ast;
 from ast import g_PartOrPlugDecl,SyntaxError
 
@@ -73,5 +75,5 @@ if __name__ == "__main__":
     try:
         main()
     except SyntaxError as e:
-        print(f"{e.lineInfo}: {e.message}")
+        print(f"{e.lineInfo}: {e.message}", file=sys.stderr)
 
