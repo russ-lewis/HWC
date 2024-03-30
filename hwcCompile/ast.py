@@ -142,8 +142,8 @@ class g_PartOrPlugDecl(ASTNode):
 
     def print_tree(self, prefix):
         print(f"{prefix}PART-OR-PLUG DECL: isPart={self.isPart} name={self.name} id={id(self)}")
-        for d in self.stmts:
-            d.print_tree(prefix+"  ")
+        for s in self.stmts:
+            s.print_tree(prefix+"  ")
 
 
     def deliver_if_conditions(self, cond):
@@ -191,8 +191,8 @@ class g_PartOrPlugDecl(ASTNode):
             s.resolve_name_lookups(self.pri_nameScope)
 
     def convert_exprs_to_metatypes(self):
-        for d in self.stmts:
-            d.convert_exprs_to_metatypes()
+        for s in self.stmts:
+            s.convert_exprs_to_metatypes()
 
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
