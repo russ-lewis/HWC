@@ -122,9 +122,13 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         print(f"{prefix}  len_={self.len_}")
 
     def __eq__(self, other):
-        return type(self) == type(other) and \
-               self.base  == other.base  and \
-               self.len_  == other.len_
+        if type(self) != type(other):
+            return False
+
+        # doing a type comparison, before the length is known, is invalid.
+        assert self.len_ is not None and other.len_ is not None
+
+        return self.base == other.base
 
     def get_multidim_base(self):
         if type(self.base) == mt_PlugDecl_ArrayOf:
