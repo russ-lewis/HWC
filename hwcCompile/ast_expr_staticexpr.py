@@ -10,6 +10,8 @@ class mt_StaticExpr_NumExpr(mt_StaticExpr):
     def __init__(self, num):
         assert type(num) == int
         self.num = num
+    def dup(self):
+        return self
     def __repr__(self):
         return f"mt_StaticExpr_NumExpr: num={self.num}"
     def print_tree(self, prefix):
@@ -36,6 +38,8 @@ class mt_StaticExpr_Bool(mt_StaticExpr):
     def __init__(self, val):
         assert val in ["true","false"]
         self.val = (val == "true")
+    def dup(self):
+        return self
 
     def resolve_static_expr(self):
         return self.val

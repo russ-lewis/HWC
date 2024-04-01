@@ -114,6 +114,8 @@ expr9:
     | 'bit'
     | 'flag'
 
+    | 'auto'
+
       /* TODO: converts an integer to its bit-expression.  Only valid for non-negative.  Size
        *       is auto-detected; most users may prefer *assigning* an int to a well-known field.
        * 

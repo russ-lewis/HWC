@@ -32,6 +32,7 @@ class mt_PlugExpr_Var(mt_PlugExpr):
         self.decl.calc_sizes()
         assert type(self.decl.decl_bitSize) == int
         assert      self.decl.decl_bitSize  >  0
+        self.typ_.calc_sizes()
 
     def calc_top_down_offsets(self, offset):
         assert self.offset is None    # we'll resolve this later
@@ -87,12 +88,7 @@ class mt_PlugExpr_Dot(mt_PlugExpr):
 
     def convert_to_metatype(self, side):
         self.base = self.base.convert_to_metatype(side)
-
-        print("DOT DOT DOT")
-        print(self.typ_)
         self.typ_ = self.typ_.convert_to_metatype(side)
-        print(self.typ_)
-        print()
         return self
 
     def calc_sizes(self):
@@ -246,7 +242,9 @@ class mt_PlugExpr_SubsetOf(mt_PlugExpr):
 
 
 class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
-    def __init__(self, base, indx):
+    def __init__(self, lineInfo, base, indx):
+        self.lineInfo = lineInfo
+
         self.base = base
         self.indx = indx
 
@@ -319,7 +317,9 @@ class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
 
 
 class mt_PlugExpr_ArraySlice(mt_PlugExpr):
-    def __init__(self, base, start,end):
+    def __init__(self, lineInfo, base, start,end):
+        self.lineInfo = lineInfo
+
         self.base  = base
         self.start = start
         self.end   = end
@@ -337,7 +337,7 @@ class mt_PlugExpr_ArraySlice(mt_PlugExpr):
         # expressions (which can't happen until calc_sizes())
 
         assert type(base.typ_) == mt_PlugDecl_ArrayOf
-        self.typ_ = mt_PlugDecl_ArrayOf(base.typ_.base, None)
+        self.typ_ = mt_PlugDecl_ArrayOf(self.lineInfo, base.typ_.base, None)
 
         self.decl_bitSize = None
         self.offset       = None
@@ -434,11 +434,11 @@ class mt_PlugExpr_BitArray(mt_PlugExpr):
     is_lhs = False
     decl_bitSize = 0    # consumes no space!
 
-    def __init__(self, bitSize, val):
+    def __init__(self, lineInfo, bitSize, val):
         assert type(val) == int
         assert (val >> bitSize) == 0
 
-        self.typ_         = mt_PlugDecl_ArrayOf(plugType_bit, bitSize)
+        self.typ_         = mt_PlugDecl_ArrayOf(lineInfo, plugType_bit, bitSize)
         self.val          = val
 
     def __repr__(self):
@@ -762,7 +762,9 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
 # don't accidentally use it as if it was a contiguous range).
 
 class mt_PlugExpr_Discontig(mt_PlugExpr):
-    def __init__(self, pieces):
+    def __init__(self, lineInfo, pieces):
+        self.lineInfo = lineInfo
+
         assert type(pieces) == list and len(pieces) > 0
 
         # all of the pieces should have the same side, and they must all be
@@ -775,7 +777,7 @@ class mt_PlugExpr_Discontig(mt_PlugExpr):
 
         # inherit the lhs and typ_ fields from the pieces
         self.is_lhs = pieces[0].is_lhs
-        self.typ_   = mt_PlugDecl_ArrayOf(pieces[0].typ_.base, None)    # we will set the length later, when we know it
+        self.typ_   = mt_PlugDecl_ArrayOf(self.lineInfo, pieces[0].typ_.base, None)    # we will set the length later, when we know it
 
         self.pieces = pieces
 
@@ -804,7 +806,7 @@ class mt_PlugExpr_Discontig(mt_PlugExpr):
 
         for p in self.pieces:
             p.calc_sizes()
-            assert type(p.typ_.len_) == int and p.typ_.len_ >0
+            assert type(p.typ_.len_) == int and p.typ_.len_ >0, (p, p.typ_.len_, type(p.typ_))
 
         self.typ_.len_ = sum(p.typ_.len_ for p in self.pieces)
         self.typ_.calc_sizes()

@@ -1,8 +1,3 @@
-mt_StaticExpr_NumExpr: num=1 mt_StaticExpr_NumExpr: num=3
-mt_StaticExpr_NumExpr: num=16 None
-mt_StaticExpr_NumExpr: num=63 None
-mt_StaticExpr_NumExpr: num=0 mt_StaticExpr_NumExpr: num=16
-mt_StaticExpr_NumExpr: num=16 None
 #      0   2048 main.a
 #   2048   4096 main.b
 #   4096   4128 main.c

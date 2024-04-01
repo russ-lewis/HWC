@@ -56,6 +56,7 @@ class LineRange:
 
 class HWCCompile_SyntaxError(Exception):
     def __init__(self, lineInfo, message):
+        assert lineInfo is not None
         self.lineInfo = lineInfo
         self.message  = message
 
@@ -327,7 +328,9 @@ class g_BlockStmt(ASTNode):
 
 
 class g_DeclStmt(ASTNode):
-    def __init__(self, prefix, isMem, typ_, name, initVal):
+    def __init__(self, lineInfo, prefix, isMem, typ_, name, initVal):
+        self.lineInfo = lineInfo
+
         self.prefix        = prefix
         self.isMem         = isMem
         self.name          = name
@@ -341,13 +344,18 @@ class g_DeclStmt(ASTNode):
         # that nobody is using this field too early.
         self.raw_typ = typ_
 
+        # but do this one sanity check, early!
+        if type(self.raw_typ) == mt_PlugDecl_Auto and self.initVal is None:
+            raise HWCCompile_SyntaxError(None, "'auto' declarations must have initializer expressions")
+
     def dup(self):
         assert self.decl_bitSize is None
         assert self.offset       is None
 
         dup_typ  = self.raw_typ.dup()
         dup_init = self.initVal.dup() if self.initVal is not None else None
-        return g_DeclStmt(self.prefix, self.isMem,
+        return g_DeclStmt(self.lineInfo,
+                          self.prefix, self.isMem,
                           dup_typ,
                           self.name,
                           dup_init)
@@ -401,7 +409,15 @@ class g_DeclStmt(ASTNode):
 
     def convert_exprs_to_metatypes(self):
         self.raw_typ = self.raw_typ.convert_to_metatype("right")
-        self.typ_    = self.raw_typ
+        if self.initVal is not None:
+            self.initVal = self.initVal.convert_to_metatype("right")
+
+        if type(self.raw_typ) != mt_PlugDecl_Auto:
+            self.typ_ = self.raw_typ
+        else:
+            if not isinstance(self.initVal.typ_, mt_PlugDecl):
+                raise HWCCompile_SyntaxError(None, "auto declarations can only be initialized with runtime plug values")    # TODO: should I support static auto as well???
+            self.typ_ = self.initVal.typ_.dup()
 
         if   isinstance(self.typ_, mt_PlugDecl):
             pass
@@ -413,18 +429,6 @@ class g_DeclStmt(ASTNode):
         else:
             TODO()    # report syntax error
 
-        if self.initVal is not None:
-            self.initVal = self.initVal.convert_to_metatype("right")
-
-            # BUGFIX:
-            #
-            # Originally, I tried to convert static expressions to the
-            # the appropriate type here.  However, as I thought about
-            # complex static expressions (including those that might
-            # include sizeof() expressions), I realized that I wouldn't
-            # be able to resolve all static expressions until calc_sizes()
-            # ran.  So I deferred the work until then.
-
     def calc_sizes(self):
         if self.decl_bitSize == "in progress":
             assert False    # TODO: report cyclic declaration
@@ -432,11 +436,8 @@ class g_DeclStmt(ASTNode):
             return
         self.decl_bitSize = "in progress"
 
-        self.typ_.calc_sizes()
-
-        if self.isMem:
-            # the type of a memory cell *MUST* be plug, never a part
-            assert isinstance(self.typ_, mt_PlugDecl)
+        if self.initVal is not None:
+            self.initVal.calc_sizes()
 
         # if there is an initVal and it is a static expression, then convert
         # it to its Python type.
@@ -451,6 +452,24 @@ class g_DeclStmt(ASTNode):
 
         else:
             assert False   # TODO: are there any more cases to cover?
+
+        # if this was an 'auto' declaration *AND* the underlying expression
+        # was an array, then we need to copy over the length field from the
+        # initVal, which (maybe) wasn't valid until this step.
+        #
+        # TODO: make the len_ field in a type a lambda, maybe?  Resolved during
+        #       calc_sizes()?
+
+        if type(self.raw_typ) == mt_PlugDecl_Auto and type(self.typ_) == mt_PlugDecl_ArrayOf:
+            if self.typ_.len_ is None:
+                assert type(self.initVal.typ_.len_) == int
+                self.typ_.len_ = self.initVal.typ_.len_
+
+        self.typ_.calc_sizes()
+
+        if self.isMem:
+            # the type of a memory cell *MUST* be plug, never a part
+            assert isinstance(self.typ_, mt_PlugDecl)
 
         # if there is a type mismatch between the initVal and the
         # declaration, we need to build a converter for that.  So far,
@@ -471,7 +490,7 @@ class g_DeclStmt(ASTNode):
 
                 if self.initVal < 0 or (self.initVal >> dest_wid) != 0:
                     TODO()    # report syntax error, value doesn't fit
-                self.initVal = mt_PlugExpr_BitArray(dest_wid, self.initVal)
+                self.initVal = mt_PlugExpr_BitArray(self.lineInfo, dest_wid, self.initVal)
 
             elif type(self.initVal) == int and self.typ_ == staticType_int:
                 self.static_val = self.initVal
@@ -699,7 +718,7 @@ class g_ConnStmt(ASTNode):
 
                 if self.rhs < 0 or (self.rhs >> dest_wid) != 0:
                     TODO()    # report syntax error, value doesn't fit
-                self.rhs = mt_PlugExpr_BitArray(dest_wid, self.rhs)
+                self.rhs = mt_PlugExpr_BitArray(self.lineRange, dest_wid, self.rhs)
 
             else:
                 TODO()    # report syntax error
@@ -807,9 +826,9 @@ class g_ConnStmt(ASTNode):
             total_len = self.lhs.typ_.len_
 
             if self.lhs.offset != "discontig":
-                self.lhs = mt_PlugExpr_Discontig([self.lhs])
+                self.lhs = mt_PlugExpr_Discontig(self.lineRange, [self.lhs])
             if self.rhs.offset != "discontig":
-                self.rhs = mt_PlugExpr_Discontig([self.rhs])
+                self.rhs = mt_PlugExpr_Discontig(self.lineRange, [self.rhs])
 
             cur_indx = 0
             while cur_indx < total_len:
@@ -1173,7 +1192,7 @@ class g_BinaryExpr(ASTNode):
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "XOR", self.rgt)
 
         elif self.op == "concat":
-            return mt_PlugExpr_Discontig([self.lft, self.rgt])
+            return mt_PlugExpr_Discontig(self.lineInfo, [self.lft, self.rgt])
 
         elif self.op == "+":
             return mt_StaticExpr_ADD(self.lineInfo, self.lft, self.rgt)
@@ -1353,6 +1372,15 @@ class g_IdentExpr(ASTNode):
                 return mt_PartExpr_Var(self.target)
 
             elif isinstance(self.target.typ_, mt_PlugDecl):
+                # it's possible that the target has not reached this phase yet;
+                # force it to do so.  Then we can use the typ_ field, which is
+                # not defined in DeclStmt until this phase.
+
+                self.target.convert_exprs_to_metatypes()
+
+                # now that the target is ready to use, create an object which
+                # specifically models "a reference to this variable"
+
                 var = mt_PlugExpr_Var(self.target)
 
                 # memory variables, and flag variables, are both weird, but in
@@ -1546,13 +1574,13 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         len_or_index = self.indx.convert_to_metatype("right")
 
         if   isinstance(base, mt_PlugDecl):
-            return mt_PlugDecl_ArrayOf(base,len_or_index)
+            return mt_PlugDecl_ArrayOf(self.lineInfo, base,len_or_index)
         elif isinstance(base, mt_PartDecl):
-            return mt_PartDecl_ArrayOf(base,len_or_index)
+            return mt_PartDecl_ArrayOf(self.lineInfo, base,len_or_index)
 
         elif isinstance(base, mt_PlugExpr):
             if type(base.typ_) == mt_PlugDecl_ArrayOf:
-                return mt_PlugExpr_ArrayIndex(base, len_or_index)
+                return mt_PlugExpr_ArrayIndex(self.lineInfo, base, len_or_index)
             else:
                 base.print_tree("")
                 print()
@@ -1572,7 +1600,9 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
 
 
 class g_ArraySlice(ASTNode):
-    def __init__(self, base, start,end):
+    def __init__(self, lineInfo, base, start,end):
+        self.lineInfo = lineInfo
+
         self.base  = base
         self.start = start
         self.end   = end      # could be None
@@ -1583,7 +1613,7 @@ class g_ArraySlice(ASTNode):
         base_dup  = self.base .dup()
         start_dup = self.start.dup()
         end_dup   = self.end  .dup() if self.end is not None else None
-        return g_ArraySlice(base_dup, start_dup, end_dup)
+        return g_ArraySlice(self.lineInfo, base_dup, start_dup, end_dup)
 
     def print_tree(self, prefix):
         print(f"{prefix}g_ArraySlice:")
@@ -1617,7 +1647,7 @@ class g_ArraySlice(ASTNode):
         end   = self.end  .convert_to_metatype("right") if self.end is not None else None
 
         if type(base.typ_) == mt_PlugDecl_ArrayOf:
-            return mt_PlugExpr_ArraySlice(base, start,end)
+            return mt_PlugExpr_ArraySlice(self.lineInfo, base, start,end)
         else:
             TODO()
 

@@ -94,11 +94,13 @@ class HWCAstGenerator(hwcListener):
         mem    = (ctx.mem is not None)
         typ_   =  ctx.t.ast
 
+        lineInfo = self.build_line_range(ctx)
+
         decls = []
         for d in ctx.decls:
             name    = d.name.text
             initVal = d.val.ast if d.val is not None else None
-            stmt = ast.g_DeclStmt(prefix,mem,typ_, name,initVal)
+            stmt = ast.g_DeclStmt(lineInfo, prefix,mem,typ_, name,initVal)
             decls.append(stmt)
 
         assert len(decls) >= 1
@@ -247,20 +249,26 @@ class HWCAstGenerator(hwcListener):
 
         elif ctx.a is not None and ctx.colon is not None and ctx.b is None:
             # slice of a runtime value, which goes to the end of the array
-            ctx.ast = ast.g_ArraySlice(ctx.left.ast,
+            lineInfo = self.build_line_range(ctx.a)
+            ctx.ast = ast.g_ArraySlice(lineInfo,
+                                       ctx.left.ast,
                                        ctx.a.ast,
                                        None)
 
         elif ctx.a is None and ctx.colon is not None and ctx.b is not None:
             # slice of a runtime value, which starts at the beginning of the array
-            ctx.ast = ast.g_ArraySlice(ctx.left.ast,
+            lineInfo = self.build_line_range(ctx.b)
+            ctx.ast = ast.g_ArraySlice(lineInfo,
+                                       ctx.left.ast,
                                        ast.g_NumExpr("0"),
                                        ctx.b.ast)
 
         elif ctx.a is not None and ctx.colon is not None and ctx.b is not None:
             # slice of a runtime value
             assert ctx.b.ast is not None
-            ctx.ast = ast.g_ArraySlice(ctx.left.ast,
+            lineInfo = self.build_line_range(ctx.a)
+            ctx.ast = ast.g_ArraySlice(lineInfo,
+                                       ctx.left.ast,
                                        ctx.a.ast,
                                        ctx.b.ast)
 
@@ -291,6 +299,9 @@ class HWCAstGenerator(hwcListener):
             ctx.ast = ast_expr_metatypes.plugType_bit
         elif ctx.children[0].getText() == "flag":
             ctx.ast = ast_expr_metatypes.plugType_flag
+
+        elif ctx.children[0].getText() == "auto":
+            ctx.ast = ast_expr_metatypes.plugType_auto
 
         elif ctx.children[0].getText() == "typeof":
             ctx.ast = TODO()

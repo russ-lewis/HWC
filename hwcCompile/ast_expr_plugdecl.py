@@ -1,5 +1,6 @@
 
 from ast_expr_metatypes import *
+from ast import HWCCompile_SyntaxError
 
 
 
@@ -80,6 +81,31 @@ class mt_PlugDecl_Flag(mt_PlugDecl):
 
 
 
+class mt_PlugDecl_Auto(mt_PlugDecl):
+    leafNode = True
+    decl_bitSize = "unknown"
+
+    def __init__(self):
+        pass
+    def dup(self):
+        return self
+    def __repr__(self):
+        return f"mt_PlugDecl_Auto"
+    def print_tree(self, prefix):
+        print(f"{prefix}{repr(self)}")
+
+    def __eq__(self, other):
+        assert False    # any code that tries to compare 'auto' to something else is broken
+
+    def resolve_name_lookups(self, ns_pri):
+        pass
+    def convert_to_metatype(self, side):
+        return self
+    def calc_sizes(self):
+        pass
+
+
+
 class mt_PlugDecl_Code(mt_PlugDecl):
     def __init__(self, code):
         self.code = code
@@ -105,8 +131,13 @@ class mt_PlugDecl_Code(mt_PlugDecl):
 
 
 class mt_PlugDecl_ArrayOf(mt_PlugDecl):
-    def __init__(self, base, len_):
+    def __init__(self, lineInfo, base, len_):
+        self.lineInfo = lineInfo
+
         # NOTE: no nameScope required, since we have already resolved names
+
+        if type(base) == mt_PlugDecl_Auto:
+            raise HWCCompile_SyntaxError(None, "auto-array declarations are not yet supported by this compiler")
 
         assert                                      isinstance(base, mt_PlugDecl)
         assert len_ is None or type(len_) == int or isinstance(len_, mt_StaticExpr), len_
@@ -114,6 +145,11 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         self.base = base
         self.len_ = len_
         self.decl_bitSize = None
+    def dup(self):
+        assert self.decl_bitSize is None
+        base_dup = self.base.dup()
+        len_dup  = self.len_.dup() if self.len_ is not None else None
+        return mt_PlugDecl_ArrayOf(self.lineInfo, base_dup, len_dup)
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugDecl_ArrayOf:")
@@ -157,13 +193,13 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         # before this call.
 
         if type(self.len_) != int:
-            assert isinstance(self.len_, mt_StaticExpr)
+            assert isinstance(self.len_, mt_StaticExpr), self.len_
             self.len_ = self.len_.resolve_static_expr()
             if type(self.len_) != int:
                 TODO()    # report syntax error
 
         if self.len_ <= 0:
-            TODO()    # report syntax error
+            raise HWCCompile_SyntaxError(self.lineInfo, f"Arrays of length {self.len_} are not valid in HWC")
 
         self.decl_bitSize = self.base.decl_bitSize * self.len_
 
