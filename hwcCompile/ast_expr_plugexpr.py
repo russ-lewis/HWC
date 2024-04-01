@@ -241,7 +241,7 @@ class mt_PlugExpr_SubsetOf(mt_PlugExpr):
 
 
 
-class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
+class mt_PlugExpr_ArrayIndex_staticIndx(mt_PlugExpr):
     def __init__(self, lineInfo, base, indx):
         self.lineInfo = lineInfo
 
@@ -261,7 +261,7 @@ class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
         self.offset       = None
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_PlugExpr_ArrayIndex:")
+        print(f"{prefix}mt_PlugExpr_ArrayIndex_staticIndx:")
         print(f"{prefix}  base:")
         self.base.print_tree(prefix+"    ")
 
@@ -910,4 +910,12 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
     def print_wiring_diagram(self, start_bit):
         self.rgt.print_wiring_diagram(start_bit)
         print(f"logic {start_bit+self.offset} <= NOT {start_bit+self.rgt.offset} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
+
+
+
+class mt_PlugExpr_Decode(mt_PlugExpr):
+    def __init__(self, base):
+        assert type(base.typ_)     == mt_PlugDecl_ArrayOf
+        assert      base.typ_.base == mt_plugDecl_bit
+        self.base = base
 

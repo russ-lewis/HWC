@@ -1580,13 +1580,15 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
 
         elif isinstance(base, mt_PlugExpr):
             if type(base.typ_) == mt_PlugDecl_ArrayOf:
-                return mt_PlugExpr_ArrayIndex(self.lineInfo, base, len_or_index)
+                if   isinstance(len_or_index, mt_StaticExpr):
+                    return mt_PlugExpr_ArrayIndex_staticIndx (self.lineInfo, base, len_or_index)
+                elif isinstance(len_or_index, mt_PlugExpr):
+                    return mt_PlugExpr_ArrayIndex_runtimeIndx(self.lineInfo, base, len_or_index)
+                else:
+                    TODO()    # unexpected case
+
             else:
-                base.print_tree("")
-                print()
-                print(self.lineInfo)
-                print()
-                TODO()    # report syntax error
+                raise HWCCompile_SyntaxError(self.lineInfo, "Cannot index into a non-array expression")
 
         elif isinstance(base, mt_PartExpr):
             TODO()
