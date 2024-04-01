@@ -5,15 +5,16 @@ part main {
     auto c = a[0];
     auto d = a[1:3];
     auto e = a[2][0];
-    auto f = a[3][32:];
+    auto f = a[3][16:];
+    auto g = a[63:];
 
-    auto g = b;
-    auto h = e;
+    auto h = b;
+    auto i = e;
 
-    auto i = concat(b,b);
+    auto j = concat(b,b);
 
-    auto j = concat(concat(b,b), concat(b,b));
+    auto k = concat(concat(b,b), concat(b,b));
 
-    auto k = concat( a[:16], a[16:] );
+    auto l = concat( a[:16], a[16:] );
 }
 
