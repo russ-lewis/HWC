@@ -330,17 +330,22 @@ class g_DeclStmt(ASTNode):
     def __init__(self, prefix, isMem, typ_, name, initVal):
         self.prefix        = prefix
         self.isMem         = isMem
-        self.typ_          = typ_
         self.name          = name
         self.initVal       = initVal
         self.decl_bitSize  = None
         self.offset        = None
 
+        # in the worse-case scenario, we won't be able to give a useful typ_
+        # until convert_exprs_to_metatypes(), because this might be an Auto
+        # that inherits from the initVal.  So we'll rename the field, to ensure
+        # that nobody is using this field too early.
+        self.raw_typ = typ_
+
     def dup(self):
         assert self.decl_bitSize is None
         assert self.offset       is None
 
-        dup_typ  = self.typ_.dup()
+        dup_typ  = self.raw_typ.dup()
         dup_init = self.initVal.dup() if self.initVal is not None else None
         return g_DeclStmt(self.prefix, self.isMem,
                           dup_typ,
@@ -348,16 +353,16 @@ class g_DeclStmt(ASTNode):
                           dup_init)
 
     def __repr__(self):
-        return f"ast.DeclStmt({self.prefix}, mem={self.isMem}, {self.typ_}, {self.name}, init={self.initVal})"
+        return f"ast.DeclStmt({self.prefix}, mem={self.isMem}, {self.raw_typ}, {self.name}, init={self.initVal})"
 
     def print_tree(self, prefix):
         print(f"{prefix}DECL STATEMENT: name={self.name} prefix={self.prefix} isMem={self.isMem} id={id(self)}")
 
-        if self.typ_.leafNode:
-            print(f"{prefix}  type: {repr(self.typ_)}")
+        if self.raw_typ.leafNode:
+            print(f"{prefix}  type: {repr(self.raw_typ)}")
         else:
             print(f"{prefix}  type:")
-            self.typ_.print_tree(prefix+"    ")
+            self.raw_typ.print_tree(prefix+"    ")
 
         if self.initVal is None:
             print(f"{prefix}  initVal: None")
@@ -390,12 +395,13 @@ class g_DeclStmt(ASTNode):
             ns_pub.add(self.name, self)
 
     def resolve_name_lookups(self, ns_pri):
-        self.typ_.resolve_name_lookups(ns_pri)
+        self.raw_typ.resolve_name_lookups(ns_pri)
         if self.initVal is not None:
             self.initVal.resolve_name_lookups(ns_pri)
 
     def convert_exprs_to_metatypes(self):
-        self.typ_ = self.typ_.convert_to_metatype("right")
+        self.raw_typ = self.raw_typ.convert_to_metatype("right")
+        self.typ_    = self.raw_typ
 
         if   isinstance(self.typ_, mt_PlugDecl):
             pass
@@ -1478,22 +1484,17 @@ class g_DotExpr(ASTNode):
 
         self.target = self.base.typ_.code.pub_nameScope.search(self.fieldName)
         if self.target is None:
-            print(self.lineInfo, self.fieldName)
-            print()
-            self.base.typ_.code.pub_nameScope.dump()
-            print()
-            TODO()    # report syntax error
+            raise HWC_SyntaxError(self.lineInfo, f"Field name {self.fieldName} not found")
         assert(type(self.target) == g_DeclStmt)
-
-        # dot expressions can only look up plug fields, because (currently)
-        # only plug fields can be public.
-        assert            self.target.prefix in ["", "public"]
 
         # if we reference a type that is later in the file, its declarations
         # will not have been converted to metatypes, yet.
-        if not isinstance(self.target.typ_, mt_PlugDecl):
-            self.target.typ_ = self.target.typ_.convert_to_metatype("left")
-            assert isinstance(self.target.typ_, mt_PlugDecl)
+        self.target.convert_exprs_to_metatypes()
+
+        # dot expressions can only look up plug fields, because (currently)
+        # only plug fields can be public.
+        assert self.target.prefix in ["", "public"]
+        assert isinstance(self.target.typ_, mt_PlugDecl)
 
         # we don't (yet) support public memory fields.  Should we add it?
         assert(self.target.isMem == False)
