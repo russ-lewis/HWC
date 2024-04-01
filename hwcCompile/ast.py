@@ -54,7 +54,7 @@ class LineRange:
 
 
 
-class HWC_SyntaxError(Exception):
+class HWCCompile_SyntaxError(Exception):
     def __init__(self, lineInfo, message):
         self.lineInfo = lineInfo
         self.message  = message
@@ -1255,7 +1255,7 @@ class NameScope:
         assert type(name) == str
         assert obj is not None
         if self.search(name) is not None:
-            raise HWC_SyntaxError(None, f"The symbol '{name}' already exists")
+            raise HWCCompile_SyntaxError(None, f"The symbol '{name}' already exists")
         self.directory[name] = obj
 
     def search(self, name):
@@ -1322,7 +1322,7 @@ class g_IdentExpr(ASTNode):
     def resolve_name_lookups(self, ns_pri):
         self.target = ns_pri.search(self.name)
         if self.target is None:
-            raise SyntaxError(self.lineInfo, f"Symbol '{self.name}' not found")
+            raise HWCCompile_SyntaxError(self.lineInfo, f"Symbol '{self.name}' not found")
 
     def convert_to_metatype(self, side):
         if self.saved_metatype is None:
@@ -1484,7 +1484,7 @@ class g_DotExpr(ASTNode):
 
         self.target = self.base.typ_.code.pub_nameScope.search(self.fieldName)
         if self.target is None:
-            raise HWC_SyntaxError(self.lineInfo, f"Field name {self.fieldName} not found")
+            raise HWCCompile_SyntaxError(self.lineInfo, f"Field name {self.fieldName} not found")
         assert(type(self.target) == g_DeclStmt)
 
         # if we reference a type that is later in the file, its declarations
