@@ -1,0 +1,34 @@
+mt_StaticExpr_NumExpr: num=1 mt_StaticExpr_NumExpr: num=3
+mt_StaticExpr_NumExpr: num=16 None
+mt_StaticExpr_NumExpr: num=63 None
+mt_StaticExpr_NumExpr: num=0 mt_StaticExpr_NumExpr: num=16
+mt_StaticExpr_NumExpr: num=16 None
+#      0   2048 main.a
+#   2048   4096 main.b
+#   4096   4128 main.c
+#   4128   4192 main.d
+#   4192        main.e
+#   4193   4209 main.f
+#   4209   4241 main.g
+#   4241   6289 main.h
+#   6289        main.i
+#   6290  10386 main.j
+#  10386  18578 main.k
+#  18578  20626 main.l
+
+conn 2048 <= 0 size 2048    # TODO: line number
+conn 4096 <= 0 size 32    # TODO: line number
+conn 4128 <= 32 size 64    # TODO: line number
+conn 4192 <= 64 size 1    # TODO: line number
+conn 4193 <= 112 size 16    # TODO: line number
+conn 4209 <= 2016 size 32    # TODO: line number
+conn 4241 <= 2048 size 2048    # TODO: line number
+conn 6289 <= 4192 size 1    # TODO: line number
+conn 6290 <= 2048 size 2048    # TODO: line number
+conn 8338 <= 2048 size 2048    # TODO: line number
+conn 10386 <= 2048 size 2048    # TODO: line number
+conn 12434 <= 2048 size 2048    # TODO: line number
+conn 14482 <= 2048 size 2048    # TODO: line number
+conn 16530 <= 2048 size 2048    # TODO: line number
+conn 18578 <= 0 size 512    # TODO: line number
+conn 19090 <= 512 size 1536    # TODO: line number
