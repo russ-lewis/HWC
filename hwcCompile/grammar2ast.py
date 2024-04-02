@@ -36,7 +36,7 @@ def grammar2ast():
 class HWCErrorListener(error.ErrorListener.ErrorListener):    # https://snyk.io/advisor/npm-package/antlr4/functions/antlr4.error
     def syntaxError(self, recognizer, offending_symbol, line,col, msg, e):   # what is the 'e' param???
         lineInfo = ast.LineInfo("<TODO_filename>", line,col+1, 1)
-        raise ast.HWC_SyntaxError(lineInfo, msg)
+        raise ast.HWCCompile_SyntaxError(lineInfo, msg)
 
 
 

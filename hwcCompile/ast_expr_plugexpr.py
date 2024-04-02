@@ -1,5 +1,6 @@
 
 from ast_expr_metatypes import *
+import ast
 
 
 
@@ -241,7 +242,7 @@ class mt_PlugExpr_SubsetOf(mt_PlugExpr):
 
 
 
-class mt_PlugExpr_ArrayIndex_staticIndx(mt_PlugExpr):
+class mt_PlugExpr_ArrayIndex(mt_PlugExpr):
     def __init__(self, lineInfo, base, indx):
         self.lineInfo = lineInfo
 
@@ -250,8 +251,6 @@ class mt_PlugExpr_ArrayIndex_staticIndx(mt_PlugExpr):
 
         self.is_lhs = base.is_lhs
 
-        # TODO: I need a version of this class (maybe integrated into this?)
-        # that can handle a runtime index.
         assert isinstance(self.indx, mt_StaticExpr), (self.indx, type(self.indx))
 
         assert type(base.typ_) == mt_PlugDecl_ArrayOf
@@ -261,7 +260,7 @@ class mt_PlugExpr_ArrayIndex_staticIndx(mt_PlugExpr):
         self.offset       = None
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_PlugExpr_ArrayIndex_staticIndx:")
+        print(f"{prefix}mt_PlugExpr_ArrayIndex:")
         print(f"{prefix}  base:")
         self.base.print_tree(prefix+"    ")
 
@@ -313,6 +312,129 @@ class mt_PlugExpr_ArrayIndex_staticIndx(mt_PlugExpr):
 
     def print_wiring_diagram(self, start_bit):
         self.base.print_wiring_diagram(start_bit)
+
+
+
+class mt_PlugExpr_MaskedSelect(mt_PlugExpr):
+    is_lhs = False
+
+    def __init__(self, lineInfo, arr, mask):
+        self.lineInfo = lineInfo
+
+        self.arr  = arr
+        self.mask = mask
+
+        assert isinstance(self.mask, mt_PlugExpr), (self.mask, type(self.mask))
+
+        assert type(arr.typ_) == mt_PlugDecl_ArrayOf
+        self.typ_ = arr.typ_.base
+
+        self.decl_bitSize = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_PlugExpr_MaskedSelect:")
+        print(f"{prefix}  arr:")
+        self.base.print_tree(prefix+"    ")
+        print(f"{prefix}  mask:")
+        self.mask.print_tree(prefix+"    ")
+        print(f"{prefix}  typ_:")
+        self.typ_.print_tree(prefix+"    ")
+
+    def resolve_name_lookups(self, ns_pri):
+        self.arr .resolve_name_lookups(ns_pri)
+        self.mask.resolve_name_lookups(ns_pri)
+
+    def convert_to_metatype(self, side):
+        return self
+
+    def calc_sizes(self):
+        if self.decl_bitSize == "in progress":
+            assert False    # TODO: report cyclic declaration
+        if self.decl_bitSize is not None:
+            return
+        self.decl_bitSize = "in progress"
+
+        self.arr .calc_sizes()
+        self.mask.calc_sizes()
+
+        if type(self.arr .typ_) != mt_PlugDecl_ArrayOf:
+            raise HWCCompile_SyntaxError(self.lineInfo, "The base of a masked_select() expression must be an array")
+        if type(self.mask.typ_) != mt_PlugDecl_ArrayOf or self.mask.typ_.base != plugType_bit:
+            raise HWCCompile_SyntaxError(self.lineInfo, "The mask of a masked_select() expression must be a bit[]")
+
+        if self.mask.typ_.len_ < self.arr.typ_.len_:
+            raise HWCCompile_SyntaxError(self.lineInfo, f"The length of the mask, in a masked_select() expression, must be no shorter than the base array.  base_len={self.arr.typ_.len_} mask_len={self.mask.typ_.len_}")
+
+        # if the size of the base array is less than the decode length, then we
+        # will check the remaining bits against zero, and assert.  But if there
+        # is a perfect match, we'll just add NullStmt to make it easier to
+        # handle.
+
+        if self.mask.typ_.len_ == self.arr.typ_.len_:
+            self.errchk = ast.g_NullStmt()
+
+        else:
+            lft = TODO()    # not sure how to build the 'lft' term for the EQ.
+                            # Its offset is based on our bit offset (which
+                            # isn't known yet).
+            rgt = 0
+            eq = mt_PlugExpr_EQ(self.lineInfo,
+                                lft,"==",rgt,
+                                single_bit_result=True)
+
+            self.errchk = ast.g_AssertStmt(self.lineInfo, eq)
+
+        self.errchk.calc_sizes()
+
+        # this much for the output buffer that we'll write into
+        dest_sz = self.arr.typ_.base.decl_bitSize
+
+        # this much for the error check/assert
+        errchk_sz = self.errchk.decl_bitSize
+
+        # this much for the underlying expressions that started it all
+        arr_sz  = self.arr .decl_bitSize
+        mask_sz = self.mask.decl_bitSize
+
+        self.internal_offsets = {"dest"  : 0,
+                                 "errchk": dest_sz,
+                                 "arr"   : dest_sz + errchk_sz,
+                                 "mask"  : dest_sz + errchk_sz + arr_sz}
+        self.decl_bitSize =                dest_sz + errchk_sz + arr_sz + mask_sz
+
+    def calc_top_down_offsets(self, offset):
+        self.offset = offset
+        self.errchk.calc_top_down_offsets(offset + self.internal_offsets["errchk"])
+        self.arr   .calc_top_down_offsets(offset + self.internal_offsets["arr"])
+        self.mask  .calc_top_down_offsets(offset + self.internal_offsets["mask"])
+
+    def calc_bottom_up_offsets(self):
+        self.errchk.calc_bottom_up_offsets()
+        self.arr   .calc_bottom_up_offsets()
+        self.mask  .calc_bottom_up_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        start = start_bit + self.offset
+        end   = start_bit + self.offset + self.arr.typ_.base.decl_bitSize
+        print(f"# {start} {end} {name}._maskedSelect_{start}")
+
+        self.errchk.print_bit_descriptions(name, start_bit)
+        self.arr   .print_bit_descriptions(name, start_bit)
+        self.mask  .print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        self.arr   .print_wiring_diagram(start_bit)
+        self.mask  .print_wiring_diagram(start_bit)
+        self.errchk.print_wiring_diagram(start_bit)
+
+        dst_off = start_bit + self.offset
+        dst_sz  = self.arr.typ_.base.decl_bitSize
+        arr_off = start_bit + self.arr.offset
+        arr_len = self.arr.typ_.len_
+        msk_off = self.mask.offset
+        assert self.mask.typ_.len_ >= arr_len
+
+        print(f"maskedSelect {dst_off} size {dst_sz} <--masked_select-- {arr_off} len {arr_len} mask {msk_off}")
 
 
 
@@ -914,8 +1036,41 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
 
 
 class mt_PlugExpr_Decode(mt_PlugExpr):
-    def __init__(self, base):
-        assert type(base.typ_)     == mt_PlugDecl_ArrayOf
-        assert      base.typ_.base == mt_plugDecl_bit
-        self.base = base
+    def __init__(self, indx):
+        assert type(indx.typ_)     == mt_PlugDecl_ArrayOf
+        assert      indx.typ_.base == plugType_bit
+        self.indx = indx
+
+    def calc_sizes(self):
+        self.indx.calc_sizes()
+
+        self.decl_bitSize = (1 << self.indx.typ_.len_) + self.indx.decl_bitSize
+
+        self.typ_ = mt_PlugDecl_ArrayOf(None, plugType_bit, self.decl_bitSize)
+        self.typ_.calc_sizes()
+
+    def calc_top_down_offsets(self, offset):
+        self.indx.calc_top_down_offsets(offset)
+        self.offset = offset + self.indx.decl_bitSize
+
+    def calc_bottom_up_offsets(self):
+        self.indx.calc_bottom_up_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        len_  = (1 << self.indx.typ_.len_)
+        start = start_bit + self.offset
+        end   = start_bit + self.offset + len_
+        print(f"# {start} {end} {name}._decode_{start}")
+
+        self.indx.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        self.indx.print_wiring_diagram(start_bit)
+
+        dst_off = start_bit + self.offset
+        dst_sz  = (1 << self.indx.typ_.len_)
+        src_off = start_bit + self.indx.offset
+        src_sz  =       self.indx.typ_.len_
+
+        print(f"decode {dst_off} size {dst_sz} <--decode-- {src_off} size {src_sz}")
 

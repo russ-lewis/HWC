@@ -148,9 +148,9 @@ class g_PartOrPlugDecl(ASTNode):
 
 
     def deliver_if_conditions(self, cond):
-        # if() conditions into a part do not exist except for instantiated generic parts
-        if cond is not None:
-            TODO()    # implement me
+#        # if() conditions into a part do not exist except for instantiated generic parts
+#        if cond is not None:
+#            TODO()    # implement me
 
         for s in self.stmts:
             s.deliver_if_conditions(None)
@@ -417,7 +417,7 @@ class g_DeclStmt(ASTNode):
         else:
             if not isinstance(self.initVal.typ_, mt_PlugDecl):
                 raise HWCCompile_SyntaxError(None, "auto declarations can only be initialized with runtime plug values")    # TODO: should I support static auto as well???
-            self.typ_ = self.initVal.typ_.dup()
+            self.typ_ = self.initVal.typ_
 
         if   isinstance(self.typ_, mt_PlugDecl):
             pass
@@ -497,7 +497,7 @@ class g_DeclStmt(ASTNode):
                 self.initVal    = None
 
             else:
-                assert False, (self.typ_.len_, self.initVal.typ_.len_)    # some other weird case.  Maybe a syntax error???
+                assert False, (self.lineInfo, self.typ_.len_, self.initVal.typ_.len_)    # some other weird case.  Maybe a syntax error???
 
         if self.initVal is not None:
             self.initVal.calc_sizes()
@@ -701,6 +701,15 @@ class g_ConnStmt(ASTNode):
         # understand what the left-hand type is.
         self.lhs.calc_sizes()
 
+        # flags are *severely* restricted!
+        if self.lhs.typ_ == plugType_flag:
+            if self.rhs != 1:
+                raise HWCCompile_SyntaxError(self.lineRange, "The only value that can be assigned to a flag variable is the constant 1")
+            self.rhs = mt_PlugExpr_Bit(self.rhs)
+
+            print(self.lhs)
+            print(self.lhs.typ_)
+            TODO()    # what to do with the lhs?  Do we convert it to bit?
 
         # if the rhs is an integer, then look for ways to make the conversion
         #
@@ -749,8 +758,6 @@ class g_ConnStmt(ASTNode):
                 self.lhs.typ_.print_tree("")
                 print()
                 self.rhs.typ_.print_tree("")
-                print()
-                print(type(self.lhs), type(self.rhs))
                 print()
                 print(self.lineRange)
                 print()
@@ -1206,7 +1213,7 @@ class g_BinaryExpr(ASTNode):
             return mt_StaticExpr_MOD(self.lineInfo, self.lft, self.rgt)
 
         else:
-            print("failed op: "+self.op)
+            print(f"failed op: {self.op}    line: {self.lineInfo}")
             TODO()      # add support for more operators
 
 
@@ -1508,11 +1515,11 @@ class g_DotExpr(ASTNode):
 
     def convert_to_metatype(self, side):
         self.base = self.base.convert_to_metatype(side)
-        assert type(self.base) in [mt_PlugExpr_Var, mt_PartExpr_Var]
+        assert type(self.base.typ_) in [mt_PlugDecl_Code, mt_PartDecl_Code], self.base.typ_
 
         self.target = self.base.typ_.code.pub_nameScope.search(self.fieldName)
         if self.target is None:
-            raise HWCCompile_SyntaxError(self.lineInfo, f"Field name {self.fieldName} not found")
+            raise HWCCompile_SyntaxError(self.lineInfo, f"Field name '{self.fieldName}' not found")
         assert(type(self.target) == g_DeclStmt)
 
         # if we reference a type that is later in the file, its declarations
@@ -1581,9 +1588,12 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         elif isinstance(base, mt_PlugExpr):
             if type(base.typ_) == mt_PlugDecl_ArrayOf:
                 if   isinstance(len_or_index, mt_StaticExpr):
-                    return mt_PlugExpr_ArrayIndex_staticIndx (self.lineInfo, base, len_or_index)
+                    return mt_PlugExpr_ArrayIndex(self.lineInfo, base, len_or_index)
+
                 elif isinstance(len_or_index, mt_PlugExpr):
-                    return mt_PlugExpr_ArrayIndex_runtimeIndx(self.lineInfo, base, len_or_index)
+                    decode = mt_PlugExpr_Decode(len_or_index)
+                    return mt_PlugExpr_MaskedSelect(self.lineInfo, base, decode)
+
                 else:
                     TODO()    # unexpected case
 

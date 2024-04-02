@@ -164,7 +164,7 @@ class mt_PlugDecl_ArrayOf(mt_PlugDecl):
         # doing a type comparison, before the length is known, is invalid.
         assert self.len_ is not None and other.len_ is not None
 
-        return self.base == other.base
+        return self.len_ == other.len_ and self.base == other.base
 
     def get_multidim_base(self):
         if type(self.base) == mt_PlugDecl_ArrayOf:

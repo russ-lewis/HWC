@@ -126,11 +126,12 @@ expr9:
        */
 
     | funcName='concat' '(' concatLeft=expr ',' concatRight=expr ')'
+    | funcName='decode' '(' decode_expr=expr ')'
+    | funcName='masked_select' '(' ms_arr_expr=expr ',' ms_indx_expr=expr ')'
 
     | funcName='typeof' '(' typeof_expr=expr ')'
     | funcName='len'    '('    len_expr=expr ')'
-
-    | 'cast' '(' castType=expr ',' castVal=expr ')'
+    | funcName='sizeof' '('    len_expr=expr ')'
 
     | 'int'
     | 'bool'
