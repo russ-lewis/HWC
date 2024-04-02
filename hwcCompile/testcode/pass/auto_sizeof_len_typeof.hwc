@@ -1,9 +1,9 @@
 part main {
     bit[32][64] a;
 
-    static assert sizeof(a   ) == 32*64
-    static assert    len(a[0]) ==    64
-    static assert sizeof(a[0]) == 32
+    static assert(sizeof(a   ) == 32*64);
+    static assert(   len(a[0]) ==    64);
+    static assert(sizeof(a[0]) == 32   );
 
     auto b = a;
     auto c = a[0];
@@ -12,33 +12,33 @@ part main {
     auto f = a[3][16:];
     auto g = a[63:];
 
-    static assert sizeof(b   ) == 32*64
-    static assert    len(b[0]) ==    64
-    static assert sizeof(b[0]) == 32
-    static assert typeof(b   ) == bit[32][64];
+    static assert(sizeof(b   ) == 32*64);
+    static assert(   len(b[0]) ==    64);
+    static assert(sizeof(b[0]) == 32);
+    static assert(typeof(b   ) == bit[32][64]);
 
-    static assert sizeof(c   ) ==    32
-    static assert    len(c[0]) ==    32
-    static assert sizeof(c[0]) ==  1
-    static assert typeof(c   ) == bit[32];
+    static assert(sizeof(c   ) ==    32);
+    static assert(   len(c[0]) ==    32);
+    static assert(sizeof(c[0]) ==  1);
+    static assert(typeof(c   ) == bit[32]);
 
-    static assert sizeof(d   ) == 32*4
-    static assert    len(d[0]) ==    4
-    static assert sizeof(d[0]) == 32
-    static assert typeof(d   ) == bit[32][4];
+    static assert(sizeof(d   ) == 32*4);
+    static assert(   len(d[0]) ==    4);
+    static assert(sizeof(d[0]) == 32);
+    static assert(typeof(d   ) == bit[32][4]);
 
-    static assert sizeof(e   ) == 1
-    static assert typeof(e   ) == bit;
+    static assert(sizeof(e   ) == 1);
+    static assert(typeof(e   ) == bit);
 
-    static assert sizeof(f   ) ==    16
-    static assert    len(f[0]) ==    16
-    static assert sizeof(f[0]) ==  1
-    static assert typeof(f   ) == bit[16];
+    static assert(sizeof(f   ) ==    16);
+    static assert(   len(f[0]) ==    16);
+    static assert(sizeof(f[0]) ==  1);
+    static assert(typeof(f   ) == bit[16]);
 
-    static assert sizeof(g   ) == 64*1
-    static assert    len(g[0]) ==    1
-    static assert sizeof(g[0]) == 64
-    static assert typeof(g   ) == bit[64][1];
+    static assert(sizeof(g   ) == 64*1);
+    static assert(   len(g[0]) ==    1);
+    static assert(sizeof(g[0]) == 64);
+    static assert(typeof(g   ) == bit[64][1]);
 
     auto h = b;
     auto i = e;
