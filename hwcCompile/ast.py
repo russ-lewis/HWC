@@ -617,17 +617,17 @@ class g_DeclStmt(ASTNode):
 
 
 class g_ConnStmt(ASTNode):
-    def __init__(self, lineRange, lhs,rhs):
+    def __init__(self, lineInfo, lhs,rhs):
         self.cond         = "not delivered yet"
         self.lhs          = lhs
         self.rhs          = rhs
         self.decl_bitSize = None
-        self.lineRange = lineRange
+        self.lineInfo = lineInfo
 
     def dup(self):
         assert self.cond == "not delivered yet"
         assert self.decl_bitSize is None
-        return g_ConnStmt(self.lineRange, self.lhs.dup(), self.rhs.dup())
+        return g_ConnStmt(self.lineInfo, self.lhs.dup(), self.rhs.dup())
 
     def __repr__(self):
         return f"ast.ConnStmt({self.lhs}, {self.rhs})"
@@ -704,7 +704,7 @@ class g_ConnStmt(ASTNode):
         # flags are *severely* restricted!
         if self.lhs.typ_ == plugType_flag:
             if self.rhs != 1:
-                raise HWCCompile_SyntaxError(self.lineRange, "The only value that can be assigned to a flag variable is the constant 1")
+                raise HWCCompile_SyntaxError(self.lineInfo, "The only value that can be assigned to a flag variable is the constant 1")
             self.rhs = mt_PlugExpr_Bit(self.rhs)
 
             print(self.lhs)
@@ -727,7 +727,7 @@ class g_ConnStmt(ASTNode):
 
                 if self.rhs < 0 or (self.rhs >> dest_wid) != 0:
                     TODO()    # report syntax error, value doesn't fit
-                self.rhs = mt_PlugExpr_BitArray(self.lineRange, dest_wid, self.rhs)
+                self.rhs = mt_PlugExpr_BitArray(self.lineInfo, dest_wid, self.rhs)
 
             else:
                 TODO()    # report syntax error
@@ -752,7 +752,7 @@ class g_ConnStmt(ASTNode):
         # that, yet.  Maybe build a wrapper expression at an earlier phase?
         if self.lhs.typ_ != self.rhs.typ_:
             if isinstance(self.lhs, mt_PlugExpr) and isinstance(self.rhs, mt_PlugExpr):
-                raise HWCCompile_SyntaxError(self.lineRange, "The lhs and rhs have different types")
+                raise HWCCompile_SyntaxError(self.lineInfo, "The lhs and rhs have different types")
 
             print()
             self.print_tree("")
@@ -810,12 +810,12 @@ class g_ConnStmt(ASTNode):
             cond = ""
 
         if   type(self.rhs) in [mt_PlugExpr_Bit, mt_PlugExpr_BitArray]:
-            print(f"conn {start_bit+self.lhs.offset} <= int({self.rhs.val}) size {self.lhs.typ_.decl_bitSize}{cond}    # {self.lineRange}")
+            print(f"conn {start_bit+self.lhs.offset} <= int({self.rhs.val}) size {self.lhs.typ_.decl_bitSize}{cond}    # {self.lineInfo}")
 
         elif self.lhs.offset != "discontig" and self.rhs.offset != "discontig":
             assert type(self.lhs.offset) == int
             assert type(self.rhs.offset) == int
-            print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}{cond}    # {self.lineRange}")
+            print(f"conn {start_bit+self.lhs.offset} <= {start_bit+self.rhs.offset} size {self.lhs.typ_.decl_bitSize}{cond}    # {self.lineInfo}")
 
         else:
             # one or both sides are discontig.  If only one side is, then we'll
@@ -824,9 +824,9 @@ class g_ConnStmt(ASTNode):
             total_len = self.lhs.typ_.len_
 
             if self.lhs.offset != "discontig":
-                self.lhs = mt_PlugExpr_Discontig(self.lineRange, [self.lhs])
+                self.lhs = mt_PlugExpr_Discontig(self.lineInfo, [self.lhs])
             if self.rhs.offset != "discontig":
-                self.rhs = mt_PlugExpr_Discontig(self.lineRange, [self.rhs])
+                self.rhs = mt_PlugExpr_Discontig(self.lineInfo, [self.rhs])
 
             cur_indx = 0
             while cur_indx < total_len:
@@ -844,7 +844,7 @@ class g_ConnStmt(ASTNode):
                 assert cur_indx + len_rhs <= total_len
                 len_ = min(len_lhs, len_rhs)
 
-                print(f"conn {start_bit+offset_lhs} <= {start_bit+offset_rhs} size {self.lhs.typ_.base.decl_bitSize * len_}{cond}    # {self.lineRange}")
+                print(f"conn {start_bit+offset_lhs} <= {start_bit+offset_rhs} size {self.lhs.typ_.base.decl_bitSize * len_}{cond}    # {self.lineInfo}")
 
                 cur_indx += len_
 
@@ -878,7 +878,7 @@ class g_RuntimeIfStmt(ASTNode):
     def __init__(self, lineInfo_whole, lineInfo_else,
                        cond, true_stmt, fals_stmt):
 
-        self.lineRange_whole = lineInfo_whole
+        self.lineInfo_whole = lineInfo_whole
         self. lineInfo_else  = lineInfo_else
 
         self.cond      = cond
@@ -889,7 +889,7 @@ class g_RuntimeIfStmt(ASTNode):
         dup_cond = self.cond.dup()
         dup_true = self.true_stmt.dup()
         dup_fals = self.fals_stmt.dup() if self.fals_stmt is not None else None
-        return g_RuntimeIfStmt(self.lineRange_whole, self.lineInfo_else,
+        return g_RuntimeIfStmt(self.lineInfo_whole, self.lineInfo_else,
                                dup_cond, dup_true, dup_fals)
 
     def print_tree(self, prefix):
@@ -973,9 +973,9 @@ class g_RuntimeIfStmt(ASTNode):
             if self.fals_stmt is not None:
                 self.fals_cond = fals_cond_base
         else:
-            self.true_cond = g_BinaryExpr(self.lineRange_whole, cond, "&", true_cond_base)
+            self.true_cond = g_BinaryExpr(self.lineInfo_whole, cond, "&", true_cond_base)
             if self.fals_stmt is not None:
-                self.fals_cond = g_BinaryExpr(self.lineRange_whole, cond, "&", fals_cond_base)
+                self.fals_cond = g_BinaryExpr(self.lineInfo_whole, cond, "&", fals_cond_base)
 
         # each of the two conditions is wrapped in an Alias before it is sent
         # down, into the statement below.
@@ -1087,17 +1087,17 @@ class g_RuntimeIfStmt(ASTNode):
 
 
 class g_AssertStmt(ASTNode):
-    def __init__(self, lineRange, expr):
-        self.lineRange = lineRange
+    def __init__(self, lineInfo, expr):
+        self.lineInfo = lineInfo
         self.expr = expr
 
     def dup(self):
-        return g_AssertStmt(self.lineRange, self.expr.dup())
+        return g_AssertStmt(self.lineInfo, self.expr.dup())
 
     def deliver_if_conditions(self, cond):
         if cond is not None:
-            self.expr = g_BinaryExpr( self.lineRange,
-                                      g_UnaryExpr(self.lineRange, "!", cond),
+            self.expr = g_BinaryExpr( self.lineInfo,
+                                      g_UnaryExpr(self.lineInfo, "!", cond),
                                       "|",
                                       self.expr )
 
@@ -1125,7 +1125,7 @@ class g_AssertStmt(ASTNode):
 
     def print_wiring_diagram(self, start_bit):
         self.expr.print_wiring_diagram(start_bit)
-        print(f"assert {start_bit + self.expr.offset}    # {self.lineRange}")
+        print(f"assert {start_bit + self.expr.offset}    # {self.lineInfo}")
 
 
 
