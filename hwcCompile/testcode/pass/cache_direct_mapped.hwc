@@ -12,9 +12,9 @@ part main
 
 	memory(Line_data_32bytes_tag_17bits[1024]) lines;
 
-	public bit[32] addrIn;
-	public bit     hit;
-	public bit[32] dataIO;   // if read, then this is output; if write, this is input
+	public bit[32]   addrIn;
+	public bit       hit;
+	public bit[8][4] dataIO;   // if read, then this is output; if write, this is input
 
 	// this is our access to main memory.  In a more advanced system,
 	// this would probably be an *interface*, with an external component
@@ -24,9 +24,9 @@ part main
 
 
 	// split the address into its fields
-	private bit[ 5] byteOffset = addrIn[ 0: 5];
-	private bit[10]   index    = addrIn[10:15];
-	private bit[17]    tag     = addrIn[  :15];
+	private bit[ 5] byteOffset = addrIn[:5    ];
+	private bit[10]   index    = addrIn[ 5:15 ];
+	private bit[17]    tag     = addrIn[   15:];
 
 	assert(byteOffset & 0x3 == 0);
 	private bit[3] wordOffset = byteOffset[2:];
@@ -44,7 +44,7 @@ part main
 	// is either taken from the cache, or it's the value that is read from
 	// the main memory.
 
-	private bit[256] data;
+	private bit[8][32] data;
 	if (hit)
 	{
 		data = curLine.data;
@@ -54,8 +54,9 @@ part main
 	}
 	else
 	{
-		mem.addrIn = addrIn >> 5;
-		mem.read   = 1;
+		mem.addrIn[:5 ] = 0;
+		mem.addrIn[ 5:] = addrIn[5:];
+		mem.read       = 1;
 
 		data = mem.data;
 
@@ -69,11 +70,11 @@ part main
 	}
 
 
-	// read the actual word from the cache line.
+	// read the actual word from the cache line, out to the user
 
-	private bit[8][32] words;
+	private bit[8][4] [8] words;    // 8 words, each of which is 4 bytes
 	for (i; 0..8)
-		words[i] = data[32*i : 32*i+32];
+		words[i] = data[4*i : 4*i+4];
 	dataIO = words[wordOffset];
 }
 
@@ -81,16 +82,22 @@ part main
 
 plug Line_data_32bytes_tag_17bits
 {
-	public bit      valid;
-	public bit[17]  tag;
+	public bit        valid;
+	public bit[17]    tag;
 
-	public bit[256] data;
+	public bit[8][32] data;     // 32 bytes
 }
 
 
 
 part MainMemory
 {
-	// TODO
+        public bit[32] addrIn;
+	public bit     read;
+
+        public bit[8][32] data;      // 32 bytes
+
+        static int K = 1;
+	private memory(bit[8][K]) ram;        // K bytes
 }
 
