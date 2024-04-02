@@ -752,16 +752,7 @@ class g_ConnStmt(ASTNode):
         # that, yet.  Maybe build a wrapper expression at an earlier phase?
         if self.lhs.typ_ != self.rhs.typ_:
             if isinstance(self.lhs, mt_PlugExpr) and isinstance(self.rhs, mt_PlugExpr):
-                print()
-                self.print_tree("")
-                print()
-                self.lhs.typ_.print_tree("")
-                print()
-                self.rhs.typ_.print_tree("")
-                print()
-                print(self.lineRange)
-                print()
-                TODO()    # report syntax error
+                raise HWCCompile_SyntaxError(self.lineRange, "The lhs and rhs have different types")
 
             print()
             self.print_tree("")
