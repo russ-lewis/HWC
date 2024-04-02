@@ -334,7 +334,7 @@ class mt_PlugExpr_MaskedSelect(mt_PlugExpr):
     def print_tree(self, prefix):
         print(f"{prefix}mt_PlugExpr_MaskedSelect:")
         print(f"{prefix}  arr:")
-        self.base.print_tree(prefix+"    ")
+        self.arr.print_tree(prefix+"    ")
         print(f"{prefix}  mask:")
         self.mask.print_tree(prefix+"    ")
         print(f"{prefix}  typ_:")
@@ -434,7 +434,7 @@ class mt_PlugExpr_MaskedSelect(mt_PlugExpr):
         msk_off = self.mask.offset
         assert self.mask.typ_.len_ >= arr_len
 
-        print(f"maskedSelect {dst_off} size {dst_sz} <--masked_select-- {arr_off} len {arr_len} mask {msk_off}")
+        print(f"maskedSelect {dst_off} size {dst_sz} <--masked_select-- {arr_off} mask {msk_off} elem_count {arr_len}")
 
 
 
@@ -1040,6 +1040,11 @@ class mt_PlugExpr_Decode(mt_PlugExpr):
         assert type(indx.typ_)     == mt_PlugDecl_ArrayOf
         assert      indx.typ_.base == plugType_bit
         self.indx = indx
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_PlugExpr_Decode:")
+        print(f"{prefix}  indx:")
+        self.indx.print_tree(prefix+"    ")
 
     def calc_sizes(self):
         self.indx.calc_sizes()

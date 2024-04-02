@@ -12,9 +12,9 @@ part main
 
 	memory(Line_data_32bytes_tag_17bits[1024]) lines;
 
-	public bit[32]   addrIn;
-	public bit       hit;
-	public bit[8][4] dataIO;   // if read, then this is output; if write, this is input
+	public bit[32] addrIn;
+	public bit     hit;
+	public bit[32] dataIO;   // if read, then this is output; if write, this is input
 
 	// this is our access to main memory.  In a more advanced system,
 	// this would probably be an *interface*, with an external component
@@ -44,7 +44,7 @@ part main
 	// is either taken from the cache, or it's the value that is read from
 	// the main memory.
 
-	private bit[8][32] data;
+	private bit[256] data;
 	if (hit)
 	{
 		data = curLine.data;
@@ -72,9 +72,9 @@ part main
 
 	// read the actual word from the cache line, out to the user
 
-	private bit[8][4] [8] words;    // 8 words, each of which is 4 bytes
+	private bit[32][8] words;    // 8 words, each of which is 4 bytes
 	for (i; 0..8)
-		words[i] = data[4*i : 4*i+4];
+		words[i] = data[32*i : 32*i+32];
 	dataIO = words[wordOffset];
 }
 
@@ -82,10 +82,10 @@ part main
 
 plug Line_data_32bytes_tag_17bits
 {
-	public bit        valid;
-	public bit[17]    tag;
+	public bit      valid;
+	public bit[17]  tag;
 
-	public bit[8][32] data;     // 32 bytes
+	public bit[256] data;     // 32 bytes
 }
 
 
@@ -95,9 +95,9 @@ part MainMemory
         public bit[32] addrIn;
 	public bit     read;
 
-        public bit[8][32] data;      // 32 bytes
+        public bit[256] data;      // 32 bytes
 
-        static int K = 1;
-	private memory(bit[8][K]) ram;        // K bytes
+        static int N = 64;
+	private memory(bit[8][N]) ram;        // N bytes
 }
 
