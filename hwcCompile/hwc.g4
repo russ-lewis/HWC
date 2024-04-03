@@ -3,11 +3,23 @@ grammar hwc;
 
 
 file:
-     decls+=partOrPlugDecl* EOF
+     decls+=partOrPlugOrFuncDecl* EOF
 ;
 
-partOrPlugDecl:
+partOrPlugOrFuncDecl:
       (isPart='part' | isPart='plug') name=IDENT '{' stmts+=stmt* '}'
+    | 'function' retType=funcType name=IDENT '(' funcArgs+=funcArg (',' funcArgs+=funcArg)* ')' '{' stmts+=stmt* '}'
+;
+
+funcType:
+         exp=expr        /* compile types, or PLUG-DECL expressions */
+    | isPart='part'
+    | isPlug='plug'
+    | isAuto='auto'
+;
+
+funcArg:
+      type=funcType name=IDENT
 ;
 
 

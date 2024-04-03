@@ -72,7 +72,10 @@ class HWCAstGenerator(hwcListener):
         ctx.ast = ast.g_File([c.ast for c in ctx.decls])
 
 
-    def exitPartOrPlugDecl(self, ctx):
+    def exitPartOrPlugOrFuncDecl(self, ctx):
+        if ctx.retType is not None:
+            TODO()    # implement function declarations
+
         partOrPlug = ctx.isPart.text
         name       = ctx.name.text
 
