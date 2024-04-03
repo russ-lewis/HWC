@@ -22,7 +22,7 @@ fi
 attempted=0
 passed=0
 
-no_stdout=0
+no_stdout=""
 
 for TESTCASE in $(find $search -name \*.hwc 2>/dev/null)
 do
