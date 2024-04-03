@@ -5,8 +5,14 @@
   // returns a plug type" (something I definitely want to support) or "function
   // that returns a plug value" (which is what this code is doing) ?
 
-plug function var_offset_slice(plug[] data, bit[] start, int OUT_LEN)
+// TODO: I hope that the following syntax will work someday!
+// function auto var_offset_slice(auto[] data, bit[] start, int OUT_LEN)
+
+function auto var_offset_slice(auto data, auto start, int OUT_LEN)
 {
+    // data must be SOMETHING[]
+    // start must be a bit[]
+
     static int IN_LEN   = len(data);
     static int MAX_INDX = IN_LEN - OUT_LEN;
     static assert MAX_INDX > 0;

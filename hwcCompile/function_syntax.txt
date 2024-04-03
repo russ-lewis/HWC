@@ -1,0 +1,138 @@
+Functions can be used to generate any of the following:
+  1) Static values (int,bool)
+  2) Part or Plug types (generics)
+  3) Runtime values as "return values" from a special-purpose part
+
+A function declaration starts with the 'function' keyword, followed by a single
+keyword to indicate sort of function, followed by the name and parameters, like
+this:
+  function int       foo(...)
+  function bool      foo(...)
+  function part      foo(...)    // generic part
+  function plug      foo(...)    // generic plug
+  function auto      foo(...)    // returns runtime plug value, type is implicit
+  function SOME_PLUG foo(...)    // returns runtime plug value, type is explicit
+
+The parameters to a function use nearly identical type syntax:
+  int       arg1
+  bool      arg2
+  part      arg3    // part type as parameter for the generic
+  plug      arg4    // plug type as parameter for the generic
+  auto      arg5    // see below
+  SOME_PLUG arg6    // runtime value parameter
+
+(The 'auto' parameter type acts as two related parameters: a generic parameter,
+giving a type, and a plug value parameter, giving a value.  The user code, if
+needed, can access the type-ness of the parameter with typeof(arg5); the symbol
+arg5 by itself represents the value.)
+
+Notice that neither the return value, nor the parameters, can include part
+*values*.  Thus, it is not possible to "pass a part" as a parameter to a
+function.  Of course, it's possible to pass *one field* of a part as a
+parameter, at runtime.  (On the other hand, it is certainly possible to pass
+part *types* as generic parameters, which are resolved at runtime.)
+
+RUNTIME FUNCTIONS
+
+A runtime function is one that must execute at runtime, and returns a value.
+It typically has one or more runtime parameters, which are plug values (and
+very possibly some generic parameters as well).  It returns exactly one runtime
+value.
+
+If the return type of the runtime function is 'auto' (and thus implicitly
+deduced), then the function must have *EXACTLY* one return statement; this
+return statement is treated the same way as an 'auto' variable declaration
+(that is, the type of the field returned is the same as the type given in the
+return statement).
+
+If the return type of the runtime function is explicitly stated, then the
+function may have any number of return statemtents (even zero), and each
+return statement is treated as a connection statement to the implicit return
+value field.  (This means that multiple-connection errors are possible.  It
+also means that the return value might be floating.)
+
+Each instance of a runtime function is treated as the implicit declaration of a
+subpart; if the function includes generic parameters, then it is an
+instantiation of a generic type.  The parameters are treated as public fields
+of the implicit part, and automatically connected; likewise, the return value
+is made available as the rhs of a possible connection statement or other use.
+For example, the following code uses a runtime function to calculate a
+particular value from two 8-bit fields:
+  function bit[8] implies(bit[8] p, bit[8] q) {
+      return ~p || q;
+  }
+
+  bit[8] asdf;   // initialized to whatever
+  bit[8] jkl;    // initialized to whatever
+  bit[8] qwerty = implies(asdf, jkl);
+
+Inside the body of a function, we can do anything that a part declaration can
+normally do, including use if() statements, for() loops, and even make its own
+function calls:
+  function auto parity(auto data) {
+      typeof(data[0]) retval;
+      return retval;
+
+      static if (len(data) == 1)
+          retval = data[0];
+      else {
+          static int MID = len(data)/2;
+          retval = parity(data[:MID]) ^ parity(data[MID:]);
+  }
+
+  function auto every_other(auto data) {
+      static int RET_LEN = (len(data)+1)/2;
+      typeof(data[0])[RET_LEN] retval;
+      return retval;
+
+      for (i; 0..RET_LEN)
+          retval[i] = data[i*2];
+  }
+
+STATIC FUNCTIONS
+
+Functions that return a static value, or a plug or part type, are "static
+functions;" their value must be resolved at runtime.  They are instantiated as
+needed, when called; they are generics.
+
+Generic parts can use all of the same code as ordinary parts, but get the
+generic parameters (which can be plug types, part types, and/or static values)
+as automatic variables.
+
+Similarly, generic plugs can use all of the same code as ordinary plugs; you
+will find static if() and static assert() used commonly in generic plugs.
+(Both are legal but rare in ordinary plug declarations.)
+
+Functions that return static values can use any syntax except for the
+declaration of runtime parts and plugs.  for() loops are not (yet) supported,
+but are planned for the future:
+  function int sumOfIntsToN(int n) {
+      for (i; 0..n) as loop
+      {
+          static int soFar;
+
+          static if (i==0)
+              soFar = 0;
+          else
+              soFar = loop[i-1].soFar + i;
+      }
+
+      return loop[n-1].soFar;
+  }
+
+  function int sumOfIntsToN_recursive(int n) {
+      static if (i==0)
+          return 0;
+      else
+          return sumOfIntsToN_recursive(n-1) + n;
+  }
+
+WARNING: Since this is HWC, all code runs *simultaneously* unless prevented by
+an if() statement.  So the following version of the function above does *not*
+work:
+  function int BROKEN(int n) {
+      static if (i==0)
+          return 0;
+      return BROKEN(n-1) + n;    // causes multiple-assigment error on the implicit retval
+  }
+
