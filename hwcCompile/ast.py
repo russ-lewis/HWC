@@ -1087,14 +1087,21 @@ class g_RuntimeIfStmt(ASTNode):
 
 
 class g_AssertStmt(ASTNode):
-    def __init__(self, lineInfo, expr):
+    def __init__(self, lineInfo, is_static, expr):
         self.lineInfo = lineInfo
+
+        self.is_static = is_static
         self.expr = expr
 
     def dup(self):
-        return g_AssertStmt(self.lineInfo, self.expr.dup())
+        return g_AssertStmt(self.lineInfo, self.is_static, self.expr.dup())
 
     def deliver_if_conditions(self, cond):
+        # if the statement is static, then it doesn't matter what conditions
+        # we are sent, because they are all runtime expressions.
+        if self.is_static:
+            return
+
         if cond is not None:
             self.expr = g_BinaryExpr( self.lineInfo,
                                       g_UnaryExpr(self.lineInfo, "!", cond),
@@ -1110,20 +1117,53 @@ class g_AssertStmt(ASTNode):
     def convert_exprs_to_metatypes(self):
         self.expr = self.expr.convert_to_metatype("right")
 
+        # static assertions must have static values.  Non-static assertions are
+        # allowed to have either runtime or static values.
+        if self.is_static:
+            if not isinstance(self.expr, mt_StaticExpr):
+                raise HWCCompile_SyntaxError(self.lineInfo, "Static assertions must resolve to static expressions.")
+
     def calc_sizes(self):
         self.expr.calc_sizes()
-        self.decl_bitSize = self.expr.decl_bitSize
+
+        if self.is_static:
+            val = self.expr.resolve_static_expr()
+            if type(val) != bool:
+                raise HWCCompile_SyntaxError(self.lineInfo, "Static assertions must resolve to static boolean expressions.")
+            if val == False:
+                raise HWCCompile_SyntaxError(self.lineInfo, "Static assertion failed.")
+
+            self.decl_bitSize = 0
+
+        else:
+            self.decl_bitSize = self.expr.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
+        # static assertions are NOPS after calc_sizes()
+        if self.is_static:
+            return
+
         self.expr.calc_top_down_offsets(offset)
 
     def calc_bottom_up_offsets(self):
+        # static assertions are NOPS after calc_sizes()
+        if self.is_static:
+            return
+
         self.expr.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        # static assertions are NOPS after calc_sizes()
+        if self.is_static:
+            return
+
         self.expr.print_bit_descriptions(name, start_bit)
 
     def print_wiring_diagram(self, start_bit):
+        # static assertions are NOPS after calc_sizes()
+        if self.is_static:
+            return
+
         self.expr.print_wiring_diagram(start_bit)
         print(f"assert {start_bit + self.expr.offset}    # {self.lineInfo}")
 
@@ -1174,13 +1214,17 @@ class g_BinaryExpr(ASTNode):
         self.rgt = self.rgt.convert_to_metatype("right")
 
         if   self.op in ["==","!="]:
-            eq = mt_PlugExpr_EQ(self.lineInfo,
-                                self.lft, "EQ", self.rgt, single_bit_result=True)
+            if   isinstance(self.lft, mt_PlugExpr) or isinstance(self.rgt, mt_PlugExpr):
+                eq = mt_PlugExpr_EQ(self.lineInfo,
+                                    self.lft, "EQ", self.rgt, single_bit_result=True)
 
-            if self.op == "==":
-                return eq
+                if self.op == "==":
+                    return eq
+                else:
+                    return mt_PlugExpr_NOT(self.lineInfo, eq);
+
             else:
-                return mt_PlugExpr_NOT(self.lineInfo, eq);
+                return mt_StaticExpr_CMP(self.lineInfo, self.lft, self.op, self.rgt)
 
         elif self.op in ["&", "&&"]:
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "AND", self.rgt)
@@ -1883,4 +1927,45 @@ class g_BoolExpr(ASTNode):
         pass
     def convert_to_metatype(self, side):
         return mt_StaticExpr_Bool(self.val)
+
+
+
+class g_DecodeExpr(ASTNode):
+    def __init__(self, lineInfo, indx):
+        self.lineInfo = lineInfo
+        self.indx = indx
+
+
+
+class g_MaskedSelectExpr(ASTNode):
+    def __init__(self, lineInfo, arr, mask):
+        self.lineInfo = lineInfo
+        self.arr  = arr
+        self.mask = mask
+
+
+
+class g_GetExprProp(ASTNode):
+    def __init__(self, lineInfo, prop, exp):
+        self.lineInfo = lineInfo
+        self.prop = prop
+        self.exp  = exp
+
+    def resolve_name_lookups(self, ns_pri):
+        self.exp.resolve_name_lookups(ns_pri)
+
+    def convert_to_metatype(self, side):
+        self.exp = self.exp.convert_to_metatype(side)
+
+        if self.prop in ["sizeof","len"]:
+            return mt_StaticExpr_GetProp(self.lineInfo, self.prop, self.exp)
+
+        if self.prop == "typeof":
+            if not isinstance(self.exp, mt_PlugExpr) and not isinstance(self.exp, mt_PartExpr):
+                raise HWCCompile_SyntaxError(self.lineInfo, "The parameter to the built-in function typeof() must be a plug expression or part expression")
+            return self.exp.typ_
+
+        else:
+            print(self.prop)
+            TODO()    # what prop is this?
 

@@ -25,13 +25,13 @@ stmt:
       ( mem='memory' '(' t=expr ')' | t=expr )
       decls+=declNameInit (',' decls+=declNameInit)* ';'        # stmt_Decl
 
-    | (lhs+=expr '=')+ rhs=expr ';'    # stmt_Connection
+    | static='static'? (lhs+=expr '=')+ rhs=expr ';'    # stmt_Connection
 
     | static='static'? 'if' '(' cond=expr ')' tru_=stmt (els_='else' fals_=stmt)?    # stmt_If
 
     | 'for' '(' var=IDENT ';' start=expr '..' end=expr ')' body=stmt ('as' tuple_name=IDENT)?       # stmt_For
 
-    | 'assert' '(' exp_=expr ')' ';'    # stmt_Assert
+    | static='static'? 'assert' '(' exp_=expr ')' ';'    # stmt_Assert
 
       /* TODO: add 'unittest' statements */
 ;
@@ -125,13 +125,7 @@ expr9:
        #           bit[] the_bits = expr;
        */
 
-    | funcName='concat' '(' concatLeft=expr ',' concatRight=expr ')'
-    | funcName='decode' '(' decode_expr=expr ')'
-    | funcName='masked_select' '(' ms_arr_expr=expr ',' ms_indx_expr=expr ')'
-
-    | funcName='typeof' '(' typeof_expr=expr ')'
-    | funcName='len'    '('    len_expr=expr ')'
-    | funcName='sizeof' '('    len_expr=expr ')'
+    | funcName=IDENT '(' funcArgs+=expr (',' funcArgs+=expr)* ')'
 
     | 'int'
     | 'bool'

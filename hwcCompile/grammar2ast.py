@@ -152,7 +152,8 @@ class HWCAstGenerator(hwcListener):
 
     def exitStmt_Assert(self, ctx):
         lineInfo = self.build_line_range(ctx)
-        ctx.ast = ast.g_AssertStmt(lineInfo, ctx.exp_.ast)
+        is_static = ctx.static is not None
+        ctx.ast = ast.g_AssertStmt(lineInfo, is_static, ctx.exp_.ast)
 
         # if() statements that wrap this statement will want to know this
         ctx.uncovered_else = False
@@ -291,9 +292,38 @@ class HWCAstGenerator(hwcListener):
         elif ctx.children[0].getText() == "false":
             ctx.ast = ast.g_BoolExpr("false")
 
-        elif ctx.children[0].getText() == "concat":
+        elif ctx.funcName is not None:
             lineInfo = self.build_line_info(ctx.funcName)
-            ctx.ast = ast.g_BinaryExpr(lineInfo, ctx.concatLeft.ast, "concat", ctx.concatRight.ast)
+            funcName = ctx.funcName.text
+
+            # check all of the built-in functions; otherwise, it must be a
+            # user function
+            if funcName == "concat":
+                if len(ctx.funcArgs) != 2:
+                    raise HWC_SyntaxError(lineInfo, "The built-in function concat() requires exactly two arguments.  TODO: support arbitrary numbers of arguments.")
+                ctx.ast = ast.g_BinaryExpr(lineInfo,
+                                           ctx.funcArgs[0].ast,
+                                           "concat",
+                                           ctx.funcArgs[1].ast)
+
+            elif funcName == "decode":
+                if len(ctx.funcArgs) != 1:
+                    raise HWC_SyntaxError(lineInfo, "The built-in function decode() requires exactly one argument.")
+                ctx.ast = ast.g_DecodeExpr(lineInfo, ctx.funcArgs[0].ast)
+
+            elif funcName == "masked_select":
+                TODO()
+                if len(ctx.funcArgs) != 2:
+                    raise HWC_SyntaxError(lineInfo, "The built-in function masked_select() requires exactly two arguments.")
+                ctx.ast = ast.g_MaskedSelectExpr(lineInfo, ctx.funcArgs[0].ast, ctx.funcArgs[1].ast)
+
+            elif funcName in ["typeof","len","sizeof"]:
+                if len(ctx.funcArgs) != 1:
+                    raise HWC_SyntaxError(lineInfo, f"The built-in function {funcName}() requires exactly one argument.")
+                ctx.ast = ast.g_GetExprProp(lineInfo, funcName, ctx.funcArgs[0].ast)
+
+            else:
+                TODO()    # implement user-defined functions
 
         elif ctx.children[0].getText() == "bit":
             ctx.ast = ast_expr_metatypes.plugType_bit
@@ -302,9 +332,6 @@ class HWCAstGenerator(hwcListener):
 
         elif ctx.children[0].getText() == "auto":
             ctx.ast = ast_expr_metatypes.plugType_auto
-
-        elif ctx.children[0].getText() == "typeof":
-            ctx.ast = TODO()
 
         elif ctx.children[0].getText() == "int":
             ctx.ast = ast_expr_metatypes.staticType_int

@@ -625,6 +625,8 @@ class mt_PlugExpr_EQ(mt_PlugExpr):
     is_lhs = False
 
     def __init__(self, lineInfo, lft,op,rgt, single_bit_result=False):
+        assert op == "EQ", op
+
         self.lineInfo = lineInfo
 
         assert isinstance(lft, mt_PlugExpr)
