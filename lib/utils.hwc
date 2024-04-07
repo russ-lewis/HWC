@@ -1,0 +1,60 @@
+plug Valid(T) {
+    bit valid;
+    T   data;
+}
+
+
+
+part BlindFifo(T,n) {
+    public T in,out;
+
+    private memory(T[n]) steps;
+
+    out = steps[0];
+    for (i; 0..n-2)
+        steps[i] = steps[i+1];
+    steps[n-1] = in;
+}
+
+
+
+// dumb, ripple-carry adder.  Functional.
+function auto Add(auto aArr, auto bArr) {
+    static assert typeof(aArr) == typeof(bArr);
+    static assert sizeof(aArr[0]) == bit;
+
+    int LEN = len(aArr);
+
+    bit[LEN] retval;
+    return retval;
+
+    for (i; 0..LEN) as cols
+    {
+        bit a = aArr[i];
+        bit b = bArr[i];
+
+        bit cIn;
+        static if (i==0)
+            cIn = 0;
+        else
+            cIn = cols[i-1].cOut;
+
+        retval[i] = a ^ b ^ cIn;
+        cOut      = (a & b) | (a & cIn) | (b & cIn);
+    }
+}
+
+
+
+function auto SignExtend(auto in, int NEW_LEN) {
+    assert typeof(in[0]) == bit;
+    assert NEW_LEN >= len(in);
+
+    bit[NEW_LEN] retval;
+    return retval;
+
+    bit[0:len(in)] = in;
+    for (i; len(in)..NEW_LEN)
+        retval[i] = in[len(in)-1];
+}
+
