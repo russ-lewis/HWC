@@ -72,7 +72,7 @@ fi
 
 echo
 echo "$0: Testing completed. $attempted testcases attempted, $passed passed, $((passed*100/attempted))%"
-if [[ $no_stdout != 0 ]]
+if [[ $no_stdout != "" ]]
 then
   echo
   echo "*** NO .stdout FOUND FOR SOME TESTCASES ***$no_stdout"
