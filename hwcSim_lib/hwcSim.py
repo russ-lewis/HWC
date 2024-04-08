@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 import sys
-
 import types     # for SimpleNamespace
 
 
@@ -9,11 +8,20 @@ import types     # for SimpleNamespace
 class HWCSim:
     def __init__(self, infile):
         self.bit_count = 0
-        self.names       = []
-        self.conns       = []
-        self.cond_conns  = []
-        self.logic       = []
-        self.memory      = []
+
+        self.names = {}
+        def add_name(start,end, name):
+            words = name.split('.')
+
+            cur = self.names
+            for word in words[:-1]:
+                if word not in cur:
+                    cur[word] = {}
+                cur = cur[word]
+
+            last = words[-1]
+            assert last not in cur
+            cur[last] = (start,end)
 
         while True:
             line = infile.readline().strip()
@@ -38,7 +46,12 @@ class HWCSim:
                 name    = words[2]
 
             self.bit_count = end_bit
-            self.names.append( (start_bit,end_bit, name) )
+            add_name(start_bit,end_bit, name)
+
+        self.conns      = []
+        self.cond_conns = []
+        self.logic      = []
+        self.memory     = []
 
         while True:
             line = infile.readline().split()
@@ -112,11 +125,22 @@ class HWCSim:
         for m in self.memory:
             m.dump()
 
-    def run(self):
-        init_memory = []
-        for m in self.memory:
-            init_memory.append( Bits(m.size, 0) )
+    def first_state(self):
+        init_memory = [ Bits(m.size, 0) for m in self.memory ]
         return HWCSim_ClockCycle(self, init_memory)
+
+
+
+class Bits:
+    def __init__(self, size,val, mask=None):
+        assert val >= 0
+        assert val >> size == 0
+        if mask is not None:
+            mask >> size == 0
+
+        self.size = size
+        self.val  = val
+        self.mask = mask
 
 
 
@@ -139,6 +163,26 @@ class Connection:
     def dump(self):
         print(f"to {self.to_bit} from {self.from_bit} size {self.size}")
 
+    def add_watch(self, cycle):
+        # used to prevent multiple-connection
+        delivered = False
+
+        def watch_callback(force=False):
+            val = cycle.read_bits(self.from_bit, self.size)
+            assert type(val) == Bits
+
+            if val.mask is not None:
+                TODO()
+
+            nonlocal delivered
+            if delivered:
+                return
+
+            delivered = True
+            cycle.set_bits(self.to_bit, self.size, val)
+
+        cycle.add_watch(self.from_bit, self.size, watch_callback)
+
 
 
 class Logic_NOT:
@@ -152,23 +196,179 @@ class Logic_NOT:
 
 
 
-class Bits:
-    def __init__(self, size,val):
-        self.size = size
-        self.val  = val
-
-
-
 class HWCSim_ClockCycle:
     def __init__(self, wiring, mem_in):
         self.wiring = wiring
-        self.mem_in = mem_in
 
-        self.bits = types.SimpleNamespace()
-        self.bits.asdf = "ASDF"
-        self.bits.foo  = types.SimpleNamespace()
-        self.bits.foo.bar = types.SimpleNamespace()
-        self.bits.foo.bar.baz = "FOO.BAR.BAZ"
+        print("TODO: make this a tree, with ranges at the leaves and watches registered at every level.")
+        self.bit_space = [ [0, self.wiring.bit_count, None, []] ]
+
+        for c in self.wiring.conns:
+            c.add_watch(self)
+        for c in self.wiring.cond_conns:
+            c.add_watch(self)
+        for l in self.wiring.logic:
+            l.add_watch(self)
+        for m in self.wiring.memory:
+            m.add_watch(self)
+
+        assert len(mem_in) == len(self.wiring.memory)
+        for i in range(len(mem_in)):
+            size = mem_in[i].size
+            val  = mem_in[i].val
+
+            assert self.wiring.memory[i].size == size
+            rd = self.wiring.memory[i].rd
+            wr = rd+size
+
+            self.set_bits(rd,size, val)
+
+        self.fields = Fields(self, self.wiring.names)
+
+    def set_bits(self, dest,size, val):
+        print("TODO: add set-records for each call, which include dependency-records, so that we can replay the tree of actions in a different order in a GUI")
+
+        assert dest >= 0
+        assert dest+size <= self.wiring.bit_count
+        assert val.val >> size == 0
+
+        indx = self.find_indx_for_range(dest,size, split=True)
+        assert self.bit_space[indx][0] == dest
+        assert self.bit_space[indx][1] <= size
+
+        if self.bit_space[indx][1] != size:
+            TODO()
+
+        if self.bit_space[indx][2] is not None:
+            raise HWCRuntime_MultipleConnectionError()
+        self.bit_space[indx][2] = val
+
+        for start,size,cb in self.bit_space[indx][3]:
+            cb()
+
+    def find_indx_for_range(self, dest,size, split=True):
+        assert dest+size <= self.wiring.bit_count
+
+        if split:
+            retval = self.split_bits_at(dest)
+            self.split_bits_at(dest+size)
+
+        return retval
+
+    def split_bits_at(self, dest):
+        a = 0                      # left  index, inclusive
+        b = len(self.bit_space)    # right index, exclusive
+
+        while True:
+            assert a <= b
+            m = (a+b)//2
+
+            start = self.bit_space[m][0]
+            end   = self.bit_space[m][0] + self.bit_space[m][1]
+
+            if start == dest:
+                return m      # NOP
+            if end == dest:
+                return m+1    # NOP
+
+            if dest < start:
+                b = m
+                continue
+            if end < dest:
+                a = m
+                continue
+
+            # dest is inside the current range!
+
+            old_val = self.bit_space[m][2]
+            assert old_val is None, old_val    # TODO: handle int's
+
+            print("TODO: split the watchers!")
+            part1 = [start,(dest-start), None, self.bit_space[m][3]]
+            part2 = [dest ,(end -dest ), None, self.bit_space[m][3]]
+
+            self.bit_space = self.bit_space[:m] + [part1,part2] + self.bit_space[m+1:]
+
+    def read_bits(self, start,size):
+        for entry in self.bit_space:
+            if entry[0] == start and entry[1] == size:
+                val = entry[2]
+                assert type(entry[2]) == Bits, entry     # TODO: handle more complex things
+                return val
+        assert False, (start,size)    # TODO: handle reads that cross ranges
+            
+    def add_watch(self, dest,size, callback):
+        assert len(self.bit_space) == 1
+        assert     self.bit_space[0][0] == 0
+        assert     self.bit_space[0][1] == self.wiring.bit_count
+        self.bit_space[0][3].append( (dest,size,callback) )
+
+    def get_mem_out(self):
+        retval = []
+        for m in self.wiring.memory:
+            TODO()    # read the value into the array we'll return.  Make sure to collect from the write-side if set, and the read-side only for bits that didn't change
+        return retval
+
+    def tick(self, inputs={}):
+        retval = self.next()
+        for k in inputs:
+            retval.set(k, inputs[k])
+        retval.run()
+        return retval
+
+    def next(self):
+        return HWCSim_ClockCycle(self.wiring, self.get_mem_out())
+
+    def run(self):
+        print("TODO: eventually, support a backlog of recorded (but not called) callbacks that include mask fields.  Only call them when the other (non-lazy) operations are done.  Maybe make *all* of the callbacks lazy???")
+
+
+
+class Fields:
+    def __init__(self, cur_clock, names):
+        assert type(names) == dict
+
+        # we need to make sure that these 
+        super(Fields,self).__setattr__("Fields_clock", cur_clock)
+        super(Fields,self).__setattr__("Fields_names", names)
+
+    def __getattr__(self, name):
+        if name not in self.Fields_names:
+            print(name, self.Fields_names)
+            raise AttributeError()
+
+        retval = self.Fields_names[name]
+
+        if type(retval) == dict:
+            retval = Fields(self.Fields_clock, retval)
+            super(Fields,self).__setattr__(name, retval)
+            return retval
+
+        else:
+            start = retval[0]
+            size  = retval[1]-retval[0]
+
+            retval = self.Fields_clock.read_bits(start,size)
+
+            assert type(retval) == Bits
+            if retval.mask is None:
+                return retval.val
+
+            TODO()    # how to handle masks???
+
+    def __setattr__(self, name, val):
+        assert type(val) == int
+
+        if name not in self.Fields_names:
+            print(name, self.Fields_names)
+            raise AttributeError()
+
+        thing = self.Fields_names[name]
+        if type(thing) == dict:
+            TODO()    # should I report AttributeError here, or something else?
+
+        dest,size = thing
+        self.Fields_clock.set_bits(dest,size, Bits(size, val))
 
 
 
