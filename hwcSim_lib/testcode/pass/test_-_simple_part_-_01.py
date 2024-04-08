@@ -2,7 +2,7 @@
 
 import hwcSim
 
-wires = hwcSim.HWCSim(open("simple_part.wire"))
+wires = hwcSim.HWCSim(open("simple_part.wires"))
 
 state = wires.first_state()
 
