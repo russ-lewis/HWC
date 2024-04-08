@@ -200,7 +200,7 @@ class HWCSim_ClockCycle:
     def __init__(self, wiring, mem_in):
         self.wiring = wiring
 
-        print("TODO: make this a tree, with ranges at the leaves and watches registered at every level.")
+        # print("TODO: make this a tree, with ranges at the leaves and watches registered at every level.")
         self.bit_space = [ [0, self.wiring.bit_count, None, []] ]
 
         for c in self.wiring.conns:
@@ -226,7 +226,7 @@ class HWCSim_ClockCycle:
         self.fields = Fields(self, self.wiring.names)
 
     def set_bits(self, dest,size, val):
-        print("TODO: add set-records for each call, which include dependency-records, so that we can replay the tree of actions in a different order in a GUI")
+        # print("TODO: add set-records for each call, which include dependency-records, so that we can replay the tree of actions in a different order in a GUI")
 
         assert dest >= 0
         assert dest+size <= self.wiring.bit_count
@@ -283,7 +283,7 @@ class HWCSim_ClockCycle:
             old_val = self.bit_space[m][2]
             assert old_val is None, old_val    # TODO: handle int's
 
-            print("TODO: split the watchers!")
+            # print("TODO: split the watchers!")
             part1 = [start,(dest-start), None, self.bit_space[m][3]]
             part2 = [dest ,(end -dest ), None, self.bit_space[m][3]]
 
@@ -320,7 +320,8 @@ class HWCSim_ClockCycle:
         return HWCSim_ClockCycle(self.wiring, self.get_mem_out())
 
     def run(self):
-        print("TODO: eventually, support a backlog of recorded (but not called) callbacks that include mask fields.  Only call them when the other (non-lazy) operations are done.  Maybe make *all* of the callbacks lazy???")
+        # print("TODO: eventually, support a backlog of recorded (but not called) callbacks that include mask fields.  Only call them when the other (non-lazy) operations are done.  Maybe make *all* of the callbacks lazy???")
+        pass
 
 
 

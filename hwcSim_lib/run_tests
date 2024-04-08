@@ -1,0 +1,93 @@
+#! /bin/bash
+
+
+# all of the testcases will need this.  We use absolute paths so that, when
+# we run in the directory, it still finds this library path (which is outside
+# the testcase directory)
+#
+# TODO: make this work well with an existing variable
+export PYTHONPATH=$(pwd)/lib
+
+
+if [[ $* == "" ]]
+then
+  search=testcode/pass/
+else
+  search=$*
+fi
+
+# since we're going to cd into the directories, absolute pathnames are
+# very useful!  It's faster to do it here, rather than in the 'for'
+# loop below.
+search=$(readlink -f $search)
+
+
+attempted=0
+passed=0
+
+no_stdout=""
+
+for TESTCASE in $(find $search -name test_-_\*.py 2>/dev/null)
+do
+  dir=$(dirname $TESTCASE)
+  base=$(basename $TESTCASE | rev | cut -f2- -d'.' | rev)
+
+  cd $dir
+
+  rm $base.actual_stdout $base.FAIL $base.PASS 2>/dev/null
+
+  if [[ ! -f $base.stdout ]]
+  then
+    no_stdout="$no_stdout
+$TESTCASE"
+    continue
+  fi
+
+  attempted=$((attempted+1))
+
+  {
+    ./$base.py
+    rc=$?
+
+    if [[ $rc != 0 ]]
+    then
+      echo
+      echo "WARNING: rc=$rc"
+    fi
+  } > $base.actual_stdout 2>&1
+
+  if [[ $(diff $base.stdout $base.actual_stdout) != "" ]]
+  then
+    echo "Testcase $TESTCASE failed: stdout mismatch"
+    mv $base.actual_stdout $base.FAIL
+  else
+    rm $base.actual_stdout
+    touch $base.PASS
+    passed=$((passed+1))
+  fi
+done
+
+
+
+if [[ $attempted = 0 ]]
+then
+  echo "ERROR: No testcases found!  Please check your search parameters!" 1>&2
+  echo "       Current Search: $search" 1>&2
+  exit 1
+fi
+
+echo
+echo "$0: Testing completed. $attempted testcases attempted, $passed passed, $((passed*100/attempted))%"
+if [[ $no_stdout != "" ]]
+then
+  echo
+  echo "*** NO .stdout FOUND FOR SOME TESTCASES ***$no_stdout"
+fi
+
+if [[ $passed == $attempted ]]
+then
+  exit 0
+else
+  exit 1
+fi
+
