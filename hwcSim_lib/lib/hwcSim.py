@@ -48,10 +48,11 @@ class HWCSim:
             self.bit_count = end_bit
             add_name(start_bit,end_bit, name)
 
-        self.conns      = []
-        self.cond_conns = []
-        self.logic      = []
-        self.memory     = []
+        self.conns       = []
+        self.cond_conns  = []
+        self.const_conns = []    # for x=1 connections
+        self.logic       = []
+        self.memory      = []
 
         while True:
             line = infile.readline().split()
@@ -167,19 +168,21 @@ class Connection:
         # used to prevent multiple-connection
         delivered = False
 
-        def watch_callback(force=False):
-            val = cycle.read_bits(self.from_bit, self.size)
-            assert type(val) == Bits
+        def watch_callback(data):
+            assert type(data) == Bits, data
 
-            if val.mask is not None:
+            if data.mask is not None:
                 TODO()
 
             nonlocal delivered
             if delivered:
                 return
-
             delivered = True
-            cycle.set_bits(self.to_bit, self.size, val)
+
+            rec = HistoryRecord(self.  to_bit, self.  to_bit+self.size,
+                               (self.from_bit, self.from_bit+self.size),
+                               None)
+            cycle.set_bits(self.to_bit, self.size, data, rec)
 
         cycle.add_watch(self.from_bit, self.size, watch_callback)
 
@@ -200,8 +203,20 @@ class HWCSim_ClockCycle:
     def __init__(self, wiring, mem_in):
         self.wiring = wiring
 
-        # print("TODO: make this a tree, with ranges at the leaves and watches registered at every level.")
-        self.bit_space = [ [0, self.wiring.bit_count, None, []] ]
+        self.fields    = Fields(self, self.wiring.names)
+        self.bit_space = BitSpaceNode(0, self.wiring.bit_count)
+
+        # this tracks the "history" of sets that have happened in the space,
+        # this clock cycle.  Each record is a range that has been set, along
+        # with the dependencies (if any) which were required to be known before
+        # this happened.
+        #
+        # The primary purpose of this is as a reporting tool, so that users can
+        # visualize the action in a GUI (and perhaps run the evaluations
+        # out-of-order).  But a critical secondary purpose is that, by keeping
+        # an index into this array, we have a TODO marker which tells us which
+        # watches need to be alerted about recent changes.
+        self.history = []
 
         for c in self.wiring.conns:
             c.add_watch(self)
@@ -223,85 +238,36 @@ class HWCSim_ClockCycle:
 
             self.set_bits(rd,size, val)
 
-        self.fields = Fields(self, self.wiring.names)
+        for c in self.wiring.const_conns:
+            dest = c.to_bit
+            size = c.size
+            val  = Bits(size, c.val)
+            hist = HistoryRecord(dest,size, "const",None)
+            self.set_bits(dest,size, val, hist)
 
-    def set_bits(self, dest,size, val):
-        # print("TODO: add set-records for each call, which include dependency-records, so that we can replay the tree of actions in a different order in a GUI")
-
-        assert dest >= 0
-        assert dest+size <= self.wiring.bit_count
+    def set_bits(self, start,size, val, history):
+        assert val.mask is None
         assert val.val >> size == 0
 
-        indx = self.find_indx_for_range(dest,size, split=True)
-        assert self.bit_space[indx][0] == dest
-        assert self.bit_space[indx][1] <= size
+        assert type(history) == HistoryRecord
 
-        if self.bit_space[indx][1] != size:
-            TODO()
-
-        if self.bit_space[indx][2] is not None:
-            raise HWCRuntime_MultipleConnectionError()
-        self.bit_space[indx][2] = val
-
-        for start,size,cb in self.bit_space[indx][3]:
-            cb()
+        self.history.append(history)
+        self.bit_space.set_bits(start, start+size, val)
 
     def find_indx_for_range(self, dest,size, split=True):
         assert dest+size <= self.wiring.bit_count
 
         if split:
-            retval = self.split_bits_at(dest)
-            self.split_bits_at(dest+size)
+            retval = self.bit_space.split_at(dest)
+            self.bit_space.split_at(dest+size)
 
         return retval
 
-    def split_bits_at(self, dest):
-        a = 0                      # left  index, inclusive
-        b = len(self.bit_space)    # right index, exclusive
+    def get_bits(self, start,size):
+        return self.bit_space.get_bits(start, start+size)
 
-        while True:
-            assert a <= b
-            m = (a+b)//2
-
-            start = self.bit_space[m][0]
-            end   = self.bit_space[m][0] + self.bit_space[m][1]
-
-            if start == dest:
-                return m      # NOP
-            if end == dest:
-                return m+1    # NOP
-
-            if dest < start:
-                b = m
-                continue
-            if end < dest:
-                a = m
-                continue
-
-            # dest is inside the current range!
-
-            old_val = self.bit_space[m][2]
-            assert old_val is None, old_val    # TODO: handle int's
-
-            # print("TODO: split the watchers!")
-            part1 = [start,(dest-start), None, self.bit_space[m][3]]
-            part2 = [dest ,(end -dest ), None, self.bit_space[m][3]]
-
-            self.bit_space = self.bit_space[:m] + [part1,part2] + self.bit_space[m+1:]
-
-    def read_bits(self, start,size):
-        for entry in self.bit_space:
-            if entry[0] == start and entry[1] == size:
-                val = entry[2]
-                assert type(entry[2]) == Bits, entry     # TODO: handle more complex things
-                return val
-        assert False, (start,size)    # TODO: handle reads that cross ranges
-            
     def add_watch(self, dest,size, callback):
-        assert len(self.bit_space) == 1
-        assert     self.bit_space[0][0] == 0
-        assert     self.bit_space[0][1] == self.wiring.bit_count
-        self.bit_space[0][3].append( (dest,size,callback) )
+        self.bit_space.add_watch(dest, dest+size, callback)
 
     def get_mem_out(self):
         retval = []
@@ -320,8 +286,56 @@ class HWCSim_ClockCycle:
         return HWCSim_ClockCycle(self.wiring, self.get_mem_out())
 
     def run(self):
-        # print("TODO: eventually, support a backlog of recorded (but not called) callbacks that include mask fields.  Only call them when the other (non-lazy) operations are done.  Maybe make *all* of the callbacks lazy???")
-        pass
+        # when we begin, the user inputs (if any), memory (if any), and
+        # const connections (if any) have all delivered their values to the
+        # various bits.  Each of those operations should have set up a matching
+        # HistoryRecord.  We will use these as the TODO items for our search
+        # for watches to call; we loop until we have delivered all of the
+        # watch callbacks, with no new ones appearing.
+        #
+        # In addition to the "complete" watch callbacks, we also need to
+        # sometimes deliver "partial" ones (that is, ones where only part of
+        # the range is known yet); we procrastinate on these as long as
+        # possible (always preferring to give complete ones), but if we
+        # exhaust all of the complete callbacks, we will use the partials
+        # in hopes of forcing some last-minute updates.
+        #
+        # while there_are_pending_complete_or_partial_callbacks:
+        #     if there_are_complete_callbacks_pending:
+        #         flush_until_none
+        #     else:
+        #         perform_a_single_partial_callback
+        #
+        # A final note on the callbacks: all callbacks have 3 required
+        # arguments:
+        #     cur_clock
+        #     start
+        #     end
+        # and one optional argument:
+        #     force=False
+        #
+        # We use the same callback for both complete and partial callbacks;
+        # we send a partial callback (if appropriate) by setting Force=True,
+        # which tells the component to set its outputs using masks if possible.
+
+        # these two are indices into the history[] array, which tell us how
+        # much of the history we've flushed so far.  The partial is always <=
+        # the complete
+        complete_pos = 0
+        partial_pos  = 0
+
+        while partial_pos < len(self.history):
+            if complete_pos < len(self.history):
+                while complete_pos < len(self.history):   # history can be added as we go
+                    rec = self.history[complete_pos]
+                    complete_pos += 1
+                    self.bit_space.send_callbacks(rec.start, rec.end)
+
+            else:
+                assert partial_pos < complete_pos
+                rec = self.history[partial_pos]
+                partial_pos += 1
+                self.bit_space.send_callbacks(rec.start, rec.end, partials=True)
 
 
 
@@ -349,7 +363,7 @@ class Fields:
             start = retval[0]
             size  = retval[1]-retval[0]
 
-            retval = self.Fields_clock.read_bits(start,size)
+            retval = self.Fields_clock.get_bits(start,size)
 
             assert type(retval) == Bits
             if retval.mask is None:
@@ -369,7 +383,193 @@ class Fields:
             TODO()    # should I report AttributeError here, or something else?
 
         dest,size = thing
-        self.Fields_clock.set_bits(dest,size, Bits(size, val))
+        self.Fields_clock.set_bits(dest,size, Bits(size, val),
+                                   HistoryRecord(dest, dest+size, "user",None))
+
+
+
+class BitSpaceNode:
+    def __init__(self, start,end, val=None, watches=[]):
+        self.start   = start
+        self.end     = end
+        self.watches = watches
+
+        # all nodes start out as leaf nodes.  Leaf nodes have 'val' fields,
+        # which start as None but might be set to Bits objects if there are
+        # set_bits() calls that go down the tree.
+        #
+        # But when we split the node, we create left and right children, and
+        # the node no longer has a val.  (We mark this by replacing the val
+        # with the string "not leaf".)  Instead, portions of the val (if not
+        # None) are sent down into the new leaves.
+        #
+        # 9Note that this tree is *NOT* guaranteed to be balanced, but that we
+        # never have single-child nodes, either.)
+        #
+        # Both leaf nodes and internal nodes can have watch callbacks assigned;
+        # at all times, each watch callback is registered only once, at the
+        # lowest node that contains the *entire* range.  (Worst case, we might
+        # have watch callbacks on the root!)
+
+        self.val = None
+
+    def is_leaf(self):
+        return self.val != "not leaf"
+
+    def split_at(self, pos):
+        # check for NOPs
+        if pos == self.start or pos == self.end:
+            return
+
+        # never re-split an internal node
+        if not self.is_leaf():
+            if pos < self.splitAt:
+                self.lft.split_at(pos)
+            else:
+                self.rgt.split_at(pos)
+            return
+
+        # this is a leaf node.  Split it!
+
+        # watches can go left,right, or stay in the current node.
+        w_lft = [(s,e,w) for s,e,w in self.watches if e <= pos]
+        w_rgt = [(s,e,w) for s,e,w in self.watches if s >= pos]
+        w_me  = [(s,e,w) for s,e,w in self.watches if s < pos and e > pos]
+        assert len(w_lft) + len(w_rgt) +len(w_me) == len(self.watches)
+        self.watches = w_me
+
+        # split the value (if any)
+        if self.val is None:
+            v_lft = None
+            v_rgt = None
+        else:
+            v_lft,v_rgt = self.val.split(pos-self.start)
+
+        self.val     = "not leaf"
+        self.splitAt = pos;
+        self.lft     = BitSpaceNode(self.start,pos,          v_lft, w_lft)
+        self.rgt     = BitSpaceNode(           pos,self.end, v_rgt, w_rgt)
+
+    def dump(self, prefix):
+        if self.is_leaf():
+            print(f"{prefix}{self.start} {self.end} - VAL {self.val} - WATCHES {len(self.watches)}")
+        else:
+            print(f"{prefix}{self.start} {self.end} - SPLIT AT {self.splitAt} - WATCHES {len(self.watches)}")
+            print(f"{prefix}  lft:")
+            self.lft.dump(prefix+"    ")
+            print(f"{prefix}  rgt:")
+            self.rgt.dump(prefix+"    ")
+
+    def add_watch(self, start,end, callback):
+        assert start < end
+        assert callback is not None
+        assert start >= self.start
+        assert end   <= self.end
+
+        if self.is_leaf() or start < self.splitAt and end > self.splitAt:
+            self.watches.append( (start,end,callback) )
+        else:
+            if end <= self.splitAt:
+                self.lft.add_watch(start,end, callback)
+            else:
+                self.rgt.add_watch(start,end, callback)
+
+    def set_bits(self, start,end, val):
+        assert start >= self.start
+        assert end   <= self.end
+
+        assert start < end, (start,end)
+
+        assert val.mask is None    # TOOD: later, support masked sets
+        assert val.val >> (end-start) == 0
+
+        # happiest case: exact match on a leaf.
+        if self.is_leaf() and start == self.start and end == self.end:
+            assert val.mask is None    # TODO: handle partial writes, later!
+
+            if self.val is not None:
+                raise HWCRuntime_MultipleConnectionError()
+            self.val = val
+            return
+
+        # if the current node is a leaf, then it must be the wrong shape.
+        # Split it up.
+        if self.is_leaf():
+            self.split_at(start)
+            self.split_at(end)
+            assert not self.is_leaf()
+
+        # single-child recursion
+        if not self.is_leaf() and end <= self.splitAt:
+            self.lft.set_bits(start,end, val)
+            return
+        if not self.is_leaf() and self.splitAt <= start:
+            self.rgt.set_bits(start,end, val)
+            return
+
+        # recursion into both children (including the special case where a
+        # node that was recently a leaf was split)
+
+        assert start < self.splitAt
+        assert         self.splitAt < end
+
+        val_l,val_r = val.split_at(self.split_at-start)
+        if val_l is not None:
+            self.lft.set_bits(start, self.splitAt,      val_l)
+        if val-r is not None:
+            self.rgt.set_bits(       self.splitAt, end, val_r)
+
+    def get_bits(self, start,end):
+        assert start >= 0
+        assert end   >  start
+
+        if self.is_leaf():
+            if self.start == start and self.end == end:
+                assert type(self.val) == Bits, self.val
+                assert self.val.mask is None
+                return self.val
+            else:
+                TODO()    # handle reads which are subsets of a leaf
+
+        # not leaf
+        if end <= self.splitAt:
+            return self.lft.get_bits(start,end);
+        if self.splitAt <= start:
+            return self.rgt.get_bits(start,end);
+
+        TODO()    # handle reads which span multiple leaves
+
+    def send_callbacks(self, start,end, partials=False):
+        assert start >= self.start
+        assert end   <= self.end
+
+        for s,e,w in self.watches:
+            if e <= start or s >= end:
+                continue    # no overlap whatsoever
+            if not partials and (s < start or e >end):
+                continue    # insufficient overlap if we're not doing partial
+
+            data = self.get_bits(start,end)
+            assert type(data) == Bits, data
+            w(data)
+
+        if not self.is_leaf():
+            if end <= self.splitAt:
+                self.lft.send_callbacks(start,end, partials)
+            if self.splitAt <= start:
+                self.rgt.send_callbacks(start,end, partials)
+            if start < self.splitAt and self.splitAt < end:
+                self.lft.send_callbacks(start,self.splitAt,     partials)
+                self.rgt.send_callbacks(      self.splitAt,end, partials)
+
+
+
+class HistoryRecord:
+    def __init__(self, start,end, cause1, cause2):
+        self.start  = start
+        self.end    = end
+        self.cause1 = cause1
+        self.cause2 = cause2
 
 
 
