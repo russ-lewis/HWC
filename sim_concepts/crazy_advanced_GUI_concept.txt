@@ -1,9 +1,0 @@
-Have a GUI (during simulation) which mirrors the text.  Clicking on a component
-in the GUI selects the same in the text, and vice-versa.
-
-But what if we go further?  What about dynamically updating the GUI during
-development?  What if typing immediately resulted in the picture changing, even
-if the code doesn't compile yet?  Gradual, spring-force animation would be
-excellent.  And if you could visualize new connections dynamically, as you
-write them?
-
