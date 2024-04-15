@@ -34,7 +34,7 @@ part function Adder_CLA(int n) {
         g   = round_adder.g;
         p   = round_adder.p;
     }
-    else static if (n%4 == 0)
+    else
     {
         int SUB_WIDTH = n/4;
         Adder_CLA(SUB_WIDTH)[4] sub_adders;
