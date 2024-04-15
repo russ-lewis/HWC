@@ -1,0 +1,84 @@
+
+part function Adder_CLA(int n) {
+    static assert(n > 0);
+
+    public bit    carryIn;
+    public bit[n] a,b;
+    public bit[n] sum;
+    public bit    g,p;
+
+    static if (n == 1) {
+        sum[0] = a[0] ^ b[0] ^ carryIn;
+        g = a[0] & b[0];
+        p = a[0] | b[0];
+    }
+    else static if (n%4 != 0)
+    {
+        int ROUNDED = (n+3) & ~0x3;
+        static assert(ROUNDED%4 == 0);
+
+        Adder_CLA(ROUNDED) round_adder;
+        round_adder.carryIn = carryIn;
+        round_adder.a[:n ]  = a;
+        round_adder.b[:n ]  = b;
+
+        /* we're going to ignore the output for the extra bits.  But we set
+         * a=1,b=0 for all of these bits so that the propagate/generate
+         * output from this component is what we would have expected for n
+         * bits.
+         */
+        round_adder.a[ n:]  = 1;
+        round_adder.b[ n:]  = 0;
+
+        sum = round_adder.sum[:n];
+        g   = round_adder.g;
+        p   = round_adder.p;
+    }
+    else static if (n%4 == 0)
+    {
+        int SUB_WIDTH = n/4;
+        Adder_CLA(SUB_WIDTH)[4] sub_adders;
+
+        /* connect slices of the inputs to the inputs of the sub-adders */
+        for (i; 0..4) {
+            sub_adder[i].a = a[i*SUB_WIDTH : i*SUB_WIDTH+4];
+            sub_adder[i].b = b[i*SUB_WIDTH : i*SUB_WIDTH+4];
+        }
+
+        /* these are just copies of the g/p bits from the sub-adders */
+        bit[4] sub_g,sub_p;
+        for (i; 0..4) {
+            sub_g[i] = sub_adder[i].g;
+            sub_p[i] = sub_adder[i].p;
+        }
+
+        /* generate,popagate *OUTPUTS* */
+        g =                                  sub_g[3] |
+                                  sub_p[1] & sub_g[2] |
+                       sub_p[2] & sub_p[1] & sub_g[1] |
+            sub_p[3] & sub_p[2] & sub_p[1] & sub_g[0];
+        p = sub_p[0] & sub_p[1] & sub_p[2] & sub_p[3];
+
+        /* calculate the carry-in to each of the sub-adders */
+        subAddr[0].carryIn =                                                  carryIn;
+        subAddr[1].carryIn =                                    g[0] + p[0] & carryIn;
+        subAddr[2].carryIn =               g[1] +        p[1] & g[0] + p[0] & carryIn;
+        subaddr[3].carryIn = g[2] + p[2] & g[1] + p[2] & p[1] & g[0] + p[0] & carryIn;
+
+        /* calculate the sum bits, copying from the sub-adders to the output */
+        for (i; 0..4)
+            sum[i*SUB_WIDTH : i*SUB_WIDTH+4] = sub_adder[i].sum;
+    }
+}
+
+
+
+part main
+{
+    subpart Adder_CLA( 4) adder4;
+    subpart Adder_CLA( 8) adder8;
+    subpart Adder_CLA(16) adder16;
+    subpart Adder_CLA(32) adder32;
+    subpart Adder_CLA(64) adder64;
+}
+
