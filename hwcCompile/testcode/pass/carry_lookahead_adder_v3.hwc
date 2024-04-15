@@ -1,0 +1,125 @@
+
+int log_roundUp(int n, int base) {
+    static assert(n > 0);
+    static assert(base > 1);
+
+    static if (n == 1)
+        return 0;
+    else static if (n <= base)
+        return 1;
+    else {
+        // absolutely HORRIFIC implementation, but it works...
+        return 1 + log_roundUp((n+base-1)/base, base);
+    }
+}
+
+int pow(base, exp) {
+    static assert(base >  1);
+    static assert(exp  >= 0);
+
+    static if (exp == 0)
+        return 1;
+    else static if (exp%2 == 1)
+        return base * pow(base,exp-1)
+    else
+        return pow(base*base, exp/2);
+}
+
+
+
+part function Adder_CLA(int n) {
+    static assert(n > 0);
+
+    public bit    carryIn;
+    public bit[n] a,b;
+    public bit[n] sum;
+    public bit    g,p;
+
+    static if (n == 1) {
+        sum[0] = a[0] ^ b[0] ^ carryIn;
+        g = a[0] & b[0];
+        p = a[0] | b[0];
+    }
+    else
+    {
+        int POW     = log_roundUp(n,4);
+        int ROUNDED = pow(4,POW);
+        static assert(ROUNDED >= n);
+        static assert(log_roundUp(ROUNDED, 4) == POW);
+
+        static if (ROUNDED > n) {
+            Adder_CLA(ROUNDED) round_adder;
+            round_adder.carryIn = carryIn;
+            round_adder.a[:n]  = a;
+            round_adder.b[:n]  = b;
+
+            /* we're going to ignore the output for the extra bits.  But we set
+             * a=1,b=0 for all of these bits so that the propagate/generate
+             * output from this component is what we would have expected for n
+             * bits.
+             */
+            round_adder.a[n:]  = 1;
+            round_adder.b[n:]  = 0;
+
+            sum = round_adder.sum[:n];
+            g   = round_adder.g;
+            p   = round_adder.p;
+        }
+        else /* static */
+        {
+            int EXTRA_BITS = (n-1) / 3;    // 4^0 + 4^1 + 4^2 + 4^3 + ...
+
+            bit[n+EXTRA_BITS  ] g_int,p_int;
+            bit[n+EXTRA_BITS-1] c;
+
+            g_int[:n] = a & b;
+            p_int[:n] = a | b;
+
+            /* similar to a heap, the g/p bits are complete trees, stored in arrays */
+            static assert(4*(EXTRA_BITS-1)+3 == n-1);
+            for (i; 0..EXTRA_BITS) {
+                p_int[n+i] = p_int[4*i] & p_int[4*i+1] & p_int[4*i+2] & p_int[4*i+3];
+                g_int[n+i] =                                            g_int[4*i+3] |
+                                                         g_int[4*i+2] & p_int[4*i+3] |
+                                          g_int[4*i+1] & p_int[4*i+2] & p_int[4*i+3] |
+                             g_int[4*i] & p_int[4*i+1] & p_int[4*i+2] & p_int[4*i+3];
+
+                // input carries move up the heirarchy
+                c[n+i] = c[4*i];
+
+                // output carries move down the heirarchy
+                c[4*i+1] = c[n+i] & p[4*i] |
+                                    g[4*i];
+                c[4*i+2] = c[n+i] & p[4*i] & p[4*i+1] |
+                                    g[4*i] & p[4*i+1] |
+                                             g[4*i+1];
+                c[4*i+3] = c[n+i] & p[4*i] & p[4*i+1] & p[4*i+2] |
+                                    g[4*i] & p[4*i+1] & p[4*i+2] |
+                                             g[4*i+1] & p[4*i+2] |
+                                                        g[4*i+2] ;
+
+                static assert(4*i+3 < n);
+            }
+
+            // calculate the 1-bit values
+            for (i; 0..n) {
+                sum[i] = a[i] ^ b[i] ^ c[i];
+            }
+
+            g = g_int[n+EXTRA_BITS-1];
+            p = p_int[n+EXTRA_BITS-1];
+        }
+    }
+}
+
+
+
+part main
+{
+    subpart Adder_CLA( 4) adder4;
+    subpart Adder_CLA( 8) adder8;
+    subpart Adder_CLA(16) adder16;
+    subpart Adder_CLA(32) adder32;
+    subpart Adder_CLA(64) adder64;
+}
+
