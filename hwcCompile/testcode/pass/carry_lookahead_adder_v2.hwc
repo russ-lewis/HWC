@@ -8,12 +8,18 @@ part function Adder_CLA(int n) {
     public bit    g,p;
 
     static if (n == 1) {
+        /* 1 bit adder.  Implement a Full Adder, except no carry-out */
         sum[0] = a[0] ^ b[0] ^ carryIn;
         g = a[0] & b[0];
         p = a[0] | b[0];
     }
     else static if (n%4 != 0)
     {
+        /* if the size of this adder is not a multiple of 4, then use a
+         * slightly larger adder (with dummy inputs on top) to evaluate
+         * the code.
+         */
+
         int ROUNDED = (n+3) & ~0x3;
         static assert(ROUNDED%4 == 0);
 
@@ -36,6 +42,16 @@ part function Adder_CLA(int n) {
     }
     else
     {
+        /* the size of the input is a multiple of 4 bits.  We'll break the
+         * problem into 4 big chunks (NOTE: we have 4x(n/4) adders, *not*
+         * (n/4)x4 adders.)  We'll then use the p/g bits of each one to
+         * implement our carry lookahead logic.
+         *
+         * Note that when we think of things this way, 4x1 bit adders works
+         * just as well as 4x16 bit adders; we just need to know the p/g bits
+         * for each of the sub-adders
+         */
+
         int SUB_WIDTH = n/4;
         Adder_CLA(SUB_WIDTH)[4] sub_adders;
 
@@ -45,14 +61,17 @@ part function Adder_CLA(int n) {
             sub_adder[i].b = b[i*SUB_WIDTH : i*SUB_WIDTH+4];
         }
 
-        /* these are just copies of the g/p bits from the sub-adders */
+        /* these are just copies of the g/p bits from the sub-adders.  This
+         * just makes them a little less annoying to read, by making the
+         * variable names shorter.
+         */
         bit[4] sub_g,sub_p;
         for (i; 0..4) {
             sub_g[i] = sub_adder[i].g;
             sub_p[i] = sub_adder[i].p;
         }
 
-        /* generate,popagate *OUTPUTS* */
+        /* calculate our own generate,popagate *OUTPUTS* */
         g =                                  sub_g[3] |
                                   sub_p[1] & sub_g[2] |
                        sub_p[2] & sub_p[1] & sub_g[1] |
@@ -65,7 +84,13 @@ part function Adder_CLA(int n) {
         subAddr[2].carryIn =               g[1] +        p[1] & g[0] + p[0] & carryIn;
         subaddr[3].carryIn = g[2] + p[2] & g[1] + p[2] & p[1] & g[0] + p[0] & carryIn;
 
-        /* calculate the sum bits, copying from the sub-adders to the output */
+        /* calculate the sum bits, copying from the sub-adders to the output.
+         * Advanced HWC programmers will point out that it was perfectly legal
+         * to make these connections in the first for() loop, and they are
+         * right; order of connections doesn't matter for correctness.  But I
+         * think that writing the code this way makes it more readable for
+         * humans.
+         */
         for (i; 0..4)
             sum[i*SUB_WIDTH : i*SUB_WIDTH+4] = sub_adder[i].sum;
     }
