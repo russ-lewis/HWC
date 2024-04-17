@@ -1,0 +1,132 @@
+Certainly, it would be nice to (sometimes) have the ability to express
+code of the form "do this now, and this other thing on a future clock
+cycle."  This can be done (by hand) by implementing a state or a mode
+variable.  But it would be nice to build this into the syntax.  What
+about something like a 'then' syntax?  I'm imagining something like
+this:
+
+  if (a == b)
+  {
+      sequence
+          c = 1;
+      then
+          d = 1;
+  }
+
+The idea here is that, on clock cycle X, we compare a and b and discover that
+they are equal.  On the same clock cycle X, we set c=1.  On the *NEXT* clock
+cycle, we set d=1.  This is equivalent to the following code:
+
+  memory(bit) do_step2;
+  if (a == b)
+  {
+      c = 1;
+      do_step2 = 1;
+  }
+  else
+      do_step2 = 0;
+
+  if (do_step2)
+      d = 1;
+
+The problem, of course, is that we probably want something more than just a
+simple binary go/no go signal; we want something more like a coroutine.  That
+is, we probably want to be able to pass plug values from the old clock cycle
+to the new one.  How do we handle this?  I thought of using an argument-like
+syntax on the "then" keyword to pass them forward, but then how would you
+know the difference between the old values of plugs (saved and used later)
+and the new ones?
+
+I also thought that it might be useful/interesting to allow for functions that
+signal when it's time to do the "next" thing...but as I think about that more,
+I realize that there will be problems because we'll have to store multiple
+parallel waits at the same time, and how will we know how many we must save?
+And do we require them to finish in order, or not?
+
+What if we used the "as" syntax to allow access to the old values of variables?
+If we only allow a constant number of steps (and those steps must be named to
+save their values), then the size of the memory can be statically determined:
+
+  if (a == b)
+  {
+      sequence as step_1
+          c = 1;
+      then as step_2 {
+          private bit d = x & step_1.a;
+      }
+      then
+          if (d == step_1.e)
+              x = step_2.d;
+  }
+
+Which is shorthand for:
+
+  memory(bit)          do_step2, do_step3;
+  memory(typeof(a))    step_1_a[1];
+  typeof(x & step_1.a) d;
+  memory(typeof(d))    step_2_d[1];
+  memory(typeof(e))    step_1_e[2];
+
+  if (a == b) {
+      c = 1;
+      step_1_a[0] = a;
+      step_1_e[0] = e;
+      do_step2 = 1;
+  } else
+      do_step2 = 0;
+
+  if (do_step2) {
+      d = x & step_1_a;
+      step_2_d[0] = d;
+      step_1_e[1] = step_1_e[0];
+  }
+  do_step3 = do_step2;
+
+  if (do_step3) {
+      if (d == step_1_e[1])
+          x = step_2_d[0];
+  }
+
+I don't think that I've found the syntax for this, yet!!!
+
+------
+
+Another version: how about a "wait" syntax, which explicitly copies certain
+input variables, and makes *all other* input variables inaccessible?  But
+then, how would you *write* to your outputs?  Maybe you could have public
+fields declared inside the latter stages?
+
+  public bit a,b,c;
+  sequence
+      a = c;
+  wait(3; a,b) {
+      private bit x = c;       // syntax error, c is inaccessible!
+      private bit y = a | b;   // OK
+  }
+  wait(1; b,y) {
+      public bit out = b & y;
+  }
+
+This would be syntax sugar for:
+
+  plug Step2 { bit a,b; }
+  plug Step3 { bit b,y; }
+
+  public bit a,b,c;
+  a = c;
+
+  memory(Step2[3]) step2;
+  step2[0].a = a;         // first clock cycle: init
+  step2[0].b = b;
+  step2[1] = step2[0];    // after waiting once
+  step2[2] = step2[1];    // after waiting twice
+
+  // after waiting three times, execute step2.
+  private bit y = step2[2].a | step2[2].b;
+
+  memory(Step3) step3;
+  step3.b = step2[2].b;
+  step3.y = step2[2].y;
+
+  public bit out = step3.b & step3.y;
+
