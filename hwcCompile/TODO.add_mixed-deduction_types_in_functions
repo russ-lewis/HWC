@@ -1,0 +1,14 @@
+Currently, functions cannot use the value of any parameter, or any expression
+derived from one, as part of the declaration of any parameter.  This requires
+us to use auto expressions in any number of cases where more explicit
+declarations are understandable to humans, such as these:
+  auto function delay(int N, auto val) { ... }
+  auto function Add(int N, auto a, auto b) { ... }
+
+But I'm thinking that we should allow derived expressions, so long as each
+expression only depends on *earlier* parameters.  Likewise, the return value
+can be derived (although this only applies to runtime functions, of course)
+from the parameters.  This allows us to change the declarations above to:
+  typeof(val) function delay(int N, auto val) { ... }
+  bit[N] function Add(int N, bit[N] a, bit[N] b) { ... }
+
