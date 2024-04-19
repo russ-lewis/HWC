@@ -130,3 +130,46 @@ This would be syntax sugar for:
 
   public bit out = step3.b & step3.y;
 
+------
+
+Another thing to notice is that a lot of this could be handled with a function
+that includes a memory declaration:
+
+  auto function delay(int CYCLES, auto val) {
+      memory(typeof(val))[CYCLES] storage;
+
+      storage[0] = val;
+      for (i; 1..CYCLES)
+          storage[i] = storage[i-1];
+
+      return storage[CYCLES-1];
+  }
+
+This would allow us to implement the previous code as:
+
+  public bit a,b,c;
+  a = c;
+  Step2 step2_send;
+  step2_send.a = a;
+  step2_send.b = b;
+
+  Step2 step2 = delay(3, step2_send);
+  private bit y = step2.a | step2.b;
+  Step3 step3_send;
+  step3_send.b = b;
+  step3_send.y = y;
+
+  Step3 step3 = delay(1, step3_send);
+  public bit out = step3.b & step3.y;
+
+(Yes, this does hint at the need for a plug-constructor syntax!  Maybe the
+following?)
+
+  public bit a,b,c;
+
+  auto step2 = delay(3, (a:a, b:b));
+  private bit y = step2.a | step2.b;
+
+  auto step3 = delay(1, (b:b, y:y));
+  public bit out = step3.b & step3.y;
+
