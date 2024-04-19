@@ -1,0 +1,26 @@
+IDEA: _called
+
+Used *only* for runtime functions, this is an implicit parameter, provided to
+every runtime function.  Its type is 'bit'.
+
+It is automatically connected to the runtime condition of the function, in the
+context where it is called; if there is no such condition, then the parameter
+is hard-wired to 1.  Thus, if the block of code that includes the function call
+"runs" on a given clock cycle, then the parameter will be 1; if it is skipped
+(because of runtime if() statements), then it will not be.
+
+TODO: Will we perform shortcut evaluation of boolean operations, when the
+second half has a function call?
+  bit foo = abc & some_func(xyz);
+I think not.  But it's worth considering carefully...or at least, leaving the
+possibility open for later.
+
+While the _called parameter is automatically (and always) connected to on the
+calling side, it is *NOT* automatically used inside the function.  The function
+can use it, of course:
+  if (_called)
+      a = b;
+But this is treated as a brand-new condition *NOT* as something inherited from
+above.  In fact, we expect that the vast majority of functions will completely
+ignore it.
+

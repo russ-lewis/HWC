@@ -1,0 +1,76 @@
+HWC functions come in three varieties: compile-time functions, generic types,
+and runtime functions.
+
+Compile-time functions take only parameters which are known at compile time
+(which can include part or plug types, but not runtime values); they always
+return either int or bool.  Compile-time functions can be used anywhere that
+any other compile time expression can be used, including array lengths, for()
+loop bounds, static assert() and static if() statements, etc.  Compile-time
+functions may be recursive, but the compiler performs memoization and cycle
+detection, to prevent infinite recursion.
+
+NOTE: When static if() is used, the compiler does not expand any other
+functions until it decides which branch of the if() is active.  This allows
+users to implement functions which are recursive on one branch but have a
+base case on the other, such as:
+  int function factorial(int n) {
+      static assert(n >= 0);
+      static if (n==0 || n==1)
+          return 1;
+      else
+          return n*factorial(n-1);
+  }
+
+Generic types are functions that return part or plug types.  The parameters
+to these functions must all be compile-time expressions (the same as
+compile-time functions).  The parameters can be used to control for() loops,
+static assert() and static if() statements etc.  Internally, the syntax for a
+part function or plug function is the same as for parts and plugs.
+
+Runtime functions combine generic parts with syntax sugar for their use.
+They take a mixed set of parameter types; they can accept all of the same
+parameters as compile-time functions and generics, but also include plug
+expressions (where the parameter is a plug type) and auto expressions (where
+the parameter type is 'auto', and its type is deduced from what parameter is
+used).  Parameters passed to a runtime function are treated as connection
+statements to public fields of a part, and the runtime function also has one
+special field which acts as the return value.  The following runtime function
+compares four plugs, which are asserted to all be the same type:
+  bit function compare4(auto a,auto b,auto c, auto d) {
+      static assert typeof(a) == typeof(b);
+      static assert typeof(a) == typeof(c);
+      static assert typeof(a) == typeof(d);
+      return (a==b) && (a==c) && (a==d);
+  }
+Runtime functions can be used anywhere that runtime expressions can be used,
+although they only produce right-hand-side values.  For example, the function
+above can be used as follows:
+  bit[32] w,x,y,z;
+  if (compare4(w,x,y,z))
+      ... something ...
+
+Internally, the syntax of runtime functions is the same as that of parts, with
+two exceptions:
+  1) There are no public fields (other than the parameters)
+  2) The 'return' statement is added
+If a runtime function has an explicitly declared return type, then it may have
+multiple return statements.  However, if it has an 'auto' return type, then the
+return type is discovered implicitly, through the return statement, and thus
+only one return statement is allowed.  (It is quite common, in such a function,
+to declare an internal plug as the 'retval', and return that expression exactly
+once - but to set it using several conditional connections.)
+
+NOTE: Unlike C return statements, HWC return statements do *not* implicitly
+prevent the rest of the function from running, since HWC has no concept of
+time!  Thus it is perfectly legal to return at the top of a function:
+  bit[32] function asdf(bit[32] a,bit[32] b) {
+      bit[32] retval;
+      return retval;
+
+      for (i; 0..32)
+          static if (i%2 == 0)
+              retval[i] = a[i];
+          else
+              retval[i] = b[i];
+  }
+
