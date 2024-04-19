@@ -1,29 +1,4 @@
-
-int log_roundUp(int n, int base) {
-    static assert(n > 0);
-    static assert(base > 1);
-
-    static if (n == 1)
-        return 0;
-    else static if (n <= base)
-        return 1;
-    else {
-        // absolutely HORRIFIC implementation, but it works...
-        return 1 + log_roundUp((n+base-1)/base, base);
-    }
-}
-
-int pow(base, exp) {
-    static assert(base >  1);
-    static assert(exp  >= 0);
-
-    static if (exp == 0)
-        return 1;
-    else static if (exp%2 == 1)
-        return base * pow(base,exp-1)
-    else
-        return pow(base*base, exp/2);
-}
+from std_utils import *;
 
 
 

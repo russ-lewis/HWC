@@ -1,0 +1,65 @@
+
+int log_roundUp(int n, int base) {
+    static assert(n > 0);
+    static assert(base > 1);
+
+    static if (n == 1)
+        return 0;
+    else static if (n <= base)
+        return 1;
+    else {
+        // absolutely HORRIFIC implementation, but it works...
+        return 1 + log_roundUp((n+base-1)/base, base);
+    }
+}
+
+int pow(base, exp) {
+    static assert(base >  1);
+    static assert(exp  >= 0);
+
+    static if (exp == 0)
+        return 1;
+    else static if (exp%2 == 1)
+        return base * pow(base,exp-1)
+    else
+        return pow(base*base, exp/2);
+}
+
+
+
+plug Valid(T) {
+    bit valid;
+    T   data;
+}
+
+
+
+auto delay(int N, auto val) {
+    memory(typeof(val)[N]) save;
+    save[0] = val;
+    for (i; 1..N)
+        save[i] = save[i-1];
+    return save[N-1];
+}
+
+auto delay_oneSlot(int N, auto val) {
+    memory(bit)         busy;
+    memory(typeof(val)) save;
+
+    if (_called) {
+        assert(busy==0);
+        busy = 1;
+    }
+
+    Valid(typeof(val)) retval;
+
+    if (delay(_called)) {
+        busy = 0;
+        retval.valid = true;
+        retval.data  = save;
+    } else
+        retval.valid = false;
+
+    return retval;
+}
+
