@@ -88,6 +88,7 @@ class HWCAstGenerator(hwcListener):
     def exitStmt_Block(self, ctx):
         # if() statements that wrap this statement will want to know this
         ctx.uncovered_else = False
+        ctx.if_type = None
 
         ctx.ast = ast.g_BlockStmt(flatten(ctx.stmts))
 
@@ -109,6 +110,12 @@ class HWCAstGenerator(hwcListener):
         assert len(decls) >= 1
         ctx.ast_arr = decls
 
+        # it is *highly* unlikely that we'll ever see a declaration statement
+        # that is not inside a {} but is inside an if().  But in case we do,
+        # we should let them know this.
+        ctx.uncovered_else = False
+        ctx.if_type = None
+
 
     def exitStmt_Connection(self, ctx):
         assert len(ctx.lhs) >= 1
@@ -120,10 +127,36 @@ class HWCAstGenerator(hwcListener):
 
         # if() statements that wrap this statement will want to know this
         ctx.uncovered_else = False
+        ctx.if_type = None
 
 
     def exitStmt_If(self, ctx):
-        if ctx.static != None:
+        ctx.uncovered_else = (ctx.fals_ is not None)
+        if not ctx.uncovered_else and ctx.tru_.uncovered_else:
+            TODO()    # report syntax error
+
+        ctx.if_type = "runtime" if ctx.static is None else "static"
+        if ctx.tru_ .if_type is not None and \
+           ctx.tru_ .if_type != ctx.if_type:
+            TODO()    # report syntax error
+        if ctx.fals_ is not None         and \
+           ctx.fals_.if_type is not None and \
+           ctx.fals_.if_type != ctx.if_type:
+            TODO()    # report syntax error
+
+        assert ctx.tru_ is not None
+        cond  = ctx.cond.ast
+        tru_  = ctx.tru_ .ast
+        fals_ = ctx.fals_.ast if ctx.fals_ is not None else None
+
+        lineInfo_whole = self.build_line_range(ctx)
+        lineInfo_else  = self.build_line_info (ctx.els_) if ctx.fals_ is not None else None
+
+        if ctx.static is None:
+            ctx.ast = ast.g_RuntimeIfStmt(lineInfo_whole, lineInfo_else,
+                                          cond, tru_, fals_)
+
+        else:
             # VERSION 1 OF STATIC IF() DECLARATIONS
             #   - Create new nameScope for both blocks (if,else)
             #   - Add new names *only* to the new nameScope
@@ -136,22 +169,9 @@ class HWCAstGenerator(hwcListener):
             #   - Early in compile, confirm that all declarations under a common wrapper are the same general sort (Expr metatype)
             #   - After size() phase in the compiler, resolve all static if()s and replace wrappers with final declarations
             #   - Have a check for "in this case, nothing is declared?"
-            TODO()
 
-        ctx.uncovered_else = (ctx.fals_ is not None)
-        if not ctx.uncovered_else and ctx.tru_.uncovered_else:
-            TODO()    # report syntax error
-
-        cond  = ctx.cond.ast
-        tru_  = ctx.tru_ .ast if ctx.tru_  is not None else None
-        fals_ = ctx.fals_.ast if ctx.fals_ is not None else None
-
-        lineInfo_whole = self.build_line_range(ctx)
-        lineInfo_else  = self.build_line_info (ctx.els_) if ctx.fals_ is not None else None
-
-        ctx.ast = ast.g_RuntimeIfStmt(lineInfo_whole, lineInfo_else,
-                                      cond, tru_, fals_)
-
+            ctx.ast = ast.g_StaticIfStmt(lineInfo_whole, lineInfo_else,
+                                         cond, tru_, fals_)
 
     def exitStmt_Assert(self, ctx):
         lineInfo = self.build_line_range(ctx)
@@ -160,6 +180,7 @@ class HWCAstGenerator(hwcListener):
 
         # if() statements that wrap this statement will want to know this
         ctx.uncovered_else = False
+        ctx.if_type = None
 
 
     def exitStmt_For(self, ctx):
@@ -182,6 +203,7 @@ class HWCAstGenerator(hwcListener):
         # Thus, for() loops must *inherit* their uncovered-else property from
         # their body statement.
         ctx.uncovered_else = ctx.body.uncovered_else
+        ctx.if_type        = ctx.body.if_type
 
         lineInfo = self.build_line_info(ctx.var)
         ctx.ast = ast.g_ForStmt(lineInfo, var, start,end, body, tuple_name)
