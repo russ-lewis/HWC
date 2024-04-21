@@ -1,0 +1,4 @@
+#      0      4 main.a
+#      4     12 main.b
+
+conn 0 <= 4 size 4    # stdin:8
