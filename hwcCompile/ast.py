@@ -1178,8 +1178,6 @@ class g_BinaryExpr(ASTNode):
         self.op  = op
         self.rgt = rgt
 
-        self.saved_metatype = None
-
     def dup(self):
         return g_BinaryExpr(self.lineInfo,
                             self.lft.dup(), self.op, self.rgt.dup())
@@ -1196,16 +1194,7 @@ class g_BinaryExpr(ASTNode):
         self.rgt.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
-        # sometimes, the same tree node is used at multiple places in
-        # the tree.  We don't want to generate duplicate mt_ objects, if
-        # we can avoid it!    TODO: is this true anymore???
-
-        # TODO: when the same expression is used multiple times (and the
-        #       expression has a nonzero decl_bitSize), we end up allocating
-        #       bit space for every use, even though we only need a single
-        #       one.  We need to get rid of that waste, someday.
-
-        if self.saved_metatype is None:
+        if not hasattr(self, "saved_metatype"):
             self.saved_metatype = self._convert_to_metatype(side)
         return self.saved_metatype
 
@@ -1260,8 +1249,6 @@ class g_UnaryExpr(ASTNode):
         self.op  = op
         self.rgt = rgt
 
-        self.saved_metatype = None
-
     def dup(self):
         return g_UnaryExpr(self.lineInfo, self.op, self.rgt.dup())
 
@@ -1274,7 +1261,7 @@ class g_UnaryExpr(ASTNode):
         self.rgt.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
-        if self.saved_metatype is None:
+        if not hasattr(self, "saved_metatype"):
             self.saved_metatype = self._convert_to_metatype(side)
         return self.saved_metatype
 
@@ -1366,8 +1353,6 @@ class g_IdentExpr(ASTNode):
         self.name   = name
         self.target = None
 
-        self.saved_metatype = None
-
     def dup(self):
         assert self.target is None
         return g_IdentExpr(self.lineInfo, self.name)
@@ -1386,7 +1371,7 @@ class g_IdentExpr(ASTNode):
             raise HWCCompile_SyntaxError(self.lineInfo, f"Symbol '{self.name}' not found")
 
     def convert_to_metatype(self, side):
-        if self.saved_metatype is None:
+        if not hasattr(self, "saved_metatype"):
             self.saved_metatype = self._convert_to_metatype(side)
         return self.saved_metatype
 
@@ -1549,6 +1534,11 @@ class g_DotExpr(ASTNode):
         self.base.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
+        if not hasattr(self, "saved_metatype"):
+            self.saved_metatype = self._convert_to_metatype(side)
+        return self.saved_metatype
+
+    def _convert_to_metatype(self, side):
         self.base = self.base.convert_to_metatype(side)
         assert type(self.base.typ_) in [mt_PlugDecl_Code, mt_PartDecl_Code], self.base.typ_
 
@@ -1582,8 +1572,6 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         self.base = base
         self.indx = indx
 
-        self.saved_metatype = None
-
     def dup(self):
         return g_Unresolved_Single_Index_Expr(self.lineInfo, self.base.dup(), self.indx.dup())
 
@@ -1607,7 +1595,7 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
         self.indx.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
-        if self.saved_metatype is None:
+        if not hasattr(self, "saved_metatype"):
             self.saved_metatype = self._convert_to_metatype(side)
         return self.saved_metatype
 
@@ -1654,8 +1642,6 @@ class g_ArraySlice(ASTNode):
         self.start = start
         self.end   = end      # could be None
 
-        self.saved_metatype = None
-
     def dup(self):
         base_dup  = self.base .dup()
         start_dup = self.start.dup()
@@ -1684,7 +1670,7 @@ class g_ArraySlice(ASTNode):
             self.end.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
-        if self.saved_metatype is None:
+        if not hasattr(self, "saved_metatype"):
             self.saved_metatype = self._convert_to_metatype(side)
         return self.saved_metatype
 
@@ -1955,6 +1941,11 @@ class g_GetExprProp(ASTNode):
         self.exp.resolve_name_lookups(ns_pri)
 
     def convert_to_metatype(self, side):
+        if not hasattr(self, "saved_metatype"):
+            self.saved_metatype = self._convert_to_metatype(side)
+        return self.saved_metatype
+
+    def _convert_to_metatype(self, side):
         self.exp = self.exp.convert_to_metatype(side)
 
         if self.prop in ["sizeof","len"]:
