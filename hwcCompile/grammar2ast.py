@@ -361,7 +361,7 @@ class HWCAstGenerator(hwcListener):
         elif ctx.children[0].getText() == "int":
             ctx.ast = ast_expr_metatypes.staticType_int
         elif ctx.children[0].getText() == "bool":
-            ctx.ast = TODO()
+            ctx.ast = ast_expr_metatypes.staticType_bool
 
         else:
             assert False, "Unrecognized expression"

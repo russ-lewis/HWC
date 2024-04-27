@@ -32,7 +32,8 @@ from ast_expr_partexpr   import *
 
 from ast_expr_statictype import *
 
-staticType_int = mt_StaticType_Int()
+staticType_int  = mt_StaticType_Int()
+staticType_bool = mt_StaticType_Bool()
 
 from ast_expr_staticvar  import *
 from ast_expr_staticexpr import *

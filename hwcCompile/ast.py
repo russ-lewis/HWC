@@ -475,15 +475,15 @@ class g_DeclStmt(ASTNode):
         # declaration, we need to build a converter for that.  So far,
         # I only support NUM->bit and NUM->bit[].  Are there any other
         # cases to handle in the future?
-        if self.initVal is not None and (type(self.initVal) == int or self.typ_ != self.initVal.typ_):
+        if self.initVal is not None and (type(self.initVal) in [int,bool] or self.typ_ != self.initVal.typ_):
             if type(self.initVal) == int and self.typ_ == plugType_bit:
                 if self.initVal not in [0,1]:
                     TODO()    # report syntax error, cannot assign anything to a bit except 0,1
                 self.initVal = mt_PlugExpr_Bit(self.initVal)
 
             elif type(self.initVal)  == int                 and \
-               type(self.typ_)     == mt_PlugDecl_ArrayOf and \
-                    self.typ_.base ==    plugType_bit:
+                 type(self.typ_)     == mt_PlugDecl_ArrayOf and \
+                      self.typ_.base ==    plugType_bit:
 
                 assert type(self.typ_.len_) == int
                 dest_wid = self.typ_.len_
@@ -495,6 +495,19 @@ class g_DeclStmt(ASTNode):
             elif type(self.initVal) == int and self.typ_ == staticType_int:
                 self.static_val = self.initVal
                 self.initVal    = None
+
+            elif type(self.initVal) == int:
+                raise HWC_SyntaxError(self.lineInfo, "Integer expressions can be used as initializers only for int variables, or runtime expressions of type bit or bit[]")
+
+            elif type(self.initVal) == bool and self.typ_ == plugType_bit:
+                self.initVal = mt_PlugExpr_Bit(1 if self.initVal else 0)
+
+            elif type(self.initVal) == bool and self.typ_ == staticType_bool:
+                self.static_val = self.initVal
+                self.initVal    = None
+
+            elif type(self.initVal) == bool:
+                raise HWC_SyntaxError(self.lineInfo, "Boolean expressions can be used as initializers only for bool variables, or runtime expressions of type bit")
 
             else:
                 assert False, (self.lineInfo, self.typ_.len_, self.initVal.typ_.len_)    # some other weird case.  Maybe a syntax error???
@@ -746,10 +759,11 @@ class g_ConnStmt(ASTNode):
 
         if type(self.rhs) == bool:
             if self.lhs.typ_ == plugType_bit:
-               if self.rhs:
-                   self.rhs = mt_PlugExpr_Bit(1)
-               else:
-                   self.rhs = mt_PlugExpr_Bit(0)
+                self.rhs = mt_PlugExpr_Bit(1 if self.rhs else 0)
+
+            elif self.lhs.typ_ == staticType_bool:
+                TODO()
+
             else:
                 TODO()    # report syntax error.  Can't assign true/false to bit[]
 
@@ -1414,7 +1428,7 @@ class g_IdentExpr(ASTNode):
                 return mt_PlugDecl_Code(self.target)
 
         elif type(self.target) == g_DeclStmt:      # case 3
-            if type(self.target.typ_) == mt_StaticType_Int:
+            if isinstance(self.target.typ_, mt_StaticType):
                 return mt_StaticExpr_Var(self.target)
 
             elif isinstance(self.target.typ_, mt_PartDecl):
