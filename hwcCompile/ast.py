@@ -1423,7 +1423,7 @@ class g_IdentExpr(ASTNode):
                 # now that the target is ready to use, create an object which
                 # specifically models "a reference to this variable"
 
-                var = mt_PlugExpr_Var(self.target)
+                var = mt_PlugExpr_Var(self.lineInfo, self.target)
 
                 # memory variables, and flag variables, are both weird, but in
                 # different ways.  Memory variables are declared as a special
@@ -1468,7 +1468,7 @@ class g_IdentExpr(ASTNode):
                     else:
                         offset_cb = lambda: 1
 
-                    return mt_PlugExpr_SubsetOf(var, offset_cb, plugType_bit)
+                    return mt_PlugExpr_SubsetOf(self.lineInfo, var, offset_cb, plugType_bit)
 
                 elif type(self.target.typ_) == mt_PlugDecl_ArrayOf and \
                    self.target.typ_.get_multidim_base() == plugType_flag:
@@ -1481,7 +1481,7 @@ class g_IdentExpr(ASTNode):
                         assert side == "left"
                         offset_cb = lambda: var.typ_.decl_bitSize
 
-                    return mt_PlugExpr_SubsetOf(var, offset_cb, self.target.typ_)
+                    return mt_PlugExpr_SubsetOf(self.lineInfo, var, offset_cb, self.target.typ_)
 
                 else:
                     return var
@@ -1571,7 +1571,7 @@ class g_DotExpr(ASTNode):
 
         # build an Expr object which represents the reference to the field.
         # It will calculate its offset later.
-        return mt_PlugExpr_Dot(self.base, self.target)
+        return mt_PlugExpr_Dot(self.lineInfo, self.base, self.target)
 
 
 
@@ -1626,7 +1626,7 @@ class g_Unresolved_Single_Index_Expr(ASTNode):
                     return mt_PlugExpr_ArrayIndex(self.lineInfo, base, len_or_index)
 
                 elif isinstance(len_or_index, mt_PlugExpr):
-                    decode = mt_PlugExpr_Decode(len_or_index)
+                    decode = mt_PlugExpr_Decode(self.lineInfo, len_or_index)
                     return mt_PlugExpr_MaskedSelect(self.lineInfo, base, decode)
 
                 else:
