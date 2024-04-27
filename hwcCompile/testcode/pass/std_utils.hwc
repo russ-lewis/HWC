@@ -34,7 +34,7 @@ plug Valid(T) {
 
 
 
-auto delay(int N, auto val) {
+typeof(val) delay(int N, auto val) {
     memory(typeof(val)[N]) save;
     save[0] = val;
     for (i; 1..N)
@@ -42,7 +42,7 @@ auto delay(int N, auto val) {
     return save[N-1];
 }
 
-auto delay_oneSlot(int N, auto val) {
+typeof(val) delay_oneSlot(int N, auto val) {
     memory(bit)         busy;
     memory(typeof(val)) save;
 
@@ -61,5 +61,59 @@ auto delay_oneSlot(int N, auto val) {
         retval.valid = false;
 
     return retval;
+}
+
+
+
+typeof(input) inc(auto input) {
+    assert(typeof(input[0]) == bit);
+    typeof(input) retval;
+    return retval;
+
+    for (i; 0..len(input)) as adder
+    {
+        bit in_bit  = input[i];
+        bit carryIn;
+
+        static if (i==0)
+            carryIn = 0;
+        else
+            carryIn = adder[i-1].carryOut;
+
+        retval[i] = in_bit ^ 1 ^ carryIn;
+        bit carryOut = in_bit | carryIn;
+    }
+}
+
+
+
+typeof(input[0]) parity(auto input) {
+    typeof(input[0]) retval;
+    return retval;
+
+    static if (len(input) == 1)
+        retval = input;
+    else {
+        int SPLIT = len(input/2);
+        auto l = parity(input[:SPLIT ]);
+        auto r = parity(input[ SPLIT:]);
+        retval = l ^ r;
+    }
+}
+
+
+
+part function ring_buffer(plug T, int N) {
+    static assert(N > 1);
+    memory(T[N]) data;
+
+    public bit prod_ready;
+    public  T  prod_data;
+
+    public bit cons_ready;
+    public  T  cons_data;
+    public bit full;
+
+    assert(0);    // TODO: implement me
 }
 

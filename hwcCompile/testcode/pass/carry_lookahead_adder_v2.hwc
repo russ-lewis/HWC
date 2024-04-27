@@ -21,9 +21,10 @@ part function Adder_CLA(int n) {
          */
 
         int ROUNDED = (n+3) & ~0x3;
+        static assert(ROUNDED   >= n);
         static assert(ROUNDED%4 == 0);
 
-        Adder_CLA(ROUNDED) round_adder;
+        subpart Adder_CLA(ROUNDED) round_adder;
         round_adder.carryIn = carryIn;
         round_adder.a[:n ]  = a;
         round_adder.b[:n ]  = b;
@@ -53,12 +54,13 @@ part function Adder_CLA(int n) {
          */
 
         int SUB_WIDTH = n/4;
-        Adder_CLA(SUB_WIDTH)[4] sub_adders;
+        static assert(n>0);
+        subpart Adder_CLA(SUB_WIDTH)[4] sub_adders;
 
         /* connect slices of the inputs to the inputs of the sub-adders */
         for (i; 0..4) {
-            sub_adder[i].a = a[i*SUB_WIDTH : i*SUB_WIDTH+4];
-            sub_adder[i].b = b[i*SUB_WIDTH : i*SUB_WIDTH+4];
+            sub_adders[i].a = a[i*SUB_WIDTH : i*SUB_WIDTH+4];
+            sub_adders[i].b = b[i*SUB_WIDTH : i*SUB_WIDTH+4];
         }
 
         /* these are just copies of the g/p bits from the sub-adders.  This
@@ -67,8 +69,8 @@ part function Adder_CLA(int n) {
          */
         bit[4] sub_g,sub_p;
         for (i; 0..4) {
-            sub_g[i] = sub_adder[i].g;
-            sub_p[i] = sub_adder[i].p;
+            sub_g[i] = sub_adders[i].g;
+            sub_p[i] = sub_adders[i].p;
         }
 
         /* calculate our own generate,popagate *OUTPUTS* */
@@ -79,10 +81,16 @@ part function Adder_CLA(int n) {
         p = sub_p[0] & sub_p[1] & sub_p[2] & sub_p[3];
 
         /* calculate the carry-in to each of the sub-adders */
-        subAddr[0].carryIn =                                                  carryIn;
-        subAddr[1].carryIn =                                    g[0] + p[0] & carryIn;
-        subAddr[2].carryIn =               g[1] +        p[1] & g[0] + p[0] & carryIn;
-        subaddr[3].carryIn = g[2] + p[2] & g[1] + p[2] & p[1] & g[0] + p[0] & carryIn;
+        sub_adders[0].carryIn = carryIn;
+        sub_adders[1].carryIn = sub_g[0] |
+                                sub_p[0] & carryIn;
+        sub_adders[2].carryIn = sub_g[1] |
+                                sub_p[1] & sub_g[0] |
+                                sub_p[0] & carryIn;
+        sub_adders[3].carryIn = sub_g[2] |
+                                sub_p[2] & sub_g[1] |
+                                sub_p[2] & sub_p[1] & sub_g[0] |
+                                sub_p[2] & sub_p[1] & sub_p[0] & carryIn;
 
         /* calculate the sum bits, copying from the sub-adders to the output.
          * Advanced HWC programmers will point out that it was perfectly legal
@@ -92,7 +100,7 @@ part function Adder_CLA(int n) {
          * humans.
          */
         for (i; 0..4)
-            sum[i*SUB_WIDTH : i*SUB_WIDTH+4] = sub_adder[i].sum;
+            sum[i*SUB_WIDTH : i*SUB_WIDTH+4] = sub_adders[i].sum;
     }
 }
 
