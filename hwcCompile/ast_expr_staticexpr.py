@@ -250,6 +250,33 @@ class mt_StaticExpr_CMP(mt_StaticExpr):
 
 
 
+class mt_StaticExpr_NOT(mt_StaticExpr):
+    is_lhs = False
+
+    def __init__(self, lineInfo, rgt):
+        self.lineInfo = lineInfo
+
+        assert isinstance(rgt, mt_StaticExpr)
+        self.rgt  = rgt
+        self.typ_ = rgt.typ_
+        self.decl_bitSize = None
+        self.offset       = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_StaticExpr_NOT:")
+        self.rgt.print_tree(prefix+"  ")
+
+    def convert_to_metatype(self, side):
+        return self
+
+    def resolve_static_expr(self):
+        rgt = self.rgt.resolve_static_expr()
+        if type(rgt) != bool:
+            raise HWC_SyntaxError(self.lineInfo, "The ! operator is only valid on runtime bits and static bools")
+        return not rgt
+
+
+
 class mt_StaticExpr_GetProp(mt_StaticExpr):
     def __init__(self, lineInfo, prop, exp):
         self.lineInfo = lineInfo

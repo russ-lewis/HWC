@@ -1269,15 +1269,25 @@ class g_UnaryExpr(ASTNode):
         self.rgt = self.rgt.convert_to_metatype("right")
 
         if self.op == "!":
-            if self.rgt.typ_ != plugType_bit:
-                TODO()    # report syntax error: ! is only valid on 'bit' or 'bool' types
-            return mt_PlugExpr_NOT(self.lineInfo, self.rgt)
+            if isinstance(self.rgt, mt_PlugExpr):
+                return mt_PlugExpr_NOT(self.lineInfo, self.rgt)
+            elif isinstance(self.rgt, mt_StaticExpr):
+                return mt_StaticExpr_NOT(self.lineInfo, self.rgt)
+            else:
+                assert False    # should be impossible
 
         elif self.op == "~":
+            if not isinstance(self.rgt, mt_PlugExpr):
+                raise HWCCompile_SyntaxError(self.lineInfo, "The ~ operator can only be used on runtime expressions")
             return mt_PlugExpr_NOT(self.lineInfo, self.rgt)
 
+        elif self.op == "-":
+            if not isinstance(self.rgt, mt_StaticExpr):
+                raise HWCCompile_SyntaxError(self.lineInfo, "The - operator can only be used on runtime expressions")
+            return mt_StaticExpr_NEG(self.lineInfo, self.rgt)
+
         else:
-            TODO()      # add support for more operators
+            assert False    # should be impossible
 
 
 
