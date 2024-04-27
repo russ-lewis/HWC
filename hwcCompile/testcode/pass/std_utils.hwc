@@ -101,3 +101,19 @@ typeof(input[0]) parity(auto input) {
     }
 }
 
+
+
+part function ring_buffer(plug T, int N) {
+    static assert(N > 1);
+    memory(T[N]) data;
+
+    public bit prod_ready;
+    public  T  prod_data;
+
+    public bit cons_ready;
+    public  T  cons_data;
+    public bit full;
+
+    assert(0);    // TODO: implement me
+}
+

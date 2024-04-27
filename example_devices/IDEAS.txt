@@ -13,3 +13,9 @@ user interaction:
 - Snake
 - Minesweeper
 
+- Nintendo-style screen display (grid of sprites, with a few sprites over the top)
+  - Probably needs a general-purpose memory
+  - How to do iteration over time?
+
+- I2C, serial devices (with buffering)
+
