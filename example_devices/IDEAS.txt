@@ -1,0 +1,15 @@
+All of these have good possibilities as animated programs, perhaps with
+user interaction:
+
+- Tetris
+- Game of Life
+- Maze Solver
+- Sudoku Solver
+- Pong
+- Seven-Segment Clock
+  - With alarm
+- Bomba (Engima Solver)
+- Enigma
+- Snake
+- Minesweeper
+
