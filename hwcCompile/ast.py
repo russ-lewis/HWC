@@ -531,6 +531,9 @@ class g_DeclStmt(ASTNode):
                 self.decl_bitSize = initSize + self.typ_.decl_bitSize*2
 
     def calc_top_down_offsets(self, offset):
+        if isinstance(self.typ_, mt_StaticType):
+            return
+
         assert type(offset) == int and offset >= 0
         self.offset = offset
 
@@ -546,10 +549,16 @@ class g_DeclStmt(ASTNode):
             self.initVal.calc_top_down_offsets(offset + soFar)
 
     def calc_bottom_up_offsets(self):
+        if isinstance(self.typ_, mt_StaticType):
+            return
+
         if self.initVal is not None:
             self.initVal.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        if isinstance(self.typ_, mt_StaticType):
+            return
+
         if not self.isMem:
             self.typ_.print_bit_descriptions(f"{name}.{self.name}", start_bit + self.offset)
         else:
@@ -560,6 +569,9 @@ class g_DeclStmt(ASTNode):
             self.initVal.print_bit_descriptions(name, start_bit)
 
     def print_wiring_diagram(self, start_bit):
+        if isinstance(self.typ_, mt_StaticType):
+            return
+
         if self.prefix == "subpart":
             assert type(self.typ_) == mt_PartDecl_Code
             self.typ_.code.print_wiring_diagram(start_bit + self.offset)
