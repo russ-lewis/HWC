@@ -18,4 +18,13 @@ user interaction:
   - How to do iteration over time?
 
 - I2C, serial devices (with buffering)
+  - Or SPI?  Or UART?  Maybe one of each?
+
+- Character display
+  - With auto-scroll feature would be cool.  And a good example of heirarchical design!
+  - (Also, this display might have an I2C interface?)
+
+- How complex is a VGA adapter?
+
+- Small sound card (perhaps comparable to Nintendo)?
 
