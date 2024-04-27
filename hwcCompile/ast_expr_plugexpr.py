@@ -8,7 +8,9 @@ class mt_PlugExpr_Var(mt_PlugExpr):
     decl_bitSize = 0
     is_lhs       = True
 
-    def __init__(self, decl):
+    def __init__(self, lineInfo, decl):
+        self.lineInfo = lineInfo
+
         assert isinstance(decl.typ_, mt_PlugDecl)
         self.decl = decl
 
@@ -66,7 +68,9 @@ class mt_PlugExpr_Var(mt_PlugExpr):
 
 
 class mt_PlugExpr_Dot(mt_PlugExpr):
-    def __init__(self, base, target):
+    def __init__(self, lineInfo, base, target):
+        self.lineInfo = lineInfo
+
         assert isinstance(base, mt_PlugExpr) or isinstance(base, mt_PartExpr), base
         assert isinstance(target.typ_, mt_PlugDecl), target.typ_
 
@@ -195,7 +199,9 @@ class mt_PlugExpr_Alias(mt_PlugExpr):
 # expression is known.
 
 class mt_PlugExpr_SubsetOf(mt_PlugExpr):
-    def __init__(self, base, offset_cb, typ_):
+    def __init__(self, lineInfo, base, offset_cb, typ_):
+        self.lineInfo = lineInfo
+
         self.base      = base
         self.offset_cb = offset_cb
         self.typ_      = typ_
@@ -557,6 +563,8 @@ class mt_PlugExpr_BitArray(mt_PlugExpr):
     decl_bitSize = 0    # consumes no space!
 
     def __init__(self, lineInfo, bitSize, val):
+        self.lineInfo = lineInfo
+
         assert type(val) == int
         assert (val >> bitSize) == 0
 
@@ -1038,7 +1046,9 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
 
 
 class mt_PlugExpr_Decode(mt_PlugExpr):
-    def __init__(self, indx):
+    def __init__(self, lineInfo, indx):
+        self.lineInfo = lineInfo
+
         assert type(indx.typ_)     == mt_PlugDecl_ArrayOf
         assert      indx.typ_.base == plugType_bit
         self.indx = indx
