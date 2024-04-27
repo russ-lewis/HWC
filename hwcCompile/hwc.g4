@@ -8,14 +8,13 @@ file:
 
 partOrPlugOrFuncDecl:
       (isPart='part' | isPart='plug') name=IDENT '{' stmts+=stmt* '}'
-    | 'function' retType=funcType name=IDENT '(' funcArgs+=funcArg (',' funcArgs+=funcArg)* ')' '{' stmts+=stmt* '}'
+    | retType=funcType 'function' name=IDENT '(' funcArgs+=funcArg (',' funcArgs+=funcArg)* ')' '{' stmts+=stmt* '}'
 ;
 
 funcType:
-         exp=expr        /* compile types, or PLUG-DECL expressions */
+         exp=expr        /* compile types, or PLUG-DECL expressions, including 'auto' */
     | isPart='part'
     | isPlug='plug'
-    | isAuto='auto'
 ;
 
 funcArg:
