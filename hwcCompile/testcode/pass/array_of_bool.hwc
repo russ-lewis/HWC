@@ -1,0 +1,34 @@
+// The seven bools represent the seven segments of a
+// standard display:
+//     ...[0]...
+//     .       .
+//    [1]     [2]
+//     .       .
+//     ...[3]...
+//     .       .
+//    [4]     [5]
+//     .       .
+//     ...[6]...
+
+
+// TODO: convert to bits
+                          // 0     1     2     3     4     5      6
+bool[7][10] SEVEN_SEGS = [[ true, true, true,false, true, true, true],   // 0
+                          [false,false, true,false,false, true,false],   // 1
+                          [ true,false, true, true, true,false, true],   // 2
+                          [ true,false, true, true,false, true, true],   // 3
+                            // todo: 4-9
+                          ];
+
+
+
+// maybe remove this, and let the users just use the bits above?
+part SevenSegment {
+    public bit[4] val_in;
+    public bit[7] segs_out;
+
+    bool[7] segs_bool = SEVEN_SEGS[i];
+    for (j: 0..7)
+      segs_out[i] = segs_bool[i];
+}
+
