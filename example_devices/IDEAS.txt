@@ -1,0 +1,30 @@
+All of these have good possibilities as animated programs, perhaps with
+user interaction:
+
+- Tetris
+- Game of Life
+- Maze Solver
+- Sudoku Solver
+- Pong
+- Seven-Segment Clock
+  - With alarm
+- Bomba (Engima Solver)
+- Enigma
+- Snake
+- Minesweeper
+
+- Nintendo-style screen display (grid of sprites, with a few sprites over the top)
+  - Probably needs a general-purpose memory
+  - How to do iteration over time?
+
+- I2C, serial devices (with buffering)
+  - Or SPI?  Or UART?  Maybe one of each?
+
+- Character display
+  - With auto-scroll feature would be cool.  And a good example of heirarchical design!
+  - (Also, this display might have an I2C interface?)
+
+- How complex is a VGA adapter?
+
+- Small sound card (perhaps comparable to Nintendo)?
+
