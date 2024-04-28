@@ -10,8 +10,8 @@ from hwcLexer    import hwcLexer
 from hwcParser   import hwcParser
 from hwcListener import hwcListener
 
-import ast;
-import ast_expr_metatypes;
+import ast
+import ast_expr_metatypes
 
 
 
