@@ -1112,6 +1112,129 @@ class g_RuntimeIfStmt(ASTNode):
 
 
 
+class g_StaticIfStmt(ASTNode):
+    def __init__(self, lineInfo_whole, lineInfo_else,
+                       cond, true_stmt, fals_stmt):
+
+        self.lineInfo_whole = lineInfo_whole
+        self. lineInfo_else  = lineInfo_else
+
+        self.cond      = cond
+        self.true_stmt = true_stmt
+        self.fals_stmt = fals_stmt     # could be None
+
+    def dup(self):
+        dup_cond = self.cond.dup()
+        dup_true = self.true_stmt.dup()
+        dup_fals = self.fals_stmt.dup() if self.fals_stmt is not None else None
+        return g_StaticIfStmt(self.lineInfo_whole, self.lineInfo_else,
+                              dup_cond, dup_true, dup_fals)
+
+    def print_tree(self, prefix):
+        print(f"{prefix}g_StaticIfStmt:")
+
+        if type(self.cond) != str:
+            print(f"{prefix}  cond:")
+            self.cond.print_tree(prefix+"    ")
+        else:
+            print(f"{prefix}  true_cond:")
+            self.true_cond.print_tree(prefix+"    ")
+
+            if self.fals_cond is not None:
+                print(f"{prefix}  fals_cond:")
+                self.fals_cond.print_tree(prefix+"    ")
+
+
+        print(f"{prefix}  true_stmt:")
+        self.true_stmt.print_tree(prefix+"    ")
+
+        if self.fals_stmt is not None:
+            print(f"{prefix}  fals_stmt:")
+            self.fals_stmt.print_tree(prefix+"    ")
+
+    def deliver_if_conditions(self, cond):
+        # static if() statements ignore incoming conditions, but must apply
+        # them down through the body(s) because there might be runtime if()
+        # statements inside.
+        self.true_stmt.deliver_if_conditions(cond)
+        if self.fals_stmt is not None:
+            self.fals_stmt.deliver_if_conditions(cond)
+
+    def populate_name_scopes(self, ns_pub,ns_pri):
+        # see comments in BlockStmt about why we change the NameScope objs
+
+        self.true_ns = NameScope(ns_pri)
+        self.true_stmt.populate_name_scopes(None, self.true_ns)
+
+        if self.fals_stmt is not None:
+            self.fals_ns = NameScope(ns_pri)
+            self.fals_stmt.populate_name_scopes(None, self.fals_ns)
+
+    def resolve_name_lookups(self, ns_pri):
+        # the *condition* expressions should use the enclosing name scope.
+        # But the statements need the interior ones.
+
+        self.cond.resolve_name_lookups(ns_pri)
+
+        self.true_stmt.resolve_name_lookups(self.true_ns)
+        if self.fals_stmt is not None:
+            self.fals_stmt.resolve_name_lookups(self.fals_ns)
+
+    def convert_exprs_to_metatypes(self):
+        self.cond = self.cond.convert_to_metatype("right")
+        if not isinstance(self.cond, mt_StaticExpr) or self.cond.typ_ != staticType_bool:
+            raise HWCCompile_SyntaxError(self.lineInfo, "The condition of static if() statements must resolve to bool")
+
+        self.true_stmt.convert_exprs_to_metatypes()
+        if self.fals_stmt is not None:
+            self.fals_stmt.convert_exprs_to_metatypes()
+
+    def calc_sizes(self):
+        self.cond.calc_sizes()
+        self.cond = self.cond.resolve_static_expr()
+        assert type(self.cond) == bool
+
+        if self.cond:
+            self.true_stmt.calc_sizes()
+            self.decl_bitSize = self.true_stmt.decl_bitSize
+
+        else:
+            if self.fals_stmt is not None:
+                self.fals_stmt.calc_sizes()
+                self.decl_bitSize = self.fals_stmt.decl_bitSize
+            else:
+                self.decl_bitSize = 0
+
+    def calc_top_down_offsets(self, offset):
+        if self.cond:
+            self.true_stmt.calc_top_down_offsets(offset)
+        else:
+            if self.fals_stmt is not None:
+                self.fals_stmt.calc_top_down_offsets(offset)
+
+    def calc_bottom_up_offsets(self):
+        if self.cond:
+            self.true_stmt.calc_bottom_up_offsets()
+        else:
+            if self.fals_stmt is not None:
+                self.fals_stmt.calc_bottom_up_offsets()
+
+    def print_bit_descriptions(self, name, start_bit):
+        if self.cond:
+            self.true_stmt.print_bit_descriptions(name, start_bit)
+        else:
+            if self.fals_stmt is not None:
+                self.fals_stmt.print_bit_descriptions(name, start_bit)
+
+    def print_wiring_diagram(self, start_bit):
+        if self.cond:
+            self.true_stmt.print_wiring_diagram(start_bit)
+        else:
+            if self.fals_stmt is not None:
+                self.fals_stmt.print_wiring_diagram(start_bit)
+
+
+
 class g_AssertStmt(ASTNode):
     def __init__(self, lineInfo, is_static, expr):
         self.lineInfo = lineInfo
@@ -1240,6 +1363,9 @@ class g_BinaryExpr(ASTNode):
 
             else:
                 return mt_StaticExpr_CMP(self.lineInfo, self.lft, self.op, self.rgt)
+
+        elif self.op in ["<","<=",">",">="]:
+            return mt_StaticExpr_CMP(self.lineInfo, self.lft, self.op, self.rgt)
 
         elif self.op in ["&", "&&"]:
             return mt_PlugExpr_Logic(self.lineInfo, self.lft, "AND", self.rgt)

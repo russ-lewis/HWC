@@ -35,6 +35,8 @@ class mt_StaticExpr_NumExpr(mt_StaticExpr):
 
 
 class mt_StaticExpr_Bool(mt_StaticExpr):
+    typ_ = staticType_bool
+
     def __init__(self, val):
         assert val in ["true","false"]
         self.val = (val == "true")
@@ -49,6 +51,8 @@ class mt_StaticExpr_Bool(mt_StaticExpr):
 
 
 class mt_StaticExpr_ADD(mt_StaticExpr):
+    typ_ = staticType_int
+
     def __init__(self, lineInfo, lft,rgt):
         self.lineInfo = lineInfo
         self.lft      = lft
@@ -76,6 +80,8 @@ class mt_StaticExpr_ADD(mt_StaticExpr):
 
 
 class mt_StaticExpr_MUL(mt_StaticExpr):
+    typ_ = staticType_int
+
     def __init__(self, lineInfo, lft,rgt):
         self.lineInfo = lineInfo
         self.lft      = lft
@@ -96,6 +102,8 @@ class mt_StaticExpr_MUL(mt_StaticExpr):
 
 
 class mt_StaticExpr_MOD(mt_StaticExpr):
+    typ_ = staticType_int
+
     def __init__(self, lineInfo, lft,rgt):
         self.lineInfo = lineInfo
         self.lft      = lft
@@ -116,6 +124,8 @@ class mt_StaticExpr_MOD(mt_StaticExpr):
 
 
 class mt_StaticExpr_CMP(mt_StaticExpr):
+    typ_ = staticType_bool
+
     def __init__(self, lineInfo, lft,op,rgt):
         assert lft is not None and rgt is not None
         assert not isinstance(lft, mt_PlugExpr) and not isinstance(lft, mt_PlugExpr)
@@ -251,8 +261,6 @@ class mt_StaticExpr_CMP(mt_StaticExpr):
 
 
 class mt_StaticExpr_NOT(mt_StaticExpr):
-    is_lhs = False
-
     def __init__(self, lineInfo, rgt):
         self.lineInfo = lineInfo
 
@@ -278,8 +286,12 @@ class mt_StaticExpr_NOT(mt_StaticExpr):
 
 
 class mt_StaticExpr_GetProp(mt_StaticExpr):
+    typ_ = staticType_int
+
     def __init__(self, lineInfo, prop, exp):
         self.lineInfo = lineInfo
+
+        assert prop in ["sizeof","len"]    # typeof must be declared as a PartDecl or PlugDecl
 
         self.prop = prop
         self.exp  = exp
