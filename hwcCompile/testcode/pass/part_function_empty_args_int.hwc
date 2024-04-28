@@ -1,0 +1,6 @@
+part function Empty(int N) {}
+
+part main {
+    Empty foo;
+}
+

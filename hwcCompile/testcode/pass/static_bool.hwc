@@ -1,0 +1,5 @@
+part main {
+    bool x = true;
+    bool y;
+    y = false;
+}

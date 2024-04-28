@@ -1,0 +1,6 @@
+part main {
+    bool x,y,z;
+    x = true;
+    y = !x;
+    z = !!!x;
+}
