@@ -249,7 +249,12 @@ class HWCAstGenerator(hwcListener):
             op = ctx.op.text
             assert op in ["!", "-", "~"]
             lineInfo = self.build_line_info(ctx.op)
-            ctx.ast = ast.g_UnaryExpr(lineInfo, op, ctx.right.ast)
+
+            if op == "-":
+                lft     = ast.g_NumExpr("0")
+                ctx.ast = ast.g_UnaryExpr(lineInfo, lft, op, ctx.right.ast)
+            else:
+                ctx.ast = ast.g_UnaryExpr(lineInfo,      op, ctx.right.ast)
 
 
     def exitExpr8(self, ctx):
