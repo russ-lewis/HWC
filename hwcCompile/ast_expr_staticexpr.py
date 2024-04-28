@@ -19,16 +19,8 @@ class mt_StaticExpr_NumExpr(mt_StaticExpr):
 
     def convert_to_metatype(self, side):
         return self
-
     def calc_sizes(self):
         pass
-
-    def resolve_static_expr(self):
-        return self.num
-
-    def calc_sizes(self):
-        pass
-
     def resolve_static_expr(self):
         return self.num
 
@@ -43,23 +35,27 @@ class mt_StaticExpr_Bool(mt_StaticExpr):
     def dup(self):
         return self
 
-    def resolve_static_expr(self):
-        return self.val
+    def convert_to_metatype(self, side):
+        return self
     def calc_sizes(self):
         pass
+    def resolve_static_expr(self):
+        return self.val
 
 
 
-class mt_StaticExpr_ADD(mt_StaticExpr):
+# these are static expressions, taking two int inputs, which produce int results
+class mt_StaticExpr_BinaryOp(mt_StaticExpr):
     typ_ = staticType_int
 
-    def __init__(self, lineInfo, lft,rgt):
+    def __init__(self, lineInfo, lft,op,rgt):
         self.lineInfo = lineInfo
         self.lft      = lft
+        self.op       = op
         self.rgt      = rgt
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_StaticExpr_ADD:    {self.lineInfo}")
+        print(f"{prefix}mt_StaticExpr_BinaryOp: op: {self.op}    {self.lineInfo}")
         print(f"{prefix}  lft:")
         self.lft.print_tree(prefix+"    ")
         print(f"{prefix}  rgt:")
@@ -75,72 +71,64 @@ class mt_StaticExpr_ADD(mt_StaticExpr):
         assert type(lft) == int
         assert type(rgt) == int
 
-        return lft + rgt
+        if self.op == "+":
+            return lft + rgt
+        elif self.op == "-":
+            return lft - rgt
+        elif self.op == "*":
+            return lft * rgt
+        elif self.op == "/":
+            return lft // rgt
+        elif self.op == "%":
+            return lft % rgt
+
+        elif self.op == "&":
+            return lft & rgt
+        elif self.op == "|":
+            return lft | rgt
+        elif self.op == "^":
+            return lft ^ rgt
+
+        else:
+            assert False
 
 
 
-class mt_StaticExpr_MUL(mt_StaticExpr):
-    typ_ = staticType_int
-
-    def __init__(self, lineInfo, lft,rgt):
-        self.lineInfo = lineInfo
-        self.lft      = lft
-        self.rgt      = rgt
-
-    def calc_sizes(self):
-        self.lft.calc_sizes()
-        self.rgt.calc_sizes()
-
-    def resolve_static_expr(self):
-        lft = self.lft.resolve_static_expr()
-        rgt = self.rgt.resolve_static_expr()
-        assert type(lft) == int
-        assert type(rgt) == int
-
-        return lft * rgt
-
-
-
-class mt_StaticExpr_MOD(mt_StaticExpr):
-    typ_ = staticType_int
-
-    def __init__(self, lineInfo, lft,rgt):
-        self.lineInfo = lineInfo
-        self.lft      = lft
-        self.rgt      = rgt
-
-    def calc_sizes(self):
-        self.lft.calc_sizes()
-        self.rgt.calc_sizes()
-
-    def resolve_static_expr(self):
-        lft = self.lft.resolve_static_expr()
-        rgt = self.rgt.resolve_static_expr()
-        assert type(lft) == int
-        assert type(rgt) == int
-
-        return lft % rgt
-
-
-
+# these are expressions, taking two inputs (ints, bools, part decls, or plug decls)
+# and compares them, producing a bool answer
 class mt_StaticExpr_CMP(mt_StaticExpr):
     typ_ = staticType_bool
 
     def __init__(self, lineInfo, lft,op,rgt):
-        assert lft is not None and rgt is not None
-        assert not isinstance(lft, mt_PlugExpr) and not isinstance(lft, mt_PlugExpr)
-
-        if isinstance(lft, mt_PartExpr) or isinstance(lft, mt_PartExpr):
-            raise HWCCompile_SyntaxError(lineInfo, "Part expressions cannot be compared.  Compare the public fields of the parts instead.")
-
         self.lineInfo = lineInfo
+
+        if isinstance(lft, mt_PartDecl):
+            if op not in ["==","!="]:
+                raise HWCCompile_SyntaxError(self.lineInfo, "The operator '{op}' is not valid with a part type")
+            if not isinstance(rgt, mt_PartDecl):
+                raise HWCCompile_SyntaxError(self.lineInfo, "Part types can only be compared to other part types")
+
+        elif isinstance(lft, mt_PlugDecl):
+            if op not in ["==","!="]:
+                raise HWCCompile_SyntaxError(self.lineInfo, "The operator '{op}' is not valid with a plug type")
+            if not isinstance(rgt, mt_PlugDecl):
+                raise HWCCompile_SyntaxError(self.lineInfo, "Plug types can only be compared to other plug types")
+
+        else:
+            if not isinstance(lft, mt_StaticExpr) or not isinstance(rgt, mt_StaticExpr):
+                if op in ["==","!="]:
+                    raise HWCCompile_SyntaxError(self.lineinfo, "The operator '{op}' can only compare similar types to each other")
+                else:
+                    raise HWCCompile_SyntaxError(self.lineinfo, "The operator '{op}' can only compare integers")
+            if lft.typ_ != rgt.typ_:
+                raise HWCCompile_SyntaxError(self.lineInfo, "Cannot compare mismatched static types")
 
         self.lft  = lft
         self.op   = op
         self.rgt  = rgt
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_StaticExpr_EQ:")
+        print(f"{prefix}mt_StaticExpr_CMP: op {self.op}")
         print(f"{prefix}  lft:")
         self.lft.print_tree(prefix+"    ")
 
@@ -158,105 +146,34 @@ class mt_StaticExpr_CMP(mt_StaticExpr):
     def calc_sizes(self):
         self.lft.calc_sizes()
         self.rgt.calc_sizes()
-        self.calc_sizes_has_been_called = True
 
     def resolve_static_expr(self):
-        assert self.calc_sizes_has_been_called    # sanity check.  TODO: remove soon
+        if isinstance(self.lft, mt_StaticExpr):
+            assert isinstance(self.rgt, mt_StaticExpr)
+            self.lft = self.lft.resolve_static_expr()
+            self.rgt = self.rgt.resolve_static_expr()
 
-        if isinstance(self.rgt, mt_StaticExpr):
-            if not isinstance(self.rgt, mt_StaticExpr):
-                raise HWCCommpile_SyntaxError(self.lineInfo, "Mismatched types for comparison: '{self.lft.typ_}' {self.op} '{self.rgt.typ_}'")
-
-            lft = self.lft.resolve_static_expr()
-            rgt = self.rgt.resolve_static_expr()
-
+        if self.op in ["==","!="]:
             if self.op == "==":
-                return lft == rgt
-            if self.op == "!=":
-                return lft != rgt
-            if self.op == "<":
-                return lft < rgt
-            if self.op == "<=":
-                return lft < rgt
-            if self.op == ">":
-                return lft < rgt
-            if self.op == ">=":
-                return lft < rgt
+                return self.lft == self.rgt
+            else:
+                return self.lft != self.rgt
 
-            print(self.op)
-            TODO()    # what is this op???
+        # for all other ops, we *must* have integer inputs
+        assert type(self.lft) == int
+        assert type(self.rgt) == int
 
-        # the other expression types can only do simple equality checking.  So
-        # sanity check that the left side and right side have matching types;
-        # then you can use common code throughout.
-
-        if isinstance(self.rgt, mt_PlugDecl):
-            if not isinstance(self.rgt, mt_PlugDecl):
-                raise HWCCommpile_SyntaxError(self.lineInfo, "Mismatched types for comparison: '{self.lft.typ_}' {self.op} '{self.rgt.typ_}'")
-
-        elif isinstance(self.rgt, mt_PartDecl):
-            if not isinstance(self.rgt, mt_PartDecl):
-                raise HWCCommpile_SyntaxError(self.lineInfo, "Mismatched types for comparison: '{self.lft.typ_}' {self.op} '{self.rgt.typ_}'")
-
-        elif isinstance(self.rgt, mt_StaticType):
-            if not isinstance(self.rgt, mt_StaticType):
-                raise HWCCommpile_SyntaxError(self.lineInfo, "Mismatched types for comparison: '{self.lft.typ_}' {self.op} '{self.rgt.typ_}'")
+        if self.op == "<":
+            return self.lft < self.rgt
+        elif self.op == "<=":
+            return self.lft < self.rgt
+        elif self.op == ">":
+            return self.lft < self.rgt
+        elif self.op == ">=":
+            return self.lft < self.rgt
 
         else:
-            print(self.lft)
-            TODO()    # what type is this???
-
-        # ready to do the actual comparison
-        if self.op == "==":
-            return self.lft == self.rgt
-        if self.op == "!=":
-            return self.lft != self.rgt
-
-        print(self.op)
-        TODO()    # what is this op???
-
-    def calc_top_down_offsets(self, offset):
-        assert self.offset is None
-
-        self.lft.calc_top_down_offsets(offset)
-        if isinstance(self.rgt, mt_PlugExpr):
-            self.rgt.calc_top_down_offsets(offset + self.lft.decl_bitSize)
-
-        if type(self.rgt) in [int,bool]:
-            rgtSize = 0
-        else:
-            rgtSize = self.rgt.decl_bitSize
-
-        self.offset = offset + self.lft.decl_bitSize + rgtSize
-
-#        print(f"TOP-DOWN OFFSETS (EQ) : {offset} : sizes {self.lft.decl_bitSize} {self.rgt.decl_bitSize if type(self.rgt) != int else '<int>'} : {self.lft.offset} {self.rgt.offset if type(self.rgt) != int else '---'}")
-
-    def calc_bottom_up_offsets(self):
-        self.lft.calc_bottom_up_offsets()
-        if isinstance(self.rgt, mt_PlugExpr):
-            self.rgt.calc_bottom_up_offsets()
-
-    def print_bit_descriptions(self, name, start_bit):
-        self.lft.print_bit_descriptions(name, start_bit)
-        if isinstance(self.rgt, mt_PlugExpr):
-            self.rgt.print_bit_descriptions(name, start_bit)
-
-        if self.typ_.decl_bitSize == 1:
-            endStr = ""
-        else:
-            endStr = f"{start_bit+self.offset+self.typ_.decl_bitSize}"
-        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{start_bit + self.offset}")
-
-    def print_wiring_diagram(self, start_bit):
-        self.lft.print_wiring_diagram(start_bit)
-
-        if isinstance(self.rgt, mt_PlugExpr):
-            self.rgt.print_wiring_diagram(start_bit)
-            rgtStr = f"{start_bit + self.rgt.offset}"
-        else:
-            rgtStr = f"int({self.rgt})"
-
-        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {rgtStr} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
+            assert False
 
 
 

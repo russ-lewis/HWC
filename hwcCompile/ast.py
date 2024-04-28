@@ -1377,16 +1377,8 @@ class g_BinaryExpr(ASTNode):
         elif self.op == "concat":
             return mt_PlugExpr_Discontig(self.lineInfo, [self.lft, self.rgt])
 
-        elif self.op == "+":
-            return mt_StaticExpr_ADD(self.lineInfo, self.lft, self.rgt)
-        elif self.op == "-":
-            return mt_StaticExpr_SUB(self.lineInfo, self.lft, self.rgt)
-        elif self.op == "*":
-            return mt_StaticExpr_MUL(self.lineInfo, self.lft, self.rgt)
-        elif self.op == "/":
-            return mt_StaticExpr_DIV(self.lineInfo, self.lft, self.rgt)
-        elif self.op == "%":
-            return mt_StaticExpr_MOD(self.lineInfo, self.lft, self.rgt)
+        elif self.op in "+-*/%":
+            return mt_StaticExpr_BinaryOp(self.lineInfo, self.lft, self.op, self.rgt)
 
         else:
             print(f"failed op: {self.op}    line: {self.lineInfo}")
