@@ -3,4 +3,8 @@ part main {
     x = true;
     y = !x;
     z = !!!x;
+
+    bit X = x;
+    bit Y = y;
+    bit Z = z;
 }
