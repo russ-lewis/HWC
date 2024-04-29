@@ -9,7 +9,7 @@ part main {
     a = x-z;
     b = a*z;
     c = b/a;
-    d = c/b;
+    d = x%a;
 
     int e,f,g;
     e = d&c;
@@ -21,16 +21,16 @@ part main {
     int i = ~h;
 
 
-    bit[8] X = x;
-    bit[8] Y = -y;
-    bit[8] Z = -z;
-    bit[8] A = a;
-    bit[8] B = -b;
-    bit[8] C = -c;
-    bit[8] D = d;
-    bit[8] E = e;
-    bit[8] F = f;
-    bit[8] G = g;
-    bit[8] H = h;
-    bit[8] I = -i;
+    bit[8] X =     x;
+    bit[8] Y = 256+y;       // was negative
+    bit[8] Z = 256+z;       // was negative
+    bit[8] A =     a;
+    bit[8] B = 256+b;       // was negative
+    bit[8] C = 256+c;       // was negative
+    bit[8] D =     d;
+    bit[8] E =     e;
+    bit[8] F =     f;
+    bit[8] G =     g;
+    bit[8] H =     h;
+    bit[8] I = 256+i;       // was negative
 }

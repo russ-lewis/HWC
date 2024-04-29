@@ -493,8 +493,10 @@ class g_DeclStmt(ASTNode):
                 self.initVal = mt_PlugExpr_BitArray(self.lineInfo, dest_wid, self.initVal)
 
             elif type(self.initVal) == int and self.typ_ == staticType_int:
-                self.static_val = self.initVal
-                self.initVal    = None
+                self.static_val   = self.initVal
+                self.initVal      = None
+                self.decl_bitSize = 0
+                return
 
             elif type(self.initVal) == int:
                 raise HWC_SyntaxError(self.lineInfo, "Integer expressions can be used as initializers only for int variables, or runtime expressions of type bit or bit[]")
@@ -505,6 +507,8 @@ class g_DeclStmt(ASTNode):
             elif type(self.initVal) == bool and self.typ_ == staticType_bool:
                 self.static_val = self.initVal
                 self.initVal    = None
+                self.decl_bitSize = 0
+                return
 
             elif type(self.initVal) == bool:
                 raise HWC_SyntaxError(self.lineInfo, "Boolean expressions can be used as initializers only for bool variables, or runtime expressions of type bit")
@@ -754,6 +758,13 @@ class g_ConnStmt(ASTNode):
                     TODO()    # report syntax error, value doesn't fit
                 self.rhs = mt_PlugExpr_BitArray(self.lineInfo, dest_wid, self.rhs)
 
+            elif type(self.lhs) == mt_StaticExpr_Var:
+                if self.lhs.decl.typ_ != staticType_int:
+                    raise HWCCompile_SyntaxError(self.lineInfo, "Compile-time integer variables can only take compile-time integer values")
+                self.lhs.decl.static_val = self.rhs
+                self.decl_bitSize        = 0
+                return
+
             else:
                 TODO()    # report syntax error
 
@@ -761,8 +772,12 @@ class g_ConnStmt(ASTNode):
             if self.lhs.typ_ == plugType_bit:
                 self.rhs = mt_PlugExpr_Bit(1 if self.rhs else 0)
 
-            elif self.lhs.typ_ == staticType_bool:
-                TODO()
+            elif type(self.lhs) == mt_StaticExpr_Var:
+                if self.lhs.decl.typ_ != staticType_bool:
+                    raise HWCCompile_SyntaxError(self.lineInfo, "Compile-time bool variables can only take compile-time bool values")
+                self.lhs.decl.static_val = self.rhs
+                self.decl_bitSize        = 0
+                return
 
             else:
                 TODO()    # report syntax error.  Can't assign true/false to bit[]
@@ -796,6 +811,9 @@ class g_ConnStmt(ASTNode):
         self.decl_bitSize = cond_size + self.lhs.decl_bitSize + self.rhs.decl_bitSize
 
     def calc_top_down_offsets(self, offset):
+        if type(self.lhs) == mt_StaticExpr_Var:
+            return
+
         if self.cond is None:
             running_offset = offset
         else:
@@ -806,18 +824,27 @@ class g_ConnStmt(ASTNode):
         self.rhs.calc_top_down_offsets(running_offset + self.lhs.decl_bitSize)
 
     def calc_bottom_up_offsets(self):
+        if type(self.lhs) == mt_StaticExpr_Var:
+            return
+
         if self.cond is not None:
             self.cond.calc_bottom_up_offsets()
         self.lhs .calc_bottom_up_offsets()
         self.rhs .calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        if type(self.lhs) == mt_StaticExpr_Var:
+            return
+
         if self.cond is not None:
             self.cond.print_bit_descriptions(name, start_bit)
         self.lhs.print_bit_descriptions(name, start_bit)
         self.rhs.print_bit_descriptions(name, start_bit)
 
     def print_wiring_diagram(self, start_bit):
+        if type(self.lhs) == mt_StaticExpr_Var:
+            return
+
         if self.cond is not None:
             self.cond.print_wiring_diagram(start_bit)
 

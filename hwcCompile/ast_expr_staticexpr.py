@@ -192,6 +192,9 @@ class mt_StaticExpr_BitwiseNOT_Int(mt_StaticExpr):
     def convert_to_metatype(self, side):
         return self
 
+    def calc_sizes(self):
+        self.rgt.calc_sizes()
+
     def resolve_static_expr(self):
         rgt = self.rgt.resolve_static_expr()
         if type(rgt) != int:

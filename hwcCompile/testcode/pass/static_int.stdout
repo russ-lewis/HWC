@@ -1,0 +1,25 @@
+#      0      8 main.X
+#      8     16 main.Y
+#     16     24 main.Z
+#     24     32 main.A
+#     32     40 main.B
+#     40     48 main.C
+#     48     56 main.D
+#     56     64 main.E
+#     64     72 main.F
+#     72     80 main.G
+#     80     88 main.H
+#     88     96 main.I
+
+conn 0 <= int(1) size 8    # TODO: line number
+conn 8 <= int(254) size 8    # TODO: line number
+conn 16 <= int(255) size 8    # TODO: line number
+conn 24 <= int(2) size 8    # TODO: line number
+conn 32 <= int(254) size 8    # TODO: line number
+conn 40 <= int(255) size 8    # TODO: line number
+conn 48 <= int(1) size 8    # TODO: line number
+conn 56 <= int(1) size 8    # TODO: line number
+conn 64 <= int(1) size 8    # TODO: line number
+conn 72 <= int(0) size 8    # TODO: line number
+conn 80 <= int(0) size 8    # TODO: line number
+conn 88 <= int(255) size 8    # TODO: line number
