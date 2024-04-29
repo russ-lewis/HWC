@@ -184,8 +184,6 @@ class mt_StaticExpr_BitwiseNOT_Int(mt_StaticExpr):
         assert isinstance(rgt, mt_StaticExpr)
         self.rgt  = rgt
         self.typ_ = rgt.typ_
-        self.decl_bitSize = None
-        self.offset       = None
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_StaticExpr_BitwiseNOT_Int:")
@@ -209,8 +207,6 @@ class mt_StaticExpr_BooleanNOT_Bool(mt_StaticExpr):
         assert isinstance(rgt, mt_StaticExpr)
         self.rgt  = rgt
         self.typ_ = rgt.typ_
-        self.decl_bitSize = None
-        self.offset       = None
 
     def print_tree(self, prefix):
         print(f"{prefix}mt_StaticExpr_BooleanNOT_Bool:")
