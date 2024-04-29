@@ -28,3 +28,5 @@ user interaction:
 
 - Small sound card (perhaps comparable to Nintendo)?
 
+- un-gzip ASIC
+
