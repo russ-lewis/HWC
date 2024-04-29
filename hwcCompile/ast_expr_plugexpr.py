@@ -832,6 +832,10 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
             self.rgt.calc_bottom_up_offsets()
 
     def print_bit_descriptions(self, name, start_bit):
+        self.op_name = {"&":"AND", "&&":"AND",
+                        "|":"OR" , "||":"OR" ,
+                        "^":"XOR"            }[self.op]
+
         self.lft.print_bit_descriptions(name, start_bit)
         if isinstance(self.rgt, mt_PlugExpr):
             self.rgt.print_bit_descriptions(name, start_bit)
@@ -840,7 +844,7 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
             endStr = ""
         else:
             endStr = f"{start_bit+self.offset+self.typ_.decl_bitSize}"
-        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op}_{self.offset}")
+        print(f"# {start_bit+self.offset:6d} {endStr:6s} {name}._{self.op_name}_{self.offset}")
 
     def print_wiring_diagram(self, start_bit):
         self.lft.print_wiring_diagram(start_bit)
@@ -851,7 +855,7 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
         else:
             rgtStr = f"int({self.rgt})"
 
-        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op} {rgtStr} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
+        print(f"logic {start_bit+self.offset} <= {start_bit+self.lft.offset} {self.op_name} {rgtStr} size {self.typ_.decl_bitSize}    # {self.lineInfo}")
 
 
 

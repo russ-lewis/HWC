@@ -1351,8 +1351,8 @@ class g_BinaryExpr(ASTNode):
         self.lft = self.lft.convert_to_metatype("right")
         self.rgt = self.rgt.convert_to_metatype("right")
 
-        if   self.op in ["==","!="]:
-            if   isinstance(self.lft, mt_PlugExpr) or isinstance(self.rgt, mt_PlugExpr):
+        if self.op in ["==","!="]:
+            if isinstance(self.lft, mt_PlugExpr) or isinstance(self.rgt, mt_PlugExpr):
                 eq = mt_PlugExpr_EQ(self.lineInfo,
                                     self.lft, "EQ", self.rgt, single_bit_result=True)
 
@@ -1362,27 +1362,41 @@ class g_BinaryExpr(ASTNode):
                     return mt_PlugExpr_NOT(self.lineInfo, eq);
 
             else:
-                return mt_StaticExpr_CMP(self.lineInfo, self.lft, self.op, self.rgt)
+                return mt_StaticExpr_BinaryOp_Bool(self.lineInfo, self.lft, self.op, self.rgt)
 
         elif self.op in ["<","<=",">",">="]:
-            return mt_StaticExpr_CMP(self.lineInfo, self.lft, self.op, self.rgt)
+            return mt_StaticExpr_BinaryOp_Bool(self.lineInfo, self.lft, self.op, self.rgt)
 
-        elif self.op in ["&", "&&"]:
-            return mt_PlugExpr_Logic(self.lineInfo, self.lft, "AND", self.rgt)
-        elif self.op in ["|", "||"]:
-            return mt_PlugExpr_Logic(self.lineInfo, self.lft, "OR",  self.rgt)
-        elif self.op in ["^"]:
-            return mt_PlugExpr_Logic(self.lineInfo, self.lft, "XOR", self.rgt)
+        elif self.op in "&|^":
+            if isinstance(self.lft, mt_PlugExpr) or isinstance(self.rgt, mt_PlugExpr):
+                return mt_PlugExpr_Logic(self.lineInfo, self.lft, self.op, self.rgt)
+
+            elif isinstance(self.lft, mt_StaticExpr):
+                if self.lft.typ_ == staticType_int:
+                    return mt_StaticExpr_BinaryOp_Int (self.lineInfo, self.lft, self.op, self.rgt)
+                else:
+                    return mt_StaticExpr_BinaryOp_Bool(self.lineInfo, self.lft, self.op, self.rgt)
+
+            elif isinstance(self.lft, mt_PlugExpr):
+                return mt_PlugExpr_BinaryOp(self.lineInfo, self.lft, self.op, self.rgt)
+
+            else:
+                raise HWCCompile_SyntaxError(self.lineInfo, f"Operator '{self.op}' - invalid operands")
+
+        elif self.op in ["&&","||"]:
+            if isinstance(self.lft, mt_PlugExpr) or isinstance(self.rgt, mt_PlugExpr):
+                return mt_PlugExpr_Logic(self.lineInfo, self.lft, self.op, self.rgt)
+            elif isinstance(self.lft, mt_StaticExpr):
+                return mt_StaticExpr_BinaryOp_Bool(self.lineInfo, self.lft, self.op, self.rgt)
 
         elif self.op == "concat":
             return mt_PlugExpr_Discontig(self.lineInfo, [self.lft, self.rgt])
 
         elif self.op in "+-*/%":
-            return mt_StaticExpr_BinaryOp(self.lineInfo, self.lft, self.op, self.rgt)
+            return mt_StaticExpr_BinaryOp_Int(self.lineInfo, self.lft, self.op, self.rgt)
 
         else:
-            print(f"failed op: {self.op}    line: {self.lineInfo}")
-            TODO()      # add support for more operators
+            assert False, self.op
 
 
 

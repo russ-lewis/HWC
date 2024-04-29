@@ -45,7 +45,7 @@ class mt_StaticExpr_Bool(mt_StaticExpr):
 
 
 # these are static expressions, taking two int inputs, which produce int results
-class mt_StaticExpr_BinaryOp(mt_StaticExpr):
+class mt_StaticExpr_BinaryOp_Int(mt_StaticExpr):
     typ_ = staticType_int
 
     def __init__(self, lineInfo, lft,op,rgt):
@@ -55,7 +55,7 @@ class mt_StaticExpr_BinaryOp(mt_StaticExpr):
         self.rgt      = rgt
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_StaticExpr_BinaryOp: op: {self.op}    {self.lineInfo}")
+        print(f"{prefix}mt_StaticExpr_BinaryOp_Int: op: {self.op}    {self.lineInfo}")
         print(f"{prefix}  lft:")
         self.lft.print_tree(prefix+"    ")
         print(f"{prefix}  rgt:")
@@ -96,7 +96,7 @@ class mt_StaticExpr_BinaryOp(mt_StaticExpr):
 
 # these are expressions, taking two inputs (ints, bools, part decls, or plug decls)
 # and compares them, producing a bool answer
-class mt_StaticExpr_CMP(mt_StaticExpr):
+class mt_StaticExpr_BinaryOp_Bool(mt_StaticExpr):
     typ_ = staticType_bool
 
     def __init__(self, lineInfo, lft,op,rgt):
@@ -128,7 +128,7 @@ class mt_StaticExpr_CMP(mt_StaticExpr):
         self.rgt  = rgt
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_StaticExpr_CMP: op {self.op}")
+        print(f"{prefix}mt_StaticExpr_BinaryOp_Bool: op {self.op}")
         print(f"{prefix}  lft:")
         self.lft.print_tree(prefix+"    ")
 
