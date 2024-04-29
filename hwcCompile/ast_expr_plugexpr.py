@@ -992,7 +992,7 @@ class mt_PlugExpr_Discontig(mt_PlugExpr):
 
 
 
-class mt_PlugExpr_NOT(mt_PlugExpr):
+class mt_PlugExpr_BitwiseNOT(mt_PlugExpr):
     is_lhs = False
 
     def __init__(self, lineInfo, rgt):
@@ -1005,7 +1005,7 @@ class mt_PlugExpr_NOT(mt_PlugExpr):
         self.offset       = None
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_PlugExpr_NOT:")
+        print(f"{prefix}mt_PlugExpr_BitwiseNOT:")
         self.rgt.print_tree(prefix+"  ")
 
     def convert_to_metatype(self, side):

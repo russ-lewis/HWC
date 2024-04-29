@@ -1359,7 +1359,7 @@ class g_BinaryExpr(ASTNode):
                 if self.op == "==":
                     return eq
                 else:
-                    return mt_PlugExpr_NOT(self.lineInfo, eq);
+                    return mt_PlugExpr_BitwiseNOT(self.lineInfo, eq);
 
             else:
                 return mt_StaticExpr_BinaryOp_Bool(self.lineInfo, self.lft, self.op, self.rgt)
@@ -1428,16 +1428,26 @@ class g_UnaryExpr(ASTNode):
 
         if self.op == "!":
             if isinstance(self.rgt, mt_PlugExpr):
-                return mt_PlugExpr_NOT(self.lineInfo, self.rgt)
+                if self.rgt.typ_ != plugType_bit:
+                    raise HWCCompile_SyntaxError(self.lineInfo, "The value in a '!' operator must be either a compile-time bool or a runtime bit")
+                return mt_PlugExpr_BitwiseNOT(self.lineInfo, self.rgt)
+
             elif isinstance(self.rgt, mt_StaticExpr):
-                return mt_StaticExpr_NOT(self.lineInfo, self.rgt)
+                if self.rgt.typ_ != staticType_bool:
+                    raise HWCCompile_SyntaxError(self.lineInfo, "The value in a '!' operator must be either a compile-time bool or a runtime bit")
+                return mt_StaticExpr_BooleanNOT_Bool(self.lineInfo, self.rgt)
+
             else:
                 assert False    # should be impossible
 
         elif self.op == "~":
-            if not isinstance(self.rgt, mt_PlugExpr):
-                raise HWCCompile_SyntaxError(self.lineInfo, "The ~ operator can only be used on runtime expressions")
-            return mt_PlugExpr_NOT(self.lineInfo, self.rgt)
+            if isinstance(self.rgt, mt_PlugExpr):
+                return mt_PlugExpr_BitwiseNOT(self.lineInfo, self.rgt)
+            elif isinstance(self.rgt, mt_StaticExpr) and self.rgt.typ_ == staticType_int:
+                return mt_StaticExpr_BitwiseNOT_Int(self.lineInfo, self.rgt)
+
+            else:
+                raise HWCCompile_SyntaxError(self.lineInfo, "The ~ operator can only be used on runtime expressions or compile-time integers")
 
         elif self.op == "-":
             if not isinstance(self.rgt, mt_StaticExpr):

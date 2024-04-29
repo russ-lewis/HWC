@@ -177,7 +177,7 @@ class mt_StaticExpr_BinaryOp_Bool(mt_StaticExpr):
 
 
 
-class mt_StaticExpr_NOT(mt_StaticExpr):
+class mt_StaticExpr_BitwiseNOT_Int(mt_StaticExpr):
     def __init__(self, lineInfo, rgt):
         self.lineInfo = lineInfo
 
@@ -188,7 +188,32 @@ class mt_StaticExpr_NOT(mt_StaticExpr):
         self.offset       = None
 
     def print_tree(self, prefix):
-        print(f"{prefix}mt_StaticExpr_NOT:")
+        print(f"{prefix}mt_StaticExpr_BitwiseNOT_Int:")
+        self.rgt.print_tree(prefix+"  ")
+
+    def convert_to_metatype(self, side):
+        return self
+
+    def resolve_static_expr(self):
+        rgt = self.rgt.resolve_static_expr()
+        if type(rgt) != int:
+            raise HWC_SyntaxError(self.lineInfo, "The ~ operator is only valid on runtime bit[] and static int")
+        return ~rgt
+
+
+
+class mt_StaticExpr_BooleanNOT_Bool(mt_StaticExpr):
+    def __init__(self, lineInfo, rgt):
+        self.lineInfo = lineInfo
+
+        assert isinstance(rgt, mt_StaticExpr)
+        self.rgt  = rgt
+        self.typ_ = rgt.typ_
+        self.decl_bitSize = None
+        self.offset       = None
+
+    def print_tree(self, prefix):
+        print(f"{prefix}mt_StaticExpr_BooleanNOT_Bool:")
         self.rgt.print_tree(prefix+"  ")
 
     def convert_to_metatype(self, side):
