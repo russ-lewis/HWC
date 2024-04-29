@@ -2,4 +2,7 @@ part main {
     bool x = true;
     bool y;
     y = false;
+
+    bit X = x;
+    bit Y = y;
 }

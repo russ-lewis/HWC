@@ -1,0 +1,5 @@
+#      0        main.X
+#      1        main.Y
+
+conn 0 <= int(1) size 1    # TODO: line number
+conn 1 <= int(0) size 1    # TODO: line number
