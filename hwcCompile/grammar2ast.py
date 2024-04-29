@@ -252,9 +252,9 @@ class HWCAstGenerator(hwcListener):
 
             if op == "-":
                 lft     = ast.g_NumExpr("0")
-                ctx.ast = ast.g_UnaryExpr(lineInfo, lft, op, ctx.right.ast)
+                ctx.ast = ast.g_BinaryExpr(lineInfo, lft, op, ctx.right.ast)
             else:
-                ctx.ast = ast.g_UnaryExpr(lineInfo,      op, ctx.right.ast)
+                ctx.ast = ast.g_UnaryExpr (lineInfo,      op, ctx.right.ast)
 
 
     def exitExpr8(self, ctx):
