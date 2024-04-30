@@ -476,37 +476,38 @@ class g_DeclStmt(ASTNode):
         # I only support NUM->bit and NUM->bit[].  Are there any other
         # cases to handle in the future?
         if self.initVal is not None and (type(self.initVal) in [int,bool] or self.typ_ != self.initVal.typ_):
-            if type(self.initVal) == int and self.typ_ == plugType_bit:
-                if self.initVal not in [0,1]:
-                    TODO()    # report syntax error, cannot assign anything to a bit except 0,1
-                self.initVal = mt_PlugExpr_Bit(self.initVal)
-
-            elif type(self.initVal)  == int                 and \
-                 type(self.typ_)     == mt_PlugDecl_ArrayOf and \
-                      self.typ_.base ==    plugType_bit:
-
-                assert type(self.typ_.len_) == int
-                dest_wid = self.typ_.len_
-
-                if self.initVal < 0 or (self.initVal >> dest_wid) != 0:
-                    TODO()    # report syntax error, value doesn't fit
-                self.initVal = mt_PlugExpr_BitArray(self.lineInfo, dest_wid, self.initVal)
-
-            elif type(self.initVal) == int  and self.typ_ == staticType_int  or \
-                 type(self.initVal) == bool and self.typ_ == staticType_bool:
+            if type(self.initVal) == int  and self.typ_ == staticType_int  or \
+               type(self.initVal) == bool and self.typ_ == staticType_bool:
                 self.static_val   = self.initVal
                 self.initVal      = None
                 self.decl_bitSize = 0
                 return
 
-            elif type(self.initVal) == bool and self.typ_ == plugType_bit:
-                self.initVal = mt_PlugExpr_Bit(1 if self.initVal else 0)
-
             elif type(self.initVal) == int:
-                raise HWC_SyntaxError(self.lineInfo, "Integer expressions can be used as initializers only for int variables, or runtime expressions of type bit or bit[]")
+                if self.typ_ == plugType_bit:
+                    if self.initVal not in [0,1]:
+                        TODO()    # report syntax error, cannot assign anything to a bit except 0,1
+                    self.initVal = mt_PlugExpr_Bit(self.initVal)
+
+                elif type(self.typ_)     == mt_PlugDecl_ArrayOf and \
+                          self.typ_.base ==    plugType_bit:
+
+                    assert type(self.typ_.len_) == int
+                    dest_wid = self.typ_.len_
+
+                    if self.initVal < 0 or (self.initVal >> dest_wid) != 0:
+                        TODO()    # report syntax error, value doesn't fit
+                    self.initVal = mt_PlugExpr_BitArray(self.lineInfo, dest_wid, self.initVal)
+
+                else:
+                    raise HWC_SyntaxError(self.lineInfo, "Integer expressions can be used as initializers only for int variables, or runtime expressions of type bit or bit[]")
 
             elif type(self.initVal) == bool:
-                raise HWC_SyntaxError(self.lineInfo, "Boolean expressions can be used as initializers only for bool variables, or runtime expressions of type bit")
+                if self.typ_ == plugType_bit:
+                    self.initVal = mt_PlugExpr_Bit(1 if self.initVal else 0)
+
+                else:
+                    raise HWC_SyntaxError(self.lineInfo, "Boolean expressions can be used as initializers only for bool variables, or runtime expressions of type bit")
 
             else:
                 assert False, (self.lineInfo, self.typ_.len_, self.initVal.typ_.len_)    # some other weird case.  Maybe a syntax error???
