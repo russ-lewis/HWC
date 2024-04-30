@@ -4,7 +4,7 @@ from ast_expr_metatypes import *
 
 
 class mt_StaticExpr_Var(mt_StaticExpr):
-    is_lhs       = True
+    is_lhs = True
 
     def __init__(self, decl):
         assert isinstance(decl.typ_, mt_StaticType)

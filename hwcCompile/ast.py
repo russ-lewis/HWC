@@ -204,6 +204,7 @@ class g_PartOrPlugDecl(ASTNode):
 
         for s in self.stmts:
             s.calc_sizes()
+            assert type(s.decl_bitSize) == int, s
         self.decl_bitSize = sum(s.decl_bitSize for s in self.stmts)
 
     def calc_top_down_offsets(self, offset, forLoop_instOffset=None):
@@ -1294,14 +1295,16 @@ class g_AssertStmt(ASTNode):
         if self.is_static:
             if not isinstance(self.expr, mt_StaticExpr):
                 raise HWCCompile_SyntaxError(self.lineInfo, "Static assertions must resolve to static expressions.")
+            if self.expr.typ_ != staticType_bool:
+                raise HWCCompile_SyntaxError(self.lineInfo, "Static assertions must resolve to static boolean expressions.")
 
     def calc_sizes(self):
         self.expr.calc_sizes()
 
         if self.is_static:
             val = self.expr.resolve_static_expr()
-            if type(val) != bool:
-                raise HWCCompile_SyntaxError(self.lineInfo, "Static assertions must resolve to static boolean expressions.")
+            assert type(val) == bool
+
             if val == False:
                 raise HWCCompile_SyntaxError(self.lineInfo, "Static assertion failed.")
 
@@ -1474,8 +1477,8 @@ class g_UnaryExpr(ASTNode):
 
         elif self.op == "-":
             if not isinstance(self.rgt, mt_StaticExpr):
-                raise HWCCompile_SyntaxError(self.lineInfo, "The - operator can only be used on runtime expressions")
-            return mt_StaticExpr_NEG(self.lineInfo, self.rgt)
+                raise HWCCompile_SyntaxError(self.lineInfo, "The - operator can only be used on integers")
+            return mt_StaticExpr_ArithNEG(self.lineInfo, self.rgt)
 
         else:
             assert False    # should be impossible

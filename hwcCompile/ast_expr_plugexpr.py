@@ -754,8 +754,8 @@ class mt_PlugExpr_Logic(mt_PlugExpr):
     def __init__(self, lineInfo, lft,op,rgt, single_bit_result=False):
         self.lineInfo = lineInfo
 
-        assert isinstance(lft, mt_PlugExpr)
-        assert isinstance(rgt, mt_PlugExpr) or isinstance(rgt, mt_StaticExpr)
+        assert isinstance(lft, mt_PlugExpr), (lft,op)
+        assert isinstance(rgt, mt_PlugExpr) or isinstance(rgt, mt_StaticExpr), (op,rgt)
 
         self.lft  = lft
         self.op   = op
