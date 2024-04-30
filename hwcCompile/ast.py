@@ -492,23 +492,18 @@ class g_DeclStmt(ASTNode):
                     TODO()    # report syntax error, value doesn't fit
                 self.initVal = mt_PlugExpr_BitArray(self.lineInfo, dest_wid, self.initVal)
 
-            elif type(self.initVal) == int and self.typ_ == staticType_int:
+            elif type(self.initVal) == int  and self.typ_ == staticType_int  or \
+                 type(self.initVal) == bool and self.typ_ == staticType_bool:
                 self.static_val   = self.initVal
                 self.initVal      = None
                 self.decl_bitSize = 0
                 return
 
-            elif type(self.initVal) == int:
-                raise HWC_SyntaxError(self.lineInfo, "Integer expressions can be used as initializers only for int variables, or runtime expressions of type bit or bit[]")
-
             elif type(self.initVal) == bool and self.typ_ == plugType_bit:
                 self.initVal = mt_PlugExpr_Bit(1 if self.initVal else 0)
 
-            elif type(self.initVal) == bool and self.typ_ == staticType_bool:
-                self.static_val = self.initVal
-                self.initVal    = None
-                self.decl_bitSize = 0
-                return
+            elif type(self.initVal) == int:
+                raise HWC_SyntaxError(self.lineInfo, "Integer expressions can be used as initializers only for int variables, or runtime expressions of type bit or bit[]")
 
             elif type(self.initVal) == bool:
                 raise HWC_SyntaxError(self.lineInfo, "Boolean expressions can be used as initializers only for bool variables, or runtime expressions of type bit")
