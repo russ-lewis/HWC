@@ -1,0 +1,12 @@
+plug ExternalPins {    // 4004 datasheet, page 2
+    bit[4] data;    // bidirectional
+    bit    reset;   // input
+    bit    test;    // input
+    bit    cm_rom;  // output
+    bit[4] cm_ram;  // output
+
+    /* things to do with the clock, will probably be removed */
+    bit[2] clock;   // input
+    bit    sync;    // output
+}
+
